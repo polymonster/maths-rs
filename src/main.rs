@@ -7,22 +7,48 @@ use std::ops::Sub;
 use std::ops::SubAssign;
 use std::ops::Div;
 use std::ops::DivAssign;
-
+use std::ops::Neg;
+use std::cmp::PartialEq;
 use std::fmt::Display;
+use std::fmt::Formatter;
 
-trait Number: Copy + Default + Display + Add<Output=Self> + AddAssign + Mul<Output=Self> + MulAssign {
+trait Number: 
+    Copy + Default + Display + 
+    Add<Output=Self> + AddAssign + 
+    Mul<Output=Self> + MulAssign + 
+    Div<Output=Self> + DivAssign +
+    Sub<Output=Self> + SubAssign +
+    PartialEq {
 }
 
-impl Number for f32 {}
-impl Number for f64 {}
-impl Number for i32 {}
-impl Number for i64 {}
+trait SignedNumber:
+    Number + Neg<Output=Self> {
+}
 
-trait VecN<T: Number> {
+impl SignedNumber for f64 {}
+impl SignedNumber for i64 {}
+impl SignedNumber for f32 {}
+impl SignedNumber for i32 {}
+impl SignedNumber for i16 {}
+impl SignedNumber for i8 {}
+
+impl Number for f64 {}
+impl Number for i64 {}
+impl Number for u64 {}
+impl Number for f32 {}
+impl Number for i32 {}
+impl Number for u32 {}
+impl Number for i16 {}
+impl Number for u16 {}
+impl Number for i8 {}
+impl Number for u8 {}
+
+trait VecN<T: Number>: Index<usize, Output=T> {
     fn len() -> usize;
 }
 
 // Vec2
+#[derive(Debug, Copy, Clone)]
 struct Vec2<T: Number> {
     x: T,
     y: T
@@ -34,15 +60,123 @@ impl<T> VecN<T> for Vec2<T> where T: Number {
     }
 }
 
+impl<T> Display for Vec2<T> where T: Number {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(f, "[{}, {}]", self.x, self.y)
+    }
+}
+
 impl<T> Index<usize> for Vec2<T> where T: Number {
     type Output = T;
     fn index(&self, i: usize) -> &Self::Output {
         match i {
             0 => &self.x,
             1 => &self.y,
-            _ => &self.y // how to handle out of bounds access?
+            _ => &self.y
         }
     }
+}
+
+impl<T> Add for Vec2<T> where T: Number {
+    type Output = Self;
+    fn add(self, other: Self) -> Self {
+        Self {
+            x: self.x + other.x,
+            y: self.y + other.y,
+        }
+    }
+}
+
+impl<T> AddAssign for Vec2<T> where T: Number {
+    fn add_assign(&mut self, other: Self) {
+        *self = Self {
+            x: self.x + other.x,
+            y: self.y + other.y,
+        };
+    }
+}
+
+impl<T> Sub for Vec2<T> where T: Number {
+    type Output = Self;
+    fn sub(self, other: Self) -> Self {
+        Self {
+            x: self.x - other.x,
+            y: self.y - other.y,
+        }
+    }
+}
+
+impl<T> SubAssign for Vec2<T> where T: Number {
+    fn sub_assign(&mut self, other: Self) {
+        *self = Self {
+            x: self.x - other.x,
+            y: self.y - other.y,
+        };
+    }
+}
+
+impl<T> Mul for Vec2<T> where T: Number {
+    type Output = Self;
+    fn mul(self, other: Self) -> Self {
+        Self {
+            x: self.x * other.x,
+            y: self.y * other.y,
+        }
+    }
+}
+
+impl<T> MulAssign for Vec2<T> where T: Number {
+    fn mul_assign(&mut self, other: Self) {
+        *self = Self {
+            x: self.x * other.x,
+            y: self.y * other.y,
+        };
+    }
+}
+
+impl<T> Div for Vec2<T> where T: Number {
+    type Output = Self;
+    fn div(self, other: Self) -> Self {
+        Self {
+            x: self.x / other.x,
+            y: self.y / other.y,
+        }
+    }
+}
+
+impl<T> DivAssign for Vec2<T> where T: Number {
+    fn div_assign(&mut self, other: Self) {
+        *self = Self {
+            x: self.x / other.x,
+            y: self.y / other.y,
+        };
+    }
+}
+
+impl<T> Neg for Vec2<T> where T: SignedNumber {
+    type Output = Self;
+    fn neg(self) -> Self::Output {
+        Self {
+            x: -self.x,
+            y: -self.y,
+        }
+    }
+}
+
+impl<T> PartialEq for Vec2<T> where T: Number  {
+    fn eq(&self, other: &Self) -> bool {
+        self.x == other.x && self.y == other.y
+    }
+}
+
+impl<T> Eq for Vec2<T> where T: Number  {}
+
+fn dot<V: VecN<T>, T: Number>(v1: &V, v2: &V) -> T {
+    let mut r = T::default();
+    for i in 0..V::len() {
+        r += v1[i] * v2[i];
+    }
+    r
 }
 
 // Vec3
@@ -101,23 +235,26 @@ impl<T> Index<usize> for Vec4<T> {
 }
 */
 
-fn dot<V: Index<usize, Output = T> + VecN<T>, T: Number>(v1: &V, v2: &V) -> T {
-    let mut r = T::default();
-    for i in 0..V::len() {
-        r += v1[i] * v2[i];
-    }
-    r
-}
-
 fn main() {
     let v2 : Vec2<f32> = Vec2 {
         x: 2.0,
         y: 3.0
     };
 
-    let result = dot(&v2, &v2);
+    let ve : Vec2<f32> = Vec2 {
+        x: 2.0,
+        y: 3.0
+    };
 
-    println!("result = {}", result);
+    let vneg = -v2;
+    println!("neg = {}", vneg);
+
+    if v2 == ve {
+        println!("equals!");
+    }
+
+    let dp = dot(&v2, &v2);
+    println!("dot = {}", dp);
 }
 
 // constructors
