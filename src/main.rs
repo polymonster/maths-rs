@@ -12,7 +12,11 @@ use std::cmp::PartialEq;
 use std::fmt::Display;
 use std::fmt::Formatter;
 
-trait Number: 
+//
+// Vec Traits 
+//
+
+pub trait Number: 
     Copy + Default + Display + 
     Add<Output=Self> + AddAssign + 
     Mul<Output=Self> + MulAssign + 
@@ -21,8 +25,12 @@ trait Number:
     PartialEq {
 }
 
-trait SignedNumber:
+pub trait SignedNumber:
     Number + Neg<Output=Self> {
+}
+
+pub trait VecN<T: Number>: Index<usize, Output=T> {
+    fn len() -> usize;
 }
 
 impl SignedNumber for f64 {}
@@ -43,13 +51,12 @@ impl Number for u16 {}
 impl Number for i8 {}
 impl Number for u8 {}
 
-trait VecN<T: Number>: Index<usize, Output=T> {
-    fn len() -> usize;
-}
-
+//
 // Vec2
+//
+
 #[derive(Debug, Copy, Clone)]
-struct Vec2<T: Number> {
+pub struct Vec2<T: Number> {
     x: T,
     y: T
 }
@@ -171,29 +178,30 @@ impl<T> PartialEq for Vec2<T> where T: Number  {
 
 impl<T> Eq for Vec2<T> where T: Number  {}
 
-fn dot<V: VecN<T>, T: Number>(v1: &V, v2: &V) -> T {
-    let mut r = T::default();
-    for i in 0..V::len() {
-        r += v1[i] * v2[i];
-    }
-    r
-}
-
+//
 // Vec3
-/*
-struct Vec3<T> {
+//
+
+#[derive(Debug, Copy, Clone)]
+pub struct Vec3<T: Number> {
     x: T,
     y: T,
     z: T
 }
 
-impl<T> VecN<T> for Vec3<T> {
+impl<T> Vec3<T> where T: Number {
+    fn dot(x1: &Vec3<T>, x2: &Vec3<T>) -> T {
+        x1.x * x2.x + x1.y * x2.y + x1.z * x2.z
+    }
+}
+
+impl<T> VecN<T> for Vec3<T> where T: Number {
     fn len() -> usize {
         3
     }
 }
 
-impl<T> Index<usize> for Vec3<T> {
+impl<T> Index<usize> for Vec3<T> where T: Number {
     type Output = T;
     fn index(&self, i: usize) -> &Self::Output {
         match i {
@@ -204,7 +212,32 @@ impl<T> Index<usize> for Vec3<T> {
         }
     }
 }
+
+//
+// Functions
+//
+
+/*
+fn dot<V: VecN<T>, T: Number>(v1: &V, v2: &V) -> T {
+    let mut r = T::default();
+    for i in 0..V::len() {
+        r += v1[i] * v2[i];
+    }
+    r
+}
 */
+
+mod v3 {
+    pub fn dot<T: super::Number>(x1: &super::Vec3<T>, x2: &super::Vec3<T>) -> T {
+        x1.x * x2.x + x1.y * x2.y + x1.z * x2.z
+    }
+}
+
+mod v2 {
+    pub fn dot<T: super::Number>(x1: &super::Vec2<T>, x2: &super::Vec2<T>) -> T {
+        x1.x * x2.x + x1.y * x2.y
+    }
+}
 
 // Vec4
 /*
@@ -235,6 +268,8 @@ impl<T> Index<usize> for Vec4<T> {
 }
 */
 
+// use Vec3::dot;
+
 fn main() {
     let v2 : Vec2<f32> = Vec2 {
         x: 2.0,
@@ -246,6 +281,21 @@ fn main() {
         y: 3.0
     };
 
+    let vf : Vec3<f32> = Vec3 {
+        x: 1.0,
+        y: 0.0,
+        z: 1.0
+    };
+
+    let dot3 = v3::dot(&vf, &vf);
+    println!("dot3 = {}", dot3);
+
+    let dot33 = dot(&vf, &vf);
+    println!("dot33 = {}", dot3);
+
+    let dot2 = v2::dot(&ve, &ve);
+    println!("dot2 = {}", dot2);
+
     let vneg = -v2;
     println!("neg = {}", vneg);
 
@@ -253,7 +303,7 @@ fn main() {
         println!("equals!");
     }
 
-    let dp = dot(&v2, &v2);
+    let dp = v2::dot(&v2, &v2);
     println!("dot = {}", dp);
 }
 
