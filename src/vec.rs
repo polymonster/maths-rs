@@ -84,7 +84,7 @@ impl<T> Index<usize> for Vec2<T> where T: Number {
     }
 }
 
-impl<T> Add for Vec2<T> where T: Number {
+impl<T> Add<Self> for Vec2<T> where T: Number {
     type Output = Self;
     fn add(self, other: Self) -> Self {
         Self {
@@ -94,7 +94,17 @@ impl<T> Add for Vec2<T> where T: Number {
     }
 }
 
-impl<T> AddAssign for Vec2<T> where T: Number {
+impl<T> Add<T> for Vec2<T> where T: Number {
+    type Output = Self;
+    fn add(self, other: T) -> Self {
+        Self {
+            x: self.x + other,
+            y: self.y + other,
+        }
+    }
+}
+
+impl<T> AddAssign<Self> for Vec2<T> where T: Number {
     fn add_assign(&mut self, other: Self) {
         *self = Self {
             x: self.x + other.x,
@@ -103,7 +113,16 @@ impl<T> AddAssign for Vec2<T> where T: Number {
     }
 }
 
-impl<T> Sub for Vec2<T> where T: Number {
+impl<T> AddAssign<T> for Vec2<T> where T: Number {
+    fn add_assign(&mut self, other: T) {
+        *self = Self {
+            x: self.x + other,
+            y: self.y + other,
+        };
+    }
+}
+
+impl<T> Sub<Self> for Vec2<T> where T: Number {
     type Output = Self;
     fn sub(self, other: Self) -> Self {
         Self {
@@ -113,11 +132,30 @@ impl<T> Sub for Vec2<T> where T: Number {
     }
 }
 
-impl<T> SubAssign for Vec2<T> where T: Number {
+impl<T> Sub<T> for Vec2<T> where T: Number {
+    type Output = Self;
+    fn sub(self, other: T) -> Self {
+        Self {
+            x: self.x - other,
+            y: self.y - other,
+        }
+    }
+}
+
+impl<T> SubAssign<Self> for Vec2<T> where T: Number {
     fn sub_assign(&mut self, other: Self) {
         *self = Self {
             x: self.x - other.x,
             y: self.y - other.y,
+        };
+    }
+}
+
+impl<T> SubAssign<T> for Vec2<T> where T: Number {
+    fn sub_assign(&mut self, other: T) {
+        *self = Self {
+            x: self.x - other,
+            y: self.y - other,
         };
     }
 }
@@ -142,7 +180,7 @@ impl<T> Mul<T> for Vec2<T> where T: Number {
     }
 }
 
-impl<T> MulAssign for Vec2<T> where T: Number {
+impl<T> MulAssign<Self> for Vec2<T> where T: Number {
     fn mul_assign(&mut self, other: Self) {
         *self = Self {
             x: self.x * other.x,
@@ -151,7 +189,16 @@ impl<T> MulAssign for Vec2<T> where T: Number {
     }
 }
 
-impl<T> Div for Vec2<T> where T: Number {
+impl<T> MulAssign<T> for Vec2<T> where T: Number {
+    fn mul_assign(&mut self, other: T) {
+        *self = Self {
+            x: self.x * other,
+            y: self.y * other,
+        };
+    }
+}
+
+impl<T> Div<Self> for Vec2<T> where T: Number {
     type Output = Self;
     fn div(self, other: Self) -> Self {
         Self {
@@ -161,11 +208,30 @@ impl<T> Div for Vec2<T> where T: Number {
     }
 }
 
-impl<T> DivAssign for Vec2<T> where T: Number {
+impl<T> Div<T> for Vec2<T> where T: Number {
+    type Output = Self;
+    fn div(self, other: T) -> Self {
+        Self {
+            x: self.x / other,
+            y: self.y / other,
+        }
+    }
+}
+
+impl<T> DivAssign<Self> for Vec2<T> where T: Number {
     fn div_assign(&mut self, other: Self) {
         *self = Self {
             x: self.x / other.x,
             y: self.y / other.y,
+        };
+    }
+}
+
+impl<T> DivAssign<T> for Vec2<T> where T: Number {
+    fn div_assign(&mut self, other: T) {
+        *self = Self {
+            x: self.x / other,
+            y: self.y / other,
         };
     }
 }
@@ -199,12 +265,6 @@ pub struct Vec3<T: Number> {
     pub z: T
 }
 
-impl<T> Vec3<T> where T: Number {
-    fn dot(x1: &Vec3<T>, x2: &Vec3<T>) -> T {
-        x1.x * x2.x + x1.y * x2.y + x1.z * x2.z
-    }
-}
-
 impl<T> VecN<T> for Vec3<T> where T: Number {
     fn len() -> usize {
         3
@@ -226,16 +286,6 @@ impl<T> Index<usize> for Vec3<T> where T: Number {
 //
 // Functions
 //
-
-/*
-fn dot<V: VecN<T>, T: Number>(v1: &V, v2: &V) -> T {
-    let mut r = T::default();
-    for i in 0..V::len() {
-        r += v1[i] * v2[i];
-    }
-    r
-}
-*/
 
 pub mod v3 {
     pub fn dot<T: super::Number>(x1: &super::Vec3<T>, x2: &super::Vec3<T>) -> T {
@@ -352,6 +402,19 @@ impl<T> Index<usize> for Vec4<T> {
 // trunc
 
 // experims
+
+// v3 / v2 mod, with use... didnt correctly deduce the function by type
+
+/*
+fn dot<V: VecN<T>, T: Number>(v1: &V, v2: &V) -> T {
+    let mut r = T::default();
+    for i in 0..V::len() {
+        r += v1[i] * v2[i];
+    }
+    r
+}
+*/
+
 /*
 fn dot_v2_index<T: Default + std::ops::Mul<Output = T> + std::ops::Add<Output = T> + std::ops::AddAssign + Copy>(v1: &Vec2<T>, v2: &Vec2<T>) -> T {
     let mut r = T::default();
@@ -363,5 +426,11 @@ fn dot_v2_index<T: Default + std::ops::Mul<Output = T> + std::ops::Add<Output = 
 
 fn dot_v2<T: std::ops::Mul<Output = T> + std::ops::Add<Output = T> + Copy>(v1: &Vec2<T>, v2: &Vec2<T>) -> T {
     v1[0] * v2[0] + v1[1] * v2[1]
+}
+
+impl<T> Vec3<T> where T: Number {
+    fn dot(x1: &Vec3<T>, x2: &Vec3<T>) -> T {
+        x1.x * x2.x + x1.y * x2.y + x1.z * x2.z
+    }
 }
 */
