@@ -51,6 +51,12 @@ impl Number for u16 {}
 impl Number for i8 {}
 impl Number for u8 {}
 
+// Abbreviations
+
+pub type Vec2f = Vec2<f32>;
+pub type Vec3f = Vec3<f32>;
+pub type Vec4f = Vec4<f32>;
+
 // 
 // Macro Implementation
 //
@@ -70,7 +76,16 @@ macro_rules! vec_impl {
             }
         }
 
-        /// for n-dimensional functionality v.len();
+        /// Vec4::<f32>::new(1.0, 2.0, 3.0, 4.0) or with abbreviated type Vec4f::new(1.0, 2.0, 3.0, 4.0)
+        impl<T> $VecN<T> where T: Number {
+            pub fn new($($field: T,)+) -> $VecN<T> {
+                $VecN {
+                    $($field: $field,)+
+                }
+            }
+        }
+
+        /// for n-dimensional functionality Self::len()
         impl<T> VecN<T> for $VecN<T> where T: Number {
             fn len() -> usize {
                 $len
@@ -271,17 +286,6 @@ pub mod v2 {
 // - combos
 // initialisers
 // - unitx, etc
-// add
-// add assign
-// sub
-// sub assign
-// mul
-// mul assign
-// div
-// div assign
-// equal to
-// not equal to
-// unary minus
 
 // funcs
 // abs
@@ -297,7 +301,7 @@ pub mod v2 {
 // cross
 // distance
 // dot
-// dst??
+// dst ??
 // exp
 // exp2
 // floor
@@ -322,7 +326,7 @@ pub mod v2 {
 // noise
 // normalize
 // pow
-// rcp ? (recipricol)
+// rcp (recipricol)
 // reflect
 // refract
 // round
@@ -337,7 +341,6 @@ pub mod v2 {
 // step
 // tan
 // tanh
-// transpose
 // trunc
 
 // experims
