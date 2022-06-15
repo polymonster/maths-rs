@@ -51,237 +51,205 @@ impl Number for u16 {}
 impl Number for i8 {}
 impl Number for u8 {}
 
-//
-// Vec2
-//
-
-#[derive(Debug, Copy, Clone)]
-pub struct Vec2<T: Number> {
-    pub x: T,
-    pub y: T
-}
-
-impl<T> VecN<T> for Vec2<T> where T: Number {
-    fn len() -> usize {
-        2
-    }
-}
-
-impl<T> Display for Vec2<T> where T: Number {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        write!(f, "[{}, {}]", self.x, self.y)
-    }
-}
-
-impl<T> Index<usize> for Vec2<T> where T: Number {
-    type Output = T;
-    fn index(&self, i: usize) -> &Self::Output {
-        match i {
-            0 => &self.x,
-            1 => &self.y,
-            _ => &self.y
-        }
-    }
-}
-
-impl<T> Add<Self> for Vec2<T> where T: Number {
-    type Output = Self;
-    fn add(self, other: Self) -> Self {
-        Self {
-            x: self.x + other.x,
-            y: self.y + other.y,
-        }
-    }
-}
-
-impl<T> Add<T> for Vec2<T> where T: Number {
-    type Output = Self;
-    fn add(self, other: T) -> Self {
-        Self {
-            x: self.x + other,
-            y: self.y + other,
-        }
-    }
-}
-
-impl<T> AddAssign<Self> for Vec2<T> where T: Number {
-    fn add_assign(&mut self, other: Self) {
-        *self = Self {
-            x: self.x + other.x,
-            y: self.y + other.y,
-        };
-    }
-}
-
-impl<T> AddAssign<T> for Vec2<T> where T: Number {
-    fn add_assign(&mut self, other: T) {
-        *self = Self {
-            x: self.x + other,
-            y: self.y + other,
-        };
-    }
-}
-
-impl<T> Sub<Self> for Vec2<T> where T: Number {
-    type Output = Self;
-    fn sub(self, other: Self) -> Self {
-        Self {
-            x: self.x - other.x,
-            y: self.y - other.y,
-        }
-    }
-}
-
-impl<T> Sub<T> for Vec2<T> where T: Number {
-    type Output = Self;
-    fn sub(self, other: T) -> Self {
-        Self {
-            x: self.x - other,
-            y: self.y - other,
-        }
-    }
-}
-
-impl<T> SubAssign<Self> for Vec2<T> where T: Number {
-    fn sub_assign(&mut self, other: Self) {
-        *self = Self {
-            x: self.x - other.x,
-            y: self.y - other.y,
-        };
-    }
-}
-
-impl<T> SubAssign<T> for Vec2<T> where T: Number {
-    fn sub_assign(&mut self, other: T) {
-        *self = Self {
-            x: self.x - other,
-            y: self.y - other,
-        };
-    }
-}
-
-impl<T> Mul<Self> for Vec2<T> where T: Number {
-    type Output = Self;
-    fn mul(self, other: Self) -> Self {
-        Self {
-            x: self.x * other.x,
-            y: self.y * other.y,
-        }
-    }
-}
-
-impl<T> Mul<T> for Vec2<T> where T: Number {
-    type Output = Self;
-    fn mul(self, other: T) -> Self {
-        Self {
-            x: self.x * other,
-            y: self.y * other,
-        }
-    }
-}
-
-impl<T> MulAssign<Self> for Vec2<T> where T: Number {
-    fn mul_assign(&mut self, other: Self) {
-        *self = Self {
-            x: self.x * other.x,
-            y: self.y * other.y,
-        };
-    }
-}
-
-impl<T> MulAssign<T> for Vec2<T> where T: Number {
-    fn mul_assign(&mut self, other: T) {
-        *self = Self {
-            x: self.x * other,
-            y: self.y * other,
-        };
-    }
-}
-
-impl<T> Div<Self> for Vec2<T> where T: Number {
-    type Output = Self;
-    fn div(self, other: Self) -> Self {
-        Self {
-            x: self.x / other.x,
-            y: self.y / other.y,
-        }
-    }
-}
-
-impl<T> Div<T> for Vec2<T> where T: Number {
-    type Output = Self;
-    fn div(self, other: T) -> Self {
-        Self {
-            x: self.x / other,
-            y: self.y / other,
-        }
-    }
-}
-
-impl<T> DivAssign<Self> for Vec2<T> where T: Number {
-    fn div_assign(&mut self, other: Self) {
-        *self = Self {
-            x: self.x / other.x,
-            y: self.y / other.y,
-        };
-    }
-}
-
-impl<T> DivAssign<T> for Vec2<T> where T: Number {
-    fn div_assign(&mut self, other: T) {
-        *self = Self {
-            x: self.x / other,
-            y: self.y / other,
-        };
-    }
-}
-
-impl<T> Neg for Vec2<T> where T: SignedNumber {
-    type Output = Self;
-    fn neg(self) -> Self::Output {
-        Self {
-            x: -self.x,
-            y: -self.y,
-        }
-    }
-}
-
-impl<T> PartialEq for Vec2<T> where T: Number  {
-    fn eq(&self, other: &Self) -> bool {
-        self.x == other.x && self.y == other.y
-    }
-}
-
-impl<T> Eq for Vec2<T> where T: Number  {}
-
-//
-// Vec3
+// 
+// Macro Implementation
 //
 
-#[derive(Debug, Copy, Clone)]
-pub struct Vec3<T: Number> {
-    pub x: T,
-    pub y: T,
-    pub z: T
-}
-
-impl<T> VecN<T> for Vec3<T> where T: Number {
-    fn len() -> usize {
-        3
-    }
-}
-
-impl<T> Index<usize> for Vec3<T> where T: Number {
-    type Output = T;
-    fn index(&self, i: usize) -> &Self::Output {
-        match i {
-            0 => &self.x,
-            1 => &self.y,
-            2 => &self.z,
-            _ => &self.z
+macro_rules! vec_impl {
+    ($VecN:ident { $($field:ident, $field_index:expr),+ }, $len:expr, $module:ident, $ctorf:ident) => {
+        // concrete type
+        #[derive(Debug, Copy, Clone)]
+        pub struct $VecN<T: Number> {
+            $(pub $field: T,)+
         }
+        
+        /// ie let v = vec3f(x, y, z);
+        pub fn $ctorf($($field: f32,)+) -> $VecN<f32> {
+            $VecN {
+                $($field: $field,)+
+            }
+        }
+
+        /// for n-dimensional functionality v.len();
+        impl<T> VecN<T> for $VecN<T> where T: Number {
+            fn len() -> usize {
+                $len
+            }
+        }
+
+        /// for n-dimensional functionality v[n]
+        impl<T> Index<usize> for $VecN<T> where T: Number {
+            type Output = T;
+            fn index(&self, i: usize) -> &Self::Output {
+                match i {
+                    $($field_index => &self.$field, )+
+                    _ => &self.x
+                }
+            }
+        }
+
+        /// displays like [10.0, 12.0, 13.0]
+        impl<T> Display for $VecN<T> where T: Number {
+            fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+                let mut output = String::from("[");
+                $(
+                    output += &self.$field.to_string();
+                    if $field_index < $len-1 {
+                        output += &String::from(", ");
+                    }
+                )+
+                output += "]";
+                write!(f, "{}", output)
+            }
+        }
+
+        //
+        // ops
+        //
+
+        impl<T> Add<Self> for $VecN<T> where T: Number {
+            type Output = Self;
+            fn add(self, other: Self) -> Self {
+                Self {
+                    $($field: self.$field + other.$field,)+
+                }
+            }
+        }
+
+        impl<T> Add<T> for $VecN<T> where T: Number {
+            type Output = Self;
+            fn add(self, other: T) -> Self {
+                Self {
+                    $($field: self.$field + other,)+
+                }
+            }
+        }
+        
+        impl<T> AddAssign<Self> for $VecN<T> where T: Number {
+            fn add_assign(&mut self, other: Self) {
+                $(self.$field += other.$field;)+
+            }
+        }
+        
+        impl<T> AddAssign<T> for $VecN<T> where T: Number {
+            fn add_assign(&mut self, other: T) {
+                $(self.$field += other;)+
+            }
+        }
+        
+        impl<T> Sub<Self> for $VecN<T> where T: Number {
+            type Output = Self;
+            fn sub(self, other: Self) -> Self {
+                Self {
+                    $($field: self.$field - other.$field,)+
+                }
+            }
+        }
+        
+        impl<T> Sub<T> for $VecN<T> where T: Number {
+            type Output = Self;
+            fn sub(self, other: T) -> Self {
+                Self {
+                    $($field: self.$field - other,)+
+                }
+            }
+        }
+        
+        impl<T> SubAssign<Self> for $VecN<T> where T: Number {
+            fn sub_assign(&mut self, other: Self) {
+                $(self.$field -= other.$field;)+
+            }
+        }
+        
+        impl<T> SubAssign<T> for $VecN<T> where T: Number {
+            fn sub_assign(&mut self, other: T) {
+                $(self.$field -= other;)+
+            }
+        }
+        
+        impl<T> Mul<Self> for $VecN<T> where T: Number {
+            type Output = Self;
+            fn mul(self, other: Self) -> Self {
+                Self {
+                    $($field: self.$field * other.$field,)+
+                }
+            }
+        }
+        
+        impl<T> Mul<T> for $VecN<T> where T: Number {
+            type Output = Self;
+            fn mul(self, other: T) -> Self {
+                Self {
+                    $($field: self.$field * other,)+
+                }
+            }
+        }
+        
+        impl<T> MulAssign<Self> for $VecN<T> where T: Number {
+            fn mul_assign(&mut self, other: Self) {
+                $(self.$field *= other.$field;)+
+            }
+        }
+        
+        impl<T> MulAssign<T> for $VecN<T> where T: Number {
+            fn mul_assign(&mut self, other: T) {
+                $(self.$field *= other;)+
+            }
+        }
+        
+        impl<T> Div<Self> for $VecN<T> where T: Number {
+            type Output = Self;
+            fn div(self, other: Self) -> Self {
+                Self {
+                    $($field: self.$field / other.$field,)+
+                }
+            }
+        }
+        
+        impl<T> Div<T> for $VecN<T> where T: Number {
+            type Output = Self;
+            fn div(self, other: T) -> Self {
+                Self {
+                    $($field: self.$field / other,)+
+                }
+            }
+        }
+        
+        impl<T> DivAssign<Self> for $VecN<T> where T: Number {
+            fn div_assign(&mut self, other: Self) {
+                $(self.$field /= other.$field;)+
+            }
+        }
+        
+        impl<T> DivAssign<T> for $VecN<T> where T: Number {
+            fn div_assign(&mut self, other: T) {
+                $(self.$field /= other;)+
+            }
+        }
+        
+        impl<T> Neg for $VecN<T> where T: SignedNumber {
+            type Output = Self;
+            fn neg(self) -> Self::Output {
+                Self {
+                    $($field: -self.$field,)+
+                }
+            }
+        }
+        
+        impl<T> PartialEq for $VecN<T> where T: Number  {
+            fn eq(&self, other: &Self) -> bool {
+                $(self.$field == other.$field &&)+
+                true
+            }
+        }
+        
+        impl<T> Eq for $VecN<T> where T: Number  {}
     }
 }
+
+vec_impl!(Vec2 { x, 0, y, 1 }, 2, v2, vec2f);
+vec_impl!(Vec3 { x, 0, y, 1, z, 2 }, 3, v3, vec3f);
+vec_impl!(Vec4 { x, 0, y, 1, z, 2, w, 3 }, 4, v4, vec4f);
 
 //
 // Functions
@@ -298,35 +266,6 @@ pub mod v2 {
         x1.x * x2.x + x1.y * x2.y
     }
 }
-
-// Vec4
-/*
-struct Vec4<T> {
-    x: T,
-    y: T,
-    z: T,
-    w: T
-}
-
-impl<T> VecN<T> for Vec4<T> {
-    fn len() -> usize {
-        4
-    }
-}
-
-impl<T> Index<usize> for Vec4<T> {
-    type Output = T;
-    fn index(&self, i: usize) -> &Self::Output {
-        match i {
-            0 => &self.x,
-            1 => &self.y,
-            2 => &self.z,
-            3 => &self.w,
-            _ => &self.w
-        }
-    }
-}
-*/
 
 // constructors
 // - combos
