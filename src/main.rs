@@ -256,6 +256,23 @@ fn mul_assign() {
 }
 
 // mul scalar
+#[test]
+fn mul_scalar() {
+    // mul
+    let v1 = vec2f(16.5, 22.2);
+    let v2 = 33.0;
+    let expected = vec2f(544.5, 732.6);
+    let result = v1 * v2;
+    assert_eq!(v2::approxf(expected, result, 0.001), true);
+
+    // mul with negative
+    let v1 = vec2f(2.5, 4.8);
+    let v2 = -11.1;
+    let expected = vec2f(-27.75, -53.28);
+    let result = v1 * v2;
+    assert_eq!(v2::approxf(expected, result, 0.001), true);
+}
+
 // mul assign scalar
 
 // div

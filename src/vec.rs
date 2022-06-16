@@ -259,6 +259,13 @@ macro_rules! vec_impl {
         }
         
         impl<T> Eq for $VecN<T> where T: Number  {}
+
+        pub mod $module {
+            pub fn approxf(a: super::$VecN<f32>, b: super::$VecN<f32>, eps: f32) -> bool {
+                $(a.$field - b.$field < eps &&)+
+                true
+            }
+        }
     }
 }
 
@@ -270,6 +277,7 @@ vec_impl!(Vec4 { x, 0, y, 1, z, 2, w, 3 }, 4, v4, vec4f);
 // Functions
 //
 
+/*
 pub mod v3 {
     pub fn dot<T: super::Number>(x1: &super::Vec3<T>, x2: &super::Vec3<T>) -> T {
         x1.x * x2.x + x1.y * x2.y + x1.z * x2.z
@@ -281,6 +289,7 @@ pub mod v2 {
         x1.x * x2.x + x1.y * x2.y
     }
 }
+*/
 
 // constructors
 // - combos
