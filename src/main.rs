@@ -255,7 +255,6 @@ fn mul_assign() {
     assert_eq!(expected, v1);
 }
 
-// mul scalar
 #[test]
 fn mul_scalar() {
     // mul
@@ -273,13 +272,90 @@ fn mul_scalar() {
     assert_eq!(v2::approxf(expected, result, 0.001), true);
 }
 
-// mul assign scalar
+#[test]
+fn mul_assign_scalar() {
+    // mul
+    let mut v1 = vec2f(16.5, 22.2);
+    let v2 = 33.0;
+    let expected = vec2f(544.5, 732.6);
+    v1 *= v2;
+    assert_eq!(v2::approxf(expected, v1, 0.001), true);
 
-// div
-// div assign
+    // mul with negative
+    let mut v1 = vec2f(2.5, 4.8);
+    let v2 = -11.1;
+    let expected = vec2f(-27.75, -53.28);
+    v1 *= v2;
+    assert_eq!(v2::approxf(expected, v1, 0.001), true);
+}
 
-// div scalar
-// div assign scalar
+#[test]
+fn div() {
+    // div
+    let v1 = vec2f(16.0, 543.0);
+    let v2 = vec2f(2.0, 10.0);
+    let expected = vec2f(8.0, 54.3);
+    let result = v1 / v2;
+    assert_eq!(v2::approxf(expected, result, 0.001), true);
+
+    // div with negative
+    let v1 = vec2f(18.0, 4.0);
+    let v2 = vec2f(-56.0, -9.0);
+    let expected = vec2f(-0.32142857142, -0.44444444444);
+    let result = v1 / v2;
+    assert_eq!(v2::approxf(expected, result, 0.001), true);
+}
+
+#[test]
+fn div_assign() {
+    // div
+    let mut v1 = vec2f(16.0, 543.0);
+    let v2 = vec2f(2.0, 10.0);
+    let expected = vec2f(8.0, 54.3);
+    v1 /= v2;
+    assert_eq!(v2::approxf(expected, v1, 0.001), true);
+
+    // div with negative
+    let mut v1 = vec2f(18.0, 4.0);
+    let v2 = vec2f(-56.0, -9.0);
+    let expected = vec2f(-0.32142857142, -0.44444444444);
+    v1 /= v2;
+    assert_eq!(v2::approxf(expected, v1, 0.001), true);
+}
+
+#[test]
+fn div_scalar() {
+    // div
+    let v1 = vec2f(16.5, 22.2);
+    let v2 = 33.0;
+    let expected = vec2f(0.5, 0.67272727272);
+    let result = v1 / v2;
+    assert_eq!(v2::approxf(expected, result, 0.001), true);
+
+    // div with negative
+    let v1 = vec2f(2.5, 4.8);
+    let v2 = -11.1;
+    let expected = vec2f(-0.22522522522, -0.43243243243);
+    let result = v1 / v2;
+    assert_eq!(v2::approxf(expected, result, 0.001), true);
+}
+
+#[test]
+fn div_assign_scalar() {
+    // div
+    let mut v1 = vec2f(16.5, 22.2);
+    let v2 = 33.0;
+    let expected = vec2f(0.5, 0.67272727272);
+    v1 /= v2;
+    assert_eq!(v2::approxf(expected, v1, 0.001), true);
+
+    // div with negative
+    let mut v1 = vec2f(2.5, 4.8);
+    let v2 = -11.1;
+    let expected = vec2f(-0.22522522522, -0.43243243243);
+    v1 /= v2;
+    assert_eq!(v2::approxf(expected, v1, 0.001), true);
+}
 
 fn main() {
 }

@@ -265,6 +265,10 @@ macro_rules! vec_impl {
                 $(a.$field - b.$field < eps &&)+
                 true
             }
+            pub fn approxd(a: super::$VecN<f64>, b: super::$VecN<f64>, eps: f64) -> bool {
+                $(a.$field - b.$field < eps &&)+
+                true
+            }
         }
     }
 }
