@@ -9,6 +9,8 @@ use std::ops::Div;
 use std::ops::DivAssign;
 use std::ops::Neg;
 use std::cmp::PartialEq;
+use std::cmp::PartialOrd;
+
 use std::fmt::Display;
 use std::fmt::Formatter;
 
@@ -22,7 +24,7 @@ pub trait Number:
     Mul<Output=Self> + MulAssign + 
     Div<Output=Self> + DivAssign +
     Sub<Output=Self> + SubAssign +
-    PartialEq {
+    PartialEq + PartialOrd {
         fn zero() -> Self;
         fn one() -> Self;
 }
@@ -30,6 +32,12 @@ pub trait Number:
 pub trait SignedNumber:
     Number + Neg<Output=Self> {
         fn minus_one() -> Self;
+}
+
+pub trait Float:
+    SignedNumber {
+        fn floor(v: Self) -> Self;
+        fn ceil(v: Self) -> Self;
 }
 
 pub trait VecN<T: Number>: Index<usize, Output=T> {
@@ -54,6 +62,19 @@ macro_rules! signed_num_impl {
         impl SignedNumber for $t {
             fn minus_one() -> Self {
                 $minus_one
+            }
+        }
+    }
+}
+
+macro_rules! float_impl {
+    ($t:ident) => {
+        impl Float for $t {
+            fn floor(v: Self) -> Self {
+                v.floor()
+            }
+            fn ceil(v: Self) -> Self {
+                v.ceil()
             }
         }
     }
@@ -347,21 +368,32 @@ macro_rules! vec_impl {
         }
 
         pub mod $module {
-            pub fn approxf(a: super::$VecN<f32>, b: super::$VecN<f32>, eps: f32) -> bool {
-                $(a.$field - b.$field < eps &&)+
-                true
-            }
-
-            pub fn approxd(a: super::$VecN<f64>, b: super::$VecN<f64>, eps: f64) -> bool {
-                $(a.$field - b.$field < eps &&)+
-                true
-            }
-
             pub fn dot<T: super::Number>(a: super::$VecN<T>, b: super::$VecN<T>) -> T {
                 T::default()
                 $( 
                     +(a.$field * b.$field)
                 )+
+            }
+
+            pub fn all<T: super::Number>(a: super::$VecN<T>) -> bool {
+                $(a.$field != T::zero() &&)+
+                true
+            }
+
+            pub fn any<T: super::Number>(a: super::$VecN<T>) -> bool {
+                $(a.$field != T::zero() ||)+
+                false
+            }
+
+            pub fn approx<T: super::Float>(a: super::$VecN<T>, b: super::$VecN<T>, eps: T) -> bool {
+                $(a.$field - b.$field < eps &&)+
+                true
+            }
+
+            pub fn floor<T: super::Float>(a: super::$VecN<T>) -> super::$VecN<T> {
+                super::$VecN {
+                    $($field: super::Float::floor(a.$field),)+
+                }
             }
         }
     }
@@ -382,12 +414,68 @@ macro_rules! vec_ctor {
 // From
 //
 
+/// constructs vec2 from vec3 copying the x,y and truncating the z
+impl<T> From<Vec3<T>> for Vec2<T> where T: Number {
+    fn from(other: Vec3<T>) -> Vec2<T> {
+        Vec2 {
+            x: other.x,
+            y: other.y,
+        }
+    }
+}
+
+/// constructs vec2 from vec4 copying the x,y and truncating the z,w
+impl<T> From<Vec4<T>> for Vec2<T> where T: Number {
+    fn from(other: Vec4<T>) -> Vec2<T> {
+        Vec2 {
+            x: other.x,
+            y: other.y,
+        }
+    }
+}
+
+/// constructs vec3 from vec2 copying the x,y and zeroing the z
 impl<T> From<Vec2<T>> for Vec3<T> where T: Number {
     fn from(other: Vec2<T>) -> Vec3<T> {
         Vec3 {
             x: other.x,
             y: other.y,
             z: T::zero()
+        }
+    }
+}
+
+/// constructs vec3 from vec4 copying the x,y,z and truncating the w
+impl<T> From<Vec4<T>> for Vec3<T> where T: Number {
+    fn from(other: Vec4<T>) -> Vec3<T> {
+        Vec3 {
+            x: other.x,
+            y: other.y,
+            z: other.z,
+        }
+    }
+}
+
+/// constructs vec4 from vec2 copying the x,y and zeroing the z,w
+impl<T> From<Vec2<T>> for Vec4<T> where T: Number {
+    fn from(other: Vec2<T>) -> Vec4<T> {
+        Vec4 {
+            x: other.x,
+            y: other.y,
+            z: T::zero(),
+            w: T::zero()
+        }
+    }
+}
+
+/// constructs vec4 from vec2 copying the x,y,z and zeroing the w
+impl<T> From<Vec3<T>> for Vec4<T> where T: Number {
+    fn from(other: Vec3<T>) -> Vec4<T> {
+        Vec4 {
+            x: other.x,
+            y: other.y,
+            z: other.z,
+            w: T::zero()
         }
     }
 }
@@ -407,6 +495,9 @@ pub fn cross<T: Number>(a: Vec3<T>, b: Vec3<T>) -> Vec3<T> {
 //
 // Macro Decl
 //
+
+float_impl!(f64);
+float_impl!(f32);
 
 num_impl!(f64, 0.0, 1.0);
 num_impl!(f32, 0.0, 1.0);
@@ -449,39 +540,37 @@ vec_ctor!(Vec4 { x, y, z, w }, vec4u, u32);
 // constructors
 // - combos?
 
-// abs
-// all
-// acos
-// any
-// atan
-// atan2
-// ceil
-// clamp
-// cos
-// cosh
 // distance
 // dst ??
+// length (mag)
+
+// floor
+// ceil
+// clamp
+// abs
+// saturate
+// max
+// min
+
+// acos
+// atan
+// atan2
+// cos
+// cosh
 // exp
 // exp2
-// floor
 // fmod
 // frac
 // frexp
 // fwidth
-// isfinite
-// isinf
-// isnan
+
 // ldexp ?
-// length
 // lerp
 // lit ?
 // log
 // log10
 // log2
-// max
-// min
 // modf
-// mul
 // normalize
 // pow
 // rcp (recipricol)
@@ -489,7 +578,6 @@ vec_ctor!(Vec4 { x, y, z, w }, vec4u, u32);
 // refract
 // round
 // rsqrt
-// saturate
 // sign
 // sin
 // sincos
@@ -499,7 +587,14 @@ vec_ctor!(Vec4 { x, y, z, w }, vec4u, u32);
 // step
 // tan
 // tanh
+
+// cast ??
 // trunc
+
+// float checks
+// isfinite
+// isinf
+// isnan
 
 // experims
 
