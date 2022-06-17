@@ -357,5 +357,27 @@ fn div_assign_scalar() {
     assert_eq!(v2::approxf(expected, v1, 0.001), true);
 }
 
+#[test]
+fn dot() {
+    let v1 = vec2f(2.0, 4.0);
+    let dp = v2::dot(v1, v1);
+    let expected = 20.0;
+    assert_eq!(dp, expected);
+
+    let v1 = vec3f(2.0, 4.0, 6.0);
+    let dp = v3::dot(v1, v1);
+    let expected = 56.0;
+    assert_eq!(dp, expected);
+}
+
+#[test]
+fn cross_product() {
+    let v1 = vec3f(1.0, 0.0, 0.0);
+    let v2 = vec3f(0.0, 0.0, 1.0);
+    let cp = cross(v1, v2);
+    let expected = vec3f(0.0, -1.0, 0.0);
+    assert_eq!(cp, expected);
+}
+
 fn main() {
 }

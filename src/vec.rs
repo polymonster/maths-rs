@@ -251,23 +251,30 @@ macro_rules! vec_impl {
             }
         }
         
+        impl<T> Eq for $VecN<T> where T: Number  {}
         impl<T> PartialEq for $VecN<T> where T: Number  {
             fn eq(&self, other: &Self) -> bool {
                 $(self.$field == other.$field &&)+
                 true
             }
         }
-        
-        impl<T> Eq for $VecN<T> where T: Number  {}
 
         pub mod $module {
             pub fn approxf(a: super::$VecN<f32>, b: super::$VecN<f32>, eps: f32) -> bool {
                 $(a.$field - b.$field < eps &&)+
                 true
             }
+
             pub fn approxd(a: super::$VecN<f64>, b: super::$VecN<f64>, eps: f64) -> bool {
                 $(a.$field - b.$field < eps &&)+
                 true
+            }
+
+            pub fn dot<T: super::Number>(a: super::$VecN<T>, b: super::$VecN<T>) -> T {
+                T::default()
+                $( 
+                    +(a.$field * b.$field)
+                )+
             }
         }
     }
@@ -281,26 +288,19 @@ vec_impl!(Vec4 { x, 0, y, 1, z, 2, w, 3 }, 4, v4, vec4f);
 // Functions
 //
 
-/*
-pub mod v3 {
-    pub fn dot<T: super::Number>(x1: &super::Vec3<T>, x2: &super::Vec3<T>) -> T {
-        x1.x * x2.x + x1.y * x2.y + x1.z * x2.z
+pub fn cross<T: Number>(a: Vec3<T>, b: Vec3<T>) -> Vec3<T> {
+    Vec3 {
+        x: (a.y * b.z) - (a.z * b.y), 
+        y: (a.z * b.x) - (a.x * b.z),
+        z: (a.x * b.y) - (a.y * b.x),
     }
 }
-
-pub mod v2 {
-    pub fn dot<T: super::Number>(x1: &super::Vec2<T>, x2: &super::Vec2<T>) -> T {
-        x1.x * x2.x + x1.y * x2.y
-    }
-}
-*/
 
 // constructors
 // - combos
 // initialisers
 // - unitx, etc
 
-// funcs
 // abs
 // all
 // acos
@@ -311,9 +311,7 @@ pub mod v2 {
 // clamp
 // cos
 // cosh
-// cross
 // distance
-// dot
 // dst ??
 // exp
 // exp2
@@ -336,7 +334,6 @@ pub mod v2 {
 // min
 // modf
 // mul
-// noise
 // normalize
 // pow
 // rcp (recipricol)
@@ -387,5 +384,12 @@ impl<T> Vec3<T> where T: Number {
     fn dot(x1: &Vec3<T>, x2: &Vec3<T>) -> T {
         x1.x * x2.x + x1.y * x2.y + x1.z * x2.z
     }
+}
+
+pub fn dot<T: super::Number>(a: super::$VecN<T>, b: super::$VecN<T>) -> T {
+    T::default() // needs this!? ;_;
+    $( 
+        +(a.$field * b.$field)
+    )+
 }
 */
