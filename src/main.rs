@@ -379,5 +379,38 @@ fn cross_product() {
     assert_eq!(cp, expected);
 }
 
+#[test]
+fn zero() {
+    let vz = Vec3f::zero();
+    let expected = vec3f(0.0, 0.0, 0.0);
+    assert_eq!(vz, expected);
+}
+
+#[test]
+fn one() {
+    let vo = Vec3f::one();
+    let expected = vec3f(1.0, 1.0, 1.0);
+    assert_eq!(vo, expected);
+}
+
+#[test]
+fn units() {
+    assert_eq!(Vec3f::unit_x(), vec3f(1.0, 0.0, 0.0));
+    assert_eq!(Vec3f::unit_y(), vec3f(0.0, 1.0, 0.0));
+    assert_eq!(Vec3f::unit_z(), vec3f(0.0, 0.0, 1.0));
+}
+
+#[test]
+fn colours() {
+    assert_eq!(Vec4f::red(), vec4f(1.0, 0.0, 0.0, 1.0));
+    assert_eq!(Vec4f::green(), vec4f(0.0, 1.0, 0.0, 1.0));
+    assert_eq!(Vec4f::blue(), vec4f(0.0, 0.0, 1.0, 1.0));
+    assert_eq!(Vec4f::cyan(), vec4f(0.0, 1.0, 1.0, 1.0));
+    assert_eq!(Vec4f::magenta(), vec4f(1.0, 0.0, 1.0, 1.0));
+    assert_eq!(Vec4f::yellow(), vec4f(1.0, 1.0, 0.0, 1.0));
+    assert_eq!(Vec4f::black(), vec4f(0.0, 0.0, 0.0, 1.0));
+    assert_eq!(Vec4f::white(), vec4f(1.0, 1.0, 1.0, 1.0));
+}
+
 fn main() {
 }

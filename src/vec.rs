@@ -23,33 +23,41 @@ pub trait Number:
     Div<Output=Self> + DivAssign +
     Sub<Output=Self> + SubAssign +
     PartialEq {
+        fn zero() -> Self;
+        fn one() -> Self;
 }
 
 pub trait SignedNumber:
     Number + Neg<Output=Self> {
+        fn minus_one() -> Self;
 }
 
 pub trait VecN<T: Number>: Index<usize, Output=T> {
     fn len() -> usize;
 }
 
-impl SignedNumber for f64 {}
-impl SignedNumber for i64 {}
-impl SignedNumber for f32 {}
-impl SignedNumber for i32 {}
-impl SignedNumber for i16 {}
-impl SignedNumber for i8 {}
+macro_rules! num_impl {
+    ($t:ident, $zero:literal, $one:literal) => {
+        impl Number for $t {
+            fn zero() -> Self {
+                $zero
+            }
+            fn one() -> Self {
+                $one
+            }
+        }
+    }
+}
 
-impl Number for f64 {}
-impl Number for i64 {}
-impl Number for u64 {}
-impl Number for f32 {}
-impl Number for i32 {}
-impl Number for u32 {}
-impl Number for i16 {}
-impl Number for u16 {}
-impl Number for i8 {}
-impl Number for u8 {}
+macro_rules! signed_num_impl {
+    ($t:ident, $minus_one:literal) => {
+        impl SignedNumber for $t {
+            fn minus_one() -> Self {
+                $minus_one
+            }
+        }
+    }
+}
 
 // Abbreviations
 
@@ -68,13 +76,6 @@ macro_rules! vec_impl {
         pub struct $VecN<T: Number> {
             $(pub $field: T,)+
         }
-        
-        /// ie let v = vec3f(x, y, z);
-        pub fn $ctorf($($field: f32,)+) -> $VecN<f32> {
-            $VecN {
-                $($field: $field,)+
-            }
-        }
 
         /// Vec4::<f32>::new(1.0, 2.0, 3.0, 4.0) or with abbreviated type Vec4f::new(1.0, 2.0, 3.0, 4.0)
         impl<T> $VecN<T> where T: Number {
@@ -82,6 +83,92 @@ macro_rules! vec_impl {
                 $VecN {
                     $($field: $field,)+
                 }
+            }
+
+            pub fn zero() -> $VecN<T> {
+                $VecN {
+                    $($field: T::zero(),)+
+                }
+            }
+
+            pub fn one() -> $VecN<T> {
+                $VecN {
+                    $($field: T::one(),)+
+                }
+            }
+
+            pub fn unit_x() -> $VecN<T> {
+                let v = [T::one(), T::zero(), T::zero(), T::zero()];
+                Self {
+                    $($field: v[$field_index],)+
+                }
+            }
+
+            pub fn unit_y() -> $VecN<T> {
+                let v = [T::zero(), T::one(), T::zero(), T::zero()];
+                Self {
+                    $($field: v[$field_index],)+
+                }
+            }
+
+            pub fn unit_z() -> $VecN<T> {
+                let v = [T::zero(), T::zero(), T::one(), T::zero()];
+                Self {
+                    $($field: v[$field_index],)+
+                }
+            }
+
+            pub fn red() -> $VecN<T> {
+                let v = [T::one(), T::zero(), T::zero(), T::one()];
+                Self {
+                    $($field: v[$field_index],)+
+                }
+            }
+
+            pub fn green() -> $VecN<T> {
+                let v = [T::zero(), T::one(), T::zero(), T::one()];
+                Self {
+                    $($field: v[$field_index],)+
+                }
+            }
+
+            pub fn blue() -> $VecN<T> {
+                let v = [T::zero(), T::zero(), T::one(), T::one()];
+                Self {
+                    $($field: v[$field_index],)+
+                }
+            }
+
+            pub fn cyan() -> $VecN<T> {
+                let v = [T::zero(), T::one(), T::one(), T::one()];
+                Self {
+                    $($field: v[$field_index],)+
+                }
+            }
+
+            pub fn magenta() -> $VecN<T> {
+                let v = [T::one(), T::zero(), T::one(), T::one()];
+                Self {
+                    $($field: v[$field_index],)+
+                }
+            }
+
+            pub fn yellow() -> $VecN<T> {
+                let v = [T::one(), T::one(), T::zero(), T::one()];
+                Self {
+                    $($field: v[$field_index],)+
+                }
+            }
+
+            pub fn black() -> $VecN<T> {
+                let v = [T::zero(), T::zero(), T::zero(), T::one()];
+                Self {
+                    $($field: v[$field_index],)+
+                }
+            }
+
+            pub fn white() -> $VecN<T> {
+                Self::one()
             }
         }
 
@@ -280,9 +367,30 @@ macro_rules! vec_impl {
     }
 }
 
-vec_impl!(Vec2 { x, 0, y, 1 }, 2, v2, vec2f);
-vec_impl!(Vec3 { x, 0, y, 1, z, 2 }, 3, v3, vec3f);
-vec_impl!(Vec4 { x, 0, y, 1, z, 2, w, 3 }, 4, v4, vec4f);
+macro_rules! vec_ctor {
+    ($VecN:ident { $($field:ident),+ }, $ctor:ident, $t:ident) => {
+        /// ie let v = vec3f(x, y, z);
+        pub fn $ctor($($field: $t,)+) -> $VecN<$t> {
+            $VecN {
+                $($field: $field,)+
+            }
+        }
+    }
+}
+
+//
+// From
+//
+
+impl<T> From<Vec2<T>> for Vec3<T> where T: Number {
+    fn from(other: Vec2<T>) -> Vec3<T> {
+        Vec3 {
+            x: other.x,
+            y: other.y,
+            z: T::zero()
+        }
+    }
+}
 
 //
 // Functions
@@ -296,10 +404,50 @@ pub fn cross<T: Number>(a: Vec3<T>, b: Vec3<T>) -> Vec3<T> {
     }
 }
 
+//
+// Macro Decl
+//
+
+num_impl!(f64, 0.0, 1.0);
+num_impl!(f32, 0.0, 1.0);
+num_impl!(i64, 0, 1);
+num_impl!(u64, 0, 1);
+num_impl!(i32, 0, 1);
+num_impl!(u32, 0, 1);
+num_impl!(i16, 0, 1);
+num_impl!(u16, 0, 1);
+num_impl!(i8, 0, 1);
+num_impl!(u8, 0, 1);
+
+signed_num_impl!(f64, -1.0);
+signed_num_impl!(f32, -1.0);
+signed_num_impl!(i64, -1);
+signed_num_impl!(i32, -1);
+signed_num_impl!(i16, -1);
+signed_num_impl!(i8, -1);
+
+vec_impl!(Vec2 { x, 0, y, 1 }, 2, v2, vec2f);
+vec_impl!(Vec3 { x, 0, y, 1, z, 2 }, 3, v3, vec3f);
+vec_impl!(Vec4 { x, 0, y, 1, z, 2, w, 3 }, 4, v4, vec4f);
+
+vec_ctor!(Vec2 { x, y }, vec2f, f32);
+vec_ctor!(Vec3 { x, y, z }, vec3f, f32);
+vec_ctor!(Vec4 { x, y, z, w }, vec4f, f32);
+
+vec_ctor!(Vec2 { x, y }, vec2d, f64);
+vec_ctor!(Vec3 { x, y, z }, vec3d, f64);
+vec_ctor!(Vec4 { x, y, z, w }, vec4d, f64);
+
+vec_ctor!(Vec2 { x, y }, vec2i, i32);
+vec_ctor!(Vec3 { x, y, z }, vec3i, i32);
+vec_ctor!(Vec4 { x, y, z, w }, vec4i, i32);
+
+vec_ctor!(Vec2 { x, y }, vec2u, u32);
+vec_ctor!(Vec3 { x, y, z }, vec3u, u32);
+vec_ctor!(Vec4 { x, y, z, w }, vec4u, u32);
+
 // constructors
-// - combos
-// initialisers
-// - unitx, etc
+// - combos?
 
 // abs
 // all
