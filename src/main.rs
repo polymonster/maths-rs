@@ -470,5 +470,28 @@ fn float_checks() {
     assert_eq!(v3::isfinite(vec3f(f32::INFINITY, 0.0, f32::INFINITY)), vec3b(false, true, false));
 }
 
+#[test]
+fn clamp_min_max() {
+    // min / max
+    assert_eq!(v3::min(vec3f(22.0, 7.0, 5.0), vec3f(27.0, 4.0, 1.0)), vec3f(22.0, 4.0, 1.0));
+    assert_eq!(v3::max(vec3f(22.0, 7.0, 5.0), vec3f(27.0, 4.0, 1.0)), vec3f(27.0, 7.0, 5.0));
+    assert_eq!(v3::min(vec3f(-22.0, -7.0, -5.0), vec3f(-27.0, -4.0, -1.0)), vec3f(-27.0, -7.0, -5.0));
+    assert_eq!(v3::max(vec3f(-22.0, -7.0, -5.0), vec3f(-27.0, -4.0, -1.0)), vec3f(-22.0, -4.0, -1.0));
+
+    // clamp
+    assert_eq!(v3::clamp(vec3f(-22.0, 7.0, 5.0), vec3f(-5.0, -5.0, -5.0), vec3f(5.0, 5.0, 5.0)), vec3f(-5.0, 5.0, 5.0));
+
+    // saturate
+    assert_eq!(v3::saturate(vec3f(22.0, -12.0, 55.0)), vec3f(1.0, 0.0, 1.0));
+}
+
+#[test]
+fn abs_sign() {
+    assert_eq!(v3::abs(vec3f(-22.0, -12.0, 66.0)), vec3f(22.0, 12.0, 66.0));
+    assert_eq!(v3::sign(vec3f(123.0, -123.0, 999.0)), vec3f(1.0, -1.0, 1.0));
+    assert_eq!(v3::signum(vec3f(123.0, -123.0, 999.0)), vec3f(1.0, -1.0, 1.0));
+    assert_eq!(v3::sign(vec3f(0.0, -0.0, 0.0)), vec3f(1.0, -1.0, 1.0));
+}
+
 fn main() {
 }

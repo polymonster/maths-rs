@@ -18,29 +18,54 @@ use std::fmt::Formatter;
 // Vec Traits 
 //
 
-pub trait Number: 
-    Copy + Default + Display + 
-    Add<Output=Self> + AddAssign + 
-    Mul<Output=Self> + MulAssign + 
-    Div<Output=Self> + DivAssign +
-    Sub<Output=Self> + SubAssign +
-    PartialEq + PartialOrd {
-        fn zero() -> Self;
-        fn one() -> Self;
-}
-
-pub trait SignedNumber:
-    Number + Neg<Output=Self> {
-        fn minus_one() -> Self;
-}
-
 pub trait VecN<T: Number>: Index<usize, Output=T> {
     fn len() -> usize;
 }
 
-macro_rules! num_impl {
-    ($t:ident, $zero:literal, $one:literal) => {
+macro_rules! number_trait_impl {
+    ($($func:ident),*) => {
+        pub trait Number: 
+            Copy + Default + Display + 
+            Add<Output=Self> + AddAssign + 
+            Mul<Output=Self> + MulAssign + 
+            Div<Output=Self> + DivAssign +
+            Sub<Output=Self> + SubAssign +
+            PartialEq + PartialOrd {
+                fn zero() -> Self;
+                fn one() -> Self;
+                fn min(a: Self, b: Self) -> Self;
+                fn max(a: Self, b: Self) -> Self;
+        }
+        number_impl!(f64 { $($func),* }, 0.0, 1.0);
+        number_impl!(f32 { $($func),* }, 0.0, 1.0);
+        number_impl!(i64 { $($func),* }, 0, 1);
+        number_impl!(u64 { $($func),* }, 0, 1);
+        number_impl!(i32 { $($func),* }, 0, 1);
+        number_impl!(u32 { $($func),* }, 0, 1);
+        number_impl!(i16 { $($func),* }, 0, 1);
+        number_impl!(u16 { $($func),* }, 0, 1);
+        number_impl!(i8 { $($func),* }, 0, 1);
+        number_impl!(u8 { $($func),* }, 0, 1);
+    }
+}
+
+macro_rules! number_impl {
+    ($t:ident { $($func:ident),* }, $zero:literal, $one:literal) => {
         impl Number for $t {
+            $(
+                fn $func(v: Self) -> Self {
+                    v.$func()
+                }
+            )*
+
+            fn min(a: Self, b: Self) -> Self {
+                a.min(b)
+            }
+
+            fn max(a: Self, b: Self) -> Self {
+                a.max(b)
+            }
+
             fn zero() -> Self {
                 $zero
             }
@@ -51,9 +76,31 @@ macro_rules! num_impl {
     }
 }
 
-macro_rules! signed_num_impl {
-    ($t:ident, $minus_one:literal) => {
+macro_rules! signed_number_trait_impl {
+    ($($func:ident),*) => {
+        pub trait SignedNumber: Number + Neg<Output=Self> {
+            $(
+                fn $func(v: Self) -> Self;
+            )*
+            fn minus_one() -> Self;
+        }
+        signed_number_impl!(f64 { $($func),* }, -1.0);
+        signed_number_impl!(f32 { $($func),* }, -1.0);
+        signed_number_impl!(i64 { $($func),* }, -1);
+        signed_number_impl!(i32 { $($func),* }, -1);
+        signed_number_impl!(i16 { $($func),* }, -1);
+        signed_number_impl!(i8 { $($func),* }, -1);
+    }
+}
+
+macro_rules! signed_number_impl {
+    ($t:ident { $($func:ident),* }, $minus_one:literal) => {
         impl SignedNumber for $t {
+            $(
+                fn $func(v: Self) -> Self {
+                    v.$func()
+                }
+            )*
             fn minus_one() -> Self {
                 $minus_one
             }
@@ -62,28 +109,30 @@ macro_rules! signed_num_impl {
 }
 
 macro_rules! float_trait_impl {
-    ({ $($func:ident),+ }) => {
+    ($($func:ident),*) => {
         pub trait Float: SignedNumber {
             $(
                 fn $func(v: Self) -> Self;
-            )+
+            )*
 
             fn isnan(v: Self) -> bool;
             fn isinf(v: Self) -> bool;
             fn isfinite(v: Self) -> bool;
             fn smoothstep(e0: Self, e1: Self, t: Self) -> Self;
         }
+        float_impl!(f64 { $($func),* });
+        float_impl!(f32 { $($func),* });
     }
 }
 
 macro_rules! float_impl {
-    ($t:ident { $($func:ident),+ } ) => {
+    ($t:ident { $($func:ident),* } ) => {
         impl Float for $t {
             $(
                 fn $func(v: Self) -> Self {
                     v.$func()
                 }
-            )+
+            )*
 
             fn isnan(v: Self) -> bool {
                 v.is_nan()
@@ -107,13 +156,26 @@ macro_rules! float_impl {
     }
 }
 
+//
 // Abbreviations
+//
 
+/// 2-dimensional f32 vector
 pub type Vec2f = Vec2<f32>;
+
+/// 3-dimensional f32 vector
 pub type Vec3f = Vec3<f32>;
+
+/// 4-dimensional f32 vector
 pub type Vec4f = Vec4<f32>;
+
+/// 2-dimensional bool vector
 pub type Vec2b = Vec2<bool>;
+
+/// 3-dimensional bool vector
 pub type Vec3b = Vec3<bool>;
+
+/// 4-dimensional bool vector
 pub type Vec4b = Vec4<bool>;
 
 // 
@@ -122,7 +184,6 @@ pub type Vec4b = Vec4<bool>;
 
 macro_rules! vec_impl {
     ($VecN:ident { $($field:ident, $field_index:expr),+ }, $len:expr, $module:ident) => {
-        // concrete type
         #[derive(Debug, Copy, Clone)]
         pub struct $VecN<T> {
             $(pub $field: T,)+
@@ -230,7 +291,7 @@ macro_rules! vec_impl {
             }
         }
 
-        /// for n-dimensional functionality v[n]
+        /// for n-dimensional functionality
         impl<T> Index<usize> for $VecN<T> {
             type Output = T;
             fn index(&self, i: usize) -> &Self::Output {
@@ -413,6 +474,20 @@ macro_rules! vec_impl {
                 }
             }
 
+            // component-wise reciprocal square root (1/sqrt(a))
+            pub fn rsqrt<T: super::Float>(a: super::$VecN<T>) -> super::$VecN<T> {
+                super::$VecN {
+                    $($field: T::one() / T::sqrt(a.$field),)+
+                }
+            }
+
+            // component-wise reciprocal
+            pub fn rcp<T: super::Float>(a: super::$VecN<T>) -> super::$VecN<T> {
+                super::$VecN {
+                    $($field: T::one() / a.$field,)+
+                }
+            }
+
             /// magnitude or length of vector
             pub fn length<T: super::Float>(a: super::$VecN<T>) -> T {
                 T::sqrt(dot(a, a))
@@ -483,6 +558,13 @@ macro_rules! vec_impl {
                 }
             }
 
+            /// component wise hermite interpolation between 0-1
+            pub fn smoothstep<T: super::Float>(e0: super::$VecN<T>, e1: super::$VecN<T>, t: super::$VecN<T>) -> super::$VecN<T> {
+                super::$VecN {
+                    $($field: super::Float::smoothstep(e0.$field, e1.$field, t.$field),)+
+                }
+            }
+
             /// rounds each element of the vector component wise to the nearest integer
             pub fn round<T: super::Float>(a: super::$VecN<T>) -> super::$VecN<T> {
                 super::$VecN {
@@ -512,20 +594,57 @@ macro_rules! vec_impl {
             }
 
             // returns a vector containing component wise min of a and b
-            /*
             pub fn min<T: super::Number>(a: super::$VecN<T>, b: super::$VecN<T>) -> super::$VecN<T> {
                 super::$VecN {
-                    $($field: std::cmp::min(a.$field, b.$field),)+
+                    $($field: super::Number::min(a.$field, b.$field),)+
                 }
             }
-            */
+            
+            /// returns a vector containing component wise min of a and b
+            pub fn max<T: super::Number>(a: super::$VecN<T>, b: super::$VecN<T>) -> super::$VecN<T> {
+                super::$VecN {
+                    $($field: super::Number::max(a.$field, b.$field),)+
+                }
+            }
+
+            /// returns component-wise value -1 = negative 1 if number is positive or 0 (integers)
+            pub fn sign<T: super::SignedNumber>(a: super::$VecN<T>) -> super::$VecN<T> {
+                super::$VecN {
+                    $($field: super::SignedNumber::signum(a.$field),)+
+                }
+            }
+
+            /// returns component-wise value -1 = negative 1 if number is positive or 0 (integers)
+            pub fn signum<T: super::SignedNumber>(a: super::$VecN<T>) -> super::$VecN<T> {
+                super::$VecN {
+                    $($field: super::SignedNumber::signum(a.$field),)+
+                }
+            }
+
+            /// return the absolute (postive) value component wise
+            pub fn abs<T: super::SignedNumber>(a: super::$VecN<T>) -> super::$VecN<T> {
+                super::$VecN {
+                    $($field: super::SignedNumber::abs(a.$field),)+
+                }
+            }
+
+            /// clamp vector elements component wise to min and max
+            pub fn clamp<T: super::Number>(x: super::$VecN<T>, min: super::$VecN<T>, max: super::$VecN<T>) -> super::$VecN<T> {
+                super::$VecN {
+                    $($field: super::Number::max(super::Number::min(x.$field, max.$field), min.$field),)+
+                }
+            }
+            
+            /// saturate values between 0-1. equivalent to clamp (x, 0, 1)
+            pub fn saturate<T: super::Float>(x: super::$VecN<T>) -> super::$VecN<T> {
+                clamp(x, super::$VecN::zero(), super::$VecN::one())
+            }
         }
     }
 }
 
 macro_rules! vec_ctor {
     ($VecN:ident { $($field:ident),+ }, $ctor:ident, $t:ident) => {
-        /// ie let v = vec3f(x, y, z);
         pub fn $ctor($($field: $t,)+) -> $VecN<$t> {
             $VecN {
                 $($field: $field,)+
@@ -620,27 +739,9 @@ pub fn cross<T: Number>(a: Vec3<T>, b: Vec3<T>) -> Vec3<T> {
 // Macro Decl
 //
 
-float_trait_impl!({ floor, ceil, round, sqrt });
-float_impl!(f64 { floor, ceil, round, sqrt } );
-float_impl!(f32 { floor, ceil, round, sqrt } );
-
-num_impl!(f64, 0.0, 1.0);
-num_impl!(f32, 0.0, 1.0);
-num_impl!(i64, 0, 1);
-num_impl!(u64, 0, 1);
-num_impl!(i32, 0, 1);
-num_impl!(u32, 0, 1);
-num_impl!(i16, 0, 1);
-num_impl!(u16, 0, 1);
-num_impl!(i8, 0, 1);
-num_impl!(u8, 0, 1);
-
-signed_num_impl!(f64, -1.0);
-signed_num_impl!(f32, -1.0);
-signed_num_impl!(i64, -1);
-signed_num_impl!(i32, -1);
-signed_num_impl!(i16, -1);
-signed_num_impl!(i8, -1);
+float_trait_impl!(floor, ceil, round, sqrt);
+signed_number_trait_impl!(signum, abs);
+number_trait_impl!();
 
 vec_impl!(Vec2 { x, 0, y, 1 }, 2, v2);
 vec_impl!(Vec3 { x, 0, y, 1, z, 2 }, 3, v3);
@@ -666,14 +767,16 @@ vec_ctor!(Vec2 { x, y }, vec2u, u32);
 vec_ctor!(Vec3 { x, y, z }, vec3u, u32);
 vec_ctor!(Vec4 { x, y, z, w }, vec4u, u32);
 
-// reflect
-// refract
-
+// step
+// sign
 // abs
 // max
 // min
 // clamp
 // saturate
+
+// reflect
+// refract
 
 // acos
 // atan
@@ -685,22 +788,16 @@ vec_ctor!(Vec4 { x, y, z, w }, vec4u, u32);
 // fmod
 // frac
 // frexp
-// fwidth
-// ldexp ?
+// ldexp
 // lerp
 // log
 // log10
 // log2
 // modf
 // pow
-// rcp (recipricol)
-// rsqrt
-// sign
 // sin
 // sincos
 // sinh
-// smoothstep
-// step
 // tan
 // tanh
 
