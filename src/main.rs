@@ -457,6 +457,17 @@ fn length() {
     let v3 = vec3f(1.0, 2.0, 3.0);
     let sq = (14.0_f32).sqrt();
     assert_eq!(v3::length(v3), sq);
+
+    // dist
+    // mag
+    // 2's
+}
+
+#[test]
+fn float_checks() {
+    assert_eq!(v3::isinf(vec3f(f32::INFINITY, 0.0, f32::INFINITY)), vec3b(true, false, true));
+    assert_eq!(v3::isnan(vec3f(f32::NAN, 0.0, f32::NAN)), vec3b(true, false, true));
+    assert_eq!(v3::isfinite(vec3f(f32::INFINITY, 0.0, f32::INFINITY)), vec3b(false, true, false));
 }
 
 fn main() {

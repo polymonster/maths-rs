@@ -67,6 +67,11 @@ macro_rules! float_trait_impl {
             $(
                 fn $func(v: Self) -> Self;
             )+
+
+            fn isnan(v: Self) -> bool;
+            fn isinf(v: Self) -> bool;
+            fn isfinite(v: Self) -> bool;
+            fn smoothstep(e0: Self, e1: Self, t: Self) -> Self;
         }
     }
 }
@@ -79,6 +84,25 @@ macro_rules! float_impl {
                     v.$func()
                 }
             )+
+
+            fn isnan(v: Self) -> bool {
+                v.is_nan()
+            }
+
+            fn isinf(v: Self) -> bool {
+                v.is_infinite()
+            }
+
+            fn isfinite(v: Self) -> bool {
+                v.is_finite()
+            }
+
+            fn smoothstep(e0: Self, e1: Self, t: Self) -> Self {
+                if t < e0 { return Self::zero(); }
+                if (t >= e1) { return Self::one(); }
+                let x = (t - e0) / (e1 - e0);
+                x * x * (3 as Self - 2 as Self * x)
+            }
         }
     }
 }
@@ -88,16 +112,19 @@ macro_rules! float_impl {
 pub type Vec2f = Vec2<f32>;
 pub type Vec3f = Vec3<f32>;
 pub type Vec4f = Vec4<f32>;
+pub type Vec2b = Vec2<bool>;
+pub type Vec3b = Vec3<bool>;
+pub type Vec4b = Vec4<bool>;
 
 // 
 // Macro Implementation
 //
 
 macro_rules! vec_impl {
-    ($VecN:ident { $($field:ident, $field_index:expr),+ }, $len:expr, $module:ident, $ctorf:ident) => {
+    ($VecN:ident { $($field:ident, $field_index:expr),+ }, $len:expr, $module:ident) => {
         // concrete type
         #[derive(Debug, Copy, Clone)]
-        pub struct $VecN<T: Number> {
+        pub struct $VecN<T> {
             $(pub $field: T,)+
         }
 
@@ -204,7 +231,7 @@ macro_rules! vec_impl {
         }
 
         /// for n-dimensional functionality v[n]
-        impl<T> Index<usize> for $VecN<T> where T: Number {
+        impl<T> Index<usize> for $VecN<T> {
             type Output = T;
             fn index(&self, i: usize) -> &Self::Output {
                 match i {
@@ -215,7 +242,7 @@ macro_rules! vec_impl {
         }
 
         /// displays like [10.0, 12.0, 13.0]
-        impl<T> Display for $VecN<T> where T: Number {
+        impl<T> Display for $VecN<T> where T: Display {
             fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
                 let mut output = String::from("[");
                 $(
@@ -362,8 +389,8 @@ macro_rules! vec_impl {
             }
         }
         
-        impl<T> Eq for $VecN<T> where T: Number  {}
-        impl<T> PartialEq for $VecN<T> where T: Number  {
+        impl<T> Eq for $VecN<T> where T: Eq  {}
+        impl<T> PartialEq for $VecN<T> where T: PartialEq  {
             fn eq(&self, other: &Self) -> bool {
                 $(self.$field == other.$field &&)+
                 true
@@ -377,6 +404,13 @@ macro_rules! vec_impl {
                 $( 
                     +(a.$field * b.$field)
                 )+
+            }
+
+            /// component-wise square root
+            pub fn sqrt<T: super::Float>(a: super::$VecN<T>) -> super::$VecN<T> {
+                super::$VecN {
+                    $($field: T::sqrt(a.$field),)+
+                }
             }
 
             /// magnitude or length of vector
@@ -397,7 +431,7 @@ macro_rules! vec_impl {
             /// normalize vector a to unit length
             pub fn normalize<T: super::Float>(a: super::$VecN<T>) -> super::$VecN<T> {
                 let m = mag(a);
-                a / m;
+                a / m
             }
 
             /// distance between 2 points (magnitude of the vector between the 2 points)
@@ -455,6 +489,36 @@ macro_rules! vec_impl {
                     $($field: super::Float::round(a.$field),)+
                 }
             }
+
+            /// returns true if a is not a number
+            pub fn isnan<T: super::Float>(a: super::$VecN<T>) -> super::$VecN<bool> {
+                super::$VecN {
+                    $($field: super::Float::isnan(a.$field),)+
+                }
+            }
+
+            /// returns true if a is inf
+            pub fn isinf<T: super::Float>(a: super::$VecN<T>) -> super::$VecN<bool> {
+                super::$VecN {
+                    $($field: super::Float::isinf(a.$field),)+
+                }
+            }
+
+            /// returns true is a is finite
+            pub fn isfinite<T: super::Float>(a: super::$VecN<T>) -> super::$VecN<bool> {
+                super::$VecN {
+                    $($field: super::Float::isfinite(a.$field),)+
+                }
+            }
+
+            // returns a vector containing component wise min of a and b
+            /*
+            pub fn min<T: super::Number>(a: super::$VecN<T>, b: super::$VecN<T>) -> super::$VecN<T> {
+                super::$VecN {
+                    $($field: std::cmp::min(a.$field, b.$field),)+
+                }
+            }
+            */
         }
     }
 }
@@ -578,9 +642,13 @@ signed_num_impl!(i32, -1);
 signed_num_impl!(i16, -1);
 signed_num_impl!(i8, -1);
 
-vec_impl!(Vec2 { x, 0, y, 1 }, 2, v2, vec2f);
-vec_impl!(Vec3 { x, 0, y, 1, z, 2 }, 3, v3, vec3f);
-vec_impl!(Vec4 { x, 0, y, 1, z, 2, w, 3 }, 4, v4, vec4f);
+vec_impl!(Vec2 { x, 0, y, 1 }, 2, v2);
+vec_impl!(Vec3 { x, 0, y, 1, z, 2 }, 3, v3);
+vec_impl!(Vec4 { x, 0, y, 1, z, 2, w, 3 }, 4, v4);
+
+vec_ctor!(Vec2 { x, y }, vec2b, bool);
+vec_ctor!(Vec3 { x, y, z }, vec3b, bool);
+vec_ctor!(Vec4 { x, y, z, w }, vec4b, bool);
 
 vec_ctor!(Vec2 { x, y }, vec2f, f32);
 vec_ctor!(Vec3 { x, y, z }, vec3f, f32);
@@ -598,19 +666,12 @@ vec_ctor!(Vec2 { x, y }, vec2u, u32);
 vec_ctor!(Vec3 { x, y, z }, vec3u, u32);
 vec_ctor!(Vec4 { x, y, z, w }, vec4u, u32);
 
-// distance
-// dst ??
-// length (mag)
-// normalize
-
-// floor
-// ceil
-// round
+// reflect
+// refract
 
 // abs
 // max
 // min
-
 // clamp
 // saturate
 
@@ -625,7 +686,6 @@ vec_ctor!(Vec4 { x, y, z, w }, vec4u, u32);
 // frac
 // frexp
 // fwidth
-
 // ldexp ?
 // lerp
 // log
@@ -634,23 +694,15 @@ vec_ctor!(Vec4 { x, y, z, w }, vec4u, u32);
 // modf
 // pow
 // rcp (recipricol)
-// reflect
-// refract
 // rsqrt
 // sign
 // sin
 // sincos
 // sinh
 // smoothstep
-// sqrt
 // step
 // tan
 // tanh
-
-// float checks
-// isfinite
-// isinf
-// isnan
 
 // experims
 
