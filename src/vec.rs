@@ -34,12 +34,6 @@ pub trait SignedNumber:
         fn minus_one() -> Self;
 }
 
-pub trait Float:
-    SignedNumber {
-        fn floor(v: Self) -> Self;
-        fn ceil(v: Self) -> Self;
-}
-
 pub trait VecN<T: Number>: Index<usize, Output=T> {
     fn len() -> usize;
 }
@@ -67,15 +61,24 @@ macro_rules! signed_num_impl {
     }
 }
 
+macro_rules! float_trait_impl {
+    ({ $($func:ident),+ }) => {
+        pub trait Float: SignedNumber {
+            $(
+                fn $func(v: Self) -> Self;
+            )+
+        }
+    }
+}
+
 macro_rules! float_impl {
-    ($t:ident) => {
+    ($t:ident { $($func:ident),+ } ) => {
         impl Float for $t {
-            fn floor(v: Self) -> Self {
-                v.floor()
-            }
-            fn ceil(v: Self) -> Self {
-                v.ceil()
-            }
+            $(
+                fn $func(v: Self) -> Self {
+                    v.$func()
+                }
+            )+
         }
     }
 }
@@ -368,31 +371,88 @@ macro_rules! vec_impl {
         }
 
         pub mod $module {
+            /// vector dot product
             pub fn dot<T: super::Number>(a: super::$VecN<T>, b: super::$VecN<T>) -> T {
-                T::default()
+                T::zero()
                 $( 
                     +(a.$field * b.$field)
                 )+
             }
 
+            /// magnitude or length of vector
+            pub fn length<T: super::Float>(a: super::$VecN<T>) -> T {
+                T::sqrt(dot(a, a))
+            }
+
+            /// magnitude or length of vector
+            pub fn mag<T: super::Float>(a: super::$VecN<T>) -> T {
+                T::sqrt(dot(a, a))
+            }
+
+            /// magnitude or length of vector squared to avoid using sqrt
+            pub fn mag2<T: super::Float>(a: super::$VecN<T>) -> T {
+                dot(a, a)
+            }
+
+            /// normalize vector a to unit length
+            pub fn normalize<T: super::Float>(a: super::$VecN<T>) -> super::$VecN<T> {
+                let m = mag(a);
+                a / m;
+            }
+
+            /// distance between 2 points (magnitude of the vector between the 2 points)
+            pub fn distance<T: super::Float>(a: super::$VecN<T>, b: super::$VecN<T>) -> T {
+                let c = a-b;
+                T::sqrt(dot(c, c))
+            }
+
+            /// distance between 2 points (magnitude of the vector between the 2 points)
+            pub fn dist<T: super::Float>(a: super::$VecN<T>, b: super::$VecN<T>) -> T {
+                distance(a, b)
+            }
+
+            /// squared distance between 2 points to avoid using sqrt
+            pub fn dist2<T: super::Float>(a: super::$VecN<T>, b: super::$VecN<T>) -> T {
+                let c = a-b;
+                dot(c, c)
+            }
+
+            /// returns true if all elements in vector are non-zero
             pub fn all<T: super::Number>(a: super::$VecN<T>) -> bool {
                 $(a.$field != T::zero() &&)+
                 true
             }
 
+            /// returns true if any element of the vector is non-zero
             pub fn any<T: super::Number>(a: super::$VecN<T>) -> bool {
                 $(a.$field != T::zero() ||)+
                 false
             }
 
+            /// returns true if all elements in vectors a and b are approximately equal within the designated epsilon
             pub fn approx<T: super::Float>(a: super::$VecN<T>, b: super::$VecN<T>, eps: T) -> bool {
                 $(a.$field - b.$field < eps &&)+
                 true
             }
 
+            /// returns the greatest integer which is less than or equal to each vector element component wise
             pub fn floor<T: super::Float>(a: super::$VecN<T>) -> super::$VecN<T> {
                 super::$VecN {
                     $($field: super::Float::floor(a.$field),)+
+                }
+            }
+
+            /// returns the smallest integer which is greater than or equal to each vector element component wise
+            pub fn ceil<T: super::Float>(a: super::$VecN<T>) -> super::$VecN<T> {
+                super::$VecN {
+                    $($field: super::Float::ceil(a.$field),)+
+                }
+            }
+
+            /// rounds each element of the vector component wise to the nearest integer
+            pub fn round<T: super::Float>(a: super::$VecN<T>) -> super::$VecN<T> {
+                super::$VecN {
+                    $($field: super::Float::round(a.$field),)+
                 }
             }
         }
@@ -496,8 +556,9 @@ pub fn cross<T: Number>(a: Vec3<T>, b: Vec3<T>) -> Vec3<T> {
 // Macro Decl
 //
 
-float_impl!(f64);
-float_impl!(f32);
+float_trait_impl!({ floor, ceil, round, sqrt });
+float_impl!(f64 { floor, ceil, round, sqrt } );
+float_impl!(f32 { floor, ceil, round, sqrt } );
 
 num_impl!(f64, 0.0, 1.0);
 num_impl!(f32, 0.0, 1.0);
@@ -537,20 +598,21 @@ vec_ctor!(Vec2 { x, y }, vec2u, u32);
 vec_ctor!(Vec3 { x, y, z }, vec3u, u32);
 vec_ctor!(Vec4 { x, y, z, w }, vec4u, u32);
 
-// constructors
-// - combos?
-
 // distance
 // dst ??
 // length (mag)
+// normalize
 
 // floor
 // ceil
-// clamp
+// round
+
 // abs
-// saturate
 // max
 // min
+
+// clamp
+// saturate
 
 // acos
 // atan
@@ -566,17 +628,14 @@ vec_ctor!(Vec4 { x, y, z, w }, vec4u, u32);
 
 // ldexp ?
 // lerp
-// lit ?
 // log
 // log10
 // log2
 // modf
-// normalize
 // pow
 // rcp (recipricol)
 // reflect
 // refract
-// round
 // rsqrt
 // sign
 // sin
@@ -587,9 +646,6 @@ vec_ctor!(Vec4 { x, y, z, w }, vec4u, u32);
 // step
 // tan
 // tanh
-
-// cast ??
-// trunc
 
 // float checks
 // isfinite

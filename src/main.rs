@@ -377,6 +377,10 @@ fn cross_product() {
     let cp = cross(v1, v2);
     let expected = vec3f(0.0, -1.0, 0.0);
     assert_eq!(cp, expected);
+
+    let cp = cross(v2, v1);
+    let expected = vec3f(0.0, 1.0, 0.0);
+    assert_eq!(cp, expected);
 }
 
 #[test]
@@ -425,6 +429,34 @@ fn all_any() {
     assert_eq!(v4::any(vec4f(0.0, 0.0, 1.0, 0.0)), true);
     assert_eq!(v4::any(vec4f(0.0, 0.0, 0.0, 1.0)), true);
     assert_eq!(v4::any(vec4f(0.0, 0.0, 0.0, 0.0)), false);
+}
+
+#[test]
+fn float_funcs() {
+    assert_eq!(v2::round(vec2f(0.1, 0.6)), vec2f(0.0, 1.0));
+    assert_eq!(v2::floor(vec2f(0.1, 0.6)), vec2f(0.0, 0.0));
+    assert_eq!(v2::ceil(vec2f(0.1, 0.6)), vec2f(1.0, 1.0));
+}
+
+#[test]
+fn from() {
+    let v2 = vec2f(2.0, 3.0);
+    let v3 = vec3f(3.0, 4.0, 5.0);
+    let v4 = vec4f(4.0, 5.0, 6.0, 7.0);
+
+    assert_eq!(Vec2f::from(v4), vec2f(4.0, 5.0));
+    assert_eq!(Vec2f::from(v3), vec2f(3.0, 4.0));
+    assert_eq!(Vec3f::from(v2), vec3f(2.0, 3.0, 0.0));
+    assert_eq!(Vec3f::from(v4), vec3f(4.0, 5.0, 6.0));
+    assert_eq!(Vec4f::from(v2), vec4f(2.0, 3.0, 0.0, 0.0));
+    assert_eq!(Vec4f::from(v3), vec4f(3.0, 4.0, 5.0, 0.0));
+}
+
+#[test]
+fn length() {
+    let v3 = vec3f(1.0, 2.0, 3.0);
+    let sq = (14.0_f32).sqrt();
+    assert_eq!(v3::length(v3), sq);
 }
 
 fn main() {
