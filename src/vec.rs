@@ -35,6 +35,7 @@ macro_rules! number_trait_impl {
                 fn one() -> Self;
                 fn min(a: Self, b: Self) -> Self;
                 fn max(a: Self, b: Self) -> Self;
+                fn step(a: Self, b: Self) -> Self;
         }
         number_impl!(f64 { $($func),* }, 0.0, 1.0);
         number_impl!(f32 { $($func),* }, 0.0, 1.0);
@@ -69,8 +70,18 @@ macro_rules! number_impl {
             fn zero() -> Self {
                 $zero
             }
+
             fn one() -> Self {
                 $one
+            }
+
+            fn step(a: Self, b: Self) -> Self {
+                if a >= b {
+                    Self::one()
+                } 
+                else {
+                    Self::zero()
+                }
             }
         }
     }
@@ -79,9 +90,7 @@ macro_rules! number_impl {
 macro_rules! signed_number_trait_impl {
     ($($func:ident),*) => {
         pub trait SignedNumber: Number + Neg<Output=Self> {
-            $(
-                fn $func(v: Self) -> Self;
-            )*
+            $(fn $func(v: Self) -> Self;)*
             fn minus_one() -> Self;
         }
         signed_number_impl!(f64 { $($func),* }, -1.0);
@@ -111,10 +120,7 @@ macro_rules! signed_number_impl {
 macro_rules! float_trait_impl {
     ($($func:ident),*) => {
         pub trait Float: SignedNumber {
-            $(
-                fn $func(v: Self) -> Self;
-            )*
-
+            $(fn $func(v: Self) -> Self;)*
             fn isnan(v: Self) -> bool;
             fn isinf(v: Self) -> bool;
             fn isfinite(v: Self) -> bool;
@@ -168,6 +174,33 @@ pub type Vec3f = Vec3<f32>;
 
 /// 4-dimensional f32 vector
 pub type Vec4f = Vec4<f32>;
+
+/// 2-dimensional f64 vector
+pub type Vec2d = Vec2<f64>;
+
+/// 3-dimensional f64 vector
+pub type Vec3d = Vec3<f64>;
+
+/// 4-dimensional f64 vector
+pub type Vec4d = Vec4<f64>;
+
+/// 2-dimensional i32 vector
+pub type Vec2i = Vec2<i32>;
+
+/// 3-dimensional i32 vector
+pub type Vec3i = Vec3<i32>;
+
+/// 4-dimensional i32 vector
+pub type Vec4i = Vec4<i32>;
+
+/// 2-dimensional u32 vector
+pub type Vec2u = Vec2<u32>;
+
+/// 3-dimensional u32 vector
+pub type Vec3u = Vec3<u32>;
+
+/// 4-dimensional u32 vector
+pub type Vec4u = Vec4<u32>;
 
 /// 2-dimensional bool vector
 pub type Vec2b = Vec2<bool>;
@@ -477,14 +510,14 @@ macro_rules! vec_impl {
             // component-wise reciprocal square root (1/sqrt(a))
             pub fn rsqrt<T: super::Float>(a: super::$VecN<T>) -> super::$VecN<T> {
                 super::$VecN {
-                    $($field: T::one() / T::sqrt(a.$field),)+
+                    $($field: T::recip(T::sqrt(a.$field)),)+
                 }
             }
 
             // component-wise reciprocal
             pub fn rcp<T: super::Float>(a: super::$VecN<T>) -> super::$VecN<T> {
                 super::$VecN {
-                    $($field: T::one() / a.$field,)+
+                    $($field: T::recip(a.$field),)+
                 }
             }
 
@@ -639,6 +672,13 @@ macro_rules! vec_impl {
             pub fn saturate<T: super::Float>(x: super::$VecN<T>) -> super::$VecN<T> {
                 clamp(x, super::$VecN::zero(), super::$VecN::one())
             }
+
+            /// returns component wise; 1 if a is >= b, 0 otherwise
+            pub fn step<T: super::Number>(a: super::$VecN<T>, b: super::$VecN<T>) -> super::$VecN<T> {
+                super::$VecN {
+                    $($field: super::Number::step(a.$field),)+
+                }
+            }
         }
     }
 }
@@ -739,7 +779,7 @@ pub fn cross<T: Number>(a: Vec3<T>, b: Vec3<T>) -> Vec3<T> {
 // Macro Decl
 //
 
-float_trait_impl!(floor, ceil, round, sqrt);
+float_trait_impl!(floor, ceil, round, sqrt, recip);
 signed_number_trait_impl!(signum, abs);
 number_trait_impl!();
 
@@ -766,14 +806,6 @@ vec_ctor!(Vec4 { x, y, z, w }, vec4i, i32);
 vec_ctor!(Vec2 { x, y }, vec2u, u32);
 vec_ctor!(Vec3 { x, y, z }, vec3u, u32);
 vec_ctor!(Vec4 { x, y, z, w }, vec4u, u32);
-
-// step
-// sign
-// abs
-// max
-// min
-// clamp
-// saturate
 
 // reflect
 // refract

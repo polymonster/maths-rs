@@ -491,6 +491,8 @@ fn abs_sign() {
     assert_eq!(v3::sign(vec3f(123.0, -123.0, 999.0)), vec3f(1.0, -1.0, 1.0));
     assert_eq!(v3::signum(vec3f(123.0, -123.0, 999.0)), vec3f(1.0, -1.0, 1.0));
     assert_eq!(v3::sign(vec3f(0.0, -0.0, 0.0)), vec3f(1.0, -1.0, 1.0));
+    assert_eq!(v3::sign(vec3i(-1, 0, 1)), vec3i(-1, 0, 1));
+
 }
 
 fn main() {
