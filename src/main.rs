@@ -1,8 +1,6 @@
 pub mod vec;
 use vec::*;
 
-// TODO: splats
-
 #[test]
 fn v2_construct() {
     let v2 = Vec2f {
@@ -399,8 +397,6 @@ fn div_assign_scalar() {
     assert_eq!(v2::approx(expected, v1, 0.001), true);
 }
 
-// TODO: mad
-
 #[test]
 fn dot() {
     let v1 = vec2f(2.0, 4.0);
@@ -577,11 +573,6 @@ fn abs_sign() {
 }
 
 #[test]
-fn reflect_refract() {
-    // TODO:
-}
-
-#[test]
 fn deref() {
     let v4 = vec4f(0.0, 1.0, 2.0, 3.0);
     let slice : &[f32] = &v4;
@@ -603,6 +594,13 @@ fn deref() {
     let slice_u8 = v4.as_u8_slice();
     assert_eq!(slice_u8.len(), 16);
 }
+
+// TODO: 
+//  rem
+//  refl refract
+//  mad
+//  pow
+//  lerp, smoothstep
 
 fn main() {
 }

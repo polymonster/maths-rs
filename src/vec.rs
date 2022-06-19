@@ -7,6 +7,8 @@ use std::ops::Sub;
 use std::ops::SubAssign;
 use std::ops::Div;
 use std::ops::DivAssign;
+use std::ops::Rem;
+use std::ops::RemAssign;
 use std::ops::Neg;
 use std::ops::Deref;
 use std::ops::DerefMut;
@@ -31,10 +33,11 @@ macro_rules! number_trait_impl {
         /// base number trait for signed or unsigned, floating point or integer numbers.
         pub trait Number: 
             Copy + Default + Display +
-            Add<Output=Self> + AddAssign + 
+            Add<Output=Self> + AddAssign +
+            Sub<Output=Self> + SubAssign + 
             Mul<Output=Self> + MulAssign + 
             Div<Output=Self> + DivAssign +
-            Sub<Output=Self> + SubAssign +
+            Rem<Output=Self> + RemAssign +
             PartialEq + PartialOrd {
                 fn zero() -> Self;
                 fn one() -> Self;
@@ -143,11 +146,22 @@ macro_rules! float_trait_impl {
         /// floating point trait for various levels of fp precision
         pub trait Float: SignedNumber {
             $(fn $func(v: Self) -> Self;)*
+            /// fused multiply add, m * a + b
             fn mad(m: Self, a: Self, b: Self) -> Self;
+            /// checks if value isnan
             fn isnan(v: Self) -> bool;
+            /// checks if value is inf
             fn isinf(v: Self) -> bool;
+            /// checks if value is not inf
             fn isfinite(v: Self) -> bool;
+            /// performs linear interpolation between e0 and e1, t specifies the ratio to interpolate between the values
+            fn lerp(e0: Self, e1: Self, t: Self) -> Self;
+            /// performs hermite interpolation between e0 and e1 by t
             fn smoothstep(e0: Self, e1: Self, t: Self) -> Self;
+            /// raise v to power of integer exponent 
+            fn powi(v: Self, exp: i32) -> Self;
+            /// raise v to power of float exponent 
+            fn powf(v: Self, exp: Self) -> Self;
         }
         float_impl!(f64 { $($func),* });
         float_impl!(f32 { $($func),* });
@@ -179,11 +193,50 @@ macro_rules! float_impl {
                 v.is_finite()
             }
 
+            fn lerp(e0: Self, e1: Self, t: Self) -> Self {
+                e0 + t * (e1 - e0)
+            }
+
             fn smoothstep(e0: Self, e1: Self, t: Self) -> Self {
                 if t < e0 { return Self::zero(); }
                 if (t >= e1) { return Self::one(); }
                 let x = (t - e0) / (e1 - e0);
                 x * x * (3 as Self - 2 as Self * x)
+            }
+
+            fn powi(v: Self, exp: i32) -> Self {
+                v.powi(exp)
+            }
+            
+            fn powf(v: Self, exp: Self) -> Self {
+                v.powf(exp)
+            }
+        }
+    }
+}
+
+macro_rules! integer_trait_impl {
+    ($($func:ident),*) => {
+        /// integer point trait for various sized integers
+        pub trait Integer: Number {
+            fn pow(v: Self, exp: u32) -> Self;
+        }
+        integer_impl!(i8 { $($func),* });
+        integer_impl!(u8 { $($func),* });
+        integer_impl!(i16 { $($func),* });
+        integer_impl!(u16 { $($func),* });
+        integer_impl!(i32 { $($func),* });
+        integer_impl!(u32 { $($func),* });
+        integer_impl!(i64 { $($func),* });
+        integer_impl!(u64 { $($func),* });
+    }
+}
+
+macro_rules! integer_impl {
+    ($t:ident { $($func:ident),* } ) => {
+        impl Integer for $t {
+            fn pow(v: Self, exp: u32) -> Self {
+                v.pow(exp)
             }
         }
     }
@@ -381,14 +434,14 @@ macro_rules! vec_impl {
                 }
             }
 
-            /// returns a slice &[T] of the vector
+            /// returns a slice T of the vector
             pub fn as_slice(&self) -> &[T] {
                 unsafe {
                     std::slice::from_raw_parts(&self.x, $len)
                 }
             }
 
-            /// returns a mutable slice &[T] of the vector
+            /// returns a mutable slice T of the vector
             pub fn as_mut_slice(&mut self) -> &mut [T] {
                 unsafe {
                     std::slice::from_raw_parts_mut(&mut self.x, $len)
@@ -446,7 +499,6 @@ macro_rules! vec_impl {
                 self.as_slice()
             }
         }
-
 
         impl<T> DerefMut for $VecN<T> where T: Number {
             fn deref_mut(&mut self) -> &mut [T] {
@@ -573,6 +625,36 @@ macro_rules! vec_impl {
                 $(self.$field /= other;)+
             }
         }
+
+        impl<T> Rem<Self> for $VecN<T> where T: Number {
+            type Output = Self;
+            fn rem(self, other: Self) -> Self {
+                Self {
+                    $($field: self.$field % other.$field,)+
+                }
+            }
+        }
+        
+        impl<T> Rem<T> for $VecN<T> where T: Number {
+            type Output = Self;
+            fn rem(self, other: T) -> Self {
+                Self {
+                    $($field: self.$field % other,)+
+                }
+            }
+        }
+        
+        impl<T> RemAssign<Self> for $VecN<T> where T: Number {
+            fn rem_assign(&mut self, other: Self) {
+                $(self.$field %= other.$field;)+
+            }
+        }
+        
+        impl<T> RemAssign<T> for $VecN<T> where T: Number {
+            fn rem_assign(&mut self, other: T) {
+                $(self.$field %= other;)+
+            }
+        }
         
         impl<T> Neg for $VecN<T> where T: SignedNumber {
             type Output = Self;
@@ -620,6 +702,28 @@ macro_rules! vec_impl {
                     $($field: T::recip(a.$field),)+
                 }
             }
+
+            /// returns vector with component-wise values raised to unsigned integer power
+            pub fn pow<T: super::Integer>(a: super::$VecN<T>, exp: super::$VecN<u32>) -> super::$VecN<T> {
+                super::$VecN {
+                    $($field: T::pow(a.$field, exp.$field),)+
+                }
+            }
+
+            /// returns vector with component-wise values raised to integer power
+            pub fn powi<T: super::Float>(a: super::$VecN<T>, exp: super::$VecN<i32>) -> super::$VecN<T> {
+                super::$VecN {
+                    $($field: T::powi(a.$field, exp.$field),)+
+                }
+            }
+
+            /// returns vector with component-wise values raised to float power
+            pub fn powf<T: super::Float>(a: super::$VecN<T>, exp: super::$VecN<T>) -> super::$VecN<T> {
+                super::$VecN {
+                    $($field: T::powf(a.$field, exp.$field),)+
+                }
+            }
+            
 
             /// returns scalar magnitude or length of vector
             pub fn length<T: super::Float>(a: super::$VecN<T>) -> T {
@@ -695,6 +799,13 @@ macro_rules! vec_impl {
             pub fn ceil<T: super::Float>(a: super::$VecN<T>) -> super::$VecN<T> {
                 super::$VecN {
                     $($field: super::Float::ceil(a.$field),)+
+                }
+            }
+
+            /// performs linear interpolation between e0 and e1, t specifies the ratio to interpolate between the values
+            pub fn lerp<T: super::Float>(e0: super::$VecN<T>, e1: super::$VecN<T>, t: super::$VecN<T>) -> super::$VecN<T> {
+                super::$VecN {
+                    $($field: super::Float::lerp(e0.$field, e1.$field, t.$field),)+
                 }
             }
 
@@ -995,9 +1106,11 @@ pub fn cross<T: Number>(a: Vec3<T>, b: Vec3<T>) -> Vec3<T> {
 // Macro Decl
 //
 
-float_trait_impl!(floor, ceil, round, sqrt, recip);
 signed_number_trait_impl!(signum, abs);
 number_trait_impl!();
+
+float_trait_impl!(floor, ceil, round, sqrt, recip);
+integer_trait_impl!();
 
 vec_impl!(Vec2 { x, 0, y, 1 }, 2, v2);
 vec_impl!(Vec3 { x, 0, y, 1, z, 2 }, 3, v3);
@@ -1020,17 +1133,15 @@ vec_ctor_scalar_lhs!(Vec2 { x, y }, vec2u, splat2u, u32);
 vec_ctor_scalar_lhs!(Vec3 { x, y, z }, vec3u, splat3u, u32);
 vec_ctor_scalar_lhs!(Vec4 { x, y, z, w }, vec4u, splat4u, u32);
 
-// numeric --
-// pow
+// --- int --
 // mod
 
-// float --
+// --- float --
 // modf
 // fmod
 // frac
-// lerp
 
-// trig --
+// --- trig --
 // acos
 // atan
 // atan2
