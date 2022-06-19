@@ -673,6 +673,7 @@ macro_rules! vec_impl {
             }
         }
 
+        /// collection of functions and operations for n dimensional vector
         pub mod $module {
             /// returns scalar value which is the vector dot product a . b
             pub fn dot<T: super::Number>(a: super::$VecN<T>, b: super::$VecN<T>) -> T {
@@ -1109,7 +1110,12 @@ pub fn cross<T: Number>(a: Vec3<T>, b: Vec3<T>) -> Vec3<T> {
 signed_number_trait_impl!(signum, abs);
 number_trait_impl!();
 
-float_trait_impl!(floor, ceil, round, sqrt, recip);
+float_trait_impl!(
+    floor, ceil, round, sqrt, recip,
+    cos, sin, tan, acos, asin, atan, cosh, sinh, tanh,
+    exp, exp2, log2, log10
+);
+
 integer_trait_impl!();
 
 vec_impl!(Vec2 { x, 0, y, 1 }, 2, v2);
@@ -1133,9 +1139,6 @@ vec_ctor_scalar_lhs!(Vec2 { x, y }, vec2u, splat2u, u32);
 vec_ctor_scalar_lhs!(Vec3 { x, y, z }, vec3u, splat3u, u32);
 vec_ctor_scalar_lhs!(Vec4 { x, y, z, w }, vec4u, splat4u, u32);
 
-// --- int --
-// mod
-
 // --- float --
 // modf
 // fmod
@@ -1144,21 +1147,23 @@ vec_ctor_scalar_lhs!(Vec4 { x, y, z, w }, vec4u, splat4u, u32);
 // --- trig --
 // acos
 // atan
-// atan2
 // cos
 // cosh
 // exp
 // exp2
-// frexp
-// ldexp
 // log
 // log10
 // log2
 // sin
-// sincos
 // sinh
 // tan
 // tanh
+
+// log
+// frexp
+// ldexp
+// sincos
+// atan2
 
 // experims
 // v3 / v2 mod, with use... didnt correctly deduce the function by type
