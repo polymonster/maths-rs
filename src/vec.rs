@@ -8,6 +8,9 @@ use std::ops::SubAssign;
 use std::ops::Div;
 use std::ops::DivAssign;
 use std::ops::Neg;
+use std::ops::Deref;
+use std::ops::DerefMut;
+
 use std::cmp::PartialEq;
 use std::cmp::PartialOrd;
 
@@ -27,7 +30,7 @@ macro_rules! number_trait_impl {
     ($($func:ident),*) => {
         /// base number trait for signed or unsigned, floating point or integer numbers.
         pub trait Number: 
-            Copy + Default + Display + 
+            Copy + Default + Display +
             Add<Output=Self> + AddAssign + 
             Mul<Output=Self> + MulAssign + 
             Div<Output=Self> + DivAssign +
@@ -38,6 +41,8 @@ macro_rules! number_trait_impl {
                 fn two() -> Self;
                 fn min(a: Self, b: Self) -> Self;
                 fn max(a: Self, b: Self) -> Self;
+                fn min_value() -> Self;
+                fn max_value() -> Self;
                 fn step(a: Self, b: Self) -> Self;
         }
         number_impl!(f64 { $($func),* }, 0.0, 1.0);
@@ -68,6 +73,14 @@ macro_rules! number_impl {
 
             fn max(a: Self, b: Self) -> Self {
                 a.max(b)
+            }
+
+            fn min_value() -> Self {
+                $t::MIN
+            }
+
+            fn max_value() -> Self {
+                $t::MAX
             }
 
             fn zero() -> Self {
@@ -351,6 +364,43 @@ macro_rules! vec_impl {
             pub fn white() -> $VecN<T> {
                 Self::one()
             }
+
+            /// returns a vector initialised to the max supported value for type <T>
+            pub fn min_value() -> $VecN<T> {
+                let v = [T::min_value(), T::min_value(), T::min_value(), T::min_value()];
+                Self {
+                    $($field: v[$field_index],)+
+                }
+            }
+
+            /// returns a vector initialised to the max supported value for type <T>
+            pub fn max_value() -> $VecN<T> {
+                let v = [T::max_value(), T::max_value(), T::max_value(), T::max_value()];
+                Self {
+                    $($field: v[$field_index],)+
+                }
+            }
+
+            /// returns a slice &[T] of the vector
+            pub fn as_slice(&self) -> &[T] {
+                unsafe {
+                    std::slice::from_raw_parts(&self.x, $len)
+                }
+            }
+
+            /// returns a mutable slice &[T] of the vector
+            pub fn as_mut_slice(&mut self) -> &mut [T] {
+                unsafe {
+                    std::slice::from_raw_parts_mut(&mut self.x, $len)
+                }
+            }
+
+            /// returns a slice of bytes for the vector
+            pub fn as_u8_slice(&self) -> &[u8] {
+                unsafe {
+                    std::slice::from_raw_parts((&self.x as *const T) as *const u8, std::mem::size_of::<$VecN<T>>())
+                }
+            }
         }
 
         /// for n-dimensional functionality Self::len()
@@ -389,6 +439,20 @@ macro_rules! vec_impl {
         //
         // ops
         //
+
+        impl<T> Deref for $VecN<T> where T: Number {
+            type Target = [T];
+            fn deref(&self) -> &Self::Target {
+                self.as_slice()
+            }
+        }
+
+
+        impl<T> DerefMut for $VecN<T> where T: Number {
+            fn deref_mut(&mut self) -> &mut [T] {
+                self.as_mut_slice()
+            }
+        }
 
         impl<T> Add<Self> for $VecN<T> where T: Number {
             type Output = Self;
@@ -745,10 +809,15 @@ macro_rules! vec_impl {
 
 /// macro to stamp out various typed c-style constructors. ie. let v = vec3f(0.0, 1.0, 0.0);
 macro_rules! vec_ctor {
-    ($VecN:ident { $($field:ident),+ }, $ctor:ident, $t:ident) => {
+    ($VecN:ident { $($field:ident),+ }, $ctor:ident, $splat:ident, $t:ident) => {
         pub fn $ctor($($field: $t,)+) -> $VecN<$t> {
             $VecN {
                 $($field: $field,)+
+            }
+        }
+        pub fn $splat(v: $t) -> $VecN<$t> {
+            $VecN {
+                $($field: v,)+
             }
         }
     }
@@ -756,13 +825,17 @@ macro_rules! vec_ctor {
 
 /// macro to stamp out various typed c-style constructors. and all arithmetic ops for lhs scalars
 macro_rules! vec_ctor_scalar_lhs {
-    ($VecN:ident { $($field:ident),+ }, $ctor:ident, $t:ident) => {
+    ($VecN:ident { $($field:ident),+ }, $ctor:ident, $splat:ident, $t:ident) => {
         pub fn $ctor($($field: $t,)+) -> $VecN<$t> {
             $VecN {
                 $($field: $field,)+
             }
         }
-
+        pub fn $splat(v: $t) -> $VecN<$t> {
+            $VecN {
+                $($field: v,)+
+            }
+        }
         impl Add<$VecN<$t>> for $t {
             type Output = $VecN<$t>;
             fn add(self, other: $VecN<$t>) -> $VecN<$t> {
@@ -807,6 +880,16 @@ macro_rules! vec_ctor_scalar_lhs {
 // From
 //
 
+/// constructs vec2 from scalar T splatting to x and y
+impl<T> From<T> for Vec2<T> where T: Number {
+    fn from(other: T) -> Vec2<T> {
+        Vec2 {
+            x: other,
+            y: other,
+        }
+    }
+}
+
 /// constructs vec2 from vec3 copying the x,y and truncating the z
 impl<T> From<Vec3<T>> for Vec2<T> where T: Number {
     fn from(other: Vec3<T>) -> Vec2<T> {
@@ -823,6 +906,17 @@ impl<T> From<Vec4<T>> for Vec2<T> where T: Number {
         Vec2 {
             x: other.x,
             y: other.y,
+        }
+    }
+}
+
+/// constructs vec3 from scalar T splatting to x,y,z
+impl<T> From<T> for Vec3<T> where T: Number {
+    fn from(other: T) -> Vec3<T> {
+        Vec3 {
+            x: other,
+            y: other,
+            z: other
         }
     }
 }
@@ -845,6 +939,18 @@ impl<T> From<Vec4<T>> for Vec3<T> where T: Number {
             x: other.x,
             y: other.y,
             z: other.z,
+        }
+    }
+}
+
+/// constructs vec4 from scalar T splatting to x,y,z,w
+impl<T> From<T> for Vec4<T> where T: Number {
+    fn from(other: T) -> Vec4<T> {
+        Vec4 {
+            x: other,
+            y: other,
+            z: other,
+            w: other
         }
     }
 }
@@ -897,31 +1003,28 @@ vec_impl!(Vec2 { x, 0, y, 1 }, 2, v2);
 vec_impl!(Vec3 { x, 0, y, 1, z, 2 }, 3, v3);
 vec_impl!(Vec4 { x, 0, y, 1, z, 2, w, 3 }, 4, v4);
 
-vec_ctor!(Vec2 { x, y }, vec2b, bool);
-vec_ctor!(Vec3 { x, y, z }, vec3b, bool);
-vec_ctor!(Vec4 { x, y, z, w }, vec4b, bool);
+vec_ctor!(Vec2 { x, y }, vec2b, splat2b, bool);
+vec_ctor!(Vec3 { x, y, z }, vec3b, splat3b, bool);
+vec_ctor!(Vec4 { x, y, z, w }, vec4b, splat4b, bool);
 
-vec_ctor_scalar_lhs!(Vec2 { x, y }, vec2f, f32);
-vec_ctor_scalar_lhs!(Vec3 { x, y, z }, vec3f, f32);
-vec_ctor_scalar_lhs!(Vec4 { x, y, z, w }, vec4f, f32);
-vec_ctor_scalar_lhs!(Vec2 { x, y }, vec2d, f64);
-vec_ctor_scalar_lhs!(Vec3 { x, y, z }, vec3d, f64);
-vec_ctor_scalar_lhs!(Vec4 { x, y, z, w }, vec4d, f64);
-vec_ctor_scalar_lhs!(Vec2 { x, y }, vec2i, i32);
-vec_ctor_scalar_lhs!(Vec3 { x, y, z }, vec3i, i32);
-vec_ctor_scalar_lhs!(Vec4 { x, y, z, w }, vec4i, i32);
-vec_ctor_scalar_lhs!(Vec2 { x, y }, vec2u, u32);
-vec_ctor_scalar_lhs!(Vec3 { x, y, z }, vec3u, u32);
-vec_ctor_scalar_lhs!(Vec4 { x, y, z, w }, vec4u, u32);
-
-// min / max value
-// deref, as slice, etc
+vec_ctor_scalar_lhs!(Vec2 { x, y }, vec2f, splat2f, f32);
+vec_ctor_scalar_lhs!(Vec3 { x, y, z }, vec3f, splat3f, f32);
+vec_ctor_scalar_lhs!(Vec4 { x, y, z, w }, vec4f, splat4f, f32);
+vec_ctor_scalar_lhs!(Vec2 { x, y }, vec2d, splat2d, f64);
+vec_ctor_scalar_lhs!(Vec3 { x, y, z }, vec3d, splat3d, f64);
+vec_ctor_scalar_lhs!(Vec4 { x, y, z, w }, vec4d, splat4d, f64);
+vec_ctor_scalar_lhs!(Vec2 { x, y }, vec2i, splat2i, i32);
+vec_ctor_scalar_lhs!(Vec3 { x, y, z }, vec3i, splat3i, i32);
+vec_ctor_scalar_lhs!(Vec4 { x, y, z, w }, vec4i, splat4i, i32);
+vec_ctor_scalar_lhs!(Vec2 { x, y }, vec2u, splat2u, u32);
+vec_ctor_scalar_lhs!(Vec3 { x, y, z }, vec3u, splat3u, u32);
+vec_ctor_scalar_lhs!(Vec4 { x, y, z, w }, vec4u, splat4u, u32);
 
 // numeric --
 // pow
 // mod
 
-// float
+// float --
 // modf
 // fmod
 // frac

@@ -1,6 +1,8 @@
 pub mod vec;
 use vec::*;
 
+// TODO: splats
+
 #[test]
 fn v2_construct() {
     let v2 = Vec2f {
@@ -397,6 +399,8 @@ fn div_assign_scalar() {
     assert_eq!(v2::approx(expected, v1, 0.001), true);
 }
 
+// TODO: mad
+
 #[test]
 fn dot() {
     let v1 = vec2f(2.0, 4.0);
@@ -463,6 +467,16 @@ fn colours() {
 }
 
 #[test]
+fn limits() {
+    assert_eq!(Vec3f::min_value(), splat3f(f32::MIN));
+    assert_eq!(Vec3f::max_value(), splat3f(f32::MAX));
+    assert_eq!(Vec3i::min_value(), splat3i(i32::MIN));
+    assert_eq!(Vec3i::max_value(), splat3i(i32::MAX));
+    assert_eq!(Vec3u::min_value(), splat3u(u32::MIN));
+    assert_eq!(Vec3u::max_value(), splat3u(u32::MAX));
+}
+
+#[test]
 fn all_any() {
     // all
     assert_eq!(v4::all(vec4f(1.0, 1.0, 1.0, 1.0)), true);
@@ -490,12 +504,31 @@ fn from() {
     let v3 = vec3f(3.0, 4.0, 5.0);
     let v4 = vec4f(4.0, 5.0, 6.0, 7.0);
 
+    // from vector
     assert_eq!(Vec2f::from(v4), vec2f(4.0, 5.0));
     assert_eq!(Vec2f::from(v3), vec2f(3.0, 4.0));
     assert_eq!(Vec3f::from(v2), vec3f(2.0, 3.0, 0.0));
     assert_eq!(Vec3f::from(v4), vec3f(4.0, 5.0, 6.0));
     assert_eq!(Vec4f::from(v2), vec4f(2.0, 3.0, 0.0, 0.0));
     assert_eq!(Vec4f::from(v3), vec4f(3.0, 4.0, 5.0, 0.0));
+
+    // from scalar
+    assert_eq!(Vec2f::from(1.0), vec2f(1.0, 1.0));
+    assert_eq!(Vec2i::from(2), vec2i(2, 2));
+    assert_eq!(Vec3f::from(3.0), vec3f(3.0, 3.0, 3.0));
+    assert_eq!(Vec3i::from(4), vec3i(4, 4, 4));
+    assert_eq!(Vec4f::from(5.0), vec4f(5.0, 5.0, 5.0, 5.0));
+    assert_eq!(Vec4i::from(6), vec4i(6, 6, 6, 6));
+}
+
+#[test]
+fn splat() {
+    assert_eq!(splat2f(1.0), vec2f(1.0, 1.0));
+    assert_eq!(splat2i(2), vec2i(2, 2));
+    assert_eq!(splat3f(3.0), vec3f(3.0, 3.0, 3.0));
+    assert_eq!(splat3i(4), vec3i(4, 4, 4));
+    assert_eq!(splat4f(5.0), vec4f(5.0, 5.0, 5.0, 5.0));
+    assert_eq!(splat4i(6), vec4i(6, 6, 6, 6));
 }
 
 #[test]
@@ -546,6 +579,29 @@ fn abs_sign() {
 #[test]
 fn reflect_refract() {
     // TODO:
+}
+
+#[test]
+fn deref() {
+    let v4 = vec4f(0.0, 1.0, 2.0, 3.0);
+    let slice : &[f32] = &v4;
+    for i in 0..slice.len() {
+        assert_eq!(slice[i], i as f32);
+    }
+
+    let mut v5 = vec4f(0.0, 1.0, 2.0, 3.0);
+    let mut_slice : &mut [f32] = &mut v5;
+    for f in mut_slice {
+        *f *= 2.0;
+    }
+
+    let modified_slice : &[f32] = &v5;
+    for i in 0..modified_slice.len() {
+        assert_eq!(modified_slice[i], (i as f32) * 2.0);
+    }
+
+    let slice_u8 = v4.as_u8_slice();
+    assert_eq!(slice_u8.len(), 16);
 }
 
 fn main() {
