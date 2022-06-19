@@ -33,6 +33,7 @@ macro_rules! number_trait_impl {
             PartialEq + PartialOrd {
                 fn zero() -> Self;
                 fn one() -> Self;
+                fn two() -> Self;
                 fn min(a: Self, b: Self) -> Self;
                 fn max(a: Self, b: Self) -> Self;
                 fn step(a: Self, b: Self) -> Self;
@@ -73,6 +74,10 @@ macro_rules! number_impl {
 
             fn one() -> Self {
                 $one
+            }
+
+            fn two() -> Self {
+                2 as Self
             }
 
             fn step(a: Self, b: Self) -> Self {
@@ -216,7 +221,7 @@ pub type Vec4b = Vec4<bool>;
 //
 
 macro_rules! vec_impl {
-    ($VecN:ident { $($field:ident, $field_index:expr),+ }, $len:expr, $module:ident) => {
+    ($VecN:ident { $($field:ident, $field_index:expr),* }, $len:expr, $module:ident) => {
         #[derive(Debug, Copy, Clone)]
         pub struct $VecN<T> {
             $(pub $field: T,)+
@@ -492,7 +497,7 @@ macro_rules! vec_impl {
         }
 
         pub mod $module {
-            /// vector dot product
+            /// returns scalar value which is the vector dot product a . b
             pub fn dot<T: super::Number>(a: super::$VecN<T>, b: super::$VecN<T>) -> T {
                 T::zero()
                 $( 
@@ -500,60 +505,60 @@ macro_rules! vec_impl {
                 )+
             }
 
-            /// component-wise square root
+            /// returns vector with component-wise square root
             pub fn sqrt<T: super::Float>(a: super::$VecN<T>) -> super::$VecN<T> {
                 super::$VecN {
                     $($field: T::sqrt(a.$field),)+
                 }
             }
 
-            // component-wise reciprocal square root (1/sqrt(a))
+            // returns vector with component-wise reciprocal square root (1/sqrt(a))
             pub fn rsqrt<T: super::Float>(a: super::$VecN<T>) -> super::$VecN<T> {
                 super::$VecN {
                     $($field: T::recip(T::sqrt(a.$field)),)+
                 }
             }
 
-            // component-wise reciprocal
+            // returns vector with component-wise reciprocal
             pub fn rcp<T: super::Float>(a: super::$VecN<T>) -> super::$VecN<T> {
                 super::$VecN {
                     $($field: T::recip(a.$field),)+
                 }
             }
 
-            /// magnitude or length of vector
+            /// returns scalar magnitude or length of vector
             pub fn length<T: super::Float>(a: super::$VecN<T>) -> T {
                 T::sqrt(dot(a, a))
             }
 
-            /// magnitude or length of vector
+            /// returns scalar magnitude or length of vector
             pub fn mag<T: super::Float>(a: super::$VecN<T>) -> T {
                 T::sqrt(dot(a, a))
             }
 
-            /// magnitude or length of vector squared to avoid using sqrt
+            /// returns scalar magnitude or length of vector squared to avoid using sqrt
             pub fn mag2<T: super::Float>(a: super::$VecN<T>) -> T {
                 dot(a, a)
             }
 
-            /// normalize vector a to unit length
+            /// returns a normalized unit vector
             pub fn normalize<T: super::Float>(a: super::$VecN<T>) -> super::$VecN<T> {
                 let m = mag(a);
                 a / m
             }
 
-            /// distance between 2 points (magnitude of the vector between the 2 points)
+            /// returns scalar distance between 2 points (magnitude of the vector between the 2 points)
             pub fn distance<T: super::Float>(a: super::$VecN<T>, b: super::$VecN<T>) -> T {
                 let c = a-b;
                 T::sqrt(dot(c, c))
             }
 
-            /// distance between 2 points (magnitude of the vector between the 2 points)
+            /// returns scalar distance between 2 points (magnitude of the vector between the 2 points)
             pub fn dist<T: super::Float>(a: super::$VecN<T>, b: super::$VecN<T>) -> T {
                 distance(a, b)
             }
 
-            /// squared distance between 2 points to avoid using sqrt
+            /// returns scalar squared distance between 2 points to avoid using sqrt
             pub fn dist2<T: super::Float>(a: super::$VecN<T>, b: super::$VecN<T>) -> T {
                 let c = a-b;
                 dot(c, c)
@@ -591,14 +596,14 @@ macro_rules! vec_impl {
                 }
             }
 
-            /// component wise hermite interpolation between 0-1
+            /// returns vector with component wise hermite interpolation between 0-1
             pub fn smoothstep<T: super::Float>(e0: super::$VecN<T>, e1: super::$VecN<T>, t: super::$VecN<T>) -> super::$VecN<T> {
                 super::$VecN {
                     $($field: super::Float::smoothstep(e0.$field, e1.$field, t.$field),)+
                 }
             }
 
-            /// rounds each element of the vector component wise to the nearest integer
+            /// returns vector with values from a rounded component wise
             pub fn round<T: super::Float>(a: super::$VecN<T>) -> super::$VecN<T> {
                 super::$VecN {
                     $($field: super::Float::round(a.$field),)+
@@ -633,51 +638,68 @@ macro_rules! vec_impl {
                 }
             }
             
-            /// returns a vector containing component wise min of a and b
+            /// returns a vector containing component wise max of a and b
             pub fn max<T: super::Number>(a: super::$VecN<T>, b: super::$VecN<T>) -> super::$VecN<T> {
                 super::$VecN {
                     $($field: super::Number::max(a.$field, b.$field),)+
                 }
             }
 
-            /// returns component-wise value -1 = negative 1 if number is positive or 0 (integers)
+            /// returns component wise sign value; -1 = negative, 1 = positive or 0 (integers only)
             pub fn sign<T: super::SignedNumber>(a: super::$VecN<T>) -> super::$VecN<T> {
                 super::$VecN {
                     $($field: super::SignedNumber::signum(a.$field),)+
                 }
             }
 
-            /// returns component-wise value -1 = negative 1 if number is positive or 0 (integers)
+            /// returns component wise sign value; -1 = negative, 1 = positive or 0 (integers only)
             pub fn signum<T: super::SignedNumber>(a: super::$VecN<T>) -> super::$VecN<T> {
                 super::$VecN {
                     $($field: super::SignedNumber::signum(a.$field),)+
                 }
             }
 
-            /// return the absolute (postive) value component wise
+            /// returns a omponent wise vector containing the absolute (postive) value of a
             pub fn abs<T: super::SignedNumber>(a: super::$VecN<T>) -> super::$VecN<T> {
                 super::$VecN {
                     $($field: super::SignedNumber::abs(a.$field),)+
                 }
             }
 
-            /// clamp vector elements component wise to min and max
+            /// returns a vector with elements of x clamped component wise to min and max
             pub fn clamp<T: super::Number>(x: super::$VecN<T>, min: super::$VecN<T>, max: super::$VecN<T>) -> super::$VecN<T> {
                 super::$VecN {
                     $($field: super::Number::max(super::Number::min(x.$field, max.$field), min.$field),)+
                 }
             }
             
-            /// saturate values between 0-1. equivalent to clamp (x, 0, 1)
+            /// returns a vector with saturated elements clamped between 0-1. equivalent to clamp (x, 0, 1)
             pub fn saturate<T: super::Float>(x: super::$VecN<T>) -> super::$VecN<T> {
                 clamp(x, super::$VecN::zero(), super::$VecN::one())
             }
 
-            /// returns component wise; 1 if a is >= b, 0 otherwise
+            /// returns a vector stepped component wise; 1 if a is >= b, 0 otherwise
             pub fn step<T: super::Number>(a: super::$VecN<T>, b: super::$VecN<T>) -> super::$VecN<T> {
                 super::$VecN {
-                    $($field: super::Number::step(a.$field),)+
+                    $($field: super::Number::step(a.$field, b.$field),)+
                 }
+            }
+
+            // returns a reflection vector using an incident ray and a surface normal
+            pub fn reflect<T: super::Float>(i: super::$VecN<T>, n: super::$VecN<T>) -> super::$VecN<T> {
+                // https://docs.microsoft.com/en-us/windows/win32/direct3dhlsl/dx-graphics-hlsl-reflect
+                (i - T::two()) * n * dot(i, n)
+            }
+
+            // returns a refraction vector using an entering ray, a surface normal, and a refraction index
+            pub fn refract<T: super::Float>(i: super::$VecN<T>, n: super::$VecN<T>, eta: T) -> super::$VecN<T> {
+                // https://asawicki.info/news_1301_reflect_and_refract_functions.html
+                let n_dot_i = dot(n, i);
+                let k = T::one() - eta * eta * (T::one() - n_dot_i * n_dot_i);
+                if k < T::zero() {
+                    return super::$VecN::zero();
+                }
+                (i * eta) - n * ((n_dot_i + T::sqrt(k)) * eta)
             }
         }
     }
@@ -689,6 +711,20 @@ macro_rules! vec_ctor {
             $VecN {
                 $($field: $field,)+
             }
+        }
+    }
+}
+
+//
+// rhs.. TODO:
+//
+
+impl Add<Vec2<f32>> for f32 {
+    type Output = Vec2<f32>;
+    fn add(self, other: Vec2<f32>) -> Vec2<f32> {
+        Vec2 {
+            x: other.x + self,
+            y: other.y + self,
         }
     }
 }
@@ -807,9 +843,6 @@ vec_ctor!(Vec2 { x, y }, vec2u, u32);
 vec_ctor!(Vec3 { x, y, z }, vec3u, u32);
 vec_ctor!(Vec4 { x, y, z, w }, vec4u, u32);
 
-// reflect
-// refract
-
 // acos
 // atan
 // atan2
@@ -834,7 +867,6 @@ vec_ctor!(Vec4 { x, y, z, w }, vec4u, u32);
 // tanh
 
 // experims
-
 // v3 / v2 mod, with use... didnt correctly deduce the function by type
 
 /*
@@ -871,5 +903,38 @@ pub fn dot<T: super::Number>(a: super::$VecN<T>, b: super::$VecN<T>) -> T {
     $( 
         +(a.$field * b.$field)
     )+
+}
+
+// overloading through traits... template style specialisation is not possible
+#[derive(Debug, Copy, Clone)]
+pub struct Bec<T, X, const N: usize> {
+    pub v: [T; N]
+}
+
+pub trait Bec2 {}
+pub trait Bec3 {}
+
+pub fn t1<T: Number, X: Bec2>(a: Bec<T, X, 2>, b: Bec<T, X, 2>) -> T {
+    a.v[0] + b.v[1]
+}
+
+pub fn t1<T: Number, X: Bec3>(a: Bec<T, X, 2>, b: Bec<T, X, 2>) -> T {
+    a.v[0] + b.v[2]
+}
+
+// ? repeater
+pub fn xxx<T: super::Number>(_a: super::$VecN<T>, _b: super::$VecN<T>) -> T{
+    $( 
+        //let mut c = (a.$field * b.$field);
+        println!("? {}", _a.$field);
+    )?
+
+    $(
+        println!("* {}", _a.$field);
+
+        //+ (a.$field * b.$field)
+    )*
+
+    T::zero()
 }
 */

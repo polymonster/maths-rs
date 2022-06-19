@@ -154,6 +154,16 @@ fn add_assign_scalar() {
 }
 
 #[test]
+fn add_vec_rhs_scalar_lhs() {
+    // add
+    let v1 = vec2f(5.0, 15.0);
+    let s1 = 55.0;
+    let expected = vec2f(60.0, 70.0);
+    let result = s1 + v1;
+    assert_eq!(expected, result);
+}
+
+#[test]
 fn sub() {
     // sub
     let v1 = vec2f(40.0, 90.0);
@@ -363,6 +373,11 @@ fn dot() {
     let dp = v2::dot(v1, v1);
     let expected = 20.0;
     assert_eq!(dp, expected);
+    
+    // hmm?
+    // let v2 = vec2f(8.0, 16.0);
+    // let _dx = v2::xxx(v1, v2);
+    // assert_eq!(_dx, expected);
 
     let v1 = vec3f(2.0, 4.0, 6.0);
     let dp = v3::dot(v1, v1);
@@ -471,7 +486,7 @@ fn float_checks() {
 }
 
 #[test]
-fn clamp_min_max() {
+fn clamp_min_max_saturate_step() {
     // min / max
     assert_eq!(v3::min(vec3f(22.0, 7.0, 5.0), vec3f(27.0, 4.0, 1.0)), vec3f(22.0, 4.0, 1.0));
     assert_eq!(v3::max(vec3f(22.0, 7.0, 5.0), vec3f(27.0, 4.0, 1.0)), vec3f(27.0, 7.0, 5.0));
@@ -483,6 +498,9 @@ fn clamp_min_max() {
 
     // saturate
     assert_eq!(v3::saturate(vec3f(22.0, -12.0, 55.0)), vec3f(1.0, 0.0, 1.0));
+
+    // step
+    assert_eq!(v3::step(vec3f(5.0, 6.0, 1.0), vec3f(1.0, 2.0, 3.0)), vec3f(1.0, 1.0, 0.0));
 }
 
 #[test]
@@ -492,7 +510,11 @@ fn abs_sign() {
     assert_eq!(v3::signum(vec3f(123.0, -123.0, 999.0)), vec3f(1.0, -1.0, 1.0));
     assert_eq!(v3::sign(vec3f(0.0, -0.0, 0.0)), vec3f(1.0, -1.0, 1.0));
     assert_eq!(v3::sign(vec3i(-1, 0, 1)), vec3i(-1, 0, 1));
+}
 
+#[test]
+fn reflect_refract() {
+    // TODO:
 }
 
 fn main() {
