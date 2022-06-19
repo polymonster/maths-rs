@@ -215,6 +215,16 @@ fn sub_scalar() {
 }
 
 #[test]
+fn sub_scalar_lhs() {
+    // sub
+    let v1 = vec2f(276.0, 17.0);
+    let v2 = 112.0;
+    let expected = vec2f(-164.0, 95.0);
+    let result = v2 - v1;
+    assert_eq!(expected, result);
+}
+
+#[test]
 fn sub_assign_scalar() {
     // sub
     let mut v1 = vec2f(276.0, 17.0);
@@ -279,6 +289,16 @@ fn mul_scalar() {
     let v2 = -11.1;
     let expected = vec2f(-27.75, -53.28);
     let result = v1 * v2;
+    assert_eq!(v2::approx(expected, result, 0.001), true);
+}
+
+#[test]
+fn mul_scalar_lhs() {
+    // mul
+    let v1 = vec2f(16.5, 22.2);
+    let v2 = 33.0;
+    let expected = vec2f(544.5, 732.6);
+    let result = v2 * v1;
     assert_eq!(v2::approx(expected, result, 0.001), true);
 }
 
@@ -351,6 +371,16 @@ fn div_scalar() {
 }
 
 #[test]
+fn div_scalar_lhs() {
+    // div
+    let v1 = vec2f(16.5, 22.2);
+    let v2 = 33.0;
+    let expected = vec2f(2.0, 1.48648648649);
+    let result = v2 / v1;
+    assert_eq!(v2::approx(expected, result, 0.001), true);
+}
+
+#[test]
 fn div_assign_scalar() {
     // div
     let mut v1 = vec2f(16.5, 22.2);
@@ -417,6 +447,7 @@ fn units() {
     assert_eq!(Vec3f::unit_x(), vec3f(1.0, 0.0, 0.0));
     assert_eq!(Vec3f::unit_y(), vec3f(0.0, 1.0, 0.0));
     assert_eq!(Vec3f::unit_z(), vec3f(0.0, 0.0, 1.0));
+    assert_eq!(Vec4f::unit_w(), vec4f(0.0, 0.0, 0.0, 1.0));
 }
 
 #[test]

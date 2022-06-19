@@ -18,12 +18,14 @@ use std::fmt::Formatter;
 // Vec Traits 
 //
 
+/// generic vec trait to allow sized vectors to be treated generically
 pub trait VecN<T: Number>: Index<usize, Output=T> {
     fn len() -> usize;
 }
 
 macro_rules! number_trait_impl {
     ($($func:ident),*) => {
+        /// base number trait for signed or unsigned, floating point or integer numbers.
         pub trait Number: 
             Copy + Default + Display + 
             Add<Output=Self> + AddAssign + 
@@ -94,6 +96,7 @@ macro_rules! number_impl {
 
 macro_rules! signed_number_trait_impl {
     ($($func:ident),*) => {
+        /// signed number trait for signed integers or floats.
         pub trait SignedNumber: Number + Neg<Output=Self> {
             $(fn $func(v: Self) -> Self;)*
             fn minus_one() -> Self;
@@ -124,8 +127,10 @@ macro_rules! signed_number_impl {
 
 macro_rules! float_trait_impl {
     ($($func:ident),*) => {
+        /// floating point trait for various levels of fp precision
         pub trait Float: SignedNumber {
             $(fn $func(v: Self) -> Self;)*
+            fn mad(m: Self, a: Self, b: Self) -> Self;
             fn isnan(v: Self) -> bool;
             fn isinf(v: Self) -> bool;
             fn isfinite(v: Self) -> bool;
@@ -144,6 +149,10 @@ macro_rules! float_impl {
                     v.$func()
                 }
             )*
+
+            fn mad(m: Self, a: Self, b: Self) -> Self {
+                m.mul_add(a, b)
+            }
 
             fn isnan(v: Self) -> bool {
                 v.is_nan()
@@ -220,6 +229,7 @@ pub type Vec4b = Vec4<bool>;
 // Macro Implementation
 //
 
+/// macro to stamp out various n-dimensional vectors, all of their ops and functions
 macro_rules! vec_impl {
     ($VecN:ident { $($field:ident, $field_index:expr),* }, $len:expr, $module:ident) => {
         #[derive(Debug, Copy, Clone)]
@@ -235,18 +245,21 @@ macro_rules! vec_impl {
                 }
             }
 
+            /// returns a vector with all members set to 0
             pub fn zero() -> $VecN<T> {
                 $VecN {
                     $($field: T::zero(),)+
                 }
             }
 
+            /// returns a vector with all members set to 1
             pub fn one() -> $VecN<T> {
                 $VecN {
                     $($field: T::one(),)+
                 }
             }
 
+            /// returns a vector initialised as a unit vector in the x-axis [1, 0, 0, 0]
             pub fn unit_x() -> $VecN<T> {
                 let v = [T::one(), T::zero(), T::zero(), T::zero()];
                 Self {
@@ -254,6 +267,7 @@ macro_rules! vec_impl {
                 }
             }
 
+            /// returns a vector initialised as a unit vector in the y-axis [0, 1, 0, 0]
             pub fn unit_y() -> $VecN<T> {
                 let v = [T::zero(), T::one(), T::zero(), T::zero()];
                 Self {
@@ -261,6 +275,7 @@ macro_rules! vec_impl {
                 }
             }
 
+            /// returns a vector initialised as a unit vector in the z-axis [0, 0, 1, 0] value will be truncated to 0 for vectors < 3 dimension
             pub fn unit_z() -> $VecN<T> {
                 let v = [T::zero(), T::zero(), T::one(), T::zero()];
                 Self {
@@ -268,6 +283,15 @@ macro_rules! vec_impl {
                 }
             }
 
+            /// returns a vector initialised as a unit vector in the w-axis [0, 0, 0, 1] value will be truncated to 0 for vectors < 4 dimension
+            pub fn unit_w() -> $VecN<T> {
+                let v = [T::zero(), T::zero(), T::zero(), T::one()];
+                Self {
+                    $($field: v[$field_index],)+
+                }
+            }
+
+            /// returns a vector initialised to red [1, 0, 0, 1]
             pub fn red() -> $VecN<T> {
                 let v = [T::one(), T::zero(), T::zero(), T::one()];
                 Self {
@@ -275,6 +299,7 @@ macro_rules! vec_impl {
                 }
             }
 
+            /// returns a vector initialised to green [0, 1, 0, 1]
             pub fn green() -> $VecN<T> {
                 let v = [T::zero(), T::one(), T::zero(), T::one()];
                 Self {
@@ -282,6 +307,7 @@ macro_rules! vec_impl {
                 }
             }
 
+            /// returns a vector initialised to blue [0, 0, 1, 1] value will be truncated to 0 for vectors < 3 dimension
             pub fn blue() -> $VecN<T> {
                 let v = [T::zero(), T::zero(), T::one(), T::one()];
                 Self {
@@ -289,6 +315,7 @@ macro_rules! vec_impl {
                 }
             }
 
+            /// returns a vector initialised to cyan [0, 1, 1, 1] value will be truncated to green for vectors < 3 dimension
             pub fn cyan() -> $VecN<T> {
                 let v = [T::zero(), T::one(), T::one(), T::one()];
                 Self {
@@ -296,6 +323,7 @@ macro_rules! vec_impl {
                 }
             }
 
+            /// returns a vector initialised to magenta [1, 0, 1, 1] value will be truncated to red for vectors < 3 dimension
             pub fn magenta() -> $VecN<T> {
                 let v = [T::one(), T::zero(), T::one(), T::one()];
                 Self {
@@ -303,6 +331,7 @@ macro_rules! vec_impl {
                 }
             }
 
+            /// returns a vector initialised to yellow [1, 1, 0, 0]
             pub fn yellow() -> $VecN<T> {
                 let v = [T::one(), T::one(), T::zero(), T::one()];
                 Self {
@@ -310,6 +339,7 @@ macro_rules! vec_impl {
                 }
             }
 
+            /// returns a vector initialised to black (zero's)
             pub fn black() -> $VecN<T> {
                 let v = [T::zero(), T::zero(), T::zero(), T::one()];
                 Self {
@@ -317,6 +347,7 @@ macro_rules! vec_impl {
                 }
             }
 
+            /// returns a vector initialised to white (ones's)
             pub fn white() -> $VecN<T> {
                 Self::one()
             }
@@ -512,14 +543,14 @@ macro_rules! vec_impl {
                 }
             }
 
-            // returns vector with component-wise reciprocal square root (1/sqrt(a))
+            /// returns vector with component-wise reciprocal square root (1/sqrt(a))
             pub fn rsqrt<T: super::Float>(a: super::$VecN<T>) -> super::$VecN<T> {
                 super::$VecN {
                     $($field: T::recip(T::sqrt(a.$field)),)+
                 }
             }
 
-            // returns vector with component-wise reciprocal
+            /// returns vector with component-wise reciprocal
             pub fn rcp<T: super::Float>(a: super::$VecN<T>) -> super::$VecN<T> {
                 super::$VecN {
                     $($field: T::recip(a.$field),)+
@@ -541,10 +572,17 @@ macro_rules! vec_impl {
                 dot(a, a)
             }
 
-            /// returns a normalized unit vector
+            /// returns a normalized unit vector of a
             pub fn normalize<T: super::Float>(a: super::$VecN<T>) -> super::$VecN<T> {
                 let m = mag(a);
                 a / m
+            }
+
+            /// returns vector with fused multiply add component wise
+            pub fn mad<T: super::Float>(m: super::$VecN<T>, a: super::$VecN<T>, b: super::$VecN<T>) -> super::$VecN<T> {
+                super::$VecN {
+                    $($field: T::mad(m.$field, a.$field, b.$field),)+
+                }
             }
 
             /// returns scalar distance between 2 points (magnitude of the vector between the 2 points)
@@ -631,7 +669,7 @@ macro_rules! vec_impl {
                 }
             }
 
-            // returns a vector containing component wise min of a and b
+            /// returns a vector containing component wise min of a and b
             pub fn min<T: super::Number>(a: super::$VecN<T>, b: super::$VecN<T>) -> super::$VecN<T> {
                 super::$VecN {
                     $($field: super::Number::min(a.$field, b.$field),)+
@@ -685,13 +723,13 @@ macro_rules! vec_impl {
                 }
             }
 
-            // returns a reflection vector using an incident ray and a surface normal
+            /// returns a reflection vector using an incident ray and a surface normal
             pub fn reflect<T: super::Float>(i: super::$VecN<T>, n: super::$VecN<T>) -> super::$VecN<T> {
                 // https://docs.microsoft.com/en-us/windows/win32/direct3dhlsl/dx-graphics-hlsl-reflect
                 (i - T::two()) * n * dot(i, n)
             }
 
-            // returns a refraction vector using an entering ray, a surface normal, and a refraction index
+            /// returns a refraction vector using an entering ray, a surface normal, and a refraction index
             pub fn refract<T: super::Float>(i: super::$VecN<T>, n: super::$VecN<T>, eta: T) -> super::$VecN<T> {
                 // https://asawicki.info/news_1301_reflect_and_refract_functions.html
                 let n_dot_i = dot(n, i);
@@ -705,6 +743,7 @@ macro_rules! vec_impl {
     }
 }
 
+/// macro to stamp out various typed c-style constructors. ie. let v = vec3f(0.0, 1.0, 0.0);
 macro_rules! vec_ctor {
     ($VecN:ident { $($field:ident),+ }, $ctor:ident, $t:ident) => {
         pub fn $ctor($($field: $t,)+) -> $VecN<$t> {
@@ -715,19 +754,54 @@ macro_rules! vec_ctor {
     }
 }
 
-//
-// rhs.. TODO:
-//
+/// macro to stamp out various typed c-style constructors. and all arithmetic ops for lhs scalars
+macro_rules! vec_ctor_scalar_lhs {
+    ($VecN:ident { $($field:ident),+ }, $ctor:ident, $t:ident) => {
+        pub fn $ctor($($field: $t,)+) -> $VecN<$t> {
+            $VecN {
+                $($field: $field,)+
+            }
+        }
 
-impl Add<Vec2<f32>> for f32 {
-    type Output = Vec2<f32>;
-    fn add(self, other: Vec2<f32>) -> Vec2<f32> {
-        Vec2 {
-            x: other.x + self,
-            y: other.y + self,
+        impl Add<$VecN<$t>> for $t {
+            type Output = $VecN<$t>;
+            fn add(self, other: $VecN<$t>) -> $VecN<$t> {
+                $VecN {
+                    $($field: self + other.$field,)+
+                }
+            }
+        }
+
+        impl Sub<$VecN<$t>> for $t {
+            type Output = $VecN<$t>;
+            fn sub(self, other: $VecN<$t>) -> $VecN<$t> {
+                $VecN {
+                    $($field: self - other.$field,)+
+                }
+            }
+        }
+
+        impl Mul<$VecN<$t>> for $t {
+            type Output = $VecN<$t>;
+            fn mul(self, other: $VecN<$t>) -> $VecN<$t> {
+                $VecN {
+                    $($field: self * other.$field,)+
+                }
+            }
+        }
+
+        impl Div<$VecN<$t>> for $t {
+            type Output = $VecN<$t>;
+            fn div(self, other: $VecN<$t>) -> $VecN<$t> {
+                $VecN {
+                    $($field: self / other.$field,)+
+                }
+            }
         }
     }
 }
+
+
 
 //
 // From
@@ -827,22 +901,33 @@ vec_ctor!(Vec2 { x, y }, vec2b, bool);
 vec_ctor!(Vec3 { x, y, z }, vec3b, bool);
 vec_ctor!(Vec4 { x, y, z, w }, vec4b, bool);
 
-vec_ctor!(Vec2 { x, y }, vec2f, f32);
-vec_ctor!(Vec3 { x, y, z }, vec3f, f32);
-vec_ctor!(Vec4 { x, y, z, w }, vec4f, f32);
+vec_ctor_scalar_lhs!(Vec2 { x, y }, vec2f, f32);
+vec_ctor_scalar_lhs!(Vec3 { x, y, z }, vec3f, f32);
+vec_ctor_scalar_lhs!(Vec4 { x, y, z, w }, vec4f, f32);
+vec_ctor_scalar_lhs!(Vec2 { x, y }, vec2d, f64);
+vec_ctor_scalar_lhs!(Vec3 { x, y, z }, vec3d, f64);
+vec_ctor_scalar_lhs!(Vec4 { x, y, z, w }, vec4d, f64);
+vec_ctor_scalar_lhs!(Vec2 { x, y }, vec2i, i32);
+vec_ctor_scalar_lhs!(Vec3 { x, y, z }, vec3i, i32);
+vec_ctor_scalar_lhs!(Vec4 { x, y, z, w }, vec4i, i32);
+vec_ctor_scalar_lhs!(Vec2 { x, y }, vec2u, u32);
+vec_ctor_scalar_lhs!(Vec3 { x, y, z }, vec3u, u32);
+vec_ctor_scalar_lhs!(Vec4 { x, y, z, w }, vec4u, u32);
 
-vec_ctor!(Vec2 { x, y }, vec2d, f64);
-vec_ctor!(Vec3 { x, y, z }, vec3d, f64);
-vec_ctor!(Vec4 { x, y, z, w }, vec4d, f64);
+// min / max value
+// deref, as slice, etc
 
-vec_ctor!(Vec2 { x, y }, vec2i, i32);
-vec_ctor!(Vec3 { x, y, z }, vec3i, i32);
-vec_ctor!(Vec4 { x, y, z, w }, vec4i, i32);
+// numeric --
+// pow
+// mod
 
-vec_ctor!(Vec2 { x, y }, vec2u, u32);
-vec_ctor!(Vec3 { x, y, z }, vec3u, u32);
-vec_ctor!(Vec4 { x, y, z, w }, vec4u, u32);
+// float
+// modf
+// fmod
+// frac
+// lerp
 
+// trig --
 // acos
 // atan
 // atan2
@@ -850,16 +935,11 @@ vec_ctor!(Vec4 { x, y, z, w }, vec4u, u32);
 // cosh
 // exp
 // exp2
-// fmod
-// frac
 // frexp
 // ldexp
-// lerp
 // log
 // log10
 // log2
-// modf
-// pow
 // sin
 // sincos
 // sinh
@@ -869,6 +949,7 @@ vec_ctor!(Vec4 { x, y, z, w }, vec4u, u32);
 // experims
 // v3 / v2 mod, with use... didnt correctly deduce the function by type
 
+// generic... (code gen)
 /*
 fn dot<V: VecN<T>, T: Number>(v1: &V, v2: &V) -> T {
     let mut r = T::default();
@@ -936,5 +1017,16 @@ pub fn xxx<T: super::Number>(_a: super::$VecN<T>, _b: super::$VecN<T>) -> T{
     )*
 
     T::zero()
+}
+
+// rhs
+impl<T> Add<Vec2<T>> for T where T: Number {
+    type Output = Vec2<T>;
+    fn add(self, other: Vec2<T>) -> Vec2<T> {
+        Vec2 {
+            x: other.x + self,
+            y: other.y + self,
+        }
+    }
 }
 */
