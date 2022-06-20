@@ -162,6 +162,22 @@ macro_rules! float_trait_impl {
             fn powi(v: Self, exp: i32) -> Self;
             /// raise v to power of float exponent 
             fn powf(v: Self, exp: Self) -> Self;
+
+            /// floating point remainder of x / y
+            fn fmod(x: Self, y: Self) -> Self;
+            /// extract fractional (decimal) part of
+            fn frac(v: Self) -> Self;
+            /// truncate v to integer
+            fn trunc(v: Self) -> Self;
+            /// split v into fractional and integer part
+            fn modf(v: Self) -> (Self, Self);
+            /// returns the logarithm of the number with respect to an arbitrary base.
+            fn log(v: Self, base: Self) -> Self;
+            /// returns (sin(v), cos(v))
+            fn sincos(v: Self) -> (Self, Self);
+            /// atan2 computes arctan of y and x
+            fn atan2(y: Self, x: Self) -> Self;
+
         }
         float_impl!(f64 { $($func),* });
         float_impl!(f32 { $($func),* });
@@ -210,6 +226,34 @@ macro_rules! float_impl {
             
             fn powf(v: Self, exp: Self) -> Self {
                 v.powf(exp)
+            }
+
+            fn fmod(x: Self, y: Self) -> Self {
+                x % y
+            }
+
+            fn frac(v: Self) -> Self {
+                v.fract()
+            }
+
+            fn trunc(v: Self) -> Self {
+                v.trunc()
+            }
+
+            fn modf(v: Self) -> (Self, Self) {
+                (Self::frac(v), Self::trunc(v))
+            }
+
+            fn log(v: Self, base: Self) -> Self {
+                v.log(base)
+            }
+
+            fn sincos(v: Self) -> (Self, Self) {
+                (v.sin(), v.cos())
+            }
+
+            fn atan2(y: Self, x: Self) -> Self {
+                y.atan2(x)
             }
         }
     }
@@ -1139,10 +1183,15 @@ vec_ctor_scalar_lhs!(Vec2 { x, y }, vec2u, splat2u, u32);
 vec_ctor_scalar_lhs!(Vec3 { x, y, z }, vec3u, splat3u, u32);
 vec_ctor_scalar_lhs!(Vec4 { x, y, z, w }, vec4u, splat4u, u32);
 
-// --- float --
+// float
 // modf
 // fmod
 // frac
+// frexp
+// ldexp
+// log
+// sincos
+// atan2
 
 // --- trig --
 // acos
@@ -1158,12 +1207,6 @@ vec_ctor_scalar_lhs!(Vec4 { x, y, z, w }, vec4u, splat4u, u32);
 // sinh
 // tan
 // tanh
-
-// log
-// frexp
-// ldexp
-// sincos
-// atan2
 
 // experims
 // v3 / v2 mod, with use... didnt correctly deduce the function by type
