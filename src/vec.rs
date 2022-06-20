@@ -959,6 +959,134 @@ macro_rules! vec_impl {
                 }
                 (i * eta) - n * ((n_dot_i + T::sqrt(k)) * eta)
             }
+
+            pub fn cos<T: super::Float>(v: super::$VecN<T>) -> super::$VecN<T> {
+                super::$VecN {
+                    $($field: super::Float::cos(v.$field),)+
+                }
+            }
+
+            pub fn sin<T: super::Float>(v: super::$VecN<T>) -> super::$VecN<T> {
+                super::$VecN {
+                    $($field: super::Float::sin(v.$field),)+
+                }
+            }
+
+            pub fn tan<T: super::Float>(v: super::$VecN<T>) -> super::$VecN<T> {
+                super::$VecN {
+                    $($field: super::Float::tan(v.$field),)+
+                }
+            }
+
+            pub fn acos<T: super::Float>(v: super::$VecN<T>) -> super::$VecN<T> {
+                super::$VecN {
+                    $($field: super::Float::acos(v.$field),)+
+                }
+            }
+
+            pub fn asin<T: super::Float>(v: super::$VecN<T>) -> super::$VecN<T> {
+                super::$VecN {
+                    $($field: super::Float::asin(v.$field),)+
+                }
+            }
+
+            pub fn atan<T: super::Float>(v: super::$VecN<T>) -> super::$VecN<T> {
+                super::$VecN {
+                    $($field: super::Float::atan(v.$field),)+
+                }
+            }
+
+            pub fn cosh<T: super::Float>(v: super::$VecN<T>) -> super::$VecN<T> {
+                super::$VecN {
+                    $($field: super::Float::cosh(v.$field),)+
+                }
+            }
+
+            pub fn sinh<T: super::Float>(v: super::$VecN<T>) -> super::$VecN<T> {
+                super::$VecN {
+                    $($field: super::Float::sinh(v.$field),)+
+                }
+            }
+
+            pub fn tanh<T: super::Float>(v: super::$VecN<T>) -> super::$VecN<T> {
+                super::$VecN {
+                    $($field: super::Float::tanh(v.$field),)+
+                }
+            }
+
+            pub fn exp<T: super::Float>(v: super::$VecN<T>) -> super::$VecN<T> {
+                super::$VecN {
+                    $($field: super::Float::exp(v.$field),)+
+                }
+            }
+
+            pub fn exp2<T: super::Float>(v: super::$VecN<T>) -> super::$VecN<T> {
+                super::$VecN {
+                    $($field: super::Float::exp2(v.$field),)+
+                }
+            }
+
+            pub fn log2<T: super::Float>(v: super::$VecN<T>) -> super::$VecN<T> {
+                super::$VecN {
+                    $($field: super::Float::log2(v.$field),)+
+                }
+            }
+
+            pub fn log10<T: super::Float>(v: super::$VecN<T>) -> super::$VecN<T> {
+                super::$VecN {
+                    $($field: super::Float::log10(v.$field),)+
+                }
+            }
+
+            pub fn fmod<T: super::Float>(x: super::$VecN<T>, y: super::$VecN<T>) -> super::$VecN<T> {
+                x % y
+            }
+
+            pub fn frac<T: super::Float>(v: super::$VecN<T>) -> super::$VecN<T> {
+                super::$VecN {
+                    $($field: super::Float::frac(v.$field),)+
+                }
+            }
+
+            pub fn trunc<T: super::Float>(v: super::$VecN<T>) -> super::$VecN<T> {
+                super::$VecN {
+                    $($field: super::Float::trunc(v.$field),)+
+                }
+            }
+
+            pub fn modf<T: super::Float>(v: super::$VecN<T>) -> (super::$VecN<T>, super::$VecN<T>) {
+                (
+                    super::$VecN {
+                        $($field: super::Float::frac(v.$field),)+
+                    },
+                    super::$VecN {
+                        $($field: super::Float::trunc(v.$field),)+
+                    }
+                )
+            }
+
+            pub fn log<T: super::Float>(v: super::$VecN<T>, base: T) -> super::$VecN<T> {
+                super::$VecN {
+                    $($field: super::Float::log(v.$field, base),)+
+                }
+            }
+
+            pub fn sincos<T: super::Float>(v: super::$VecN<T>) -> (super::$VecN<T>, super::$VecN<T>) {
+                (
+                    super::$VecN {
+                        $($field: super::Float::sin(v.$field),)+
+                    },
+                    super::$VecN {
+                        $($field: super::Float::cos(v.$field),)+
+                    }
+                )
+            }
+
+            pub fn atan2<T: super::Float>(y: super::$VecN<T>, x: super::$VecN<T>) -> super::$VecN<T> {
+                super::$VecN {
+                    $($field: super::Float::atan2(y.$field, x.$field),)+
+                }
+            }
         }
     }
 }
@@ -1182,31 +1310,6 @@ vec_ctor_scalar_lhs!(Vec4 { x, y, z, w }, vec4i, splat4i, i32);
 vec_ctor_scalar_lhs!(Vec2 { x, y }, vec2u, splat2u, u32);
 vec_ctor_scalar_lhs!(Vec3 { x, y, z }, vec3u, splat3u, u32);
 vec_ctor_scalar_lhs!(Vec4 { x, y, z, w }, vec4u, splat4u, u32);
-
-// float
-// modf
-// fmod
-// frac
-// frexp
-// ldexp
-// log
-// sincos
-// atan2
-
-// --- trig --
-// acos
-// atan
-// cos
-// cosh
-// exp
-// exp2
-// log
-// log10
-// log2
-// sin
-// sinh
-// tan
-// tanh
 
 // experims
 // v3 / v2 mod, with use... didnt correctly deduce the function by type

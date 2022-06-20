@@ -601,6 +601,8 @@ fn deref() {
 //  mad
 //  pow
 //  lerp, smoothstep
+//  trig
+//  frac, trunc etc
 
 fn main() {
 }
