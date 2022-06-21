@@ -162,7 +162,6 @@ macro_rules! float_trait_impl {
             fn powi(v: Self, exp: i32) -> Self;
             /// raise v to power of float exponent 
             fn powf(v: Self, exp: Self) -> Self;
-
             /// floating point remainder of x / y
             fn fmod(x: Self, y: Self) -> Self;
             /// extract fractional (decimal) part of
@@ -177,7 +176,6 @@ macro_rules! float_trait_impl {
             fn sincos(v: Self) -> (Self, Self);
             /// atan2 computes arctan of y and x
             fn atan2(y: Self, x: Self) -> Self;
-
         }
         float_impl!(f64 { $($func),* });
         float_impl!(f32 { $($func),* });
@@ -1155,6 +1153,15 @@ macro_rules! vec_ctor_scalar_lhs {
                 }
             }
         }
+
+        impl Rem<$VecN<$t>> for $t {
+            type Output = $VecN<$t>;
+            fn rem(self, other: $VecN<$t>) -> $VecN<$t> {
+                $VecN {
+                    $($field: self % other.$field,)+
+                }
+            }
+        }
     }
 }
 
@@ -1301,12 +1308,15 @@ vec_ctor!(Vec4 { x, y, z, w }, vec4b, splat4b, bool);
 vec_ctor_scalar_lhs!(Vec2 { x, y }, vec2f, splat2f, f32);
 vec_ctor_scalar_lhs!(Vec3 { x, y, z }, vec3f, splat3f, f32);
 vec_ctor_scalar_lhs!(Vec4 { x, y, z, w }, vec4f, splat4f, f32);
+
 vec_ctor_scalar_lhs!(Vec2 { x, y }, vec2d, splat2d, f64);
 vec_ctor_scalar_lhs!(Vec3 { x, y, z }, vec3d, splat3d, f64);
 vec_ctor_scalar_lhs!(Vec4 { x, y, z, w }, vec4d, splat4d, f64);
+
 vec_ctor_scalar_lhs!(Vec2 { x, y }, vec2i, splat2i, i32);
 vec_ctor_scalar_lhs!(Vec3 { x, y, z }, vec3i, splat3i, i32);
 vec_ctor_scalar_lhs!(Vec4 { x, y, z, w }, vec4i, splat4i, i32);
+
 vec_ctor_scalar_lhs!(Vec2 { x, y }, vec2u, splat2u, u32);
 vec_ctor_scalar_lhs!(Vec3 { x, y, z }, vec3u, splat3u, u32);
 vec_ctor_scalar_lhs!(Vec4 { x, y, z, w }, vec4u, splat4u, u32);

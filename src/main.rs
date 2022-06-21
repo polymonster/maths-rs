@@ -398,6 +398,53 @@ fn div_assign_scalar() {
 }
 
 #[test]
+fn rem() {
+    let v1 = vec2f(16.0, 5.0);
+    let v2 = vec2f(18.0, 10.0);
+    let expected = vec2f(2.0, 5.0);
+    let result = v1 % v2;
+    assert_eq!(v2::approx(expected, result, 0.001), true);
+    // fmod
+    assert_eq!(v2::approx(expected, v2::fmod(v1, v2), 0.001), true);
+}
+
+#[test]
+fn rem_assign() {
+    let mut v1 = vec2f(27.0, 32.0);
+    let v2 = vec2f(8.0, 7.0);
+    let expected = vec2f(3.0, 4.0);
+    v1 %= v2;
+    assert_eq!(v2::approx(expected, v1, 0.001), true);
+}
+
+#[test]
+fn rem_scalar() {
+    let v1 = vec2f(27.0, 32.0);
+    let v2 = 4.0;
+    let expected = vec2f(3.0, 0.0);
+    let result = v1 % v2;
+    assert_eq!(v2::approx(expected, result, 0.001), true);
+}
+
+#[test]
+fn rem_scalar_lhs() {
+    let v1 = vec2f(16.0, 9.0);
+    let v2 = 33.2;
+    let expected = vec2f(1.2, 6.2);
+    let result = v2 % v1;
+    assert_eq!(v2::approx(expected, result, 0.001), true);
+}
+
+#[test]
+fn rem_assign_scalar() {
+    let mut v1 = vec2f(33.2, 11.0);
+    let v2 = 16.5;
+    let expected = vec2f(0.2, 11.0);
+    v1 %= v2;
+    assert_eq!(v2::approx(expected, v1, 0.001), true);
+}
+
+#[test]
 fn dot() {
     let v1 = vec2f(2.0, 4.0);
     let dp = v2::dot(v1, v1);
@@ -596,7 +643,6 @@ fn deref() {
 }
 
 // TODO: 
-//  rem
 //  refl refract
 //  mad
 //  pow
