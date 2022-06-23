@@ -1,5 +1,4 @@
-pub mod vec;
-use vec::*;
+use maths_rs::vec::*;
 
 #[test]
 fn v2_construct() {
@@ -649,6 +648,3 @@ fn deref() {
 //  lerp, smoothstep
 //  trig
 //  frac, trunc etc
-
-fn main() {
-}

@@ -1105,19 +1105,9 @@ macro_rules! vec_ctor {
     }
 }
 
-/// macro to stamp out various typed c-style constructors. and all arithmetic ops for lhs scalars
-macro_rules! vec_ctor_scalar_lhs {
-    ($VecN:ident { $($field:ident),+ }, $ctor:ident, $splat:ident, $t:ident) => {
-        pub fn $ctor($($field: $t,)+) -> $VecN<$t> {
-            $VecN {
-                $($field: $field,)+
-            }
-        }
-        pub fn $splat(v: $t) -> $VecN<$t> {
-            $VecN {
-                $($field: v,)+
-            }
-        }
+/// macro to stamp out all arithmetic ops for lhs scalars
+macro_rules! vec_scalar_lhs {
+    ($VecN:ident { $($field:ident),+ }, $t:ident) => {
         impl Add<$VecN<$t>> for $t {
             type Output = $VecN<$t>;
             fn add(self, other: $VecN<$t>) -> $VecN<$t> {
@@ -1301,25 +1291,46 @@ vec_impl!(Vec2 { x, 0, y, 1 }, 2, v2);
 vec_impl!(Vec3 { x, 0, y, 1, z, 2 }, 3, v3);
 vec_impl!(Vec4 { x, 0, y, 1, z, 2, w, 3 }, 4, v4);
 
+vec_scalar_lhs!(Vec2 { x, y }, f32);
+vec_scalar_lhs!(Vec3 { x, y, z }, f32);
+vec_scalar_lhs!(Vec4 { x, y, z, w }, f32);
+
+vec_scalar_lhs!(Vec2 { x, y }, f64);
+vec_scalar_lhs!(Vec3 { x, y, z }, f64);
+vec_scalar_lhs!(Vec4 { x, y, z, w }, f64);
+
+vec_scalar_lhs!(Vec2 { x, y }, i32);
+vec_scalar_lhs!(Vec3 { x, y, z }, i32);
+vec_scalar_lhs!(Vec4 { x, y, z, w }, i32);
+
+vec_scalar_lhs!(Vec2 { x, y }, u32);
+vec_scalar_lhs!(Vec3 { x, y, z }, u32);
+vec_scalar_lhs!(Vec4 { x, y, z, w }, u32);
+
+#[cfg(feature = "ctors")]
 vec_ctor!(Vec2 { x, y }, vec2b, splat2b, bool);
 vec_ctor!(Vec3 { x, y, z }, vec3b, splat3b, bool);
 vec_ctor!(Vec4 { x, y, z, w }, vec4b, splat4b, bool);
 
-vec_ctor_scalar_lhs!(Vec2 { x, y }, vec2f, splat2f, f32);
-vec_ctor_scalar_lhs!(Vec3 { x, y, z }, vec3f, splat3f, f32);
-vec_ctor_scalar_lhs!(Vec4 { x, y, z, w }, vec4f, splat4f, f32);
+#[cfg(feature = "ctors")]
+vec_ctor!(Vec2 { x, y }, vec2f, splat2f, f32);
+vec_ctor!(Vec3 { x, y, z }, vec3f, splat3f, f32);
+vec_ctor!(Vec4 { x, y, z, w }, vec4f, splat4f, f32);
 
-vec_ctor_scalar_lhs!(Vec2 { x, y }, vec2d, splat2d, f64);
-vec_ctor_scalar_lhs!(Vec3 { x, y, z }, vec3d, splat3d, f64);
-vec_ctor_scalar_lhs!(Vec4 { x, y, z, w }, vec4d, splat4d, f64);
+#[cfg(feature = "ctors")]
+vec_ctor!(Vec2 { x, y }, vec2d, splat2d, f64);
+vec_ctor!(Vec3 { x, y, z }, vec3d, splat3d, f64);
+vec_ctor!(Vec4 { x, y, z, w }, vec4d, splat4d, f64);
 
-vec_ctor_scalar_lhs!(Vec2 { x, y }, vec2i, splat2i, i32);
-vec_ctor_scalar_lhs!(Vec3 { x, y, z }, vec3i, splat3i, i32);
-vec_ctor_scalar_lhs!(Vec4 { x, y, z, w }, vec4i, splat4i, i32);
+#[cfg(feature = "ctors")]
+vec_ctor!(Vec2 { x, y }, vec2i, splat2i, i32);
+vec_ctor!(Vec3 { x, y, z }, vec3i, splat3i, i32);
+vec_ctor!(Vec4 { x, y, z, w }, vec4i, splat4i, i32);
 
-vec_ctor_scalar_lhs!(Vec2 { x, y }, vec2u, splat2u, u32);
-vec_ctor_scalar_lhs!(Vec3 { x, y, z }, vec3u, splat3u, u32);
-vec_ctor_scalar_lhs!(Vec4 { x, y, z, w }, vec4u, splat4u, u32);
+#[cfg(feature = "ctors")]
+vec_ctor!(Vec2 { x, y }, vec2u, splat2u, u32);
+vec_ctor!(Vec3 { x, y, z }, vec3u, splat3u, u32);
+vec_ctor!(Vec4 { x, y, z, w }, vec4u, splat4u, u32);
 
 // experims
 // v3 / v2 mod, with use... didnt correctly deduce the function by type
