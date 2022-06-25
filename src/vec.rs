@@ -177,7 +177,7 @@ macro_rules! float_trait_impl {
             /// returns the logarithm of the number with respect to an arbitrary base.
             fn log(v: Self, base: Self) -> Self;
             /// returns (sin(v), cos(v))
-            fn sincos(v: Self) -> (Self, Self);
+            fn sin_cos(v: Self) -> (Self, Self);
             /// atan2 computes arctan of y and x
             fn atan2(y: Self, x: Self) -> Self;
         }
@@ -254,7 +254,7 @@ macro_rules! float_impl {
                 v.log(base)
             }
 
-            fn sincos(v: Self) -> (Self, Self) {
+            fn sin_cos(v: Self) -> (Self, Self) {
                 (v.sin(), v.cos())
             }
 
@@ -1011,7 +1011,7 @@ macro_rules! vec_impl {
                 }
             }
 
-            pub fn sincos<T: super::Float>(v: super::$VecN<T>) -> (super::$VecN<T>, super::$VecN<T>) {
+            pub fn sin_cos<T: super::Float>(v: super::$VecN<T>) -> (super::$VecN<T>, super::$VecN<T>) {
                 (
                     super::$VecN {
                         $($field: super::Float::sin(v.$field),)+

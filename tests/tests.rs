@@ -703,7 +703,7 @@ fn trig() {
     assert_eq!(v2::cosh(vec2f(0.0, 1.0)), vec2f(Float::cosh(0.0), Float::cosh(1.0)));
     assert_eq!(v2::tanh(vec2f(0.0, 1.0)), vec2f(Float::tanh(0.0), Float::tanh(1.0)));
 
-    let (sin, cos) = v2::sincos(vec2f(0.0, 1.0));
+    let (sin, cos) = v2::sin_cos(vec2f(0.0, 1.0));
     assert_eq!(v2::approx(sin, vec2f(Float::sin(0.0), Float::sin(1.0)), 0.001), true);
     assert_eq!(v2::approx(cos, vec2f(Float::cos(0.0), Float::cos(1.0)), 0.001), true);
 }
