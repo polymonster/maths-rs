@@ -4,5 +4,6 @@ version = "0.1.0"
 edition = "2021"
 
 [features]
-ctors = []
-default = ["ctors"]
+short_hand_constructors = []
+lhs_scalar_vec_ops = []
+default = ["short_hand_constructors", "lhs_scalar_vec_ops"]

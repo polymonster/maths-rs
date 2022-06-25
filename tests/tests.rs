@@ -1,5 +1,13 @@
 use maths_rs::vec::*;
 
+pub type Vec2f = Vec2<f32>;
+pub type Vec3f = Vec3<f32>;
+pub type Vec4f = Vec4<f32>;
+pub type Vec2i = Vec2<i32>;
+pub type Vec3i = Vec3<i32>;
+pub type Vec4i = Vec4<i32>;
+pub type Vec3u = Vec3<u32>;
+
 #[test]
 fn v2_construct() {
     let v2 = Vec2f {
@@ -403,7 +411,6 @@ fn rem() {
     let expected = vec2f(2.0, 5.0);
     let result = v1 % v2;
     assert_eq!(v2::approx(expected, result, 0.001), true);
-    // fmod
     assert_eq!(v2::approx(expected, v2::fmod(v1, v2), 0.001), true);
 }
 
@@ -444,17 +451,44 @@ fn rem_assign_scalar() {
 }
 
 #[test]
+fn deref() {
+    let v4 = vec4f(0.0, 1.0, 2.0, 3.0);
+    let slice : &[f32] = &v4;
+    for i in 0..slice.len() {
+        assert_eq!(slice[i], i as f32);
+    }
+
+    let mut v5 = vec4f(0.0, 1.0, 2.0, 3.0);
+    let mut_slice : &mut [f32] = &mut v5;
+    for f in mut_slice {
+        *f *= 2.0;
+    }
+
+    let modified_slice : &[f32] = &v5;
+    for i in 0..modified_slice.len() {
+        assert_eq!(modified_slice[i], (i as f32) * 2.0);
+    }
+
+    let slice_u8 = v4.as_u8_slice();
+    assert_eq!(slice_u8.len(), 16);
+}
+
+#[test]
+fn mad() {
+    let x = vec3f(4.0, 4.0, 4.0);
+    let y = vec3f(2.0, 4.0, 6.0);
+    let z = vec3f(3.0, 4.0, 5.0);
+    let result = v3::mad(x, y, z);
+    let expected = vec3f(11.0, 20.0, 29.0);
+    assert_eq!(result, expected);
+}
+
+#[test]
 fn dot() {
     let v1 = vec2f(2.0, 4.0);
     let dp = v2::dot(v1, v1);
     let expected = 20.0;
     assert_eq!(dp, expected);
-    
-    // hmm?
-    // let v2 = vec2f(8.0, 16.0);
-    // let _dx = v2::xxx(v1, v2);
-    // assert_eq!(_dx, expected);
-
     let v1 = vec3f(2.0, 4.0, 6.0);
     let dp = v3::dot(v1, v1);
     let expected = 56.0;
@@ -578,17 +612,32 @@ fn length() {
     let v3 = vec3f(1.0, 2.0, 3.0);
     let sq = (14.0_f32).sqrt();
     assert_eq!(v3::length(v3), sq);
+    assert_eq!(v3::mag(v3), sq);
+    assert_eq!(v3::mag2(v3), 14.0);
+}
 
-    // dist
-    // mag
-    // 2's
+#[test]
+fn distance() {
+    let x = vec3f(5.0, 8.0, 4.0);
+    let y = vec3f(20.0, 30.0, -10.0);
+    let d = y - x;
+    assert_eq!(v3::distance(x, y), v3::mag(d));
+    assert_eq!(v3::dist(x, y), v3::mag(d));
+    assert_eq!(v3::dist2(x, y), v3::mag2(d));
 }
 
 #[test]
 fn float_checks() {
-    assert_eq!(v3::isinf(vec3f(f32::INFINITY, 0.0, f32::INFINITY)), vec3b(true, false, true));
-    assert_eq!(v3::isnan(vec3f(f32::NAN, 0.0, f32::NAN)), vec3b(true, false, true));
-    assert_eq!(v3::isfinite(vec3f(f32::INFINITY, 0.0, f32::INFINITY)), vec3b(false, true, false));
+    assert_eq!(v3::is_infinite(vec3f(f32::INFINITY, 0.0, f32::INFINITY)), vec3b(true, false, true));
+    assert_eq!(v3::is_nan(vec3f(f32::NAN, 0.0, f32::NAN)), vec3b(true, false, true));
+    assert_eq!(v3::is_finite(vec3f(f32::INFINITY, 0.0, f32::INFINITY)), vec3b(false, true, false));
+}
+
+#[test]
+fn pow() {
+    assert_eq!(v2::powi(vec2f(5.0, 8.0), vec2i(2, 4)), vec2f(25.0, 4096.0));
+    assert_eq!(v2::powf(vec2f(5.0, 8.0), vec2f(2.0, 4.0)), vec2f(25.0, 4096.0));
+    assert_eq!(v2::pow(vec2i(16, 8), vec2u(2, 8)), vec2i(256, 16777216));
 }
 
 #[test]
@@ -619,32 +668,16 @@ fn abs_sign() {
 }
 
 #[test]
-fn deref() {
-    let v4 = vec4f(0.0, 1.0, 2.0, 3.0);
-    let slice : &[f32] = &v4;
-    for i in 0..slice.len() {
-        assert_eq!(slice[i], i as f32);
-    }
+fn interpolate() {
+    assert_eq!(v3::lerp(vec3f(10.0, 4.0, 60.0), vec3f(20.0, 0.0, -60.0), 0.5), vec3f(15.0, 2.0, 0.0));
+    assert_eq!(v3::lerpn(vec3f(10.0, 4.0, 60.0), vec3f(20.0, 0.0, -60.0), splat3f(0.5)), vec3f(15.0, 2.0, 0.0));
 
-    let mut v5 = vec4f(0.0, 1.0, 2.0, 3.0);
-    let mut_slice : &mut [f32] = &mut v5;
-    for f in mut_slice {
-        *f *= 2.0;
-    }
-
-    let modified_slice : &[f32] = &v5;
-    for i in 0..modified_slice.len() {
-        assert_eq!(modified_slice[i], (i as f32) * 2.0);
-    }
-
-    let slice_u8 = v4.as_u8_slice();
-    assert_eq!(slice_u8.len(), 16);
+    // TODO: smoothstep
+    //assert_eq!(v3::smoothstep(vec3f(10.0, 4.0, 60.0), vec3f(20.0, 0.0, -60.0), 0.75), vec3f(15.0, 2.0, 0.0));
+    //assert_eq!(v3::smoothstepn(vec3f(10.0, 4.0, 60.0), vec3f(20.0, 0.0, -60.0), splat3f(0.75)), vec3f(15.0, 2.0, 0.0));
 }
 
 // TODO: 
 //  refl refract
-//  mad
-//  pow
-//  lerp, smoothstep
-//  trig
 //  frac, trunc etc
+//  trig etc

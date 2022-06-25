@@ -50,6 +50,8 @@ macro_rules! number_trait_impl {
         }
         number_impl!(f64 { $($func),* }, 0.0, 1.0);
         number_impl!(f32 { $($func),* }, 0.0, 1.0);
+        number_impl!(usize { $($func),* }, 0, 1);
+        number_impl!(isize { $($func),* }, 0, 1);
         number_impl!(i64 { $($func),* }, 0, 1);
         number_impl!(u64 { $($func),* }, 0, 1);
         number_impl!(i32 { $($func),* }, 0, 1);
@@ -149,11 +151,11 @@ macro_rules! float_trait_impl {
             /// fused multiply add, m * a + b
             fn mad(m: Self, a: Self, b: Self) -> Self;
             /// checks if value isnan
-            fn isnan(v: Self) -> bool;
-            /// checks if value is inf
-            fn isinf(v: Self) -> bool;
+            fn is_nan(v: Self) -> bool;
+            /// checks if value is infinite
+            fn is_infinite(v: Self) -> bool;
             /// checks if value is not inf
-            fn isfinite(v: Self) -> bool;
+            fn is_finite(v: Self) -> bool;
             /// performs linear interpolation between e0 and e1, t specifies the ratio to interpolate between the values
             fn lerp(e0: Self, e1: Self, t: Self) -> Self;
             /// performs hermite interpolation between e0 and e1 by t
@@ -195,15 +197,15 @@ macro_rules! float_impl {
                 m.mul_add(a, b)
             }
 
-            fn isnan(v: Self) -> bool {
+            fn is_nan(v: Self) -> bool {
                 v.is_nan()
             }
 
-            fn isinf(v: Self) -> bool {
+            fn is_infinite(v: Self) -> bool {
                 v.is_infinite()
             }
 
-            fn isfinite(v: Self) -> bool {
+            fn is_finite(v: Self) -> bool {
                 v.is_finite()
             }
 
@@ -283,55 +285,6 @@ macro_rules! integer_impl {
         }
     }
 }
-
-//
-// Abbreviations
-//
-
-/// 2-dimensional f32 vector
-pub type Vec2f = Vec2<f32>;
-
-/// 3-dimensional f32 vector
-pub type Vec3f = Vec3<f32>;
-
-/// 4-dimensional f32 vector
-pub type Vec4f = Vec4<f32>;
-
-/// 2-dimensional f64 vector
-pub type Vec2d = Vec2<f64>;
-
-/// 3-dimensional f64 vector
-pub type Vec3d = Vec3<f64>;
-
-/// 4-dimensional f64 vector
-pub type Vec4d = Vec4<f64>;
-
-/// 2-dimensional i32 vector
-pub type Vec2i = Vec2<i32>;
-
-/// 3-dimensional i32 vector
-pub type Vec3i = Vec3<i32>;
-
-/// 4-dimensional i32 vector
-pub type Vec4i = Vec4<i32>;
-
-/// 2-dimensional u32 vector
-pub type Vec2u = Vec2<u32>;
-
-/// 3-dimensional u32 vector
-pub type Vec3u = Vec3<u32>;
-
-/// 4-dimensional u32 vector
-pub type Vec4u = Vec4<u32>;
-
-/// 2-dimensional bool vector
-pub type Vec2b = Vec2<bool>;
-
-/// 3-dimensional bool vector
-pub type Vec3b = Vec3<bool>;
-
-/// 4-dimensional bool vector
-pub type Vec4b = Vec4<bool>;
 
 // 
 // Macro Implementation
@@ -740,7 +693,7 @@ macro_rules! vec_impl {
             }
 
             /// returns vector with component-wise reciprocal
-            pub fn rcp<T: super::Float>(a: super::$VecN<T>) -> super::$VecN<T> {
+            pub fn recip<T: super::Float>(a: super::$VecN<T>) -> super::$VecN<T> {
                 super::$VecN {
                     $($field: T::recip(a.$field),)+
                 }
@@ -767,7 +720,6 @@ macro_rules! vec_impl {
                 }
             }
             
-
             /// returns scalar magnitude or length of vector
             pub fn length<T: super::Float>(a: super::$VecN<T>) -> T {
                 T::sqrt(dot(a, a))
@@ -846,14 +798,28 @@ macro_rules! vec_impl {
             }
 
             /// performs linear interpolation between e0 and e1, t specifies the ratio to interpolate between the values
-            pub fn lerp<T: super::Float>(e0: super::$VecN<T>, e1: super::$VecN<T>, t: super::$VecN<T>) -> super::$VecN<T> {
+            pub fn lerpn<T: super::Float>(e0: super::$VecN<T>, e1: super::$VecN<T>, t: super::$VecN<T>) -> super::$VecN<T> {
                 super::$VecN {
                     $($field: super::Float::lerp(e0.$field, e1.$field, t.$field),)+
                 }
             }
 
+            /// performs linear interpolation between e0 and e1, t specifies the ratio to interpolate between the values
+            pub fn lerp<T: super::Float>(e0: super::$VecN<T>, e1: super::$VecN<T>, t: T) -> super::$VecN<T> {
+                super::$VecN {
+                    $($field: super::Float::lerp(e0.$field, e1.$field, t),)+
+                }
+            }
+
             /// returns vector with component wise hermite interpolation between 0-1
-            pub fn smoothstep<T: super::Float>(e0: super::$VecN<T>, e1: super::$VecN<T>, t: super::$VecN<T>) -> super::$VecN<T> {
+            pub fn smoothstep<T: super::Float>(e0: super::$VecN<T>, e1: super::$VecN<T>, t: T) -> super::$VecN<T> {
+                super::$VecN {
+                    $($field: super::Float::smoothstep(e0.$field, e1.$field, t),)+
+                }
+            }
+
+            /// returns vector with component wise hermite interpolation between 0-1
+            pub fn smoothstepn<T: super::Float>(e0: super::$VecN<T>, e1: super::$VecN<T>, t: super::$VecN<T>) -> super::$VecN<T> {
                 super::$VecN {
                     $($field: super::Float::smoothstep(e0.$field, e1.$field, t.$field),)+
                 }
@@ -867,23 +833,23 @@ macro_rules! vec_impl {
             }
 
             /// returns true if a is not a number
-            pub fn isnan<T: super::Float>(a: super::$VecN<T>) -> super::$VecN<bool> {
+            pub fn is_nan<T: super::Float>(a: super::$VecN<T>) -> super::$VecN<bool> {
                 super::$VecN {
-                    $($field: super::Float::isnan(a.$field),)+
+                    $($field: super::Float::is_nan(a.$field),)+
                 }
             }
 
             /// returns true if a is inf
-            pub fn isinf<T: super::Float>(a: super::$VecN<T>) -> super::$VecN<bool> {
+            pub fn is_infinite<T: super::Float>(a: super::$VecN<T>) -> super::$VecN<bool> {
                 super::$VecN {
-                    $($field: super::Float::isinf(a.$field),)+
+                    $($field: super::Float::is_infinite(a.$field),)+
                 }
             }
 
             /// returns true is a is finite
-            pub fn isfinite<T: super::Float>(a: super::$VecN<T>) -> super::$VecN<bool> {
+            pub fn is_finite<T: super::Float>(a: super::$VecN<T>) -> super::$VecN<bool> {
                 super::$VecN {
-                    $($field: super::Float::isfinite(a.$field),)+
+                    $($field: super::Float::is_finite(a.$field),)+
                 }
             }
 
@@ -1291,43 +1257,33 @@ vec_impl!(Vec2 { x, 0, y, 1 }, 2, v2);
 vec_impl!(Vec3 { x, 0, y, 1, z, 2 }, 3, v3);
 vec_impl!(Vec4 { x, 0, y, 1, z, 2, w, 3 }, 4, v4);
 
+#[cfg(feature = "lhs_scalar_vec_ops")]
 vec_scalar_lhs!(Vec2 { x, y }, f32);
 vec_scalar_lhs!(Vec3 { x, y, z }, f32);
 vec_scalar_lhs!(Vec4 { x, y, z, w }, f32);
-
 vec_scalar_lhs!(Vec2 { x, y }, f64);
 vec_scalar_lhs!(Vec3 { x, y, z }, f64);
 vec_scalar_lhs!(Vec4 { x, y, z, w }, f64);
-
 vec_scalar_lhs!(Vec2 { x, y }, i32);
 vec_scalar_lhs!(Vec3 { x, y, z }, i32);
 vec_scalar_lhs!(Vec4 { x, y, z, w }, i32);
-
 vec_scalar_lhs!(Vec2 { x, y }, u32);
 vec_scalar_lhs!(Vec3 { x, y, z }, u32);
 vec_scalar_lhs!(Vec4 { x, y, z, w }, u32);
 
-#[cfg(feature = "ctors")]
+#[cfg(feature = "short_hand_constructors")]
 vec_ctor!(Vec2 { x, y }, vec2b, splat2b, bool);
 vec_ctor!(Vec3 { x, y, z }, vec3b, splat3b, bool);
 vec_ctor!(Vec4 { x, y, z, w }, vec4b, splat4b, bool);
-
-#[cfg(feature = "ctors")]
 vec_ctor!(Vec2 { x, y }, vec2f, splat2f, f32);
 vec_ctor!(Vec3 { x, y, z }, vec3f, splat3f, f32);
 vec_ctor!(Vec4 { x, y, z, w }, vec4f, splat4f, f32);
-
-#[cfg(feature = "ctors")]
 vec_ctor!(Vec2 { x, y }, vec2d, splat2d, f64);
 vec_ctor!(Vec3 { x, y, z }, vec3d, splat3d, f64);
 vec_ctor!(Vec4 { x, y, z, w }, vec4d, splat4d, f64);
-
-#[cfg(feature = "ctors")]
 vec_ctor!(Vec2 { x, y }, vec2i, splat2i, i32);
 vec_ctor!(Vec3 { x, y, z }, vec3i, splat3i, i32);
 vec_ctor!(Vec4 { x, y, z, w }, vec4i, splat4i, i32);
-
-#[cfg(feature = "ctors")]
 vec_ctor!(Vec2 { x, y }, vec2u, splat2u, u32);
 vec_ctor!(Vec3 { x, y, z }, vec3u, splat3u, u32);
 vec_ctor!(Vec4 { x, y, z, w }, vec4u, splat4u, u32);
@@ -1405,7 +1361,7 @@ pub fn xxx<T: super::Number>(_a: super::$VecN<T>, _b: super::$VecN<T>) -> T{
     T::zero()
 }
 
-// rhs
+// lhs
 impl<T> Add<Vec2<T>> for T where T: Number {
     type Output = Vec2<T>;
     fn add(self, other: Vec2<T>) -> Vec2<T> {
@@ -1415,4 +1371,16 @@ impl<T> Add<Vec2<T>> for T where T: Number {
         }
     }
 }
+
+/*
+impl<T> Add<Vec2<T>> for T {
+    type Output = T;
+    fn add(self, other: Vec2<T>) -> Vec2<T> {
+        Vec2::zero()
+    }
+}
+*/
+
+// impl<T> Add<Vec2<T>> for T {
+//     ^ type parameter `T` must be covered by another type when it appears before the first local type (`Vec2<T>`)
 */
