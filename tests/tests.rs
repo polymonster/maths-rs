@@ -406,12 +406,13 @@ fn div_assign_scalar() {
 
 #[test]
 fn rem() {
-    let v1 = vec2f(16.0, 5.0);
-    let v2 = vec2f(18.0, 10.0);
+    let v1 = vec2f(16.0, 10.0);
+    let v2 = vec2f(18.0, 5.0);
     let expected = vec2f(2.0, 5.0);
-    let result = v1 % v2;
+    let result = v2 % v1;
+    println!("{} {}", expected, result);
     assert_eq!(v2::approx(expected, result, 0.001), true);
-    assert_eq!(v2::approx(expected, v2::fmod(v1, v2), 0.001), true);
+    assert_eq!(v2::approx(expected, v2::fmod(v2, v1), 0.001), true);
 }
 
 #[test]
@@ -677,7 +678,44 @@ fn interpolate() {
     //assert_eq!(v3::smoothstepn(vec3f(10.0, 4.0, 60.0), vec3f(20.0, 0.0, -60.0), splat3f(0.75)), vec3f(15.0, 2.0, 0.0));
 }
 
-// TODO: 
-//  refl refract
-//  frac, trunc etc
-//  trig etc
+#[test]
+fn fractional() {
+    assert_eq!(v2::approx(v2::frac(vec2f(1.1, 2.2)), vec2f(0.1, 0.2), 0.001), true);
+    assert_eq!(v2::approx(v2::trunc(vec2f(1.1, 2.2)), vec2f(1.0, 2.0), 0.001), true);
+
+    // modf
+    let (fpart, ipart) = v2::modf(vec2f(1.1, 2.2));
+    assert_eq!(v2::approx(fpart, vec2f(0.1, 0.2), 0.001), true);
+    assert_eq!(v2::approx(ipart, vec2f(1.0, 2.0), 0.001), true);
+}
+
+#[test]
+fn trig() {
+    assert_eq!(v2::sin(vec2f(0.0, 1.0)), vec2f(Float::sin(0.0), Float::sin(1.0)));
+    assert_eq!(v2::cos(vec2f(0.0, 1.0)), vec2f(Float::cos(0.0), Float::cos(1.0)));
+    assert_eq!(v2::tan(vec2f(0.0, 1.0)), vec2f(Float::tan(0.0), Float::tan(1.0)));
+
+    assert_eq!(v2::asin(vec2f(0.0, 1.0)), vec2f(Float::asin(0.0), Float::asin(1.0)));
+    assert_eq!(v2::acos(vec2f(0.0, 1.0)), vec2f(Float::acos(0.0), Float::acos(1.0)));
+    assert_eq!(v2::atan(vec2f(0.0, 1.0)), vec2f(Float::atan(0.0), Float::atan(1.0)));
+
+    assert_eq!(v2::sinh(vec2f(0.0, 1.0)), vec2f(Float::sinh(0.0), Float::sinh(1.0)));
+    assert_eq!(v2::cosh(vec2f(0.0, 1.0)), vec2f(Float::cosh(0.0), Float::cosh(1.0)));
+    assert_eq!(v2::tanh(vec2f(0.0, 1.0)), vec2f(Float::tanh(0.0), Float::tanh(1.0)));
+
+    let (sin, cos) = v2::sincos(vec2f(0.0, 1.0));
+    assert_eq!(v2::approx(sin, vec2f(Float::sin(0.0), Float::sin(1.0)), 0.001), true);
+    assert_eq!(v2::approx(cos, vec2f(Float::cos(0.0), Float::cos(1.0)), 0.001), true);
+}
+
+// atan2
+
+#[test]
+fn exp_log() {
+    // TODO;
+}
+
+#[test]
+fn reflect_refract() {
+    // TODO:
+}

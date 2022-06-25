@@ -148,6 +148,8 @@ macro_rules! float_trait_impl {
         /// floating point trait for various levels of fp precision
         pub trait Float: SignedNumber {
             $(fn $func(v: Self) -> Self;)*
+            /// returns true if a and b are approximately equal within the designated epsilon
+            fn approx(a: Self, b: Self, eps: Self) -> bool;
             /// fused multiply add, m * a + b
             fn mad(m: Self, a: Self, b: Self) -> Self;
             /// checks if value isnan
@@ -192,6 +194,10 @@ macro_rules! float_impl {
                     v.$func()
                 }
             )*
+
+            fn approx(a: Self, b: Self, eps: Self) -> bool {
+                Self::abs(a - b) < eps
+            }
 
             fn mad(m: Self, a: Self, b: Self) -> Self {
                 m.mul_add(a, b)
@@ -779,7 +785,7 @@ macro_rules! vec_impl {
 
             /// returns true if all elements in vectors a and b are approximately equal within the designated epsilon
             pub fn approx<T: super::Float>(a: super::$VecN<T>, b: super::$VecN<T>, eps: T) -> bool {
-                $(a.$field - b.$field < eps &&)+
+                $(T::abs(a.$field - b.$field) < eps &&)+
                 true
             }
 
@@ -924,6 +930,33 @@ macro_rules! vec_impl {
                 (i * eta) - n * ((n_dot_i + T::sqrt(k)) * eta)
             }
 
+            pub fn fmod<T: super::Float>(x: super::$VecN<T>, y: super::$VecN<T>) -> super::$VecN<T> {
+                x % y
+            }
+
+            pub fn frac<T: super::Float>(v: super::$VecN<T>) -> super::$VecN<T> {
+                super::$VecN {
+                    $($field: super::Float::frac(v.$field),)+
+                }
+            }
+
+            pub fn trunc<T: super::Float>(v: super::$VecN<T>) -> super::$VecN<T> {
+                super::$VecN {
+                    $($field: super::Float::trunc(v.$field),)+
+                }
+            }
+
+            pub fn modf<T: super::Float>(v: super::$VecN<T>) -> (super::$VecN<T>, super::$VecN<T>) {
+                (
+                    super::$VecN {
+                        $($field: super::Float::frac(v.$field),)+
+                    },
+                    super::$VecN {
+                        $($field: super::Float::trunc(v.$field),)+
+                    }
+                )
+            }
+
             pub fn cos<T: super::Float>(v: super::$VecN<T>) -> super::$VecN<T> {
                 super::$VecN {
                     $($field: super::Float::cos(v.$field),)+
@@ -978,6 +1011,23 @@ macro_rules! vec_impl {
                 }
             }
 
+            pub fn sincos<T: super::Float>(v: super::$VecN<T>) -> (super::$VecN<T>, super::$VecN<T>) {
+                (
+                    super::$VecN {
+                        $($field: super::Float::sin(v.$field),)+
+                    },
+                    super::$VecN {
+                        $($field: super::Float::cos(v.$field),)+
+                    }
+                )
+            }
+
+            pub fn atan2<T: super::Float>(y: super::$VecN<T>, x: super::$VecN<T>) -> super::$VecN<T> {
+                super::$VecN {
+                    $($field: super::Float::atan2(y.$field, x.$field),)+
+                }
+            }
+
             pub fn exp<T: super::Float>(v: super::$VecN<T>) -> super::$VecN<T> {
                 super::$VecN {
                     $($field: super::Float::exp(v.$field),)+
@@ -1002,53 +1052,9 @@ macro_rules! vec_impl {
                 }
             }
 
-            pub fn fmod<T: super::Float>(x: super::$VecN<T>, y: super::$VecN<T>) -> super::$VecN<T> {
-                x % y
-            }
-
-            pub fn frac<T: super::Float>(v: super::$VecN<T>) -> super::$VecN<T> {
-                super::$VecN {
-                    $($field: super::Float::frac(v.$field),)+
-                }
-            }
-
-            pub fn trunc<T: super::Float>(v: super::$VecN<T>) -> super::$VecN<T> {
-                super::$VecN {
-                    $($field: super::Float::trunc(v.$field),)+
-                }
-            }
-
-            pub fn modf<T: super::Float>(v: super::$VecN<T>) -> (super::$VecN<T>, super::$VecN<T>) {
-                (
-                    super::$VecN {
-                        $($field: super::Float::frac(v.$field),)+
-                    },
-                    super::$VecN {
-                        $($field: super::Float::trunc(v.$field),)+
-                    }
-                )
-            }
-
             pub fn log<T: super::Float>(v: super::$VecN<T>, base: T) -> super::$VecN<T> {
                 super::$VecN {
                     $($field: super::Float::log(v.$field, base),)+
-                }
-            }
-
-            pub fn sincos<T: super::Float>(v: super::$VecN<T>) -> (super::$VecN<T>, super::$VecN<T>) {
-                (
-                    super::$VecN {
-                        $($field: super::Float::sin(v.$field),)+
-                    },
-                    super::$VecN {
-                        $($field: super::Float::cos(v.$field),)+
-                    }
-                )
-            }
-
-            pub fn atan2<T: super::Float>(y: super::$VecN<T>, x: super::$VecN<T>) -> super::$VecN<T> {
-                super::$VecN {
-                    $($field: super::Float::atan2(y.$field, x.$field),)+
                 }
             }
         }
