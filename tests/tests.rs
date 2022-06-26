@@ -1,5 +1,6 @@
 use maths_rs::vec::*;
 use maths_rs::num::*;
+use maths_rs::mat::*;
 
 pub type Vec2f = Vec2<f32>;
 pub type Vec3f = Vec3<f32>;
@@ -719,4 +720,51 @@ fn exp_log() {
 #[test]
 fn reflect_refract() {
     // TODO:
+}
+
+#[test]
+fn matrix_get_rows_columns() {
+    let m4 = Mat4::<f32> {
+        m: [
+            0.0, 1.0, 2.0, 3.0,
+            4.0, 5.0, 6.0, 7.0,
+            8.0, 9.0, 10.0, 11.0,
+            12.0, 13.0, 14.0, 15.0
+        ]
+    };
+    assert_eq!(m4.get_row(2), vec4f(8.0, 9.0, 10.0, 11.0));
+    assert_eq!(m4.get_column(3), vec4f(3.0, 7.0, 11.0, 15.0));
+
+    let m34 = Mat34::<f32> {
+        m: [
+            0.0, 1.0, 2.0, 3.0,
+            4.0, 5.0, 6.0, 7.0,
+            8.0, 9.0, 10.0, 11.0
+        ]
+    };
+    assert_eq!(m34.get_row(1), vec4f(4.0, 5.0, 6.0, 7.0));
+    assert_eq!(m34.get_column(2), vec3f(2.0, 6.0, 10.0));
+}
+
+#[test]
+fn matrix_zero() {
+    let m4 = Mat4::<f32>::zero();
+    for i in 0..4 {
+        assert_eq!(m4.get_row(i), vec4f(0.0, 0.0, 0.0, 0.0));
+        assert_eq!(m4.get_column(i), vec4f(0.0, 0.0, 0.0, 0.0));
+    }
+}
+
+#[test]
+fn matrix_identity() {
+    let m4 = Mat4::<f32>::identity();
+    assert_eq!(m4.get_row(0), vec4f(1.0, 0.0, 0.0, 0.0));
+    assert_eq!(m4.get_row(1), vec4f(0.0, 1.0, 0.0, 0.0));
+    assert_eq!(m4.get_row(2), vec4f(0.0, 0.0, 1.0, 0.0));
+    assert_eq!(m4.get_row(3), vec4f(0.0, 0.0, 0.0, 1.0));
+
+    let m34 = Mat34::<f32>::identity();
+    assert_eq!(m34.get_row(0), vec4f(1.0, 0.0, 0.0, 0.0));
+    assert_eq!(m34.get_row(1), vec4f(0.0, 1.0, 0.0, 0.0));
+    assert_eq!(m34.get_row(2), vec4f(0.0, 0.0, 1.0, 0.0));
 }

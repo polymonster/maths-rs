@@ -33,13 +33,35 @@ const fn _create_identity<T: Number>(num_rows: usize, num_cols: usize, zero: T, 
 }
 
 macro_rules! mat_impl {
-    ($MatN:ident, $rows:expr, $cols:expr, $elems:expr, $VecN:ident { $($field:ident, $field_index:expr),* } ) => {
+    ($MatN:ident, $rows:expr, $cols:expr, $elems:expr, 
+        $RowVecN:ident { $($row_field:ident, $row_field_index:expr),* },
+        $ColVecN:ident { $($col_field:ident, $col_field_index:expr),* } ) => {
         #[derive(Debug, Copy, Clone)]
         pub struct $MatN<T> {
             pub m: [T; $elems]
         }
 
         impl<T> $MatN<T> where T: Number {
+            /// initialise matrix to all zero's
+            pub fn zero() -> $MatN<T> {
+                $MatN {
+                    m: [T::zero(); $elems]
+                }
+            }
+
+            /// initialise matrix to identity
+            pub fn identity() -> $MatN<T> {
+                let mut mat = Self::zero();
+                for r in 0..$rows {
+                    for c in 0..$cols {
+                        if c == r {
+                            mat.set(r, c, T::one());
+                        }
+                    }
+                }
+                mat
+            }
+
             /// get single element from the matrix at row, column index
             pub fn at(self, row: u32, column: u32) -> T {
                 let urow = row as usize;
@@ -55,15 +77,23 @@ macro_rules! mat_impl {
             }
 
             /// gets a single row of the matrix in n sized vec where in is the column count of the matrix
-            pub fn get_row(&self, row: u32) -> $VecN<T> {
+            pub fn get_row(&self, row: u32) -> $RowVecN<T> {
                 let urow = row as usize;
-                $VecN {
-                    $($field: self.m[urow * $cols + $field_index],)+
+                $RowVecN {
+                    $($row_field: self.m[urow * $cols + $row_field_index],)+
                 }
             }
 
             // set row
-            // get column
+
+            /// gets a single column of the matrix in n sized vec where in is the row count of the matrix
+            pub fn get_column(&self, column: u32) -> $ColVecN<T> {
+                let ucol = column as usize;
+                $ColVecN {
+                    $($col_field: self.m[$col_field_index * $cols + ucol],)+
+                }
+            }
+
             // set column
         }
     }
@@ -99,19 +129,26 @@ impl<T> std::ops::Mul<Self> for Mat4<T> where T: Number {
     }
 }
 
-mat_impl!(Mat2, 2, 2, 4, Vec2 {x, 0, y, 1});
-mat_impl!(Mat3, 3, 3, 9, Vec3 {x, 0, y, 1, z, 2});
-mat_impl!(Mat4, 4, 4, 16, Vec4 {x, 0, y, 1, z, 2, w, 3});
+//mat_impl!(Mat2, 2, 2, 4, Vec2 {x, 0, y, 1});
+//mat_impl!(Mat3, 3, 3, 9, Vec3 {x, 0, y, 1, z, 2});
+
+mat_impl!(Mat4, 4, 4, 16, Vec4 {x, 0, y, 1, z, 2, w, 3}, Vec4 {x, 0, y, 1, z, 2, w, 3});
+mat_impl!(Mat34, 3, 4, 12, Vec4 {x, 0, y, 1, z, 2, w, 3}, Vec3 {x, 0, y, 1, z, 2});
 
 // construct
+// x identity
+// x zero
+// translation
+// scale
+// rotation
 
 // mul 
 // mul assign
+// add / sub
 
 // transpose
 // inverse
 // det
 
 // korneker
-// add / sub
 // from
