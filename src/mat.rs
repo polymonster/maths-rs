@@ -2,35 +2,7 @@
 use crate::vec::*;
 use crate::num::*;
 
-// 00 01 02 03
-// 04 05 06 07
-// 08 09 10 11
-// 12 13 14 15
-
-const fn _create_identity<T: Number>(num_rows: usize, num_cols: usize, zero: T, one: T) -> [T; 16] {
-    let mut m = [zero; 16];
-    let mut r = 0;
-    loop {
-        let mut c = 0;
-        loop {
-            if r == c {
-                m[r * num_rows + c] = one;
-            }
-            else {
-                m[r * num_rows + c] = zero;
-            }
-            c += 1;
-            if c == num_cols {
-                break;
-            }
-        }
-        r += 1;
-        if r == num_rows {
-            break;
-        }
-    }
-    m
-}
+use std::ops::Mul;
 
 macro_rules! mat_impl {
     ($MatN:ident, $rows:expr, $cols:expr, $elems:expr, 
@@ -99,7 +71,55 @@ macro_rules! mat_impl {
     }
 }
 
-impl<T> std::ops::Mul<Self> for Mat4<T> where T: Number {
+// 00 01
+// 02 03
+
+impl<T> Mul<Self> for Mat2<T> where T: Number {
+    type Output = Self;
+    fn mul(self, rhs: Mat2<T>) -> Mat2<T> {
+        Mat2 {
+            m: [
+                self.m[0] * rhs.m[0] + self.m[1] * rhs.m[2],
+                self.m[0] * rhs.m[1] + self.m[1] * rhs.m[3],
+
+                self.m[2] * rhs.m[0] + self.m[3] * rhs.m[2],
+                self.m[2] * rhs.m[1] + self.m[3] * rhs.m[3],
+            ]
+        }
+    }
+}
+
+// 00 01 02
+// 03 04 05
+// 06 07 08
+
+impl<T> Mul<Self> for Mat3<T> where T: Number {
+    type Output = Self;
+    fn mul(self, rhs: Mat3<T>) -> Mat3<T> {
+        Mat3 {
+            m: [
+                self.m[0] * rhs.m[0] + self.m[1] * rhs.m[3] + self.m[2] * rhs.m[6],
+                self.m[0] * rhs.m[1] + self.m[1] * rhs.m[4] + self.m[2] * rhs.m[7],
+                self.m[0] * rhs.m[2] + self.m[1] * rhs.m[5] + self.m[2] * rhs.m[8],
+
+                self.m[3] * rhs.m[0] + self.m[4] * rhs.m[3] + self.m[5] * rhs.m[6],
+                self.m[3] * rhs.m[1] + self.m[4] * rhs.m[4] + self.m[5] * rhs.m[7],
+                self.m[3] * rhs.m[2] + self.m[4] * rhs.m[5] + self.m[5] * rhs.m[8],
+
+                self.m[6] * rhs.m[0] + self.m[7] * rhs.m[3] + self.m[8] * rhs.m[6],
+                self.m[6] * rhs.m[1] + self.m[7] * rhs.m[4] + self.m[8] * rhs.m[7],
+                self.m[6] * rhs.m[2] + self.m[7] * rhs.m[5] + self.m[8] * rhs.m[8],
+            ]
+        }
+    }
+}
+
+// 00 01 02 03
+// 04 05 06 07
+// 08 09 10 11
+// 12 13 14 15
+
+impl<T> Mul<Self> for Mat4<T> where T: Number {
     type Output = Self;
     fn mul(self, rhs: Mat4<T>) -> Mat4<T> {
         Mat4 {
@@ -114,24 +134,22 @@ impl<T> std::ops::Mul<Self> for Mat4<T> where T: Number {
                 self.m[4] * rhs.m[2] + self.m[5] * rhs.m[6] + self.m[6] * rhs.m[10] + self.m[7] * rhs.m[14],
                 self.m[4] * rhs.m[3] + self.m[5] * rhs.m[7] + self.m[6] * rhs.m[11] + self.m[7] * rhs.m[15],
 
-                // ..
-                self.m[0] * rhs.m[0] + self.m[1] * rhs.m[4] + self.m[2] * rhs.m[8] + self.m[3] * rhs.m[12],
-                self.m[0] * rhs.m[0] + self.m[1] * rhs.m[4] + self.m[2] * rhs.m[8] + self.m[3] * rhs.m[12],
-                self.m[0] * rhs.m[0] + self.m[1] * rhs.m[4] + self.m[2] * rhs.m[8] + self.m[3] * rhs.m[12],
-                self.m[0] * rhs.m[0] + self.m[1] * rhs.m[4] + self.m[2] * rhs.m[8] + self.m[3] * rhs.m[12],
+                self.m[8] * rhs.m[0] + self.m[9] * rhs.m[4] + self.m[10] * rhs.m[8] + self.m[11] * rhs.m[12],
+                self.m[8] * rhs.m[1] + self.m[9] * rhs.m[5] + self.m[10] * rhs.m[9] + self.m[11] * rhs.m[13],
+                self.m[8] * rhs.m[2] + self.m[9] * rhs.m[6] + self.m[10] * rhs.m[10] + self.m[11] * rhs.m[14],
+                self.m[8] * rhs.m[3] + self.m[9] * rhs.m[7] + self.m[10] * rhs.m[11] + self.m[11] * rhs.m[15],
 
-                self.m[0] * rhs.m[0] + self.m[1] * rhs.m[4] + self.m[2] * rhs.m[8] + self.m[3] * rhs.m[12],
-                self.m[0] * rhs.m[0] + self.m[1] * rhs.m[4] + self.m[2] * rhs.m[8] + self.m[3] * rhs.m[12],
-                self.m[0] * rhs.m[0] + self.m[1] * rhs.m[4] + self.m[2] * rhs.m[8] + self.m[3] * rhs.m[12],
-                self.m[0] * rhs.m[0] + self.m[1] * rhs.m[4] + self.m[2] * rhs.m[8] + self.m[3] * rhs.m[12],
+                self.m[12] * rhs.m[0] + self.m[10] * rhs.m[4] + self.m[14] * rhs.m[8] + self.m[15] * rhs.m[12],
+                self.m[12] * rhs.m[1] + self.m[10] * rhs.m[5] + self.m[14] * rhs.m[9] + self.m[15] * rhs.m[13],
+                self.m[12] * rhs.m[2] + self.m[10] * rhs.m[6] + self.m[14] * rhs.m[10] + self.m[15] * rhs.m[14],
+                self.m[12] * rhs.m[3] + self.m[10] * rhs.m[7] + self.m[14] * rhs.m[11] + self.m[15] * rhs.m[15],
             ]
         }
     }
 }
 
-//mat_impl!(Mat2, 2, 2, 4, Vec2 {x, 0, y, 1});
-//mat_impl!(Mat3, 3, 3, 9, Vec3 {x, 0, y, 1, z, 2});
-
+mat_impl!(Mat2, 2, 2, 4, Vec2 {x, 0, y, 1}, Vec2 {x, 0, y, 1});
+mat_impl!(Mat3, 3, 3, 9, Vec3 {x, 0, y, 1, z, 2}, Vec3 {x, 0, y, 1, z, 2});
 mat_impl!(Mat4, 4, 4, 16, Vec4 {x, 0, y, 1, z, 2, w, 3}, Vec4 {x, 0, y, 1, z, 2, w, 3});
 mat_impl!(Mat34, 3, 4, 12, Vec4 {x, 0, y, 1, z, 2, w, 3}, Vec3 {x, 0, y, 1, z, 2});
 
