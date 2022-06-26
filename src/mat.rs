@@ -1,52 +1,13 @@
 
 use crate::vec::*;
-
-/*
-#[derive(Debug, Copy, Clone)]
-pub struct Mat4<T> {
-    pub m: [T; 16]
-}
-
-impl<T> Mat4<T> where T: Number {
-    pub fn at(self, row: u32, column: u32) -> T {
-        let urow = row as usize;
-        let ucol = column as usize;
-        self.m[urow * 4 + ucol]
-    }
-    pub fn set(&mut self, row: u32, column: u32, value: T) {
-        let urow = row as usize;
-        let ucol = column as usize;
-        self.m[urow * 4 + ucol] = value
-    }
-    pub fn get_row(&self, row: u32) -> Vec4<T> {
-        let urow = row as usize;
-        Vec4 {
-            x: self.m[urow * 4],
-            y: self.m[urow * 4 + 1],
-            z: self.m[urow * 4 + 2],
-            w: self.m[urow * 4 + 3]
-        }
-    }
-    // set row
-    pub fn get_column(&self, column: u32) -> Vec4<T> {
-        let ucol = column as usize;
-        Vec4 {
-            x: self.m[ucol],
-            y: self.m[4 + ucol],
-            z: self.m[8 + ucol],
-            w: self.m[12 + ucol]
-        }
-    }
-    // set column
-}
-*/
+use crate::num::*;
 
 // 00 01 02 03
 // 04 05 06 07
 // 08 09 10 11
 // 12 13 14 15
 
-const fn create_identity<T: Number>(num_rows: usize, num_cols: usize, zero: T, one: T) -> [T; 16] {
+const fn _create_identity<T: Number>(num_rows: usize, num_cols: usize, zero: T, one: T) -> [T; 16] {
     let mut m = [zero; 16];
     let mut r = 0;
     loop {

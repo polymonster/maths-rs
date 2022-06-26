@@ -1,4 +1,5 @@
 use maths_rs::vec::*;
+use maths_rs::num::*;
 
 pub type Vec2f = Vec2<f32>;
 pub type Vec3f = Vec3<f32>;
