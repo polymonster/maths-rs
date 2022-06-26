@@ -148,25 +148,50 @@ impl<T> Mul<Self> for Mat4<T> where T: Number {
     }
 }
 
+// 00 01 02 03
+// 04 05 06 07
+// 08 09 10 11
+
+impl<T> Mul<Self> for Mat34<T> where T: Number {
+    type Output = Self;
+    fn mul(self, rhs: Mat34<T>) -> Mat34<T> {
+        Mat34 {
+            m: [
+                self.m[0] * rhs.m[0] + self.m[1] * rhs.m[4] + self.m[2] * rhs.m[8],
+                self.m[0] * rhs.m[1] + self.m[1] * rhs.m[5] + self.m[2] * rhs.m[9],
+                self.m[0] * rhs.m[2] + self.m[1] * rhs.m[6] + self.m[2] * rhs.m[10],
+                self.m[0] * rhs.m[3] + self.m[1] * rhs.m[7] + self.m[2] * rhs.m[11] + self.m[3],
+
+                self.m[4] * rhs.m[0] + self.m[5] * rhs.m[4] + self.m[6] * rhs.m[8],
+                self.m[4] * rhs.m[1] + self.m[5] * rhs.m[5] + self.m[6] * rhs.m[9],
+                self.m[4] * rhs.m[2] + self.m[5] * rhs.m[6] + self.m[6] * rhs.m[10],
+                self.m[4] * rhs.m[3] + self.m[5] * rhs.m[7] + self.m[6] * rhs.m[11] + self.m[7],
+
+                self.m[8] * rhs.m[0] + self.m[9] * rhs.m[4] + self.m[10] * rhs.m[8],
+                self.m[8] * rhs.m[1] + self.m[9] * rhs.m[5] + self.m[10] * rhs.m[9],
+                self.m[8] * rhs.m[2] + self.m[9] * rhs.m[6] + self.m[10] * rhs.m[10],
+                self.m[8] * rhs.m[3] + self.m[9] * rhs.m[7] + self.m[10] * rhs.m[11] + self.m[11],
+            ]
+        }
+    }
+}
+
 mat_impl!(Mat2, 2, 2, 4, Vec2 {x, 0, y, 1}, Vec2 {x, 0, y, 1});
 mat_impl!(Mat3, 3, 3, 9, Vec3 {x, 0, y, 1, z, 2}, Vec3 {x, 0, y, 1, z, 2});
 mat_impl!(Mat4, 4, 4, 16, Vec4 {x, 0, y, 1, z, 2, w, 3}, Vec4 {x, 0, y, 1, z, 2, w, 3});
 mat_impl!(Mat34, 3, 4, 12, Vec4 {x, 0, y, 1, z, 2, w, 3}, Vec3 {x, 0, y, 1, z, 2});
 
+// display
+
 // construct
-// x identity
-// x zero
 // translation
 // scale
 // rotation
+// from
 
 // mul 
 // mul assign
-// add / sub
 
 // transpose
 // inverse
 // det
-
-// korneker
-// from
