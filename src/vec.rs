@@ -1,4 +1,5 @@
 use std::ops::Index;
+use std::ops::IndexMut;
 use std::ops::Mul;
 use std::ops::MulAssign;
 use std::ops::Add;
@@ -25,7 +26,7 @@ use crate::num::*;
 //
 
 /// generic vec trait to allow sized vectors to be treated generically
-pub trait VecN<T: Number>: Index<usize, Output=T> {
+pub trait VecN<T: Number>: Index<usize, Output=T> + IndexMut<usize> {
     fn len() -> usize;
 }
 
@@ -208,6 +209,15 @@ macro_rules! vec_impl {
                 match i {
                     $($field_index => &self.$field, )+
                     _ => &self.x
+                }
+            }
+        }
+
+        impl<T> IndexMut<usize> for $VecN<T> {
+            fn index_mut(&mut self, i: usize) -> &mut T {
+                match i {
+                    $($field_index => &mut self.$field, )+
+                    _ => &mut self.x
                 }
             }
         }
@@ -880,6 +890,16 @@ impl<T> From<T> for Vec2<T> where T: Number {
     }
 }
 
+// constructs vec2 from tuple of 2 scalars x: .0, y: .1
+impl<T> From<(T, T)> for Vec2<T> where T: Number {
+    fn from(other: (T, T)) -> Vec2<T> {
+        Vec2 {
+            x: other.0,
+            y: other.1,
+        }
+    }
+}
+
 /// constructs vec2 from vec3 copying the x,y and truncating the z
 impl<T> From<Vec3<T>> for Vec2<T> where T: Number {
     fn from(other: Vec3<T>) -> Vec2<T> {
@@ -918,6 +938,17 @@ impl<T> From<Vec2<T>> for Vec3<T> where T: Number {
             x: other.x,
             y: other.y,
             z: T::zero()
+        }
+    }
+}
+
+/// construct from a tuple of vec2 into x,y and scalar into z
+impl<T> From<(Vec2<T>, T)> for Vec3<T> where T: Number {
+    fn from(other: (Vec2<T>, T)) -> Vec3<T> {
+        Vec3 {
+            x: other.0.x,
+            y: other.0.y,
+            z: other.1
         }
     }
 }
@@ -965,6 +996,42 @@ impl<T> From<Vec3<T>> for Vec4<T> where T: Number {
             y: other.y,
             z: other.z,
             w: T::zero()
+        }
+    }
+}
+
+/// construct from a tuple of vec2 into x,y 2 scalars into z and w
+impl<T> From<(Vec2<T>, T, T)> for Vec4<T> where T: Number {
+    fn from(other: (Vec2<T>, T, T)) -> Vec4<T> {
+        Vec4 {
+            x: other.0.x,
+            y: other.0.y,
+            z: other.1,
+            w: other.2
+        }
+    }
+}
+
+/// construct from a tuple of vec2 into x,y and vec2 into z,w
+impl<T> From<(Vec2<T>, Vec2<T>)> for Vec4<T> where T: Number {
+    fn from(other: (Vec2<T>, Vec2<T>)) -> Vec4<T> {
+        Vec4 {
+            x: other.0.x,
+            y: other.0.y,
+            z: other.1.x,
+            w: other.1.y
+        }
+    }
+}
+
+/// construct from a tuple of vec3 into x,y,z and a scalar into w
+impl<T> From<(Vec3<T>, T)> for Vec4<T> where T: Number {
+    fn from(other: (Vec3<T>, T)) -> Vec4<T> {
+        Vec4 {
+            x: other.0.x,
+            y: other.0.y,
+            z: other.0.z,
+            w: other.1
         }
     }
 }

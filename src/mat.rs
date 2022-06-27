@@ -2,7 +2,12 @@
 use crate::vec::*;
 use crate::num::*;
 
+use std::ops::Index;
+use std::ops::IndexMut;
 use std::ops::Mul;
+
+use std::fmt::Display;
+use std::fmt::Formatter;
 
 macro_rules! mat_impl {
     ($MatN:ident, $rows:expr, $cols:expr, $elems:expr, 
@@ -11,6 +16,45 @@ macro_rules! mat_impl {
         #[derive(Debug, Copy, Clone)]
         pub struct $MatN<T> {
             pub m: [T; $elems]
+        }
+
+        /// index into matrix with tuple [(row, column)]
+        impl<T> Index<(usize, usize)> for $MatN<T> {
+            type Output = T;
+            fn index(&self, rc: (usize, usize)) -> &Self::Output {
+                &self.m[rc.0 * $cols + rc.1]
+            }
+        }
+
+        /// mutably index into matrix with tuple [(row, column)]
+        impl<T> IndexMut<(usize, usize)> for $MatN<T> {
+            fn index_mut(&mut self, rc: (usize, usize)) -> &mut Self::Output {
+                &mut self.m[rc.0 * $cols + rc.1]
+            }
+        }
+
+        /// displays like [1.0, 0.0, 0.0]
+        ///               [0.0, 1.0, 1.0]
+        ///               [0.0, 0.0, 1.0]
+        impl<T> Display for $MatN<T> where T: Display {
+            fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+                let mut output = String::from("");
+                for r in 0..$rows {
+                    output += &String::from("[");
+                    for c in 0..$cols {
+                        output += &self[(r, c)].to_string();
+                        if c < $cols-1 {
+                            output += &String::from(", ");
+                        }
+                        
+                    }
+                    output += "]";
+                    if r < $rows-1 {
+                        output += "\n";
+                    }
+                }
+                write!(f, "{}", output)
+            }
         }
 
         impl<T> $MatN<T> where T: Number {
@@ -56,7 +100,11 @@ macro_rules! mat_impl {
                 }
             }
 
-            // set row
+            // sets a single row of the matrix by an n sized vec, where n is the column count of the matrix
+            pub fn set_row(&mut self, row: u32, value: $RowVecN<T>) {
+                let urow = row as usize;
+                $(self.m[urow * $cols + $row_field_index] = value.$row_field;)+
+            }
 
             /// gets a single column of the matrix in n sized vec where in is the row count of the matrix
             pub fn get_column(&self, column: u32) -> $ColVecN<T> {
@@ -66,7 +114,11 @@ macro_rules! mat_impl {
                 }
             }
 
-            // set column
+            // sets a single column of the matrix by an n sized vec, where n is the row count of the matrix
+            pub fn set_column(&mut self, column: u32, value: $RowVecN<T>) {
+                let ucol = column as usize;
+                $(self.m[$col_field_index * $cols + ucol] = value.$col_field;)+
+            }
         }
     }
 }
@@ -181,15 +233,19 @@ mat_impl!(Mat3, 3, 3, 9, Vec3 {x, 0, y, 1, z, 2}, Vec3 {x, 0, y, 1, z, 2});
 mat_impl!(Mat4, 4, 4, 16, Vec4 {x, 0, y, 1, z, 2, w, 3}, Vec4 {x, 0, y, 1, z, 2, w, 3});
 mat_impl!(Mat34, 3, 4, 12, Vec4 {x, 0, y, 1, z, 2, w, 3}, Vec3 {x, 0, y, 1, z, 2});
 
-// display
+// eq
+// approx
 
 // construct
-// translation
-// scale
-// rotation
-// from
+//  translation
+//  scale
+//  rotation
+//  from
 
 // mul 
+//  4x4 * 4x3
+//  4x3 * 4x4
+// VecN
 // mul assign
 
 // transpose

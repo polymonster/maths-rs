@@ -58,6 +58,38 @@ fn v4_len() {
 }
 
 #[test]
+fn vec_index() {
+    let mut v = vec4f(7.0, 8.0, 9.0, 10.0);
+
+    let x1 = v[0];
+    let x2 = v[1];
+    let x3 = v[2];
+    let x4 = v[3];
+
+    v[0] = 10.0;
+    v[1] = 9.0;
+    v[2] = 8.0;
+    v[3] = 7.0;
+
+    let s1 = v[0];
+    let s2 = v[1];
+    let s3 = v[2];
+    let s4 = v[3];
+
+    assert_eq!(x1, 7.0);
+    assert_eq!(x2, 8.0);
+    assert_eq!(x3, 9.0);
+    assert_eq!(x4, 10.0);
+
+    assert_eq!(s1, 10.0);
+    assert_eq!(s2, 9.0);
+    assert_eq!(s3, 8.0);
+    assert_eq!(s4, 7.0);
+
+    assert_eq!(v, vec4f(10.0, 9.0, 8.0, 7.0));
+}
+
+#[test]
 fn equal() {
     let a = Vec2f {
         x: 2.0,
@@ -598,6 +630,12 @@ fn from() {
     assert_eq!(Vec3i::from(4), vec3i(4, 4, 4));
     assert_eq!(Vec4f::from(5.0), vec4f(5.0, 5.0, 5.0, 5.0));
     assert_eq!(Vec4i::from(6), vec4i(6, 6, 6, 6));
+
+    // from tuples
+    assert_eq!(Vec3f::from((vec2f(1.0, 0.0), 6.0)), vec3f(1.0, 0.0, 6.0));
+    assert_eq!(Vec4f::from((vec2f(3.0, 4.0), 8.0, 9.0)), vec4f(3.0, 4.0, 8.0, 9.0));
+    assert_eq!(Vec4f::from((vec2f(8.0, 9.0), vec2f(1.0, 2.0))), vec4f(8.0, 9.0, 1.0, 2.0));
+    assert_eq!(Vec4f::from((vec3f(10.0, 11.0, 12.0), 13.0)), vec4f(10.0, 11.0, 12.0, 13.0));
 }
 
 #[test]
@@ -767,4 +805,16 @@ fn matrix_identity() {
     assert_eq!(m34.get_row(0), vec4f(1.0, 0.0, 0.0, 0.0));
     assert_eq!(m34.get_row(1), vec4f(0.0, 1.0, 0.0, 0.0));
     assert_eq!(m34.get_row(2), vec4f(0.0, 0.0, 1.0, 0.0));
+}
+
+#[test]
+fn matrix_index() {
+    let m4 = Mat4::<f32>::identity();
+    assert_eq!(m4[(0, 0)], 1.0);
+    assert_eq!(m4[(1, 1)], 1.0);
+    assert_eq!(m4[(2, 2)], 1.0);
+    assert_eq!(m4[(3, 3)], 1.0);
+
+    // TODO: mut
+    // TODO: at
 }
