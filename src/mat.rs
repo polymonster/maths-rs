@@ -6,6 +6,8 @@ use std::ops::Index;
 use std::ops::IndexMut;
 use std::ops::Mul;
 use std::ops::MulAssign;
+use std::ops::Deref;
+use std::ops::DerefMut;
 
 use std::fmt::Display;
 use std::fmt::Formatter;
@@ -31,6 +33,19 @@ macro_rules! mat_impl {
         impl<T> IndexMut<(usize, usize)> for $MatN<T> {
             fn index_mut(&mut self, rc: (usize, usize)) -> &mut Self::Output {
                 &mut self.m[rc.0 * $cols + rc.1]
+            }
+        }
+
+        impl<T> Deref for $MatN<T> where T: Number {
+            type Target = [T];
+            fn deref(&self) -> &Self::Target {
+                self.as_slice()
+            }
+        }
+
+        impl<T> DerefMut for $MatN<T> where T: Number {
+            fn deref_mut(&mut self) -> &mut [T] {
+                self.as_mut_slice()
             }
         }
 
@@ -119,6 +134,27 @@ macro_rules! mat_impl {
             pub fn set_column(&mut self, column: u32, value: $RowVecN<T>) {
                 let ucol = column as usize;
                 $(self.m[$col_field_index * $cols + ucol] = value.$col_field;)+
+            }
+
+            /// returns a slice T of the matrix
+            pub fn as_slice(&self) -> &[T] {
+                unsafe {
+                    std::slice::from_raw_parts(&self.m[0], $elems)
+                }
+            }
+
+            /// returns a mutable slice T of the matrix
+            pub fn as_mut_slice(&mut self) -> &mut [T] {
+                unsafe {
+                    std::slice::from_raw_parts_mut(&mut self.m[0], $elems)
+                }
+            }
+
+            /// returns a slice of bytes for the matrix
+            pub fn as_u8_slice(&self) -> &[u8] {
+                unsafe {
+                    std::slice::from_raw_parts((&self.m[0] as *const T) as *const u8, std::mem::size_of::<$MatN<T>>())
+                }
             }
         }
     }
@@ -432,8 +468,6 @@ mat_impl!(Mat34, 3, 4, 12, Vec4 {x, 0, y, 1, z, 2, w, 3}, Vec3 {x, 0, y, 1, z, 2
 // eq
 // approx
 // from
-// deref
-// as u8 slice
 
 // construct
 //  translation
