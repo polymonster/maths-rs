@@ -460,6 +460,58 @@ impl<T> MulAssign<Mat34<T>> for Mat4<T> where T: Number {
     }
 }
 
+pub trait MatTranslate<V> {
+    fn create_translation(t: V) -> Self;
+}
+
+pub trait MatScale<V> {
+    fn create_scale(t: V) -> Self;
+}
+
+pub trait MatRotate2D<T> {
+    fn create_z_rotation(theta: T) -> Self;
+}
+
+impl<T> MatRotate2D<T> for Mat2<T> where T: Float {
+    fn create_z_rotation(theta: T) -> Self {
+        let mut m = Mat2::identity();
+        m.set(0, 0, Float::cos(theta));
+        m.set(0, 1, -Float::sin(theta));
+        m.set(1, 0, Float::sin(theta));
+        m.set(1, 1, Float::cos(theta));
+        m
+    }
+}
+
+pub trait MatRotate3D<V> {
+    fn create_x_rotation(t: V) -> Self;
+    fn create_y_rotation(t: V) -> Self;
+}
+
+impl<T> MatTranslate<Vec3<T>> for Mat4<T> where T: Number {
+    fn create_translation(t: Vec3<T>) -> Self {
+        let mut m = Mat4::identity();
+        m.set_column(3, Vec4::from(t));
+        m
+    }
+}
+
+impl<T> MatTranslate<Vec4<T>> for Mat4<T> where T: Number {
+    fn create_translation(t: Vec4<T>) -> Self {
+        let mut m = Mat4::identity();
+        m.set_column(3, t);
+        m
+    }
+}
+
+impl<T> MatTranslate<Vec3<T>> for Mat3<T> where T: Number {
+    fn create_translation(t: Vec3<T>) -> Self {
+        let mut m = Mat3::identity();
+        m.set_column(3, t);
+        m
+    }
+}
+
 mat_impl!(Mat2, 2, 2, 4, Vec2 {x, 0, y, 1}, Vec2 {x, 0, y, 1});
 mat_impl!(Mat3, 3, 3, 9, Vec3 {x, 0, y, 1, z, 2}, Vec3 {x, 0, y, 1, z, 2});
 mat_impl!(Mat4, 4, 4, 16, Vec4 {x, 0, y, 1, z, 2, w, 3}, Vec4 {x, 0, y, 1, z, 2, w, 3});

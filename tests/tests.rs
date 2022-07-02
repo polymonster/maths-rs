@@ -10,6 +10,11 @@ pub type Vec3i = Vec3<i32>;
 pub type Vec4i = Vec4<i32>;
 pub type Vec3u = Vec3<u32>;
 
+pub type Mat2f = Mat2<f32>;
+pub type Mat3f = Mat3<f32>;
+pub type Mat34f = Mat34<f32>;
+pub type Mat4f = Mat4<f32>;
+
 #[test]
 fn v2_construct() {
     let v2 = Vec2f {
@@ -817,4 +822,10 @@ fn matrix_index() {
 
     // TODO: mut
     // TODO: at
+}
+
+#[test]
+fn matrix_debug() {
+    let _m = Mat4f::create_translation(vec3f(1.0, 0.0, 1.0));
+    let _r = Mat2f::create_z_rotation(32.0);
 }
