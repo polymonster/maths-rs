@@ -141,7 +141,7 @@ fn mul2x2<T: Number>(lhs: Mat2<T>, rhs: Mat2<T>) -> Mat2<T> {
 
 impl<T> Mul<Self> for Mat2<T> where T: Number {
     type Output = Self;
-    fn mul(self, rhs: Mat2<T>) -> Mat2<T> {
+    fn mul(self, rhs: Mat2<T>) -> Self::Output {
         mul2x2(self, rhs)
     }
 }
@@ -149,6 +149,16 @@ impl<T> Mul<Self> for Mat2<T> where T: Number {
 impl<T> MulAssign<Self> for Mat2<T> where T: Number {
     fn mul_assign(&mut self, rhs: Mat2<T>) {
         *self = mul2x2(*self, rhs);
+    }
+}
+
+impl<T> Mul<Vec2<T>> for Mat2<T> where T: Number {
+    type Output = Vec2<T>;
+    fn mul(self, rhs: Vec2<T>) -> Self::Output {
+        Vec2 {
+            x: self.m[0] * rhs.x + self.m[1] * rhs.y,
+            y: self.m[2] * rhs.x + self.m[3] * rhs.y
+        }
     }
 }
 
@@ -177,7 +187,7 @@ fn mul3x3<T: Number>(lhs: Mat3<T>, rhs: Mat3<T>) -> Mat3<T> {
 
 impl<T> Mul<Self> for Mat3<T> where T: Number {
     type Output = Self;
-    fn mul(self, rhs: Mat3<T>) -> Mat3<T> {
+    fn mul(self, rhs: Mat3<T>) -> Self::Output {
         mul3x3(self, rhs)
     }
 }
@@ -185,6 +195,17 @@ impl<T> Mul<Self> for Mat3<T> where T: Number {
 impl<T> MulAssign<Self> for Mat3<T> where T: Number {
     fn mul_assign(&mut self, rhs: Mat3<T>) {
         *self = mul3x3(*self, rhs);
+    }
+}
+
+impl<T> Mul<Vec3<T>> for Mat3<T> where T: Number {
+    type Output = Vec3<T>;
+    fn mul(self, rhs: Vec3<T>) -> Self::Output {
+        Vec3 {
+            x: self.m[0] * rhs.x + self.m[1] * rhs.y + self.m[2] * rhs.z,
+            y: self.m[3] * rhs.x + self.m[4] * rhs.y + self.m[5] * rhs.z,
+            z: self.m[6] * rhs.x + self.m[7] * rhs.y + self.m[8] * rhs.z,
+        }
     }
 }
 
@@ -222,7 +243,7 @@ fn mul4x4<T: Number>(lhs: Mat4<T>, rhs: Mat4<T>) -> Mat4<T> {
 
 impl<T> Mul<Self> for Mat4<T> where T: Number {
     type Output = Self;
-    fn mul(self, rhs: Mat4<T>) -> Mat4<T> {
+    fn mul(self, rhs: Mat4<T>) -> Self::Output {
         mul4x4(self, rhs)
     }
 }
@@ -230,6 +251,33 @@ impl<T> Mul<Self> for Mat4<T> where T: Number {
 impl<T> MulAssign<Self> for Mat4<T> where T: Number {
     fn mul_assign(&mut self, rhs: Mat4<T>) {
         *self = mul4x4(*self, rhs);
+    }
+}
+
+impl<T> Mul<Vec4<T>> for Mat4<T> where T: Number {
+    type Output = Vec4<T>;
+    fn mul(self, rhs: Vec4<T>) -> Self::Output {
+        Vec4 {
+            x: self.m[0] * rhs.x + self.m[1] * rhs.y + self.m[2] * rhs.z + self.m[3] * rhs.w,
+            y: self.m[4] * rhs.x + self.m[5] * rhs.y + self.m[6] * rhs.z + self.m[7] * rhs.w,
+            z: self.m[8] * rhs.x + self.m[9] * rhs.y + self.m[10] * rhs.z + self.m[11] * rhs.w,
+            w: self.m[12] * rhs.x + self.m[13] * rhs.y + self.m[14] * rhs.z + self.m[15] * rhs.w,
+        }
+    }
+}
+
+/// performs multiplication with implicit w = 1.0, returning Vec3 and w in a tuple
+impl<T> Mul<Vec3<T>> for Mat4<T> where T: Number {
+    type Output = (Vec3<T>, T);
+    fn mul(self, rhs: Vec3<T>) -> Self::Output {
+        (
+            Vec3 {
+                x: self.m[0] * rhs.x + self.m[1] * rhs.y + self.m[2] * rhs.z + self.m[3],
+                y: self.m[4] * rhs.x + self.m[5] * rhs.y + self.m[6] * rhs.z + self.m[7],
+                z: self.m[8] * rhs.x + self.m[9] * rhs.y + self.m[10] * rhs.z + self.m[11],
+            },
+            self.m[12] * rhs.x + self.m[13] * rhs.y + self.m[14] * rhs.z + self.m[15]
+        )
     }
 }
 
@@ -261,7 +309,7 @@ fn mul3x4<T: Number>(lhs: Mat34<T>, rhs: Mat34<T>) -> Mat34<T> {
 
 impl<T> Mul<Self> for Mat34<T> where T: Number {
     type Output = Self;
-    fn mul(self, rhs: Mat34<T>) -> Mat34<T> {
+    fn mul(self, rhs: Mat34<T>) -> Self::Output {
         mul3x4(self, rhs)
     }
 }
@@ -269,6 +317,30 @@ impl<T> Mul<Self> for Mat34<T> where T: Number {
 impl<T> MulAssign<Self> for Mat34<T> where T: Number {
     fn mul_assign(&mut self, rhs: Mat34<T>) {
         *self = mul3x4(*self, rhs)
+    }
+}
+
+impl<T> Mul<Vec3<T>> for Mat34<T> where T: Number {
+    type Output = Vec3<T>;
+    fn mul(self, rhs: Vec3<T>) -> Self::Output {
+        Vec3 {
+            x: self.m[0] * rhs.x + self.m[1] * rhs.y + self.m[2] * rhs.z + self.m[3],
+            y: self.m[4] * rhs.x + self.m[5] * rhs.y + self.m[6] * rhs.z + self.m[7],
+            z: self.m[8] * rhs.x + self.m[9] * rhs.y + self.m[10] * rhs.z + self.m[11]
+        }
+    }
+}
+
+/// multiples vector with implicit 4th row in matrix 0,0,0,1
+impl<T> Mul<Vec4<T>> for Mat34<T> where T: Number {
+    type Output = Vec4<T>;
+    fn mul(self, rhs: Vec4<T>) -> Self::Output {
+        Vec4 {
+            x: self.m[0] * rhs.x + self.m[1] * rhs.y + self.m[2] * rhs.z + self.m[3] * rhs.w,
+            y: self.m[4] * rhs.x + self.m[5] * rhs.y + self.m[6] * rhs.z + self.m[7] * rhs.w,
+            z: self.m[8] * rhs.x + self.m[9] * rhs.y + self.m[10] * rhs.z + self.m[11] * rhs.w,
+            w: rhs.w,
+        }
     }
 }
 
@@ -304,7 +376,7 @@ fn mul3x4_4x4<T: Number>(lhs: Mat34<T>, rhs: Mat4<T>) -> Mat4<T> {
 
 impl<T> Mul<Mat4<T>> for Mat34<T> where T: Number {
     type Output = Mat4<T>;
-    fn mul(self, rhs: Mat4<T>) -> Mat4<T> {
+    fn mul(self, rhs: Mat4<T>) -> Self::Output {
         mul3x4_4x4(self, rhs)
     }
 }
@@ -341,7 +413,7 @@ fn mul4x4_3x4<T: Number>(lhs: Mat4<T>, rhs: Mat34<T>) -> Mat4<T> {
 
 impl<T> Mul<Mat34<T>> for Mat4<T> where T: Number {
     type Output = Self;
-    fn mul(self, rhs: Mat34<T>) -> Mat4<T> {
+    fn mul(self, rhs: Mat34<T>) -> Self::Output {
         mul4x4_3x4(self, rhs)
     }
 }
@@ -359,15 +431,14 @@ mat_impl!(Mat34, 3, 4, 12, Vec4 {x, 0, y, 1, z, 2, w, 3}, Vec3 {x, 0, y, 1, z, 2
 
 // eq
 // approx
+// from
+// deref
+// as u8 slice
 
 // construct
 //  translation
 //  scale
 //  rotation
-//  from
-
-// mul 
-//  VecN
 
 // transpose
 // inverse
