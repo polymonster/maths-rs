@@ -9,6 +9,8 @@ use std::ops::MulAssign;
 use std::ops::Deref;
 use std::ops::DerefMut;
 
+use std::cmp::PartialEq;
+
 use std::fmt::Display;
 use std::fmt::Formatter;
 
@@ -33,6 +35,21 @@ macro_rules! mat_impl {
         impl<T> IndexMut<(usize, usize)> for $MatN<T> {
             fn index_mut(&mut self, rc: (usize, usize)) -> &mut Self::Output {
                 &mut self.m[rc.0 * $cols + rc.1]
+            }
+        }
+
+        /// index into matrix raw array single [index]
+        impl<T> Index<usize> for $MatN<T> {
+            type Output = T;
+            fn index(&self, index: usize) -> &Self::Output {
+                &self.m[index]
+            }
+        }
+
+        /// mutably index into matrix raw array with single [index]
+        impl<T> IndexMut<usize> for $MatN<T> {
+            fn index_mut(&mut self, index: usize) -> &mut Self::Output {
+                &mut self.m[index]
             }
         }
 
@@ -70,6 +87,29 @@ macro_rules! mat_impl {
                     }
                 }
                 write!(f, "{}", output)
+            }
+        }
+
+        impl<T> Eq for $MatN<T> where T: Eq  {}
+        impl<T> PartialEq for $MatN<T> where T: PartialEq  {
+            fn eq(&self, other: &Self) -> bool {
+                for i in 0..$elems {
+                    if self.m[i] != other.m[i] {
+                        return false;
+                    }
+                }
+                true
+            }
+        }
+
+        impl<T> $MatN<T> where T: Float {
+            pub fn approx(lhs: Self, rhs: Self, eps: T) -> bool {
+                for i in 0..$elems {
+                    if !Float::approx(lhs.m[i], rhs.m[i], eps) {
+                        return false;
+                    }
+                }
+                true
             }
         }
 
@@ -530,10 +570,12 @@ pub trait MatRotate2D<T> {
 impl<T> MatRotate2D<T> for Mat2<T> where T: Float {
     fn create_z_rotation(theta: T) -> Self {
         let mut m = Mat2::identity();
-        m.set(0, 0, Float::cos(theta));
-        m.set(0, 1, -Float::sin(theta));
-        m.set(1, 0, Float::sin(theta));
-        m.set(1, 1, Float::cos(theta));
+        let cos_theta = Float::cos(theta);
+        let sin_theta = Float::sin(theta);
+        m.set(0, 0, cos_theta);
+        m.set(0, 1, -sin_theta);
+        m.set(1, 0, sin_theta);
+        m.set(1, 1, cos_theta);
         m
     }
 }
@@ -541,10 +583,12 @@ impl<T> MatRotate2D<T> for Mat2<T> where T: Float {
 impl<T> MatRotate2D<T> for Mat3<T> where T: Float {
     fn create_z_rotation(theta: T) -> Self {
         let mut m = Mat3::identity();
-        m.set(0, 0, Float::cos(theta));
-        m.set(0, 1, -Float::sin(theta));
-        m.set(1, 0, Float::sin(theta));
-        m.set(1, 1, Float::cos(theta));
+        let cos_theta = Float::cos(theta);
+        let sin_theta = Float::sin(theta);
+        m.set(0, 0, cos_theta);
+        m.set(0, 1, -sin_theta);
+        m.set(1, 0, sin_theta);
+        m.set(1, 1, cos_theta);
         m
     }
 }
@@ -552,10 +596,12 @@ impl<T> MatRotate2D<T> for Mat3<T> where T: Float {
 impl<T> MatRotate2D<T> for Mat4<T> where T: Float {
     fn create_z_rotation(theta: T) -> Self {
         let mut m = Mat4::identity();
-        m.set(0, 0, Float::cos(theta));
-        m.set(0, 1, -Float::sin(theta));
-        m.set(1, 0, Float::sin(theta));
-        m.set(1, 1, Float::cos(theta));
+        let cos_theta = Float::cos(theta);
+        let sin_theta = Float::sin(theta);
+        m.set(0, 0, cos_theta);
+        m.set(0, 1, -sin_theta);
+        m.set(1, 0, sin_theta);
+        m.set(1, 1, cos_theta);
         m
     }
 }
@@ -563,10 +609,12 @@ impl<T> MatRotate2D<T> for Mat4<T> where T: Float {
 impl<T> MatRotate2D<T> for Mat34<T> where T: Float {
     fn create_z_rotation(theta: T) -> Self {
         let mut m = Mat34::identity();
-        m.set(0, 0, Float::cos(theta));
-        m.set(0, 1, -Float::sin(theta));
-        m.set(1, 0, Float::sin(theta));
-        m.set(1, 1, Float::cos(theta));
+        let cos_theta = Float::cos(theta);
+        let sin_theta = Float::sin(theta);
+        m.set(0, 0, cos_theta);
+        m.set(0, 1, -sin_theta);
+        m.set(1, 0, sin_theta);
+        m.set(1, 1, cos_theta);
         m
     }
 }
@@ -580,30 +628,77 @@ pub trait MatRotate3D<T, V> {
 impl<T> MatRotate3D<T, Vec3<T>> for Mat3<T> where T: Float {
     fn create_x_rotation(theta: T) -> Self {
         let mut m = Mat3::identity();
+        let cos_theta = Float::cos(theta);
+        let sin_theta = Float::sin(theta);
+        m.set(1, 1, cos_theta);
+        m.set(1, 2, -sin_theta);
+        m.set(2, 1, sin_theta);
+        m.set(2, 2, cos_theta);
         m
     }
+
     fn create_y_rotation(theta: T) -> Self {
         let mut m = Mat3::identity();
+        let cos_theta = Float::cos(theta);
+        let sin_theta = Float::sin(theta);
+        m.set(1, 1, cos_theta);
+        m.set(1, 3, sin_theta);
+        m.set(3, 1, -sin_theta);
+        m.set(3, 3, cos_theta);
         m
     }
+
     fn create_rotation(axis: Vec3<T>, theta: T) -> Self {
         let mut m = Mat3::identity();
+        
+        /*
+        T theta_rad     = theta;
+        T sin_theta     = sin(theta_rad);
+        T cos_theta     = cos(theta_rad);
+        T inv_cos_theta = 1 - cos(theta_rad);
+
+        m.m[0] = inv_cos_theta * axis.x * axis.x + cos_theta;
+        m.m[1] = inv_cos_theta * axis.x * axis.y - sin_theta * axis.z;
+        m.m[2] = inv_cos_theta * axis.x * axis.z + sin_theta * axis.y;
+        m.m[3] = 0;
+
+        m.m[4] = inv_cos_theta * axis.x * axis.y + sin_theta * axis.z;
+        m.m[5] = inv_cos_theta * axis.y * axis.y + cos_theta;
+        m.m[6] = inv_cos_theta * axis.y * axis.z - sin_theta * axis.x;
+        m.m[7] = 0;
+
+        m.m[8]  = inv_cos_theta * axis.x * axis.z - sin_theta * axis.y;
+        m.m[9]  = inv_cos_theta * axis.y * axis.z + sin_theta * axis.x;
+        m.m[10] = inv_cos_theta * axis.z * axis.z + cos_theta;
+        m.m[11] = 0;
+        */
+
+        let cos_theta = Float::cos(theta);
+        let sin_theta = Float::sin(theta);
+        let inv_cos_theta = T::one() - cos_theta;
+
+        m.set_row(0, Vec3::new(
+            inv_cos_theta * axis.x * axis.x + cos_theta,
+            inv_cos_theta * axis.x * axis.y - sin_theta * axis.z,
+            inv_cos_theta * axis.x * axis.z + sin_theta * axis.y,
+        ));
+        
         m
     }
 }
+
+// rotation 4x4
+// rotation 3x4
 
 mat_impl!(Mat2, 2, 2, 4, Vec2 {x, 0, y, 1}, Vec2 {x, 0, y, 1});
 mat_impl!(Mat3, 3, 3, 9, Vec3 {x, 0, y, 1, z, 2}, Vec3 {x, 0, y, 1, z, 2});
 mat_impl!(Mat4, 4, 4, 16, Vec4 {x, 0, y, 1, z, 2, w, 3}, Vec4 {x, 0, y, 1, z, 2, w, 3});
 mat_impl!(Mat34, 3, 4, 12, Vec4 {x, 0, y, 1, z, 2, w, 3}, Vec3 {x, 0, y, 1, z, 2});
 
-// eq
-// approx
+
 // from
 
 // construct
-//  translation
-//  scale
 //  rotation
 
 // transpose
