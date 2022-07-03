@@ -66,9 +66,10 @@ macro_rules! mat_impl {
             }
         }
 
-        /// displays like [1.0, 0.0, 0.0]
-        ///               [0.0, 1.0, 1.0]
-        ///               [0.0, 0.0, 1.0]
+        /// displays like:
+        /// [1.0, 0.0, 0.0]
+        /// [0.0, 1.0, 1.0]
+        /// [0.0, 0.0, 1.0]
         impl<T> Display for $MatN<T> where T: Display {
             fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
                 let mut output = String::from("");
@@ -170,7 +171,7 @@ macro_rules! mat_impl {
                 }
             }
 
-            // sets a single column of the matrix by an n sized vec, where n is the row count of the matrix
+            /// sets a single column of the matrix by an n sized vec, where n is the row count of the matrix
             pub fn set_column(&mut self, column: u32, value: $ColVecN<T>) {
                 let ucol = column as usize;
                 $(self.m[$col_field_index * $cols + ucol] = value.$col_field;)+
@@ -196,6 +197,102 @@ macro_rules! mat_impl {
                     std::slice::from_raw_parts((&self.m[0] as *const T) as *const u8, std::mem::size_of::<$MatN<T>>())
                 }
             }
+
+            /// transposes matrix so rows become columns and columns become rows
+            pub fn transpose(m: $MatN<T>) -> $MatN<T> {
+                let mut t = m;
+                for r in 0..$rows {
+                    for c in 0..$cols {
+                        t.set(c, r, m.at(r, c));
+                    }
+                }
+                t
+            }
+        }
+    }
+}
+
+//
+// From
+//
+
+/// constructs Mat3 from a Mat2 initialising the 2x2 part and setting the 3rd column and row to identity
+impl<T> From<Mat2<T>> for Mat3<T> where T: Number {
+    fn from(other: Mat2<T>) -> Mat3<T> {
+        Mat3 {
+            m: [
+                other.m[0], other.m[1], T::zero(),
+                other.m[2], other.m[2], T::zero(),
+                T::zero(), T::zero(), T::one()
+            ]
+        }
+    }
+}
+
+/// construct a Mat34 from a Mat2 initialising the 2x2 part and setting the 3rd row to identity
+impl<T> From<Mat2<T>> for Mat34<T> where T: Number {
+    fn from(other: Mat2<T>) -> Mat34<T> {
+        Mat34 {
+            m: [
+                other.m[0], other.m[1], T::zero(), T::zero(),
+                other.m[2], other.m[3], T::zero(), T::zero(),
+                T::zero(), T::zero(), T::one(), T::zero(),
+            ]
+        }
+    }
+}
+
+/// construct a Mat34 from a Mat3 initialising the 3x3 part and setting the 4th row to zero
+impl<T> From<Mat3<T>> for Mat34<T> where T: Number {
+    fn from(other: Mat3<T>) -> Mat34<T> {
+        Mat34 {
+            m: [
+                other.m[0], other.m[1], other.m[2], T::zero(),
+                other.m[3], other.m[4], other.m[5], T::zero(),
+                other.m[6], other.m[7], other.m[8], T::zero(),
+            ]
+        }
+    }
+}
+
+/// construct a Mat4 from a Mat2 initialising the 2x2 part and setting the 3rd and 4th rows to identity
+impl<T> From<Mat2<T>> for Mat4<T> where T: Number {
+    fn from(other: Mat2<T>) -> Mat4<T> {
+        Mat4 {
+            m: [
+                other.m[0], other.m[1], T::zero(), T::zero(),
+                other.m[2], other.m[3], T::zero(), T::zero(),
+                T::zero(), T::zero(), T::one(), T::zero(),
+                T::zero(), T::zero(), T::zero(), T::one()
+            ]
+        }
+    }
+}
+
+/// construct a Mat4 from a Mat3 initialising the 3x3 part and setting the 4th row/column to identity
+impl<T> From<Mat3<T>> for Mat4<T> where T: Number {
+    fn from(other: Mat3<T>) -> Mat4<T> {
+        Mat4 {
+            m: [
+                other.m[0], other.m[1], other.m[2], T::zero(),
+                other.m[3], other.m[4], other.m[5], T::zero(),
+                other.m[6], other.m[7], other.m[8], T::zero(),
+                T::zero(), T::zero(), T::zero(), T::one()
+            ]
+        }
+    }
+}
+
+/// construct a Mat4 from a Mat34 initialising the 3x4 part and setting the 4th row to identity
+impl<T> From<Mat34<T>> for Mat4<T> where T: Number {
+    fn from(other: Mat34<T>) -> Mat4<T> {
+        Mat4 {
+            m: [
+                other.m[0], other.m[1], other.m[2], other.m[3],
+                other.m[4], other.m[5], other.m[6], other.m[7],
+                other.m[8], other.m[9], other.m[10], other.m[11],
+                T::zero(), T::zero(), T::zero(), T::one()
+            ]
         }
     }
 }
@@ -650,28 +747,6 @@ impl<T> MatRotate3D<T, Vec3<T>> for Mat3<T> where T: Float {
 
     fn create_rotation(axis: Vec3<T>, theta: T) -> Self {
         let mut m = Mat3::identity();
-        
-        /*
-        T theta_rad     = theta;
-        T sin_theta     = sin(theta_rad);
-        T cos_theta     = cos(theta_rad);
-        T inv_cos_theta = 1 - cos(theta_rad);
-
-        m.m[0] = inv_cos_theta * axis.x * axis.x + cos_theta;
-        m.m[1] = inv_cos_theta * axis.x * axis.y - sin_theta * axis.z;
-        m.m[2] = inv_cos_theta * axis.x * axis.z + sin_theta * axis.y;
-        m.m[3] = 0;
-
-        m.m[4] = inv_cos_theta * axis.x * axis.y + sin_theta * axis.z;
-        m.m[5] = inv_cos_theta * axis.y * axis.y + cos_theta;
-        m.m[6] = inv_cos_theta * axis.y * axis.z - sin_theta * axis.x;
-        m.m[7] = 0;
-
-        m.m[8]  = inv_cos_theta * axis.x * axis.z - sin_theta * axis.y;
-        m.m[9]  = inv_cos_theta * axis.y * axis.z + sin_theta * axis.x;
-        m.m[10] = inv_cos_theta * axis.z * axis.z + cos_theta;
-        m.m[11] = 0;
-        */
 
         let cos_theta = Float::cos(theta);
         let sin_theta = Float::sin(theta);
@@ -680,27 +755,105 @@ impl<T> MatRotate3D<T, Vec3<T>> for Mat3<T> where T: Float {
         m.set_row(0, Vec3::new(
             inv_cos_theta * axis.x * axis.x + cos_theta,
             inv_cos_theta * axis.x * axis.y - sin_theta * axis.z,
-            inv_cos_theta * axis.x * axis.z + sin_theta * axis.y,
+            inv_cos_theta * axis.x * axis.z + sin_theta * axis.y
+        ));
+
+        m.set_row(1, Vec3::new(
+            inv_cos_theta * axis.x * axis.y + sin_theta * axis.z,
+            inv_cos_theta * axis.y * axis.y + cos_theta,
+            inv_cos_theta * axis.y * axis.z - sin_theta * axis.x
+        ));
+
+        m.set_row(2, Vec3::new(
+            inv_cos_theta * axis.x * axis.z - sin_theta * axis.y,
+            inv_cos_theta * axis.y * axis.z + sin_theta * axis.x,
+            inv_cos_theta * axis.z * axis.z + cos_theta,
         ));
         
         m
     }
 }
 
-// rotation 4x4
-// rotation 3x4
+impl<T> MatRotate3D<T, Vec3<T>> for Mat34<T> where T: Float {
+    fn create_x_rotation(theta: T) -> Self {
+        Mat34::from(Mat3::create_x_rotation(theta))
+    }
+
+    fn create_y_rotation(theta: T) -> Self {
+        Mat34::from(Mat3::create_y_rotation(theta))
+    }
+
+    fn create_rotation(axis: Vec3<T>, theta: T) -> Self {
+        Mat34::from(Mat3::create_rotation(axis, theta))
+    }
+}
+
+impl<T> MatRotate3D<T, Vec3<T>> for Mat4<T> where T: Float {
+    fn create_x_rotation(theta: T) -> Self {
+        Mat4::from(Mat3::create_x_rotation(theta))
+    }
+
+    fn create_y_rotation(theta: T) -> Self {
+        Mat4::from(Mat3::create_y_rotation(theta))
+    }
+
+    fn create_rotation(axis: Vec3<T>, theta: T) -> Self {
+        Mat4::from(Mat3::create_rotation(axis, theta))
+    }
+}
+
+pub trait MatDeterminant<T> {
+    fn determinant(&self) -> T;
+}
+
+impl<T> MatDeterminant<T> for Mat2<T> where T: Number {
+    fn determinant(&self) -> T {
+        self.m[0] * self.m[3] - self.m[1] * self.m[2]
+    }
+}
+
+impl<T> MatDeterminant<T> for Mat3<T> where T: Number {
+    fn determinant(&self) -> T {
+        self.m[0] * (self.m[4] * self.m[8] - self.m[5] * self.m[7]) +
+        self.m[1] * (self.m[3] * self.m[8] - self.m[5] * self.m[6]) +
+        self.m[2] * (self.m[3] * self.m[7] - self.m[4] * self.m[6])
+    }
+}
+
+impl<T> MatDeterminant<T> for Mat4<T> where T: Number {
+    fn determinant(&self) -> T {
+        /*
+        return m03 * m12 * m21 * m30 - m02 * m13 * m21 * m30 | - m03 * m11 * m22 * m30 + m01 * m13 * m22 * m30 +
+               m02 * m11 * m23 * m30 - m01 * m12 * m23 * m30 | - m03 * m12 * m20 * m31 + m02 * m13 * m20 * m31 +
+               m03 * m10 * m22 * m31 - m00 * m13 * m22 * m31 | - m02 * m10 * m23 * m31 + m00 * m12 * m23 * m31 +
+               m03 * m11 * m20 * m32 - m01 * m13 * m20 * m32 | - m03 * m10 * m21 * m32 + m00 * m13 * m21 * m32 +
+               m01 * m10 * m23 * m32 - m00 * m11 * m23 * m32 | - m02 * m11 * m20 * m33 + m01 * m12 * m20 * m33 +
+               m02 * m10 * m21 * m33 - m00 * m12 * m21 * m33 | - m01 * m10 * m22 * m33 + m00 * m11 * m22 * m33;
+        */
+
+        // 00 01 02 03
+        // 10 11 12 13
+        // 20 21 22 23
+        // 30 31 32 33
+
+        // 00 01 02 03
+        // 04 05 06 07
+        // 08 09 10 11
+        // 12 13 14 15
+
+        let m = self;
+        m.m[03] * m.m[06] * m.m[09] * m.m[12] - m.m[02] * m.m[07] * m.m[09] * m.m[12] - m.m[03] * m.m[05] * m.m[10] * m.m[12] + m.m[01] * m.m[07] * m.m[10] * m.m[12] +
+        m.m[02] * m.m[05] * m.m[11] * m.m[12] - m.m[01] * m.m[06] * m.m[11] * m.m[12] - m.m[03] * m.m[06] * m.m[08] * m.m[13] + m.m[02] * m.m[07] * m.m[08] * m.m[13] +
+        m.m[03] * m.m[04] * m.m[10] * m.m[13] - m.m[00] * m.m[07] * m.m[10] * m.m[13] - m.m[02] * m.m[04] * m.m[11] * m.m[13] + m.m[00] * m.m[06] * m.m[11] * m.m[13] +
+        m.m[03] * m.m[05] * m.m[08] * m.m[14] - m.m[01] * m.m[07] * m.m[08] * m.m[14] - m.m[03] * m.m[04] * m.m[09] * m.m[14] + m.m[00] * m.m[07] * m.m[09] * m.m[14] +
+        m.m[01] * m.m[04] * m.m[11] * m.m[14] - m.m[00] * m.m[05] * m.m[11] * m.m[14] - m.m[02] * m.m[05] * m.m[08] * m.m[15] + m.m[01] * m.m[06] * m.m[09] * m.m[15] +
+        m.m[02] * m.m[04] * m.m[09] * m.m[15] - m.m[00] * m.m[06] * m.m[09] * m.m[15] - m.m[01] * m.m[04] * m.m[10] * m.m[15] + m.m[00] * m.m[05] * m.m[10] * m.m[15] 
+    }
+}
 
 mat_impl!(Mat2, 2, 2, 4, Vec2 {x, 0, y, 1}, Vec2 {x, 0, y, 1});
 mat_impl!(Mat3, 3, 3, 9, Vec3 {x, 0, y, 1, z, 2}, Vec3 {x, 0, y, 1, z, 2});
 mat_impl!(Mat4, 4, 4, 16, Vec4 {x, 0, y, 1, z, 2, w, 3}, Vec4 {x, 0, y, 1, z, 2, w, 3});
 mat_impl!(Mat34, 3, 4, 12, Vec4 {x, 0, y, 1, z, 2, w, 3}, Vec3 {x, 0, y, 1, z, 2});
 
-
-// from
-
-// construct
-//  rotation
-
-// transpose
 // inverse
-// det
