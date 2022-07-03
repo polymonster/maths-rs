@@ -131,7 +131,7 @@ macro_rules! mat_impl {
             }
 
             // sets a single column of the matrix by an n sized vec, where n is the row count of the matrix
-            pub fn set_column(&mut self, column: u32, value: $RowVecN<T>) {
+            pub fn set_column(&mut self, column: u32, value: $ColVecN<T>) {
                 let ucol = column as usize;
                 $(self.m[$col_field_index * $cols + ucol] = value.$col_field;)+
             }
@@ -464,8 +464,63 @@ pub trait MatTranslate<V> {
     fn create_translation(t: V) -> Self;
 }
 
+impl<T> MatTranslate<Vec3<T>> for Mat4<T> where T: Number {
+    fn create_translation(t: Vec3<T>) -> Self {
+        let mut m = Mat4::identity();
+        m.set_column(3, Vec4::from(t));
+        m
+    }
+}
+
+impl<T> MatTranslate<Vec3<T>> for Mat34<T> where T: Number {
+    fn create_translation(t: Vec3<T>) -> Self {
+        let mut m = Mat34::identity();
+        m.set_column(3, t);
+        m
+    }
+}
+
 pub trait MatScale<V> {
     fn create_scale(t: V) -> Self;
+}
+
+impl<T> MatScale<Vec3<T>> for Mat4<T> where T: Number {
+    fn create_scale(t: Vec3<T>) -> Self {
+        let mut m = Mat4::identity();
+        m.set(0, 0, t.x);
+        m.set(1, 1, t.y);
+        m.set(2, 2, t.z);
+        m
+    }
+}
+
+impl<T> MatScale<Vec3<T>> for Mat34<T> where T: Number {
+    fn create_scale(t: Vec3<T>) -> Self {
+        let mut m = Mat34::identity();
+        m.set(0, 0, t.x);
+        m.set(1, 1, t.y);
+        m.set(2, 2, t.z);
+        m
+    }
+}
+
+impl<T> MatScale<Vec3<T>> for Mat3<T> where T: Number {
+    fn create_scale(t: Vec3<T>) -> Self {
+        let mut m = Mat3::identity();
+        m.set(0, 0, t.x);
+        m.set(1, 1, t.y);
+        m.set(2, 2, t.z);
+        m
+    }
+}
+
+impl<T> MatScale<Vec2<T>> for Mat2<T> where T: Number {
+    fn create_scale(t: Vec2<T>) -> Self {
+        let mut m = Mat2::identity();
+        m.set(0, 0, t.x);
+        m.set(1, 1, t.y);
+        m
+    }
 }
 
 pub trait MatRotate2D<T> {
@@ -483,31 +538,56 @@ impl<T> MatRotate2D<T> for Mat2<T> where T: Float {
     }
 }
 
-pub trait MatRotate3D<V> {
-    fn create_x_rotation(t: V) -> Self;
-    fn create_y_rotation(t: V) -> Self;
-}
-
-impl<T> MatTranslate<Vec3<T>> for Mat4<T> where T: Number {
-    fn create_translation(t: Vec3<T>) -> Self {
-        let mut m = Mat4::identity();
-        m.set_column(3, Vec4::from(t));
-        m
-    }
-}
-
-impl<T> MatTranslate<Vec4<T>> for Mat4<T> where T: Number {
-    fn create_translation(t: Vec4<T>) -> Self {
-        let mut m = Mat4::identity();
-        m.set_column(3, t);
-        m
-    }
-}
-
-impl<T> MatTranslate<Vec3<T>> for Mat3<T> where T: Number {
-    fn create_translation(t: Vec3<T>) -> Self {
+impl<T> MatRotate2D<T> for Mat3<T> where T: Float {
+    fn create_z_rotation(theta: T) -> Self {
         let mut m = Mat3::identity();
-        m.set_column(3, t);
+        m.set(0, 0, Float::cos(theta));
+        m.set(0, 1, -Float::sin(theta));
+        m.set(1, 0, Float::sin(theta));
+        m.set(1, 1, Float::cos(theta));
+        m
+    }
+}
+
+impl<T> MatRotate2D<T> for Mat4<T> where T: Float {
+    fn create_z_rotation(theta: T) -> Self {
+        let mut m = Mat4::identity();
+        m.set(0, 0, Float::cos(theta));
+        m.set(0, 1, -Float::sin(theta));
+        m.set(1, 0, Float::sin(theta));
+        m.set(1, 1, Float::cos(theta));
+        m
+    }
+}
+
+impl<T> MatRotate2D<T> for Mat34<T> where T: Float {
+    fn create_z_rotation(theta: T) -> Self {
+        let mut m = Mat34::identity();
+        m.set(0, 0, Float::cos(theta));
+        m.set(0, 1, -Float::sin(theta));
+        m.set(1, 0, Float::sin(theta));
+        m.set(1, 1, Float::cos(theta));
+        m
+    }
+}
+
+pub trait MatRotate3D<T, V> {
+    fn create_x_rotation(theta: T) -> Self;
+    fn create_y_rotation(theta: T) -> Self;
+    fn create_rotation(axis: V, theta: T) -> Self;
+}
+
+impl<T> MatRotate3D<T, Vec3<T>> for Mat3<T> where T: Float {
+    fn create_x_rotation(theta: T) -> Self {
+        let mut m = Mat3::identity();
+        m
+    }
+    fn create_y_rotation(theta: T) -> Self {
+        let mut m = Mat3::identity();
+        m
+    }
+    fn create_rotation(axis: Vec3<T>, theta: T) -> Self {
+        let mut m = Mat3::identity();
         m
     }
 }
