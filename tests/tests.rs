@@ -549,6 +549,14 @@ fn cross_product() {
 }
 
 #[test]
+fn perp_product() {
+    let pp = perp(vec2f(1.0, 0.0));
+    assert_eq!(pp, vec2f(0.0, 1.0));
+    let pp = perp(vec2f(0.5, 0.5));
+    assert_eq!(pp, vec2f(-0.5, 0.5));
+}
+
+#[test]
 fn zero() {
     let vz = Vec3f::zero();
     let expected = vec3f(0.0, 0.0, 0.0);
@@ -753,17 +761,25 @@ fn trig() {
     assert_eq!(v2::approx(cos, vec2f(Float::cos(0.0), Float::cos(1.0)), 0.001), true);
 }
 
-// atan2
-
 #[test]
 fn exp_log() {
-    // TODO;
+    let v3 = vec3f(1.0, 2.0, 3.0);
+    assert_eq!(v3::approx(v3::exp(v3), vec3f(Float::exp(1.0), Float::exp(2.0), Float::exp(3.0)), 0.1), true);
+    assert_eq!(v3::approx(v3::log10(v3), vec3f(Float::log10(1.0), Float::log10(2.0), Float::log10(3.0)), 0.1), true);
+    assert_eq!(v3::approx(v3::log2(v3), vec3f(Float::log2(1.0), Float::log2(2.0), Float::log2(3.0)), 0.1), true);
+    assert_eq!(v3::approx(v3::log(v3, 5.0), vec3f(Float::log(1.0, 5.0), Float::log(2.0, 5.0), Float::log(3.0, 5.0)), 0.1), true);
 }
 
 #[test]
 fn reflect_refract() {
     // TODO:
+    let v3 = vec3f(0.5, -0.5, 0.0);
+    let normal = vec3f(0.0, 1.0, 0.0);
+    let _refl = v3::reflect(v3, normal);
+    //assert_eq!(refl, vec3f(-0.5, 0.5, 0.0));
 }
+
+// TODO: atan2
 
 #[test]
 fn matrix_get_rows_columns() {
@@ -869,25 +885,38 @@ fn matrix_determinant() {
     let det = m3.determinant();
     assert_eq!(det, 4.0);
 
-    let m4 = Mat4f {
-        m: [
-            1.0, 3.0, 5.0, 9.0,
-            1.0, 3.0, 1.0, 7.0,
-            4.0, 3.0, 9.0, 7.0,
-            5.0, 2.0, 0.0, 9.0
-        ]
-    };
+    let m4 = Mat4f::from((
+        1.0, 3.0, 5.0, 9.0,
+        1.0, 3.0, 1.0, 7.0,
+        4.0, 3.0, 9.0, 7.0,
+        5.0, 2.0, 0.0, 9.0
+    ));
     let det = m4.determinant();
     assert_eq!(det, -376.0);
 }
 
+#[test]
+fn matrix_inverse() {
+    let m2 = Mat2f::from((
+        5.0, 2.0,
+        -7.0, -3.0
+    ));
+    let inv = Mat2f::inverse(m2);
+    let expected = Mat2f::from((
+        3.0, 2.0,
+        -7.0, -5.0
+    ));
+    assert_eq!(inv, expected);
+    let m2_inv = m2 * inv;
+    assert_eq!(m2_inv, Mat2f::identity());
+}
+
+// TODO: matrix get row
 // TODO: mut index
 // TODO: matrix from
-// TODO: matrix get row
 // TODO: rotations
-// TODO: det
-// TODO: inverse
 // TODO: deref
+// TODO: inverse
 
 #[test]
 fn matrix_debug() {

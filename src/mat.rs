@@ -238,6 +238,30 @@ macro_rules! mat_impl {
 // From
 //
 
+/// intialse matrix from tuple of 4 elements
+impl<T> From<(T, T, T, T)> for Mat2<T> where T: Number {
+    fn from(other: (T, T, T, T)) -> Mat2<T> {
+        Mat2 {
+            m: [
+                other.0, other.1,
+                other.2, other.3
+            ]
+        }
+    }
+}
+
+/// constructs Mat3 from tuple of 2 2D row vectors
+impl<T> From<(Vec2<T>, Vec2<T>)> for Mat2<T> where T: Number {
+    fn from(other: (Vec2<T>, Vec2<T>)) -> Mat2<T> {
+        Mat2 {
+            m: [
+                other.0.x, other.0.y,
+                other.1.x, other.1.y
+            ]
+        }
+    }
+}
+
 /// constructs Mat3 from a Mat2 initialising the 2x2 part and setting the 3rd column and row to identity
 impl<T> From<Mat2<T>> for Mat3<T> where T: Number {
     fn from(other: Mat2<T>) -> Mat3<T> {
@@ -272,6 +296,32 @@ impl<T> From<Mat4<T>> for Mat3<T> where T: Number {
                 other.m[0], other.m[1], other.m[2],
                 other.m[4], other.m[5], other.m[6],
                 other.m[8], other.m[9], other.m[10],
+            ]
+        }
+    }
+}
+
+/// construct a Mat3 from tuple of 9 elements
+impl<T> From<(T, T, T, T, T, T, T, T, T)> for Mat3<T> where T: Number {
+    fn from(other: (T, T, T, T, T, T, T, T, T)) -> Mat3<T> {
+        Mat3 {
+            m: [
+                other.0, other.1, other.2, 
+                other.3, other.4, other.5, 
+                other.6, other.7, other.8,
+            ]
+        }
+    }
+}
+
+/// constructs Mat3 from tuple of 3 3D row vectors
+impl<T> From<(Vec3<T>, Vec3<T>, Vec3<T>)> for Mat3<T> where T: Number {
+    fn from(other: (Vec3<T>, Vec3<T>, Vec3<T>)) -> Mat3<T> {
+        Mat3 {
+            m: [
+                other.0.x, other.0.y, other.0.z,
+                other.1.x, other.1.y, other.1.z,
+                other.2.x, other.2.y, other.2.z,
             ]
         }
     }
@@ -316,6 +366,32 @@ impl<T> From<Mat4<T>> for Mat34<T> where T: Number {
     }
 }
 
+/// construct a Mat34 from tuple of 12 elements
+impl<T> From<(T, T, T, T, T, T, T, T, T, T, T, T)> for Mat34<T> where T: Number {
+    fn from(other: (T, T, T, T, T, T, T, T, T, T, T, T)) -> Mat34<T> {
+        Mat34 {
+            m: [
+                other.0, other.1, other.2, other.3, 
+                other.4, other.5, other.6, other.7, 
+                other.8, other.9, other.10, other.11
+            ]
+        }
+    }
+}
+
+/// constructs Mat34 from tuple of 3 4D row vectors
+impl<T> From<(Vec4<T>, Vec4<T>, Vec4<T>)> for Mat34<T> where T: Number {
+    fn from(other: (Vec4<T>, Vec4<T>, Vec4<T>)) -> Mat34<T> {
+        Mat34 {
+            m: [
+                other.0.x, other.0.y, other.0.z, other.0.w,
+                other.1.x, other.1.y, other.1.z, other.1.w,
+                other.2.x, other.2.y, other.2.z, other.2.w,
+            ]
+        }
+    }
+}
+
 /// construct a Mat4 from a Mat2 initialising the 2x2 part and setting the 3rd and 4th rows to identity
 impl<T> From<Mat2<T>> for Mat4<T> where T: Number {
     fn from(other: Mat2<T>) -> Mat4<T> {
@@ -353,6 +429,34 @@ impl<T> From<Mat34<T>> for Mat4<T> where T: Number {
                 other.m[4], other.m[5], other.m[6], other.m[7],
                 other.m[8], other.m[9], other.m[10], other.m[11],
                 T::zero(), T::zero(), T::zero(), T::one()
+            ]
+        }
+    }
+}
+
+/// construct a Mat4 from tuple of 16 elements
+impl<T> From<(T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T)> for Mat4<T> where T: Number {
+    fn from(other: (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T)) -> Mat4<T> {
+        Mat4 {
+            m: [
+                other.0, other.1, other.2, other.3, 
+                other.4, other.5, other.6, other.7, 
+                other.8, other.9, other.10, other.11, 
+                other.12, other.13, other.14, other.15
+            ]
+        }
+    }
+}
+
+/// constructs Mat4 from tuple of 4 4D row vectors
+impl<T> From<(Vec4<T>, Vec4<T>, Vec4<T>, Vec4<T>)> for Mat4<T> where T: Number {
+    fn from(other: (Vec4<T>, Vec4<T>, Vec4<T>, Vec4<T>)) -> Mat4<T> {
+        Mat4 {
+            m: [
+                other.0.x, other.0.y, other.0.z, other.0.w,
+                other.1.x, other.1.y, other.1.z, other.1.w,
+                other.2.x, other.2.y, other.2.z, other.2.w,
+                other.3.x, other.3.y, other.3.z, other.3.w,
             ]
         }
     }
@@ -878,9 +982,9 @@ impl<T> MatDeterminant<T> for Mat3<T> where T: Number {
     }
 }
 
+/// returns the 4x4 determinant using laplace expansion theorum
 impl<T> MatDeterminant<T> for Mat4<T> where T: Number {
     fn determinant(&self) -> T {
-        // laplace expansion theorum
         let s0 = (self.m[00] * self.m[05]) - (self.m[01] * self.m[04]);
         let s1 = (self.m[00] * self.m[06]) - (self.m[02] * self.m[04]);
         let s2 = (self.m[00] * self.m[07]) - (self.m[03] * self.m[04]);
@@ -893,8 +997,24 @@ impl<T> MatDeterminant<T> for Mat4<T> where T: Number {
         let c2 = (self.m[08] * self.m[15]) - (self.m[11] * self.m[12]);
         let c1 = (self.m[08] * self.m[14]) - (self.m[10] * self.m[12]);
         let c0 = (self.m[08] * self.m[13]) - (self.m[09] * self.m[12]);
-
         (s0 * c5) - (s1 * c4) + (s2 * c3) + (s3 * c2) - (s4 * c1) + (s5 * c0)
+    }
+}
+
+pub trait MatInverse<T> {
+    fn inverse(mat: Self) -> Self;
+}
+
+impl<T> MatInverse<T> for Mat2<T> where T: SignedNumber {
+    fn inverse(mat: Self) -> Self {
+        let det = mat.determinant();
+        let inv_det = T::one()/det;
+        Mat2 { 
+            m: [
+                inv_det * mat.m[3], inv_det * -mat.m[1],
+                inv_det * -mat.m[2], inv_det * mat.m[0],
+            ] 
+        }
     }
 }
 

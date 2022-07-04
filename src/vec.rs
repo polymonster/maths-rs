@@ -1048,6 +1048,14 @@ pub fn cross<T: Number>(a: Vec3<T>, b: Vec3<T>) -> Vec3<T> {
     }
 }
 
+/// perpedicular vector anti-clockwise rotation by 90 degrees
+pub fn perp<T: SignedNumber>(a: Vec2<T>) -> Vec2<T> {
+    Vec2 {
+        x: -a.y, 
+        y: a.x
+    }
+}
+
 //
 // Macro Decl
 //
@@ -1086,6 +1094,8 @@ vec_ctor!(Vec4 { x, y, z, w }, vec4i, splat4i, i32);
 vec_ctor!(Vec2 { x, y }, vec2u, splat2u, u32);
 vec_ctor!(Vec3 { x, y, z }, vec3u, splat3u, u32);
 vec_ctor!(Vec4 { x, y, z, w }, vec4u, splat4u, u32);
+
+// TODO: swizzles
 
 // experims
 // v3 / v2 mod, with use... didnt correctly deduce the function by type
