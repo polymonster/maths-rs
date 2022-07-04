@@ -767,7 +767,7 @@ fn reflect_refract() {
 
 #[test]
 fn matrix_get_rows_columns() {
-    let m4 = Mat4::<f32> {
+    let m4 = Mat4f {
         m: [
             0.0, 1.0, 2.0, 3.0,
             4.0, 5.0, 6.0, 7.0,
@@ -778,7 +778,7 @@ fn matrix_get_rows_columns() {
     assert_eq!(m4.get_row(2), vec4f(8.0, 9.0, 10.0, 11.0));
     assert_eq!(m4.get_column(3), vec4f(3.0, 7.0, 11.0, 15.0));
 
-    let m34 = Mat34::<f32> {
+    let m34 = Mat34f {
         m: [
             0.0, 1.0, 2.0, 3.0,
             4.0, 5.0, 6.0, 7.0,
@@ -791,7 +791,7 @@ fn matrix_get_rows_columns() {
 
 #[test]
 fn matrix_zero() {
-    let m4 = Mat4::<f32>::zero();
+    let m4 = Mat4f::zero();
     for i in 0..4 {
         assert_eq!(m4.get_row(i), vec4f(0.0, 0.0, 0.0, 0.0));
         assert_eq!(m4.get_column(i), vec4f(0.0, 0.0, 0.0, 0.0));
@@ -800,29 +800,94 @@ fn matrix_zero() {
 
 #[test]
 fn matrix_identity() {
-    let m4 = Mat4::<f32>::identity();
+    let m4 = Mat4f::identity();
     assert_eq!(m4.get_row(0), vec4f(1.0, 0.0, 0.0, 0.0));
     assert_eq!(m4.get_row(1), vec4f(0.0, 1.0, 0.0, 0.0));
     assert_eq!(m4.get_row(2), vec4f(0.0, 0.0, 1.0, 0.0));
     assert_eq!(m4.get_row(3), vec4f(0.0, 0.0, 0.0, 1.0));
 
-    let m34 = Mat34::<f32>::identity();
+    let m34 = Mat34f::identity();
     assert_eq!(m34.get_row(0), vec4f(1.0, 0.0, 0.0, 0.0));
     assert_eq!(m34.get_row(1), vec4f(0.0, 1.0, 0.0, 0.0));
     assert_eq!(m34.get_row(2), vec4f(0.0, 0.0, 1.0, 0.0));
 }
 
 #[test]
+fn matrix_mul_translate() {
+    // 4x4
+    let t1 = Mat4f::create_translation(vec3f(10.0, 10.0, 10.0));
+    let t2 = Mat4f::create_translation(vec3f(50.0, 44.0, -10.0));
+    let result = t1 * t2;
+    let colt = result.get_column(3);
+    assert_eq!(colt, vec4f(60.0, 54.0, 0.0, 1.0));
+    // 3x4
+    let t1 = Mat34f::create_translation(vec3f(22.0, 801.0, 554.0));
+    let t2 = Mat34f::create_translation(vec3f(13.0, 14.0, 15.0));
+    let result = t1 * t2;
+    let colt = result.get_column(3);
+    assert_eq!(colt, vec3f(35.0, 815.0, 569.0));
+}
+
+#[test]
 fn matrix_index() {
-    let m4 = Mat4::<f32>::identity();
+    // index
+    let m4 = Mat4f::identity();
     assert_eq!(m4[(0, 0)], 1.0);
     assert_eq!(m4[(1, 1)], 1.0);
     assert_eq!(m4[(2, 2)], 1.0);
     assert_eq!(m4[(3, 3)], 1.0);
 
-    // TODO: mut
-    // TODO: at
+    // at
+    let m4 = Mat4f::create_translation(vec3f(500.0, 600.0, 700.0));
+    assert_eq!(m4.at(0, 0), 1.0);
+    assert_eq!(m4.at(1, 1), 1.0);
+    assert_eq!(m4.at(2, 2), 1.0);
+    assert_eq!(m4.at(3, 3), 1.0);
+    assert_eq!(m4.at(0, 3), 500.0);
+    assert_eq!(m4.at(1, 3), 600.0);
+    assert_eq!(m4.at(2, 3), 700.0);
 }
+
+#[test]
+fn matrix_determinant() {
+    let m2 = Mat2f {
+        m: [
+            1.0, 2.0,
+            3.0, 4.0
+        ]
+    };
+    let det = m2.determinant();
+    assert_eq!(det, -2.0);
+
+    let m3 = Mat3f {
+        m: [
+            4.0, 2.0, 0.0,
+            4.0, 3.0, 0.0,
+            8.0, 8.0, 1.0
+        ]
+    };
+    let det = m3.determinant();
+    assert_eq!(det, 4.0);
+
+    let m4 = Mat4f {
+        m: [
+            1.0, 3.0, 5.0, 9.0,
+            1.0, 3.0, 1.0, 7.0,
+            4.0, 3.0, 9.0, 7.0,
+            5.0, 2.0, 0.0, 9.0
+        ]
+    };
+    let det = m4.determinant();
+    assert_eq!(det, -376.0);
+}
+
+// TODO: mut index
+// TODO: matrix from
+// TODO: matrix get row
+// TODO: rotations
+// TODO: det
+// TODO: inverse
+// TODO: deref
 
 #[test]
 fn matrix_debug() {

@@ -14,6 +14,28 @@ use std::cmp::PartialEq;
 use std::fmt::Display;
 use std::fmt::Formatter;
 
+/// Matrix Index Layouts
+/// 
+/// Mat2:
+/// 00 01
+/// 02 03 
+/// 
+/// Mat3:
+/// 00 01 02
+/// 03 04 05
+/// 06 07 08
+/// 
+/// Mat34:
+/// 00 01 02 03
+/// 04 05 06 07
+/// 08 09 10 11
+/// 
+/// Mat44:
+/// 00 01 02 03
+/// 04 05 06 07
+/// 08 09 10 11
+/// 12 13 14 15
+
 macro_rules! mat_impl {
     ($MatN:ident, $rows:expr, $cols:expr, $elems:expr, 
         $RowVecN:ident { $($row_field:ident, $row_field_index:expr),* },
@@ -229,6 +251,32 @@ impl<T> From<Mat2<T>> for Mat3<T> where T: Number {
     }
 }
 
+/// construct a Mat3 from a Mat34 initialising the 3x3 part and truncation the 4th column
+impl<T> From<Mat34<T>> for Mat3<T> where T: Number {
+    fn from(other: Mat34<T>) -> Mat3<T> {
+        Mat3 {
+            m: [
+                other.m[0], other.m[1], other.m[2],
+                other.m[4], other.m[5], other.m[6],
+                other.m[8], other.m[9], other.m[10],
+            ]
+        }
+    }
+}
+
+/// construct a Mat3 from a Mat44 initialising the 3x3 part and truncation the 4th row and column
+impl<T> From<Mat4<T>> for Mat3<T> where T: Number {
+    fn from(other: Mat4<T>) -> Mat3<T> {
+        Mat3 {
+            m: [
+                other.m[0], other.m[1], other.m[2],
+                other.m[4], other.m[5], other.m[6],
+                other.m[8], other.m[9], other.m[10],
+            ]
+        }
+    }
+}
+
 /// construct a Mat34 from a Mat2 initialising the 2x2 part and setting the 3rd row to identity
 impl<T> From<Mat2<T>> for Mat34<T> where T: Number {
     fn from(other: Mat2<T>) -> Mat34<T> {
@@ -250,6 +298,19 @@ impl<T> From<Mat3<T>> for Mat34<T> where T: Number {
                 other.m[0], other.m[1], other.m[2], T::zero(),
                 other.m[3], other.m[4], other.m[5], T::zero(),
                 other.m[6], other.m[7], other.m[8], T::zero(),
+            ]
+        }
+    }
+}
+
+/// construct a Mat34 from a Mat4 initialising the 3x4 part and truncating the 4th row
+impl<T> From<Mat4<T>> for Mat34<T> where T: Number {
+    fn from(other: Mat4<T>) -> Mat34<T> {
+        Mat34 {
+            m: [
+                other.m[0], other.m[1], other.m[2], other.m[3],
+                other.m[4], other.m[5], other.m[6], other.m[7],
+                other.m[8], other.m[9], other.m[10], other.m[11],
             ]
         }
     }
@@ -297,9 +358,9 @@ impl<T> From<Mat34<T>> for Mat4<T> where T: Number {
     }
 }
 
-// mat2
-// 00 01
-// 02 03
+//
+// Mat2 Mul
+//
 
 fn mul2x2<T: Number>(lhs: Mat2<T>, rhs: Mat2<T>) -> Mat2<T> {
     Mat2 {
@@ -335,10 +396,9 @@ impl<T> Mul<Vec2<T>> for Mat2<T> where T: Number {
     }
 }
 
-// mat3
-// 00 01 02
-// 03 04 05
-// 06 07 08
+//
+// Mat3 Mul
+//
 
 fn mul3x3<T: Number>(lhs: Mat3<T>, rhs: Mat3<T>) -> Mat3<T> {
     Mat3 {
@@ -382,11 +442,71 @@ impl<T> Mul<Vec3<T>> for Mat3<T> where T: Number {
     }
 }
 
-// mat4
-// 00 01 02 03
-// 04 05 06 07
-// 08 09 10 11
-// 12 13 14 15
+//
+// Mat34 Mul
+//
+
+fn mul3x4<T: Number>(lhs: Mat34<T>, rhs: Mat34<T>) -> Mat34<T> {
+    Mat34 {
+        m: [
+            lhs.m[0] * rhs.m[0] + lhs.m[1] * rhs.m[4] + lhs.m[2] * rhs.m[8],
+            lhs.m[0] * rhs.m[1] + lhs.m[1] * rhs.m[5] + lhs.m[2] * rhs.m[9],
+            lhs.m[0] * rhs.m[2] + lhs.m[1] * rhs.m[6] + lhs.m[2] * rhs.m[10],
+            lhs.m[0] * rhs.m[3] + lhs.m[1] * rhs.m[7] + lhs.m[2] * rhs.m[11] + lhs.m[3],
+
+            lhs.m[4] * rhs.m[0] + lhs.m[5] * rhs.m[4] + lhs.m[6] * rhs.m[8],
+            lhs.m[4] * rhs.m[1] + lhs.m[5] * rhs.m[5] + lhs.m[6] * rhs.m[9],
+            lhs.m[4] * rhs.m[2] + lhs.m[5] * rhs.m[6] + lhs.m[6] * rhs.m[10],
+            lhs.m[4] * rhs.m[3] + lhs.m[5] * rhs.m[7] + lhs.m[6] * rhs.m[11] + lhs.m[7],
+
+            lhs.m[8] * rhs.m[0] + lhs.m[9] * rhs.m[4] + lhs.m[10] * rhs.m[8],
+            lhs.m[8] * rhs.m[1] + lhs.m[9] * rhs.m[5] + lhs.m[10] * rhs.m[9],
+            lhs.m[8] * rhs.m[2] + lhs.m[9] * rhs.m[6] + lhs.m[10] * rhs.m[10],
+            lhs.m[8] * rhs.m[3] + lhs.m[9] * rhs.m[7] + lhs.m[10] * rhs.m[11] + lhs.m[11],
+        ]
+    }
+}
+
+impl<T> Mul<Self> for Mat34<T> where T: Number {
+    type Output = Self;
+    fn mul(self, rhs: Mat34<T>) -> Self::Output {
+        mul3x4(self, rhs)
+    }
+}
+
+impl<T> MulAssign<Self> for Mat34<T> where T: Number {
+    fn mul_assign(&mut self, rhs: Mat34<T>) {
+        *self = mul3x4(*self, rhs)
+    }
+}
+
+impl<T> Mul<Vec3<T>> for Mat34<T> where T: Number {
+    type Output = Vec3<T>;
+    fn mul(self, rhs: Vec3<T>) -> Self::Output {
+        Vec3 {
+            x: self.m[0] * rhs.x + self.m[1] * rhs.y + self.m[2] * rhs.z + self.m[3],
+            y: self.m[4] * rhs.x + self.m[5] * rhs.y + self.m[6] * rhs.z + self.m[7],
+            z: self.m[8] * rhs.x + self.m[9] * rhs.y + self.m[10] * rhs.z + self.m[11]
+        }
+    }
+}
+
+/// multiples vector with implicit 4th row in matrix 0,0,0,1
+impl<T> Mul<Vec4<T>> for Mat34<T> where T: Number {
+    type Output = Vec4<T>;
+    fn mul(self, rhs: Vec4<T>) -> Self::Output {
+        Vec4 {
+            x: self.m[0] * rhs.x + self.m[1] * rhs.y + self.m[2] * rhs.z + self.m[3] * rhs.w,
+            y: self.m[4] * rhs.x + self.m[5] * rhs.y + self.m[6] * rhs.z + self.m[7] * rhs.w,
+            z: self.m[8] * rhs.x + self.m[9] * rhs.y + self.m[10] * rhs.z + self.m[11] * rhs.w,
+            w: rhs.w,
+        }
+    }
+}
+
+//
+// Mat4 Mul
+//
 
 fn mul4x4<T: Number>(lhs: Mat4<T>, rhs: Mat4<T>) -> Mat4<T> {
     Mat4 {
@@ -451,69 +571,6 @@ impl<T> Mul<Vec3<T>> for Mat4<T> where T: Number {
             },
             self.m[12] * rhs.x + self.m[13] * rhs.y + self.m[14] * rhs.z + self.m[15]
         )
-    }
-}
-
-// mat34
-// 00 01 02 03
-// 04 05 06 07
-// 08 09 10 11
-
-fn mul3x4<T: Number>(lhs: Mat34<T>, rhs: Mat34<T>) -> Mat34<T> {
-    Mat34 {
-        m: [
-            lhs.m[0] * rhs.m[0] + lhs.m[1] * rhs.m[4] + lhs.m[2] * rhs.m[8],
-            lhs.m[0] * rhs.m[1] + lhs.m[1] * rhs.m[5] + lhs.m[2] * rhs.m[9],
-            lhs.m[0] * rhs.m[2] + lhs.m[1] * rhs.m[6] + lhs.m[2] * rhs.m[10],
-            lhs.m[0] * rhs.m[3] + lhs.m[1] * rhs.m[7] + lhs.m[2] * rhs.m[11] + lhs.m[3],
-
-            lhs.m[4] * rhs.m[0] + lhs.m[5] * rhs.m[4] + lhs.m[6] * rhs.m[8],
-            lhs.m[4] * rhs.m[1] + lhs.m[5] * rhs.m[5] + lhs.m[6] * rhs.m[9],
-            lhs.m[4] * rhs.m[2] + lhs.m[5] * rhs.m[6] + lhs.m[6] * rhs.m[10],
-            lhs.m[4] * rhs.m[3] + lhs.m[5] * rhs.m[7] + lhs.m[6] * rhs.m[11] + lhs.m[7],
-
-            lhs.m[8] * rhs.m[0] + lhs.m[9] * rhs.m[4] + lhs.m[10] * rhs.m[8],
-            lhs.m[8] * rhs.m[1] + lhs.m[9] * rhs.m[5] + lhs.m[10] * rhs.m[9],
-            lhs.m[8] * rhs.m[2] + lhs.m[9] * rhs.m[6] + lhs.m[10] * rhs.m[10],
-            lhs.m[8] * rhs.m[3] + lhs.m[9] * rhs.m[7] + lhs.m[10] * rhs.m[11] + lhs.m[11],
-        ]
-    }
-}
-
-impl<T> Mul<Self> for Mat34<T> where T: Number {
-    type Output = Self;
-    fn mul(self, rhs: Mat34<T>) -> Self::Output {
-        mul3x4(self, rhs)
-    }
-}
-
-impl<T> MulAssign<Self> for Mat34<T> where T: Number {
-    fn mul_assign(&mut self, rhs: Mat34<T>) {
-        *self = mul3x4(*self, rhs)
-    }
-}
-
-impl<T> Mul<Vec3<T>> for Mat34<T> where T: Number {
-    type Output = Vec3<T>;
-    fn mul(self, rhs: Vec3<T>) -> Self::Output {
-        Vec3 {
-            x: self.m[0] * rhs.x + self.m[1] * rhs.y + self.m[2] * rhs.z + self.m[3],
-            y: self.m[4] * rhs.x + self.m[5] * rhs.y + self.m[6] * rhs.z + self.m[7],
-            z: self.m[8] * rhs.x + self.m[9] * rhs.y + self.m[10] * rhs.z + self.m[11]
-        }
-    }
-}
-
-/// multiples vector with implicit 4th row in matrix 0,0,0,1
-impl<T> Mul<Vec4<T>> for Mat34<T> where T: Number {
-    type Output = Vec4<T>;
-    fn mul(self, rhs: Vec4<T>) -> Self::Output {
-        Vec4 {
-            x: self.m[0] * rhs.x + self.m[1] * rhs.y + self.m[2] * rhs.z + self.m[3] * rhs.w,
-            y: self.m[4] * rhs.x + self.m[5] * rhs.y + self.m[6] * rhs.z + self.m[7] * rhs.w,
-            z: self.m[8] * rhs.x + self.m[9] * rhs.y + self.m[10] * rhs.z + self.m[11] * rhs.w,
-            w: rhs.w,
-        }
     }
 }
 
@@ -605,6 +662,7 @@ impl<T> MatTranslate<Vec3<T>> for Mat4<T> where T: Number {
     fn create_translation(t: Vec3<T>) -> Self {
         let mut m = Mat4::identity();
         m.set_column(3, Vec4::from(t));
+        m.m[15] = T::one();
         m
     }
 }
@@ -814,7 +872,7 @@ impl<T> MatDeterminant<T> for Mat2<T> where T: Number {
 
 impl<T> MatDeterminant<T> for Mat3<T> where T: Number {
     fn determinant(&self) -> T {
-        self.m[0] * (self.m[4] * self.m[8] - self.m[5] * self.m[7]) +
+        self.m[0] * (self.m[4] * self.m[8] - self.m[5] * self.m[7]) -
         self.m[1] * (self.m[3] * self.m[8] - self.m[5] * self.m[6]) +
         self.m[2] * (self.m[3] * self.m[7] - self.m[4] * self.m[6])
     }
@@ -822,32 +880,21 @@ impl<T> MatDeterminant<T> for Mat3<T> where T: Number {
 
 impl<T> MatDeterminant<T> for Mat4<T> where T: Number {
     fn determinant(&self) -> T {
-        /*
-        return m03 * m12 * m21 * m30 - m02 * m13 * m21 * m30 | - m03 * m11 * m22 * m30 + m01 * m13 * m22 * m30 +
-               m02 * m11 * m23 * m30 - m01 * m12 * m23 * m30 | - m03 * m12 * m20 * m31 + m02 * m13 * m20 * m31 +
-               m03 * m10 * m22 * m31 - m00 * m13 * m22 * m31 | - m02 * m10 * m23 * m31 + m00 * m12 * m23 * m31 +
-               m03 * m11 * m20 * m32 - m01 * m13 * m20 * m32 | - m03 * m10 * m21 * m32 + m00 * m13 * m21 * m32 +
-               m01 * m10 * m23 * m32 - m00 * m11 * m23 * m32 | - m02 * m11 * m20 * m33 + m01 * m12 * m20 * m33 +
-               m02 * m10 * m21 * m33 - m00 * m12 * m21 * m33 | - m01 * m10 * m22 * m33 + m00 * m11 * m22 * m33;
-        */
+        // laplace expansion theorum
+        let s0 = (self.m[00] * self.m[05]) - (self.m[01] * self.m[04]);
+        let s1 = (self.m[00] * self.m[06]) - (self.m[02] * self.m[04]);
+        let s2 = (self.m[00] * self.m[07]) - (self.m[03] * self.m[04]);
+        let s3 = (self.m[01] * self.m[06]) - (self.m[02] * self.m[05]);
+        let s4 = (self.m[01] * self.m[07]) - (self.m[03] * self.m[05]);
+        let s5 = (self.m[02] * self.m[07]) - (self.m[03] * self.m[06]);
+        let c5 = (self.m[10] * self.m[15]) - (self.m[11] * self.m[14]);
+        let c4 = (self.m[09] * self.m[15]) - (self.m[11] * self.m[13]);
+        let c3 = (self.m[09] * self.m[14]) - (self.m[10] * self.m[13]);
+        let c2 = (self.m[08] * self.m[15]) - (self.m[11] * self.m[12]);
+        let c1 = (self.m[08] * self.m[14]) - (self.m[10] * self.m[12]);
+        let c0 = (self.m[08] * self.m[13]) - (self.m[09] * self.m[12]);
 
-        // 00 01 02 03
-        // 10 11 12 13
-        // 20 21 22 23
-        // 30 31 32 33
-
-        // 00 01 02 03
-        // 04 05 06 07
-        // 08 09 10 11
-        // 12 13 14 15
-
-        let m = self;
-        m.m[03] * m.m[06] * m.m[09] * m.m[12] - m.m[02] * m.m[07] * m.m[09] * m.m[12] - m.m[03] * m.m[05] * m.m[10] * m.m[12] + m.m[01] * m.m[07] * m.m[10] * m.m[12] +
-        m.m[02] * m.m[05] * m.m[11] * m.m[12] - m.m[01] * m.m[06] * m.m[11] * m.m[12] - m.m[03] * m.m[06] * m.m[08] * m.m[13] + m.m[02] * m.m[07] * m.m[08] * m.m[13] +
-        m.m[03] * m.m[04] * m.m[10] * m.m[13] - m.m[00] * m.m[07] * m.m[10] * m.m[13] - m.m[02] * m.m[04] * m.m[11] * m.m[13] + m.m[00] * m.m[06] * m.m[11] * m.m[13] +
-        m.m[03] * m.m[05] * m.m[08] * m.m[14] - m.m[01] * m.m[07] * m.m[08] * m.m[14] - m.m[03] * m.m[04] * m.m[09] * m.m[14] + m.m[00] * m.m[07] * m.m[09] * m.m[14] +
-        m.m[01] * m.m[04] * m.m[11] * m.m[14] - m.m[00] * m.m[05] * m.m[11] * m.m[14] - m.m[02] * m.m[05] * m.m[08] * m.m[15] + m.m[01] * m.m[06] * m.m[09] * m.m[15] +
-        m.m[02] * m.m[04] * m.m[09] * m.m[15] - m.m[00] * m.m[06] * m.m[09] * m.m[15] - m.m[01] * m.m[04] * m.m[10] * m.m[15] + m.m[00] * m.m[05] * m.m[10] * m.m[15] 
+        (s0 * c5) - (s1 * c4) + (s2 * c3) + (s3 * c2) - (s4 * c1) + (s5 * c0)
     }
 }
 
@@ -857,3 +904,4 @@ mat_impl!(Mat4, 4, 4, 16, Vec4 {x, 0, y, 1, z, 2, w, 3}, Vec4 {x, 0, y, 1, z, 2,
 mat_impl!(Mat34, 3, 4, 12, Vec4 {x, 0, y, 1, z, 2, w, 3}, Vec3 {x, 0, y, 1, z, 2});
 
 // inverse
+// create perspective, create ortho
