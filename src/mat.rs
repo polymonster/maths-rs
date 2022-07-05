@@ -220,12 +220,12 @@ macro_rules! mat_impl {
                 }
             }
 
-            /// transposes matrix so rows become columns and columns become rows
-            pub fn transpose(m: $MatN<T>) -> $MatN<T> {
-                let mut t = m;
+            /// returns a transposed matrix so rows become columns and columns become rows
+            pub fn transpose(&self) -> $MatN<T> {
+                let mut t = *self;
                 for r in 0..$rows {
                     for c in 0..$cols {
-                        t.set(c, r, m.at(r, c));
+                        t.set(c, r, self.at(r, c));
                     }
                 }
                 t
@@ -1002,18 +1002,40 @@ impl<T> MatDeterminant<T> for Mat4<T> where T: Number {
 }
 
 pub trait MatInverse<T> {
-    fn inverse(mat: Self) -> Self;
+    fn inverse(&self) -> Self;
 }
 
 impl<T> MatInverse<T> for Mat2<T> where T: SignedNumber {
-    fn inverse(mat: Self) -> Self {
-        let det = mat.determinant();
+    fn inverse(&self) -> Self {
+        let det = self.determinant();
         let inv_det = T::one()/det;
         Mat2 { 
             m: [
-                inv_det * mat.m[3], inv_det * -mat.m[1],
-                inv_det * -mat.m[2], inv_det * mat.m[0],
+                inv_det * self.m[3], inv_det * -self.m[1],
+                inv_det * -self.m[2], inv_det * self.m[0],
             ] 
+        }
+    }
+}
+
+impl<T> MatInverse<T> for Mat3<T> where T: SignedNumber {
+    fn inverse(&self) -> Self {
+        let det = self.determinant();
+        let inv_det = T::one() / det;
+        Mat3 {
+            m: [
+                (self.m[4] * self.m[8] - self.m[5] * self.m[7]) * inv_det,
+                -(self.m[1] * self.m[8] - self.m[2] * self.m[7]) * inv_det,
+                (self.m[1] * self.m[5] - self.m[2] * self.m[4]) * inv_det,
+
+                -(self.m[3] * self.m[8] - self.m[5] * self.m[6]) * inv_det,
+                (self.m[0] * self.m[8] - self.m[2] * self.m[6]) * inv_det,
+                -(self.m[0] * self.m[5] - self.m[2] * self.m[3]) * inv_det,
+
+                (self.m[3] * self.m[7] - self.m[4] * self.m[6]) * inv_det,
+                -(self.m[0] * self.m[7] - self.m[1] * self.m[6]) * inv_det,
+                (self.m[0] * self.m[4] - self.m[1] * self.m[3]) * inv_det
+            ]
         }
     }
 }

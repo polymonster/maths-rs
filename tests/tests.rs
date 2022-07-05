@@ -896,12 +896,55 @@ fn matrix_determinant() {
 }
 
 #[test]
+fn matrix_transpose() {
+    // 2x2
+    let m2 = Mat2f::from((
+        0.0, 1.0,
+        2.0, 3.0
+    ));
+    let t2 = Mat2f::from((
+        0.0, 2.0,
+        1.0, 3.0
+    ));
+    assert_eq!(m2.transpose(),t2);
+
+    // 3x3
+    let m3 = Mat3f::from((
+        0.0, 1.0, 2.0,
+        3.0, 4.0, 5.0,
+        6.0, 7.0, 8.0
+    ));
+    let t3 = Mat3f::from((
+        0.0, 3.0, 6.0,
+        1.0, 4.0, 7.0,
+        2.0, 5.0, 8.0
+    ));
+    assert_eq!(m3.transpose(),t3);
+
+    // 4x4
+    let m4 = Mat4f::from((
+        0.0, 1.0, 2.0, 3.0, 
+        4.0, 5.0, 6.0, 7.0, 
+        8.0, 9.0, 10.0, 11.0,
+        12.0, 13.0, 14.0, 15.0
+    ));
+    let t4 = Mat4f::from((
+        0.0, 4.0, 8.0, 12.0, 
+        1.0, 5.0, 9.0, 13.0, 
+        2.0, 6.0, 10.0, 14.0,
+        3.0, 7.0, 11.0, 15.0
+    ));
+    assert_eq!(m4.transpose(),t4);
+}
+
+#[test]
 fn matrix_inverse() {
+    // 2x2
     let m2 = Mat2f::from((
         5.0, 2.0,
         -7.0, -3.0
     ));
-    let inv = Mat2f::inverse(m2);
+    let inv = m2.inverse();
     let expected = Mat2f::from((
         3.0, 2.0,
         -7.0, -5.0
@@ -909,14 +952,34 @@ fn matrix_inverse() {
     assert_eq!(inv, expected);
     let m2_inv = m2 * inv;
     assert_eq!(m2_inv, Mat2f::identity());
+
+    // 3x3
+    let m3 = Mat3f::from((
+        1.0, 2.0, 3.0,
+        0.0, 1.0, 4.0,
+        5.0, 6.0, 0.0
+    ));
+    let inv = m3.inverse();
+    let expected = Mat3f::from((
+        -24.0, 18.0, 5.0,
+        20.0, -15.0, -4.0,
+        -5.0, 4.0, 1.0
+    ));
+    assert_eq!(inv, expected);
+    let m3_inv = m3 * inv;
+    assert_eq!(m3_inv, Mat3f::identity());
+
 }
+
+// TODO: inverse
+// 3x4
+// 3x4
 
 // TODO: matrix get row
 // TODO: mut index
 // TODO: matrix from
 // TODO: rotations
 // TODO: deref
-// TODO: inverse
 
 #[test]
 fn matrix_debug() {
