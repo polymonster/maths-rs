@@ -989,14 +989,234 @@ fn matrix_inverse() {
     assert_eq!(Mat4f::approx(m4_inv, Mat4f::identity(), 0.001), true);
 }
 
-// TODO: matrix get row
+#[test]
+fn matrix_from_get_row_get_column() {
+    // 2x2
+    let m2 = Mat2f::from((
+        1.0, 2.0,
+        3.0, 4.0
+    ));
+    let m2v = Mat2f::from((
+        vec2f(1.0, 2.0),
+        vec2f(3.0, 4.0)
+    ));
+    let expected = Mat2f {
+        m: [
+            1.0, 2.0,
+            3.0, 4.0
+        ]
+    };
+    assert_eq!(m2, expected);
+    assert_eq!(m2v, expected);
+    assert_eq!(m2, m2v);
+
+    assert_eq!(m2.get_row(0), vec2f(1.0, 2.0));
+    assert_eq!(m2.get_row(1), vec2f(3.0, 4.0));
+    
+    assert_eq!(m2.get_column(0), vec2f(1.0, 3.0));
+    assert_eq!(m2.get_column(1), vec2f(2.0, 4.0));
+
+    // 3x3
+    let m3 = Mat3f::from((
+        1.0, 2.0, 3.0,
+        4.0, 5.0, 6.0,
+        7.0, 8.0, 9.0
+    ));
+    let m3v = Mat3f::from((
+        vec3f(1.0, 2.0, 3.0),
+        vec3f(4.0, 5.0, 6.0),
+        vec3f(7.0, 8.0, 9.0)
+    ));
+    let expected = Mat3f {
+        m: [
+            1.0, 2.0, 3.0,
+            4.0, 5.0, 6.0,
+            7.0, 8.0, 9.0
+        ]
+    };
+    assert_eq!(m3, expected);
+    assert_eq!(m3v, expected);
+    assert_eq!(m3, m3v);
+
+    assert_eq!(m3.get_row(0), vec3f(1.0, 2.0, 3.0));
+    assert_eq!(m3.get_row(1), vec3f(4.0, 5.0, 6.0));
+    assert_eq!(m3.get_row(2), vec3f(7.0, 8.0, 9.0));
+
+    assert_eq!(m3.get_column(0), vec3f(1.0, 4.0, 7.0));
+    assert_eq!(m3.get_column(1), vec3f(2.0, 5.0, 8.0));
+    assert_eq!(m3.get_column(2), vec3f(3.0, 6.0, 9.0));
+
+    // 3x4
+    let m34 = Mat34f::from((
+        1.0, 2.0, 3.0, 4.0, 
+        5.0, 6.0, 7.0, 8.0, 
+        9.0, 10.0, 11.0, 12.0
+    ));
+    let m34v = Mat34f::from((
+        vec4f(1.0, 2.0, 3.0, 4.0),
+        vec4f(5.0, 6.0, 7.0, 8.0),
+        vec4f(9.0, 10.0, 11.0, 12.0),
+    ));
+    let expected = Mat34f {
+        m: [
+            1.0, 2.0, 3.0, 4.0,
+            5.0, 6.0, 7.0, 8.0,
+            9.0, 10.0, 11.0, 12.0
+        ]
+    };
+    assert_eq!(m34, expected);
+    assert_eq!(m34v, expected);
+    assert_eq!(m34, m34v);
+
+    assert_eq!(m34.get_row(0), vec4f(1.0, 2.0, 3.0, 4.0));
+    assert_eq!(m34.get_row(1), vec4f(5.0, 6.0, 7.0, 8.0));
+    assert_eq!(m34.get_row(2), vec4f(9.0, 10.0, 11.0, 12.0));
+
+    assert_eq!(m34.get_column(0), vec3f(1.0, 5.0, 9.0));
+    assert_eq!(m34.get_column(1), vec3f(2.0, 6.0, 10.0));
+    assert_eq!(m34.get_column(2), vec3f(3.0, 7.0, 11.0));
+    assert_eq!(m34.get_column(3), vec3f(4.0, 8.0, 12.0));
+
+    // 4x4
+    let m4 = Mat4f::from((
+        1.0, 2.0, 3.0, 4.0, 
+        5.0, 6.0, 7.0, 8.0, 
+        9.0, 10.0, 11.0, 12.0,
+        13.0, 14.0, 15.0, 16.0
+    ));
+    let m4v = Mat4f::from((
+        vec4f(1.0, 2.0, 3.0, 4.0),
+        vec4f(5.0, 6.0, 7.0, 8.0),
+        vec4f(9.0, 10.0, 11.0, 12.0),
+        vec4f(13.0, 14.0, 15.0, 16.0),
+    ));
+    let expected = Mat4f {
+        m: [
+            1.0, 2.0, 3.0, 4.0,
+            5.0, 6.0, 7.0, 8.0,
+            9.0, 10.0, 11.0, 12.0,
+            13.0, 14.0, 15.0, 16.0,
+        ]
+    };
+    assert_eq!(m4, expected);
+    assert_eq!(m4v, expected);
+    assert_eq!(m4, m4v);
+
+    assert_eq!(m4.get_row(0), vec4f(1.0, 2.0, 3.0, 4.0));
+    assert_eq!(m4.get_row(1), vec4f(5.0, 6.0, 7.0, 8.0));
+    assert_eq!(m4.get_row(2), vec4f(9.0, 10.0, 11.0, 12.0));
+    assert_eq!(m4.get_row(3), vec4f(13.0, 14.0, 15.0, 16.0));
+
+    assert_eq!(m4.get_column(0), vec4f(1.0, 5.0, 9.0, 13.0));
+    assert_eq!(m4.get_column(1), vec4f(2.0, 6.0, 10.0, 14.0));
+    assert_eq!(m4.get_column(2), vec4f(3.0, 7.0, 11.0, 15.0));
+    assert_eq!(m4.get_column(3), vec4f(4.0, 8.0, 12.0, 16.0));
+
+    // 2x2 from 3x3
+    let m2_from_m3 = Mat2f::from(m3);
+    let expected = Mat2f::from((
+        1.0, 2.0,
+        4.0, 5.0
+    ));
+    assert_eq!(m2_from_m3, expected);
+    
+    // 2x2 from 3x4
+    let m2_from_m34 = Mat2f::from(m34);
+    let expected = Mat2f::from((
+        1.0, 2.0,
+        5.0, 6.0
+    ));
+    assert_eq!(m2_from_m34, expected);
+
+    // 2x2 form 4x4
+    let m2_from_m3 = Mat2f::from(m4);
+    let expected = Mat2f::from((
+        1.0, 2.0,
+        5.0, 6.0
+    ));
+    assert_eq!(m2_from_m3, expected);
+
+    // 3x3 from 2x2
+    let m3_from_m2 = Mat3f::from(m2);
+    let expected = Mat3f::from((
+        1.0, 2.0, 0.0,
+        3.0, 4.0, 0.0,
+        0.0, 0.0, 1.0,
+    ));
+    assert_eq!(m3_from_m2, expected);
+
+    // 3x3 from 3x4
+    let m3_from_m34 = Mat3f::from(m34);
+    let expected = Mat3f::from((
+        1.0, 2.0, 3.0,
+        5.0, 6.0, 7.0,
+        9.0, 10.0, 11.0,
+    ));
+    assert_eq!(m3_from_m34, expected);
+
+    // 3x3 from 4x4
+    let m3_from_m4 = Mat3f::from(m4);
+    assert_eq!(m3_from_m4, expected);
+
+    // 3x4 from 2x2
+    let m34_from_m2 = Mat34f::from(m2);
+    let expected = Mat34f::from((
+        1.0, 2.0, 0.0, 0.0,
+        3.0, 4.0, 0.0, 0.0,
+        0.0, 0.0, 1.0, 0.0,
+    ));
+    assert_eq!(m34_from_m2, expected);
+
+    // 3x4 from 3x3
+    let m34_from_m3 = Mat34f::from(m3);
+    let expected = Mat34f::from((
+        1.0, 2.0, 3.0, 0.0,
+        4.0, 5.0, 6.0, 0.0,
+        7.0, 8.0, 9.0, 0.0,
+    ));
+    assert_eq!(m34_from_m3, expected);
+
+    // 3x4 from 4x4
+    let m34_from_m4 = Mat34f::from(m4);
+    let expected = Mat34f::from((
+        1.0, 2.0, 3.0, 4.0,
+        5.0, 6.0, 7.0, 8.0,
+        9.0, 10.0, 11.0, 12.0,
+    ));
+    assert_eq!(m34_from_m4, expected);
+
+    // 4x4 from 2x2
+    let m4_from_m2 = Mat4f::from(m2);
+    let expected = Mat4f::from((
+        1.0, 2.0, 0.0, 0.0,
+        3.0, 4.0, 0.0, 0.0,
+        0.0, 0.0, 1.0, 0.0,
+        0.0, 0.0, 0.0, 1.0
+    ));
+    assert_eq!(m4_from_m2, expected);
+
+    // 4x4 from 3x3
+    let m4_from_m3 = Mat4f::from(m3);
+    let expected = Mat4f::from((
+        1.0, 2.0, 3.0, 0.0,
+        4.0, 5.0, 6.0, 0.0,
+        7.0, 8.0, 9.0, 0.0,
+        0.0, 0.0, 0.0, 1.0
+    ));
+    assert_eq!(m4_from_m3, expected);
+
+    // 4x4 from 3x4
+    let m4_from_m34 = Mat4f::from(m34);
+    let expected = Mat4f::from((
+        1.0, 2.0, 3.0, 4.0,
+        5.0, 6.0, 7.0, 8.0,
+        9.0, 10.0, 11.0, 12.0,
+        0.0, 0.0, 0.0, 1.0
+    ));
+    assert_eq!(m4_from_m34, expected);
+}
+
 // TODO: mut index
-// TODO: matrix from
 // TODO: rotations
 // TODO: deref
-
-#[test]
-fn matrix_debug() {
-    let _m = Mat4f::create_translation(vec3f(1.0, 0.0, 1.0));
-    let _r = Mat2f::create_z_rotation(32.0);
-}
+// TODO: matrix mul vec

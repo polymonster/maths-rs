@@ -262,13 +262,49 @@ impl<T> From<(Vec2<T>, Vec2<T>)> for Mat2<T> where T: Number {
     }
 }
 
+/// constructs Mat3 from 3x3 matrix truncating the 3rd row and column
+impl<T> From<Mat3<T>> for Mat2<T> where T: Number {
+    fn from(other: Mat3<T>) -> Mat2<T> {
+        Mat2 {
+            m: [
+                other.m[0], other.m[1],
+                other.m[3], other.m[4],
+            ]
+        }
+    }
+}
+
+/// constructs Mat3 from 3x4 matrix truncating the 3rd row and 3rd and 4th column
+impl<T> From<Mat34<T>> for Mat2<T> where T: Number {
+    fn from(other: Mat34<T>) -> Mat2<T> {
+        Mat2 {
+            m: [
+                other.m[0], other.m[1],
+                other.m[4], other.m[5],
+            ]
+        }
+    }
+}
+
+/// constructs Mat3 from 3x4 matrix truncating the 3rd and 4th row and 3rd and 4th column
+impl<T> From<Mat4<T>> for Mat2<T> where T: Number {
+    fn from(other: Mat4<T>) -> Mat2<T> {
+        Mat2 {
+            m: [
+                other.m[0], other.m[1],
+                other.m[4], other.m[5],
+            ]
+        }
+    }
+}
+
 /// constructs Mat3 from a Mat2 initialising the 2x2 part and setting the 3rd column and row to identity
 impl<T> From<Mat2<T>> for Mat3<T> where T: Number {
     fn from(other: Mat2<T>) -> Mat3<T> {
         Mat3 {
             m: [
                 other.m[0], other.m[1], T::zero(),
-                other.m[2], other.m[2], T::zero(),
+                other.m[2], other.m[3], T::zero(),
                 T::zero(), T::zero(), T::one()
             ]
         }
@@ -1099,5 +1135,4 @@ mat_impl!(Mat3, 3, 3, 9, Vec3 {x, 0, y, 1, z, 2}, Vec3 {x, 0, y, 1, z, 2});
 mat_impl!(Mat4, 4, 4, 16, Vec4 {x, 0, y, 1, z, 2, w, 3}, Vec4 {x, 0, y, 1, z, 2, w, 3});
 mat_impl!(Mat34, 3, 4, 12, Vec4 {x, 0, y, 1, z, 2, w, 3}, Vec3 {x, 0, y, 1, z, 2});
 
-// inverse
 // create perspective, create ortho
