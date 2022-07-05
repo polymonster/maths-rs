@@ -862,6 +862,20 @@ fn matrix_index() {
     assert_eq!(m4.at(0, 3), 500.0);
     assert_eq!(m4.at(1, 3), 600.0);
     assert_eq!(m4.at(2, 3), 700.0);
+
+    // mut index
+    let mut mm = Mat4f::identity();
+    mm[(0, 0)] = 2.0;
+    mm[(1, 1)] = 3.0;
+    mm[(2, 2)] = 4.0;
+    mm[(3, 3)] = 5.0;
+    let expected = Mat4f::from((
+        2.0, 0.0, 0.0, 0.0,
+        0.0, 3.0, 0.0, 0.0,
+        0.0, 0.0, 4.0, 0.0,
+        0.0, 0.0, 0.0, 5.0
+    ));
+    assert_eq!(mm, expected);
 }
 
 #[test]
@@ -1216,7 +1230,44 @@ fn matrix_from_get_row_get_column() {
     assert_eq!(m4_from_m34, expected);
 }
 
-// TODO: mut index
+#[test]
+fn matrix_deref() {
+    let mut m3 = Mat3f::from((
+        1.0, 2.0, 3.0,
+        4.0, 5.0, 6.0,
+        7.0, 8.0, 9.0
+    ));
+    let m3_slice : &[f32] = &m3;
+    assert_eq!(m3_slice[0], 1.0);
+    assert_eq!(m3_slice[1], 2.0);
+    assert_eq!(m3_slice[2], 3.0);
+    assert_eq!(m3_slice[3], 4.0);
+    assert_eq!(m3_slice[4], 5.0);
+    assert_eq!(m3_slice[5], 6.0);
+    assert_eq!(m3_slice[6], 7.0);
+    assert_eq!(m3_slice[7], 8.0);
+    assert_eq!(m3_slice[8], 9.0);
+
+    let m3_mut_slice : &mut [f32] = &mut m3;
+    m3_mut_slice[0] = 0.0;
+    m3_mut_slice[1] = 0.0;
+    m3_mut_slice[2] = 0.0;
+    m3_mut_slice[3] = 0.0;
+    m3_mut_slice[4] = 0.0;
+    m3_mut_slice[5] = 0.0;
+    m3_mut_slice[6] = 0.0;
+    m3_mut_slice[7] = 0.0;
+    m3_mut_slice[8] = 0.0;
+    assert_eq!(m3[0], 0.0);
+    assert_eq!(m3[1], 0.0);
+    assert_eq!(m3[2], 0.0);
+    assert_eq!(m3[3], 0.0);
+    assert_eq!(m3[4], 0.0);
+    assert_eq!(m3[5], 0.0);
+    assert_eq!(m3[6], 0.0);
+    assert_eq!(m3[7], 0.0);
+    assert_eq!(m3[8], 0.0);
+}
+
 // TODO: rotations
-// TODO: deref
 // TODO: matrix mul vec
