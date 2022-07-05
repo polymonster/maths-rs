@@ -1040,6 +1040,60 @@ impl<T> MatInverse<T> for Mat3<T> where T: SignedNumber {
     }
 }
 
+impl<T> MatInverse<T> for Mat34<T> where T: SignedNumber {
+    fn inverse(&self) -> Self {        
+        let m3_inv = Mat3::<T>::from(*self).inverse();
+        let mut m34 = Mat34::<T>::from(m3_inv);
+        let t = Vec3::<T>::from((-self.m[3], -self.m[7], -self.m[11]));
+        let inv_t = Vec3::<T> {
+            x: t.x * m3_inv.m[0] + t.y * m3_inv.m[1] + t.z * m3_inv.m[2],
+            y: t.x * m3_inv.m[3] + t.y * m3_inv.m[4] + t.z * m3_inv.m[5],
+            z: t.x * m3_inv.m[6] + t.y * m3_inv.m[7] + t.z * m3_inv.m[8],
+        };
+        m34.set_column(3, inv_t);
+        m34
+    }
+}
+
+impl<T> MatInverse<T> for Mat4<T> where T: SignedNumber {
+    fn inverse(&self) -> Self {
+        let s0 = (self.m[00] * self.m[05]) - (self.m[01] * self.m[04]);
+        let s1 = (self.m[00] * self.m[06]) - (self.m[02] * self.m[04]);
+        let s2 = (self.m[00] * self.m[07]) - (self.m[03] * self.m[04]);
+        let s3 = (self.m[01] * self.m[06]) - (self.m[02] * self.m[05]);
+        let s4 = (self.m[01] * self.m[07]) - (self.m[03] * self.m[05]);
+        let s5 = (self.m[02] * self.m[07]) - (self.m[03] * self.m[06]);
+        let c5 = (self.m[10] * self.m[15]) - (self.m[11] * self.m[14]);
+        let c4 = (self.m[09] * self.m[15]) - (self.m[11] * self.m[13]);
+        let c3 = (self.m[09] * self.m[14]) - (self.m[10] * self.m[13]);
+        let c2 = (self.m[08] * self.m[15]) - (self.m[11] * self.m[12]);
+        let c1 = (self.m[08] * self.m[14]) - (self.m[10] * self.m[12]);
+        let c0 = (self.m[08] * self.m[13]) - (self.m[09] * self.m[12]);
+        let det = (s0 * c5) - (s1 * c4) + (s2 * c3) + (s3 * c2) - (s4 * c1) + (s5 * c0);
+        let inv_det = T::one() / det;
+        Mat4 {
+            m: [
+                (self.m[5] * c5 - self.m[6] * c4 + self.m[7] * c3) * inv_det,
+                -(self.m[1] * c5 - self.m[2] * c4 + self.m[3] * c3) * inv_det,
+                (self.m[13] * s5 - self.m[14] * s4 + self.m[15] * s3) * inv_det,
+                -(self.m[9] * s5 - self.m[10] * s4 + self.m[11] * s3) * inv_det,
+                -(self.m[4] * c5 - self.m[6] * c2 + self.m[7] * c1) * inv_det,
+                (self.m[0] * c5 - self.m[2] * c2 + self.m[3] * c1) * inv_det,
+                -(self.m[12] * s5 - self.m[14] * s2 + self.m[15] * s1) * inv_det,
+                (self.m[8] * s5 - self.m[10] * s2 + self.m[11] * s1) * inv_det,
+                (self.m[4] * c4 - self.m[5] * c2 + self.m[7] * c0) * inv_det,
+                 -(self.m[0] * c4 - self.m[1] * c2 + self.m[3] * c0) * inv_det,
+                (self.m[12] * s4 - self.m[13] * s2 + self.m[15] * s0) * inv_det,
+                 -(self.m[8] * s4 - self.m[9] * s2 + self.m[11] * s0) * inv_det,
+                 -(self.m[4] * c3 - self.m[5] * c1 + self.m[6] * c0) * inv_det,
+                (self.m[0] * c3 - self.m[1] * c1 + self.m[2] * c0) * inv_det,
+                 -(self.m[12] * s3 - self.m[13] * s1 + self.m[14] * s0) * inv_det,
+                (self.m[8] * s3 - self.m[9] * s1 + self.m[10] * s0) * inv_det,
+            ]
+        }
+    }
+}
+
 mat_impl!(Mat2, 2, 2, 4, Vec2 {x, 0, y, 1}, Vec2 {x, 0, y, 1});
 mat_impl!(Mat3, 3, 3, 9, Vec3 {x, 0, y, 1, z, 2}, Vec3 {x, 0, y, 1, z, 2});
 mat_impl!(Mat4, 4, 4, 16, Vec4 {x, 0, y, 1, z, 2, w, 3}, Vec4 {x, 0, y, 1, z, 2, w, 3});

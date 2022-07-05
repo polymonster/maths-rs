@@ -942,6 +942,17 @@ impl<T> From<Vec2<T>> for Vec3<T> where T: Number {
     }
 }
 
+/// constructs vec3 from tuple of 3 scalars
+impl<T> From<(T, T, T)> for Vec3<T> where T: Number {
+    fn from(other: (T, T, T)) -> Vec3<T> {
+        Vec3 {
+            x: other.0,
+            y: other.1,
+            z: other.2
+        }
+    }
+}
+
 /// construct from a tuple of vec2 into x,y and scalar into z
 impl<T> From<(Vec2<T>, T)> for Vec3<T> where T: Number {
     fn from(other: (Vec2<T>, T)) -> Vec3<T> {
@@ -1032,6 +1043,18 @@ impl<T> From<(Vec3<T>, T)> for Vec4<T> where T: Number {
             y: other.0.y,
             z: other.0.z,
             w: other.1
+        }
+    }
+}
+
+/// constructs vec4 from tuple of 4 scalars
+impl<T> From<(T, T, T, T)> for Vec4<T> where T: Number {
+    fn from(other: (T, T, T, T)) -> Vec4<T> {
+        Vec4 {
+            x: other.0,
+            y: other.1,
+            z: other.2,
+            w: other.3
         }
     }
 }

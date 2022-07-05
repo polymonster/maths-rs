@@ -969,11 +969,25 @@ fn matrix_inverse() {
     let m3_inv = m3 * inv;
     assert_eq!(m3_inv, Mat3f::identity());
 
-}
+    // 3x4
+    let m34 = Mat34f::from((
+        1.0, 2.0, 3.0, 10.0,
+        0.0, 1.0, 4.0, 100.0,
+        5.0, 6.0, 0.0, 20.0,
+    ));
+    let m34_inv = m34 * m34.inverse();
+    assert_eq!(m34_inv, Mat34f::identity());
 
-// TODO: inverse
-// 3x4
-// 3x4
+    // 4x4
+    let m4 = Mat4f::from((
+        1.0, 2.0, 3.0, 10.0,
+        0.0, 1.0, 4.0, 100.0,
+        5.0, 6.0, 0.0, 20.0,
+        9.0, 0.0, 1.0, 1.0,
+    ));
+    let m4_inv = m4 * m4.inverse();
+    assert_eq!(Mat4f::approx(m4_inv, Mat4f::identity(), 0.001), true);
+}
 
 // TODO: matrix get row
 // TODO: mut index
