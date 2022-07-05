@@ -533,6 +533,12 @@ fn dot() {
     let dp = v3::dot(v1, v1);
     let expected = 56.0;
     assert_eq!(dp, expected);
+
+    let v2 = vec2f(2.0, 4.0);
+    let _dd = dott(v2, v2);
+
+    let v3 = vec3f(2.0, 4.0, 5.0);
+    let _dx = dott(v3, v3);
 }
 
 #[test]
@@ -1267,6 +1273,12 @@ fn matrix_deref() {
     assert_eq!(m3[6], 0.0);
     assert_eq!(m3[7], 0.0);
     assert_eq!(m3[8], 0.0);
+}
+
+#[test]
+fn matrix_rotate() {
+    // 2x2 z rotation
+    //let m2 = Mat2f::create_z_rotation();
 }
 
 // TODO: rotations

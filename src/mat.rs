@@ -75,6 +75,7 @@ macro_rules! mat_impl {
             }
         }
 
+        /// deref matrix as a slice of T
         impl<T> Deref for $MatN<T> where T: Number {
             type Target = [T];
             fn deref(&self) -> &Self::Target {
@@ -82,6 +83,7 @@ macro_rules! mat_impl {
             }
         }
 
+        /// mutably deref matrix as a slice of T
         impl<T> DerefMut for $MatN<T> where T: Number {
             fn deref_mut(&mut self) -> &mut [T] {
                 self.as_mut_slice()
@@ -126,6 +128,7 @@ macro_rules! mat_impl {
         }
 
         impl<T> $MatN<T> where T: Float {
+            /// compare if matrices are approximately equal to account for floating point precision
             pub fn approx(lhs: Self, rhs: Self, eps: T) -> bool {
                 for i in 0..$elems {
                     if !Float::approx(lhs.m[i], rhs.m[i], eps) {
@@ -858,7 +861,9 @@ impl<T> MatScale<Vec2<T>> for Mat2<T> where T: Number {
     }
 }
 
+/// trait for minimum of 2x2 matrices applying rotation in z-axis
 pub trait MatRotate2D<T> {
+    /// create rotation about the z axis by theta radians
     fn create_z_rotation(theta: T) -> Self;
 }
 
@@ -914,9 +919,13 @@ impl<T> MatRotate2D<T> for Mat34<T> where T: Float {
     }
 }
 
+/// trait for minimum of 3x3 matrices applying rotation to x, y or aribtrary 3D axes
 pub trait MatRotate3D<T, V> {
+    /// create rotation about the x axis by theta radians
     fn create_x_rotation(theta: T) -> Self;
+    /// create rotation about the y axis by theta radians
     fn create_y_rotation(theta: T) -> Self;
+    /// create rotation about the abitrary axis by theta radians
     fn create_rotation(axis: V, theta: T) -> Self;
 }
 
@@ -1000,6 +1009,7 @@ impl<T> MatRotate3D<T, Vec3<T>> for Mat4<T> where T: Float {
     }
 }
 
+/// trait for square matrices to compute determinant
 pub trait MatDeterminant<T> {
     fn determinant(&self) -> T;
 }
@@ -1037,6 +1047,7 @@ impl<T> MatDeterminant<T> for Mat4<T> where T: Number {
     }
 }
 
+/// trait for all kinds of matrices to calculate inverse
 pub trait MatInverse<T> {
     fn inverse(&self) -> Self;
 }

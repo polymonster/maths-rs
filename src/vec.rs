@@ -28,6 +28,7 @@ use crate::num::*;
 /// generic vec trait to allow sized vectors to be treated generically
 pub trait VecN<T: Number>: Index<usize, Output=T> + IndexMut<usize> {
     fn len() -> usize;
+    fn dott(a: Self, b: Self) -> T;
 }
 
 // 
@@ -199,6 +200,13 @@ macro_rules! vec_impl {
         impl<T> VecN<T> for $VecN<T> where T: Number {
             fn len() -> usize {
                 $len
+            }
+
+            fn dott(a: $VecN<T>, b: $VecN<T>) -> T {
+                T::zero()
+                $( 
+                    +(a.$field * b.$field)
+                )+
             }
         }
 
@@ -1077,6 +1085,10 @@ pub fn perp<T: SignedNumber>(a: Vec2<T>) -> Vec2<T> {
         x: -a.y, 
         y: a.x
     }
+}
+
+pub fn dott<T: Number, V: VecN<T>>(a: V, b: V) -> T {
+    V::dott(a, b)
 }
 
 //
