@@ -1131,6 +1131,7 @@ vec_ctor!(Vec3 { x, y, z }, vec3u, splat3u, u32);
 vec_ctor!(Vec4 { x, y, z, w }, vec4u, splat4u, u32);
 
 // TODO: swizzles
+// TODO: refactor functions to follow dott
 
 // experims
 // v3 / v2 mod, with use... didnt correctly deduce the function by type

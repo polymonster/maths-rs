@@ -167,6 +167,10 @@ macro_rules! float_trait_impl {
             fn sin_cos(v: Self) -> (Self, Self);
             /// atan2 computes arctan of y and x
             fn atan2(y: Self, x: Self) -> Self;
+            /// convert degrees to radians
+            fn deg_to_rad(theta: Self) -> Self;
+            /// convert radians to degrees
+            fn rad_to_deg(theta: Self) -> Self;
         }
         float_impl!(f64 { $($func),* });
         float_impl!(f32 { $($func),* });
@@ -247,6 +251,14 @@ macro_rules! float_impl {
 
             fn atan2(y: Self, x: Self) -> Self {
                 y.atan2(x)
+            }
+
+            fn deg_to_rad(theta: Self) -> Self {
+                theta.to_radians()
+            }
+
+            fn rad_to_deg(theta: Self) -> Self {
+                theta.to_degrees()
             }
         }
     }
