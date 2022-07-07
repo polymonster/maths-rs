@@ -1307,7 +1307,6 @@ fn matrix_rotate() {
         -1.0, 0.0, 0.0, 0.0,
         0.0, 0.0, 1.0, 0.0,
     ));
-    println!("{}\n{}", expected, rotated);
     assert_eq!(Mat34f::approx(rotated, expected, 0.001), true);
 
     // 4x4 z rotation
@@ -1318,6 +1317,74 @@ fn matrix_rotate() {
         -1.0, 0.0, 0.0, 0.0,
         0.0, -1.0, 0.0, 0.0,
         0.0, 0.0, 1.0, 0.0,
+        0.0, 0.0, 0.0, 1.0
+    ));
+    assert_eq!(Mat4f::approx(rotated, expected, 0.001), true);
+
+    // 3x3 x-rotation
+    let m3 = Mat3f::create_x_rotation(Float::deg_to_rad(90.0));
+    let mi = Mat3f::identity();
+    let rotated = m3 * mi;
+    let expected = Mat3f::from((
+        1.0, 0.0, 0.0,
+        0.0, 0.0, -1.0,
+        0.0, 1.0, 0.0
+    ));
+    assert_eq!(Mat3f::approx(rotated, expected, 0.001), true);
+
+    // 3x4 x-rotation
+    let m34 = Mat34f::create_x_rotation(Float::deg_to_rad(180.0));
+    let mi = Mat34f::identity();
+    let rotated = m34 * mi;
+    let expected = Mat34f::from((
+        1.0, 0.0, 0.0, 0.0,
+        0.0, -1.0, 0.0, 0.0,
+        0.0, 0.0, -1.0, 0.0,
+    ));
+    assert_eq!(Mat34f::approx(rotated, expected, 0.001), true);
+
+    // 4x4 x-rotation
+    let m4 = Mat4f::create_x_rotation(Float::deg_to_rad(-90.0));
+    let mi = Mat4f::identity();
+    let rotated = m4 * mi;
+    let expected = Mat4f::from((
+        1.0, 0.0, 0.0, 0.0,
+        0.0, 0.0, 1.0, 0.0,
+        0.0, -1.0, 0.0, 0.0,
+        0.0, 0.0, 0.0, 1.0
+    ));
+    assert_eq!(Mat4f::approx(rotated, expected, 0.001), true);
+
+    // 3x3 y-rotation
+    let m3 = Mat3f::create_y_rotation(Float::deg_to_rad(90.0));
+    let mi = Mat3f::identity();
+    let rotated = m3 * mi;
+    let expected = Mat3f::from((
+        0.0, 0.0, 1.0,
+        0.0, 1.0, 0.0,
+        -1.0, 0.0, 0.0
+    ));
+    assert_eq!(Mat3f::approx(rotated, expected, 0.001), true);
+
+    // 3x4 x-rotation
+    let m34 = Mat34f::create_y_rotation(Float::deg_to_rad(180.0));
+    let mi = Mat34f::identity();
+    let rotated = m34 * mi;
+    let expected = Mat34f::from((
+        -1.0, 0.0, 0.0, 0.0,
+        0.0, 1.0, 0.0, 0.0,
+        0.0, 0.0, -1.0, 0.0,
+    ));
+    assert_eq!(Mat34f::approx(rotated, expected, 0.001), true);
+
+    // 4x4 x rotation
+    let m4 = Mat4f::create_y_rotation(Float::deg_to_rad(-90.0));
+    let mi = Mat4f::identity();
+    let rotated = m4 * mi;
+    let expected = Mat4f::from((
+        0.0, 0.0, -1.0, 0.0,
+        0.0, 1.0, 0.0, 0.0,
+        1.0, -0.0, 0.0, 0.0,
         0.0, 0.0, 0.0, 1.0
     ));
     assert_eq!(Mat4f::approx(rotated, expected, 0.001), true);

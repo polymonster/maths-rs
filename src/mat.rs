@@ -945,10 +945,10 @@ impl<T> MatRotate3D<T, Vec3<T>> for Mat3<T> where T: Float {
         let mut m = Mat3::identity();
         let cos_theta = Float::cos(theta);
         let sin_theta = Float::sin(theta);
-        m.set(1, 1, cos_theta);
-        m.set(1, 3, sin_theta);
-        m.set(3, 1, -sin_theta);
-        m.set(3, 3, cos_theta);
+        m.set(0, 0, cos_theta);
+        m.set(0, 2, sin_theta);
+        m.set(2, 0, -sin_theta);
+        m.set(2, 2, cos_theta);
         m
     }
 
