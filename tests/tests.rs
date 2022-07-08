@@ -1435,4 +1435,75 @@ fn matrix_rotate() {
     assert_eq!(Mat4f::approx(rotated, expected, 0.001), true);
 }
 
-// TODO: matrix mul vec
+#[test]
+fn matrix_mul_vec() {
+    // 2x2 * v2 rot
+    let m2 = Mat2f::create_scale(vec2f(10.0, 20.0));
+    let v2 = vec2f(60.0, 70.0);
+    let transformed = m2 * v2;
+    let expected = vec2f(600.0, 1400.0);
+    assert_eq!(transformed, expected);
+
+    // 2x2 * v2 scale
+    let m2 = Mat2f::create_z_rotation(Float::deg_to_rad(90.0));
+    let v2 = Vec2f::unit_x();
+    let transformed = m2 * v2;
+    let expected = vec2f(0.0, 1.0);
+    assert_eq!(v2::approx(transformed, expected, 0.001), true);
+
+    // 3x3 * v3 rot
+    let m3 = Mat3f::create_z_rotation(Float::deg_to_rad(-90.0));
+    let v3 = Vec3f::unit_x();
+    let transformed = m3 * v3;
+    let expected = vec3f(0.0, -1.0, 0.0);
+    assert_eq!(v3::approx(transformed, expected, 0.001), true);
+
+    // 3x3 * v3 scale
+    let m3 = Mat3f::create_scale(vec3f(10.0, 11.0, 12.0));
+    let v3 = Vec3f::one();
+    let transformed = m3 * v3;
+    let expected = vec3f(10.0, 11.0, 12.0);
+    assert_eq!(v3::approx(transformed, expected, 0.001), true);
+
+    // 3x4 * v3 rot
+    let m3 = Mat34f::create_x_rotation(Float::deg_to_rad(-90.0));
+    let v3 = vec3f(0.0, 0.0, 5.0);
+    let transformed = m3 * v3;
+    let expected = vec3f(0.0, 5.0, 0.0);
+    assert_eq!(v3::approx(transformed, expected, 0.001), true);
+
+    // 3x4 * v3 scale
+    let m3 = Mat34f::create_scale(vec3f(10.0, 2.0, 30.0));
+    let v3 = vec3f(1.0, 2.0, 3.0);
+    let transformed = m3 * v3;
+    let expected = vec3f(10.0, 4.0, 90.0);
+    assert_eq!(v3::approx(transformed, expected, 0.001), true);
+
+    // 3x4 * v3 translate
+    let m34 = Mat34f::create_translation(vec3f(50.0, -10.0, 20.0));
+    let v3 = vec3f(3.0, 4.0, 5.0);
+    let transformed = m34 * v3;
+    let expected = vec3f(53.0, -6.0, 25.0);
+    assert_eq!(v3::approx(transformed, expected, 0.001), true);
+
+    // 4x4 rot
+    let m4 = Mat4f::create_z_rotation(Float::deg_to_rad(90.0));
+    let v3 = vec3f(10.0, 0.0, 0.0);
+    let (transformed, _w) = m4 * v3;
+    let expected = vec3f(0.0, 10.0, 0.0);
+    assert_eq!(v3::approx(transformed, expected, 0.001), true);
+    
+    // 4x4 scale
+    let m4 = Mat4f::create_scale(vec3f(50.0, -10.0, 20.0));
+    let v3 = vec3f(3.0, 4.0, 5.0);
+    let (transformed, _w) = m4 * v3;
+    let expected = vec3f(150.0, -40.0, 100.0);
+    assert_eq!(transformed, expected);
+
+    // 4x4 translate
+    let m4 = Mat4f::create_translation(vec3f(50.0, 90.0, -20.0));
+    let v3 = vec3f(3.0, 4.0, 5.0);
+    let (transformed, _w) = m4 * v3;
+    let expected = vec3f(53.0, 94.0, -15.0);
+    assert_eq!(transformed, expected);
+}
