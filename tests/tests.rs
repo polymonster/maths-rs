@@ -1298,6 +1298,11 @@ fn matrix_rotate() {
     ));
     assert_eq!(Mat3f::approx(rotated, expected, 0.001), true);
 
+    // 3x3 z-axis
+    let axis_z = Mat3f::create_rotation(Vec3f::unit_z(), Float::deg_to_rad(-90.0));
+    let rotated = axis_z * mi;
+    assert_eq!(Mat3f::approx(rotated, expected, 0.001), true);
+
     // 3x4 z rotation
     let m34 = Mat34f::create_z_rotation(Float::deg_to_rad(270.0));
     let mi = Mat34f::identity();
@@ -1307,6 +1312,11 @@ fn matrix_rotate() {
         -1.0, 0.0, 0.0, 0.0,
         0.0, 0.0, 1.0, 0.0,
     ));
+    assert_eq!(Mat34f::approx(rotated, expected, 0.001), true);
+    
+    // 3x4 z-axis
+    let axis_z = Mat34f::create_rotation(Vec3f::unit_z(), Float::deg_to_rad(270.0));
+    let rotated = axis_z * mi;
     assert_eq!(Mat34f::approx(rotated, expected, 0.001), true);
 
     // 4x4 z rotation
@@ -1321,6 +1331,11 @@ fn matrix_rotate() {
     ));
     assert_eq!(Mat4f::approx(rotated, expected, 0.001), true);
 
+    // 4x4 z-axis
+    let axis_z = Mat4f::create_rotation(Vec3f::unit_z(), Float::deg_to_rad(180.0));
+    let rotated = axis_z * mi;
+    assert_eq!(Mat4f::approx(rotated, expected, 0.001), true);
+
     // 3x3 x-rotation
     let m3 = Mat3f::create_x_rotation(Float::deg_to_rad(90.0));
     let mi = Mat3f::identity();
@@ -1332,6 +1347,11 @@ fn matrix_rotate() {
     ));
     assert_eq!(Mat3f::approx(rotated, expected, 0.001), true);
 
+    // 3x3 x-axis
+    let axis_x = Mat3f::create_rotation(Vec3f::unit_x(), Float::deg_to_rad(90.0));
+    let rotated = axis_x * mi;
+    assert_eq!(Mat3f::approx(rotated, expected, 0.001), true);
+
     // 3x4 x-rotation
     let m34 = Mat34f::create_x_rotation(Float::deg_to_rad(180.0));
     let mi = Mat34f::identity();
@@ -1341,6 +1361,11 @@ fn matrix_rotate() {
         0.0, -1.0, 0.0, 0.0,
         0.0, 0.0, -1.0, 0.0,
     ));
+    assert_eq!(Mat34f::approx(rotated, expected, 0.001), true);
+
+    // 3x4 x-axis
+    let axis_x = Mat34f::create_rotation(Vec3f::unit_x(), Float::deg_to_rad(180.0));
+    let rotated = axis_x * mi;
     assert_eq!(Mat34f::approx(rotated, expected, 0.001), true);
 
     // 4x4 x-rotation
@@ -1355,6 +1380,11 @@ fn matrix_rotate() {
     ));
     assert_eq!(Mat4f::approx(rotated, expected, 0.001), true);
 
+    // 4x4 x-axis
+    let axis_x = Mat4f::create_rotation(Vec3f::unit_x(), Float::deg_to_rad(-90.0));
+    let rotated = axis_x * mi;
+    assert_eq!(Mat4f::approx(rotated, expected, 0.001), true);
+
     // 3x3 y-rotation
     let m3 = Mat3f::create_y_rotation(Float::deg_to_rad(90.0));
     let mi = Mat3f::identity();
@@ -1366,7 +1396,12 @@ fn matrix_rotate() {
     ));
     assert_eq!(Mat3f::approx(rotated, expected, 0.001), true);
 
-    // 3x4 x-rotation
+    // 3x3 y-axis
+    let axis_y = Mat3f::create_rotation(Vec3f::unit_y(), Float::deg_to_rad(90.0));
+    let rotated = axis_y * mi;
+    assert_eq!(Mat3f::approx(rotated, expected, 0.001), true);
+
+    // 3x4 y-rotation
     let m34 = Mat34f::create_y_rotation(Float::deg_to_rad(180.0));
     let mi = Mat34f::identity();
     let rotated = m34 * mi;
@@ -1377,7 +1412,12 @@ fn matrix_rotate() {
     ));
     assert_eq!(Mat34f::approx(rotated, expected, 0.001), true);
 
-    // 4x4 x rotation
+    // 3x4 y-axis
+    let axis_y = Mat34f::create_rotation(Vec3f::unit_y(), Float::deg_to_rad(180.0));
+    let rotated = axis_y * mi;
+    assert_eq!(Mat34f::approx(rotated, expected, 0.001), true);
+
+    // 4x4 y-rotation
     let m4 = Mat4f::create_y_rotation(Float::deg_to_rad(-90.0));
     let mi = Mat4f::identity();
     let rotated = m4 * mi;
@@ -1387,6 +1427,11 @@ fn matrix_rotate() {
         1.0, -0.0, 0.0, 0.0,
         0.0, 0.0, 0.0, 1.0
     ));
+    assert_eq!(Mat4f::approx(rotated, expected, 0.001), true);
+
+    // 4x4 y-axis
+    let axis_y = Mat4f::create_rotation(Vec3f::unit_y(), Float::deg_to_rad(-90.0));
+    let rotated = axis_y * mi;
     assert_eq!(Mat4f::approx(rotated, expected, 0.001), true);
 }
 
