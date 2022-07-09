@@ -526,19 +526,13 @@ fn mad() {
 #[test]
 fn dot() {
     let v1 = vec2f(2.0, 4.0);
-    let dp = v2::dot(v1, v1);
+    let dp = Vec2f::dot(v1, v1);
     let expected = 20.0;
     assert_eq!(dp, expected);
     let v1 = vec3f(2.0, 4.0, 6.0);
-    let dp = v3::dot(v1, v1);
+    let dp = Vec3f::dot(v1, v1);
     let expected = 56.0;
     assert_eq!(dp, expected);
-
-    let v2 = vec2f(2.0, 4.0);
-    let _dd = dott(v2, v2);
-
-    let v3 = vec3f(2.0, 4.0, 5.0);
-    let _dx = dott(v3, v3);
 }
 
 #[test]
@@ -609,16 +603,16 @@ fn limits() {
 #[test]
 fn all_any() {
     // all
-    assert_eq!(v4::all(vec4f(1.0, 1.0, 1.0, 1.0)), true);
-    assert_eq!(v4::all(vec4f(0.1, 0.1, 0.1, 0.1)), true);
-    assert_eq!(v4::all(vec4f(0.0, 0.0, 0.0, 0.0)), false);
+    assert_eq!(Vec4f::all(vec4f(1.0, 1.0, 1.0, 1.0)), true);
+    assert_eq!(Vec4f::all(vec4f(0.1, 0.1, 0.1, 0.1)), true);
+    assert_eq!(Vec4f::all(vec4f(0.0, 0.0, 0.0, 0.0)), false);
 
     // any
-    assert_eq!(v4::any(vec4f(1.0, 0.0, 0.0, 0.0)), true);
-    assert_eq!(v4::any(vec4f(0.0, 1.0, 0.0, 0.0)), true);
-    assert_eq!(v4::any(vec4f(0.0, 0.0, 1.0, 0.0)), true);
-    assert_eq!(v4::any(vec4f(0.0, 0.0, 0.0, 1.0)), true);
-    assert_eq!(v4::any(vec4f(0.0, 0.0, 0.0, 0.0)), false);
+    assert_eq!(Vec4f::any(vec4f(1.0, 0.0, 0.0, 0.0)), true);
+    assert_eq!(Vec4f::any(vec4f(0.0, 1.0, 0.0, 0.0)), true);
+    assert_eq!(Vec4f::any(vec4f(0.0, 0.0, 1.0, 0.0)), true);
+    assert_eq!(Vec4f::any(vec4f(0.0, 0.0, 0.0, 1.0)), true);
+    assert_eq!(Vec4f::any(vec4f(0.0, 0.0, 0.0, 0.0)), false);
 }
 
 #[test]
