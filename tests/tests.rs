@@ -524,15 +524,17 @@ fn mad() {
 }
 
 #[test]
-fn dot() {
+fn dot_product() {
     let v1 = vec2f(2.0, 4.0);
     let dp = Vec2f::dot(v1, v1);
     let expected = 20.0;
     assert_eq!(dp, expected);
+    assert_eq!(dot(v1, v1), 20.0);
     let v1 = vec3f(2.0, 4.0, 6.0);
     let dp = Vec3f::dot(v1, v1);
     let expected = 56.0;
     assert_eq!(dp, expected);
+    assert_eq!(dot(v1, v1), 56.0);
 }
 
 #[test]
@@ -1500,4 +1502,14 @@ fn matrix_mul_vec() {
     let (transformed, _w) = m4 * v3;
     let expected = vec3f(53.0, 94.0, -15.0);
     assert_eq!(transformed, expected);
+}
+
+#[test]
+fn global_scope() {
+    let v2 = vec2f(1.0, 1.0);
+    let v3 = vec3f(1.0, 1.0, 1.0);
+    let _s2 = sqrt(v2);
+    let _s3 = sqrt(v3);
+    let _p2 = powi(v2, vec2i(10, 10));
+    let _p3 = powi(v3, vec3i(10, 10, 10));
 }
