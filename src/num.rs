@@ -301,3 +301,89 @@ float_trait_impl!(
 );
 
 integer_trait_impl!();
+
+pub trait FloatOps<T: Float, Exp, Tuple> {
+    /// returns vector with component-wise square root
+    fn sqrt(a: Self) -> Self;
+    /// returns vector with component-wise reciprocal square root (1/sqrt(a))
+    fn rsqrt(a: Self) -> Self;
+    /// returns vector with component-wise reciprocal
+    fn recip(a: Self) -> Self;
+    /// returns vector with component-wise values raised to integer power
+    fn powi(a: Self, exp: Exp) -> Self;
+    /// returns vector with component-wise values raised to float power
+    fn powf(a: Self, exp: Self) -> Self;
+    /// returns vector with fused multiply add component wise
+    fn mad(m: Self, a: Self, b: Self) -> Self;
+    /// returns true if all elements in vectors a and b are approximately equal within the designated epsilon
+    fn approx(a: Self, b: Self, eps: T) -> bool;
+    /// returns the greatest integer which is less than or equal to each vector element component wise
+    fn floor(a: Self) -> Self;
+    /// returns the smallest integer which is greater than or equal to each vector element component wise
+    fn ceil(a: Self) -> Self;
+    /// performs linear interpolation between e0 and e1, t specifies the ratio to interpolate between the values
+    fn lerpn(e0: Self, e1: Self, t: Self) -> Self;
+    /// performs linear interpolation between e0 and e1, t specifies the ratio to interpolate between the values
+    fn lerp(e0: Self, e1: Self, t: T) -> Self;
+    /// returns vector with component wise hermite interpolation between 0-1
+    fn smoothstep(e0: Self, e1: Self, t: T) -> Self;
+    /// returns vector with component wise hermite interpolation between 0-1
+    fn smoothstepn(e0: Self, e1: Self, t: Self) -> Self;
+    /// returns vector with values from a rounded component wise
+    fn round(a: Self) -> Self;
+    /// returns true if a is not a number
+    fn is_nan(a: Self) -> Self;
+    /// returns true if a is inf
+    fn is_infinite(a: Self) -> Self;
+    /// returns true is a is finite
+    fn is_finite(a: Self) -> Self;
+    /// returns a vector with saturated elements clamped between 0-1. equivalent to clamp (x, 0, 1)
+    fn saturate(x: Self) -> Self;
+
+    // TODO: docs
+    fn fmod(x: Self, y: Self) -> Self;
+    fn frac(v: Self) -> Self;
+    fn trunc(v: Self) -> Self;
+    fn modf(v: Self) -> Tuple;
+    fn cos(v: Self) -> Self;
+    fn sin(v: Self) -> Self;
+    fn tan(v: Self) -> Self;
+    fn acos(v: Self) -> Self;
+    fn asin(v: Self) -> Self;
+    fn atan(v: Self) -> Self;
+    fn cosh(v: Self) -> Self;
+    fn sinh(v: Self) -> Self;
+    fn tanh(v: Self) -> Self;
+    fn sin_cos(v: Self) -> Tuple;
+    fn atan2(y: Self, x: Self) -> Self;
+    fn exp(v: Self) -> Self;
+    fn exp2(v: Self) -> Self;
+    fn log2(v: Self) -> Self;
+    fn log10(v: Self) -> Self;
+    fn log(v: Self, base: T) -> Self;
+}
+
+pub trait IntegerOps<T: Integer, Exp> {
+    /// returns vector with component-wise values raised to unsigned integer power
+    fn pow(a: Self, exp: Exp) -> Self;
+}
+
+pub trait NumberOps<T: Number> {
+    /// returns a vector containing component wise min of a and b
+    fn min(a: Self, b: Self) -> Self;
+    /// returns a vector containing component wise max of a and b
+    fn max(a: Self, b: Self) -> Self;
+    /// returns a vector with elements of x clamped component wise to min and max
+    fn clamp(x: Self, min: Self, max: Self) -> Self;
+    /// returns a vector stepped component wise; 1 if a is >= b, 0 otherwise
+    fn step(a: Self, b: Self) -> Self;
+}
+
+pub trait SignedNumberOps<T: SignedNumber> {
+    /// returns component wise sign value; -1 = negative, 1 = positive or 0 (integers only)
+    fn sign(a: Self) -> Self;
+    /// returns component wise sign value; -1 = negative, 1 = positive or 0 (integers only)
+    fn signum(a: Self) -> Self;
+    /// returns a omponent wise vector containing the absolute (postive) value of a
+    fn abs(a: Self) -> Self;
+}

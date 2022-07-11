@@ -37,6 +37,7 @@ pub trait VecN<T: Number>: Index<usize, Output=T> + IndexMut<usize> {
     fn dot(a: Self, b: Self) -> T;
 }
 
+/// operations to apply to n-dimensional vectors
 pub trait VecFloatOps<T: Float> {
     /// returns scalar magnitude or length of vector
     fn length(a: Self) -> T;
@@ -56,94 +57,6 @@ pub trait VecFloatOps<T: Float> {
     fn reflect(i: Self, n: Self) -> Self;
     /// returns a refraction vector using an entering ray, a surface normal, and a refraction index
     fn refract(i: Self, n: Self, eta: T) -> Self;
-}
-
-pub trait IntegerOps<T: Integer, Exp> {
-    /// returns vector with component-wise values raised to unsigned integer power
-    fn pow(a: Self, exp: Exp) -> Self;
-}
-
-pub trait NumberOps<T: Number> {
-    /// returns a vector containing component wise min of a and b
-    fn min(a: Self, b: Self) -> Self;
-    /// returns a vector containing component wise max of a and b
-    fn max(a: Self, b: Self) -> Self;
-    /// returns a vector with elements of x clamped component wise to min and max
-    fn clamp(x: Self, min: Self, max: Self) -> Self;
-    /// returns a vector stepped component wise; 1 if a is >= b, 0 otherwise
-    fn step(a: Self, b: Self) -> Self;
-}
-
-pub trait SignedNumberOps<T: SignedNumber> {
-    /// returns component wise sign value; -1 = negative, 1 = positive or 0 (integers only)
-    fn sign(a: Self) -> Self;
-    /// returns component wise sign value; -1 = negative, 1 = positive or 0 (integers only)
-    fn signum(a: Self) -> Self;
-    /// returns a omponent wise vector containing the absolute (postive) value of a
-    fn abs(a: Self) -> Self;
-}
-
-pub trait FloatOps<T: Float, Exp, Tuple> {
-    /// returns vector with component-wise square root
-    fn sqrt(a: Self) -> Self;
-    /// returns vector with component-wise reciprocal square root (1/sqrt(a))
-    fn rsqrt(a: Self) -> Self;
-    /// returns vector with component-wise reciprocal
-    fn recip(a: Self) -> Self;
-    /// returns vector with component-wise values raised to integer power
-    fn powi(a: Self, exp: Exp) -> Self;
-    /// returns vector with component-wise values raised to float power
-    fn powf(a: Self, exp: Self) -> Self;
-    /// returns vector with fused multiply add component wise
-    fn mad(m: Self, a: Self, b: Self) -> Self;
-    /// returns true if all elements in vectors a and b are approximately equal within the designated epsilon
-    fn approx(a: Self, b: Self, eps: T) -> bool;
-    /*
-    /// returns the greatest integer which is less than or equal to each vector element component wise
-    fn floor(a: Self) -> Self;
-    /// returns the smallest integer which is greater than or equal to each vector element component wise
-    fn ceil(a: Self) -> Self;
-    /// performs linear interpolation between e0 and e1, t specifies the ratio to interpolate between the values
-    fn lerpn(e0: Self, e1: Self, t: Self) -> Self;
-    /// performs linear interpolation between e0 and e1, t specifies the ratio to interpolate between the values
-    fn lerp(e0: Self, e1: Self, t: T) -> Self;
-    /// returns vector with component wise hermite interpolation between 0-1
-    fn smoothstep(e0: Self, e1: Self, t: T) -> Self;
-    /// returns vector with component wise hermite interpolation between 0-1
-    fn smoothstepn(e0: Self, e1: Self, t: Self) -> Self;
-    /// returns vector with values from a rounded component wise
-    fn round(a: Self) -> Self;
-    /// returns true if a is not a number
-    fn is_nan(a: Self) -> ComponentBool;
-    /// returns true if a is inf
-    fn is_infinite(a: Self) -> ComponentBool;
-    /// returns true is a is finite
-    fn is_finite(a: Self) -> ComponentBool;
-    /// returns a vector with saturated elements clamped between 0-1. equivalent to clamp (x, 0, 1)
-    fn saturate(x: Self) -> Self;
-    */
-    /*
-    fn fmod(x: Self, y: Self) -> Self;
-    fn frac(v: Self) -> Self;
-    fn trunc(v: Self) -> Self;
-    fn modf(v: Self) -> Tuple;
-    fn cos(v: Self) -> Self;
-    fn sin(v: Self) -> Self;
-    fn tan(v: Self) -> Self;
-    fn acos(v: Self) -> Self;
-    fn asin(v: Self) -> Self;
-    fn atan(v: Self) -> Self;
-    fn cosh(v: Self) -> Self;
-    fn sinh(v: Self) -> Self;
-    fn tanh(v: Self) -> Self;
-    fn sin_cos(v: Self) -> Tuple;
-    fn atan2(y: Self, x: Self) -> Self;
-    fn exp(v: Self) -> Self;
-    fn exp2(v: Self) -> Self;
-    fn log2(v: Self) -> Self;
-    fn log10(v: Self) -> Self;
-    fn log(v: Self, base: T) -> Self;
-    */
 }
 
 // 
@@ -479,7 +392,6 @@ macro_rules! vec_impl {
                 true
             }
 
-            /*
             fn floor(a: Self) -> Self {
                 Self {
                     $($field: T::floor(a.$field),)+
@@ -522,54 +434,155 @@ macro_rules! vec_impl {
                 }
             }
         
-            fn is_nan(a: Self) -> $VecN<bool> {
-                $VecN::<bool> {
-                    $($field: T::is_nan(a.$field),)+
+            fn is_nan(a: Self) -> Self {
+                Self {
+                    $($field: if T::is_nan(a.$field) { T::one() } else { T::zero() },)+
                 }
             }
 
-            fn is_infinite(a: Self) -> $VecN<bool> {
-                $VecN::<bool> {
-                    $($field: T::is_infinite(a.$field),)+
+            fn is_infinite(a: Self) -> Self {
+                Self {
+                    $($field: if T::is_infinite(a.$field) { T::one() } else { T::zero() },)+
                 }
             }
 
-            fn is_finite(a: Self) -> $VecN<bool> {
-                $VecN::<bool> {
-                    $($field: T::is_finite(a.$field),)+
+            fn is_finite(a: Self) -> Self {
+                Self {
+                    $($field: if T::is_finite(a.$field) { T::one() } else { T::zero() },)+
                 }
             }
 
             fn saturate(x: Self) -> Self {
-                Self::clamp(x, super::$VecN::zero(), super::$VecN::one())
+                Self::clamp(x, Self::zero(), Self::one())
             }
-            */
 
-            /*
             fn fmod(x: Self, y: Self) -> Self {
-
+                x % y
             }
 
-            fn frac(v: Self) -> Self;
-            fn trunc(v: Self) -> Self;
-            fn modf(v: Self) -> Tuple;
-            fn cos(v: Self) -> Self;
-            fn sin(v: Self) -> Self;
-            fn tan(v: Self) -> Self;
-            fn acos(v: Self) -> Self;
-            fn asin(v: Self) -> Self;
-            fn atan(v: Self) -> Self;
-            fn cosh(v: Self) -> Self;
-            fn sinh(v: Self) -> Self;
-            fn tanh(v: Self) -> Self;
-            fn sin_cos(v: Self) -> Tuple;
-            fn atan2(y: Self, x: Self) -> Self;
-            fn exp(v: Self) -> Self;
-            fn exp2(v: Self) -> Self;
-            fn log2(v: Self) -> Self;
-            fn log10(v: Self) -> Self;
-            fn log(v: Self, base: T) -> Self;
-            */
+            fn frac(v: Self) -> Self {
+                Self {
+                    $($field: T::frac(v.$field),)+
+                }
+            }
+
+            fn trunc(v: Self) -> Self {
+                Self {
+                    $($field: T::trunc(v.$field),)+
+                }
+            }
+
+            fn modf(v: Self) -> (Self, Self) {
+                (
+                    Self {
+                        $($field: T::frac(v.$field),)+
+                    },
+                    Self {
+                        $($field: T::trunc(v.$field),)+
+                    }
+                )
+            }
+
+            fn cos(v: Self) -> Self {
+                Self {
+                    $($field: T::cos(v.$field),)+
+                }
+            }
+
+            fn sin(v: Self) -> Self {
+                Self {
+                    $($field: T::sin(v.$field),)+
+                }
+            }
+
+            fn tan(v: Self) -> Self {
+                Self {
+                    $($field: T::tan(v.$field),)+
+                }
+            }
+
+            fn acos(v: Self) -> Self {
+                Self {
+                    $($field: T::acos(v.$field),)+
+                }
+            }
+
+            fn asin(v: Self) -> Self {
+                Self {
+                    $($field: T::asin(v.$field),)+
+                }
+            }
+
+            fn atan(v: Self) -> Self {
+                Self {
+                    $($field: T::atan(v.$field),)+
+                }
+            }
+
+            fn cosh(v: Self) -> Self {
+                Self {
+                    $($field: T::cosh(v.$field),)+
+                }
+            }
+
+            fn sinh(v: Self) -> Self {
+                Self {
+                    $($field: T::sinh(v.$field),)+
+                }
+            }
+
+            fn tanh(v: Self) -> Self {
+                Self {
+                    $($field: T::tanh(v.$field),)+
+                }
+            }
+
+            fn sin_cos(v: Self) -> (Self, Self) {
+                (
+                    Self {
+                        $($field: T::sin(v.$field),)+
+                    },
+                    Self {
+                        $($field: T::cos(v.$field),)+
+                    }
+                )
+            }
+
+            fn atan2(y: Self, x: Self) -> Self {
+                Self {
+                    $($field: T::atan2(y.$field, x.$field),)+
+                }
+            }
+
+            fn exp(v: Self) -> Self {
+                Self {
+                    $($field: T::exp(v.$field),)+
+                }
+            }
+
+            fn exp2(v: Self) -> Self {
+                Self {
+                    $($field: T::exp2(v.$field),)+
+                }
+            }
+
+            fn log2(v: Self) -> Self {
+                Self {
+                    $($field: T::log2(v.$field),)+
+                }
+            }
+
+            fn log10(v: Self) -> Self {
+                Self {
+                    $($field: T::log10(v.$field),)+
+                }
+            }
+
+            fn log(v: Self, base: T) -> Self {
+                Self {
+                    $($field: T::log(v.$field, base),)+
+                }
+            }
         }
 
         /// for n-dimensional functionality
@@ -788,391 +801,6 @@ macro_rules! vec_impl {
             fn eq(&self, other: &Self) -> bool {
                 $(self.$field == other.$field &&)+
                 true
-            }
-        }
-
-        /// collection of functions and operations for n dimensional vector
-        pub mod $module {
-            /// returns scalar value which is the vector dot product a . b
-            pub fn dot<T: super::Number>(a: super::$VecN<T>, b: super::$VecN<T>) -> T {
-                T::zero()
-                $( 
-                    +(a.$field * b.$field)
-                )+
-            }
-
-            /// returns vector with component-wise square root
-            pub fn sqrt<T: super::Float>(a: super::$VecN<T>) -> super::$VecN<T> {
-                super::$VecN {
-                    $($field: T::sqrt(a.$field),)+
-                }
-            }
-
-            /// returns vector with component-wise reciprocal square root (1/sqrt(a))
-            pub fn rsqrt<T: super::Float>(a: super::$VecN<T>) -> super::$VecN<T> {
-                super::$VecN {
-                    $($field: T::recip(T::sqrt(a.$field)),)+
-                }
-            }
-
-            /// returns vector with component-wise reciprocal
-            pub fn recip<T: super::Float>(a: super::$VecN<T>) -> super::$VecN<T> {
-                super::$VecN {
-                    $($field: T::recip(a.$field),)+
-                }
-            }
-
-            /// returns vector with component-wise values raised to unsigned integer power
-            pub fn pow<T: super::Integer>(a: super::$VecN<T>, exp: super::$VecN<u32>) -> super::$VecN<T> {
-                super::$VecN {
-                    $($field: T::pow(a.$field, exp.$field),)+
-                }
-            }
-
-            /// returns vector with component-wise values raised to integer power
-            pub fn powi<T: super::Float>(a: super::$VecN<T>, exp: super::$VecN<i32>) -> super::$VecN<T> {
-                super::$VecN {
-                    $($field: T::powi(a.$field, exp.$field),)+
-                }
-            }
-
-            /// returns vector with component-wise values raised to float power
-            pub fn powf<T: super::Float>(a: super::$VecN<T>, exp: super::$VecN<T>) -> super::$VecN<T> {
-                super::$VecN {
-                    $($field: T::powf(a.$field, exp.$field),)+
-                }
-            }
-            
-            /// returns scalar magnitude or length of vector
-            pub fn length<T: super::Float>(a: super::$VecN<T>) -> T {
-                T::sqrt(dot(a, a))
-            }
-
-            /// returns scalar magnitude or length of vector
-            pub fn mag<T: super::Float>(a: super::$VecN<T>) -> T {
-                T::sqrt(dot(a, a))
-            }
-
-            /// returns scalar magnitude or length of vector squared to avoid using sqrt
-            pub fn mag2<T: super::Float>(a: super::$VecN<T>) -> T {
-                dot(a, a)
-            }
-
-            /// returns a normalized unit vector of a
-            pub fn normalize<T: super::Float>(a: super::$VecN<T>) -> super::$VecN<T> {
-                let m = mag(a);
-                a / m
-            }
-
-            /// returns vector with fused multiply add component wise
-            pub fn mad<T: super::Float>(m: super::$VecN<T>, a: super::$VecN<T>, b: super::$VecN<T>) -> super::$VecN<T> {
-                super::$VecN {
-                    $($field: T::mad(m.$field, a.$field, b.$field),)+
-                }
-            }
-
-            /// returns scalar distance between 2 points (magnitude of the vector between the 2 points)
-            pub fn distance<T: super::Float>(a: super::$VecN<T>, b: super::$VecN<T>) -> T {
-                let c = a-b;
-                T::sqrt(dot(c, c))
-            }
-
-            /// returns scalar distance between 2 points (magnitude of the vector between the 2 points)
-            pub fn dist<T: super::Float>(a: super::$VecN<T>, b: super::$VecN<T>) -> T {
-                distance(a, b)
-            }
-
-            /// returns scalar squared distance between 2 points to avoid using sqrt
-            pub fn dist2<T: super::Float>(a: super::$VecN<T>, b: super::$VecN<T>) -> T {
-                let c = a-b;
-                dot(c, c)
-            }
-
-            /// returns true if all elements in vector are non-zero
-            pub fn all<T: super::Number>(a: super::$VecN<T>) -> bool {
-                $(a.$field != T::zero() &&)+
-                true
-            }
-
-            /// returns true if any element of the vector is non-zero
-            pub fn any<T: super::Number>(a: super::$VecN<T>) -> bool {
-                $(a.$field != T::zero() ||)+
-                false
-            }
-
-            /// returns true if all elements in vectors a and b are approximately equal within the designated epsilon
-            pub fn approx<T: super::Float>(a: super::$VecN<T>, b: super::$VecN<T>, eps: T) -> bool {
-                $(T::abs(a.$field - b.$field) < eps &&)+
-                true
-            }
-
-            /// returns the greatest integer which is less than or equal to each vector element component wise
-            pub fn floor<T: super::Float>(a: super::$VecN<T>) -> super::$VecN<T> {
-                super::$VecN {
-                    $($field: super::Float::floor(a.$field),)+
-                }
-            }
-
-            /// returns the smallest integer which is greater than or equal to each vector element component wise
-            pub fn ceil<T: super::Float>(a: super::$VecN<T>) -> super::$VecN<T> {
-                super::$VecN {
-                    $($field: super::Float::ceil(a.$field),)+
-                }
-            }
-
-            /// performs linear interpolation between e0 and e1, t specifies the ratio to interpolate between the values
-            pub fn lerpn<T: super::Float>(e0: super::$VecN<T>, e1: super::$VecN<T>, t: super::$VecN<T>) -> super::$VecN<T> {
-                super::$VecN {
-                    $($field: super::Float::lerp(e0.$field, e1.$field, t.$field),)+
-                }
-            }
-
-            /// performs linear interpolation between e0 and e1, t specifies the ratio to interpolate between the values
-            pub fn lerp<T: super::Float>(e0: super::$VecN<T>, e1: super::$VecN<T>, t: T) -> super::$VecN<T> {
-                super::$VecN {
-                    $($field: super::Float::lerp(e0.$field, e1.$field, t),)+
-                }
-            }
-
-            /// returns vector with component wise hermite interpolation between 0-1
-            pub fn smoothstep<T: super::Float>(e0: super::$VecN<T>, e1: super::$VecN<T>, t: T) -> super::$VecN<T> {
-                super::$VecN {
-                    $($field: super::Float::smoothstep(e0.$field, e1.$field, t),)+
-                }
-            }
-
-            /// returns vector with component wise hermite interpolation between 0-1
-            pub fn smoothstepn<T: super::Float>(e0: super::$VecN<T>, e1: super::$VecN<T>, t: super::$VecN<T>) -> super::$VecN<T> {
-                super::$VecN {
-                    $($field: super::Float::smoothstep(e0.$field, e1.$field, t.$field),)+
-                }
-            }
-
-            /// returns vector with values from a rounded component wise
-            pub fn round<T: super::Float>(a: super::$VecN<T>) -> super::$VecN<T> {
-                super::$VecN {
-                    $($field: super::Float::round(a.$field),)+
-                }
-            }
-
-            /// returns true if a is not a number
-            pub fn is_nan<T: super::Float>(a: super::$VecN<T>) -> super::$VecN<bool> {
-                super::$VecN {
-                    $($field: super::Float::is_nan(a.$field),)+
-                }
-            }
-
-            /// returns true if a is inf
-            pub fn is_infinite<T: super::Float>(a: super::$VecN<T>) -> super::$VecN<bool> {
-                super::$VecN {
-                    $($field: super::Float::is_infinite(a.$field),)+
-                }
-            }
-
-            /// returns true is a is finite
-            pub fn is_finite<T: super::Float>(a: super::$VecN<T>) -> super::$VecN<bool> {
-                super::$VecN {
-                    $($field: super::Float::is_finite(a.$field),)+
-                }
-            }
-
-            /// returns a vector containing component wise min of a and b
-            pub fn min<T: super::Number>(a: super::$VecN<T>, b: super::$VecN<T>) -> super::$VecN<T> {
-                super::$VecN {
-                    $($field: super::Number::min(a.$field, b.$field),)+
-                }
-            }
-            
-            /// returns a vector containing component wise max of a and b
-            pub fn max<T: super::Number>(a: super::$VecN<T>, b: super::$VecN<T>) -> super::$VecN<T> {
-                super::$VecN {
-                    $($field: super::Number::max(a.$field, b.$field),)+
-                }
-            }
-
-            /// returns component wise sign value; -1 = negative, 1 = positive or 0 (integers only)
-            pub fn sign<T: super::SignedNumber>(a: super::$VecN<T>) -> super::$VecN<T> {
-                super::$VecN {
-                    $($field: super::SignedNumber::signum(a.$field),)+
-                }
-            }
-
-            /// returns component wise sign value; -1 = negative, 1 = positive or 0 (integers only)
-            pub fn signum<T: super::SignedNumber>(a: super::$VecN<T>) -> super::$VecN<T> {
-                super::$VecN {
-                    $($field: super::SignedNumber::signum(a.$field),)+
-                }
-            }
-
-            /// returns a omponent wise vector containing the absolute (postive) value of a
-            pub fn abs<T: super::SignedNumber>(a: super::$VecN<T>) -> super::$VecN<T> {
-                super::$VecN {
-                    $($field: super::SignedNumber::abs(a.$field),)+
-                }
-            }
-
-            /// returns a vector with elements of x clamped component wise to min and max
-            pub fn clamp<T: super::Number>(x: super::$VecN<T>, min: super::$VecN<T>, max: super::$VecN<T>) -> super::$VecN<T> {
-                super::$VecN {
-                    $($field: super::Number::max(super::Number::min(x.$field, max.$field), min.$field),)+
-                }
-            }
-            
-            /// returns a vector with saturated elements clamped between 0-1. equivalent to clamp (x, 0, 1)
-            pub fn saturate<T: super::Float>(x: super::$VecN<T>) -> super::$VecN<T> {
-                clamp(x, super::$VecN::zero(), super::$VecN::one())
-            }
-
-            /// returns a vector stepped component wise; 1 if a is >= b, 0 otherwise
-            pub fn step<T: super::Number>(a: super::$VecN<T>, b: super::$VecN<T>) -> super::$VecN<T> {
-                super::$VecN {
-                    $($field: super::Number::step(a.$field, b.$field),)+
-                }
-            }
-
-            /// returns a reflection vector using an incident ray and a surface normal
-            pub fn reflect<T: super::Float>(i: super::$VecN<T>, n: super::$VecN<T>) -> super::$VecN<T> {
-                // https://docs.microsoft.com/en-us/windows/win32/direct3dhlsl/dx-graphics-hlsl-reflect
-                (i - T::two()) * n * dot(i, n)
-            }
-
-            /// returns a refraction vector using an entering ray, a surface normal, and a refraction index
-            pub fn refract<T: super::Float>(i: super::$VecN<T>, n: super::$VecN<T>, eta: T) -> super::$VecN<T> {
-                // https://asawicki.info/news_1301_reflect_and_refract_functions.html
-                let n_dot_i = dot(n, i);
-                let k = T::one() - eta * eta * (T::one() - n_dot_i * n_dot_i);
-                if k < T::zero() {
-                    return super::$VecN::zero();
-                }
-                (i * eta) - n * ((n_dot_i + T::sqrt(k)) * eta)
-            }
-
-            pub fn fmod<T: super::Float>(x: super::$VecN<T>, y: super::$VecN<T>) -> super::$VecN<T> {
-                x % y
-            }
-
-            pub fn frac<T: super::Float>(v: super::$VecN<T>) -> super::$VecN<T> {
-                super::$VecN {
-                    $($field: super::Float::frac(v.$field),)+
-                }
-            }
-
-            pub fn trunc<T: super::Float>(v: super::$VecN<T>) -> super::$VecN<T> {
-                super::$VecN {
-                    $($field: super::Float::trunc(v.$field),)+
-                }
-            }
-
-            pub fn modf<T: super::Float>(v: super::$VecN<T>) -> (super::$VecN<T>, super::$VecN<T>) {
-                (
-                    super::$VecN {
-                        $($field: super::Float::frac(v.$field),)+
-                    },
-                    super::$VecN {
-                        $($field: super::Float::trunc(v.$field),)+
-                    }
-                )
-            }
-
-            pub fn cos<T: super::Float>(v: super::$VecN<T>) -> super::$VecN<T> {
-                super::$VecN {
-                    $($field: super::Float::cos(v.$field),)+
-                }
-            }
-
-            pub fn sin<T: super::Float>(v: super::$VecN<T>) -> super::$VecN<T> {
-                super::$VecN {
-                    $($field: super::Float::sin(v.$field),)+
-                }
-            }
-
-            pub fn tan<T: super::Float>(v: super::$VecN<T>) -> super::$VecN<T> {
-                super::$VecN {
-                    $($field: super::Float::tan(v.$field),)+
-                }
-            }
-
-            pub fn acos<T: super::Float>(v: super::$VecN<T>) -> super::$VecN<T> {
-                super::$VecN {
-                    $($field: super::Float::acos(v.$field),)+
-                }
-            }
-
-            pub fn asin<T: super::Float>(v: super::$VecN<T>) -> super::$VecN<T> {
-                super::$VecN {
-                    $($field: super::Float::asin(v.$field),)+
-                }
-            }
-
-            pub fn atan<T: super::Float>(v: super::$VecN<T>) -> super::$VecN<T> {
-                super::$VecN {
-                    $($field: super::Float::atan(v.$field),)+
-                }
-            }
-
-            pub fn cosh<T: super::Float>(v: super::$VecN<T>) -> super::$VecN<T> {
-                super::$VecN {
-                    $($field: super::Float::cosh(v.$field),)+
-                }
-            }
-
-            pub fn sinh<T: super::Float>(v: super::$VecN<T>) -> super::$VecN<T> {
-                super::$VecN {
-                    $($field: super::Float::sinh(v.$field),)+
-                }
-            }
-
-            pub fn tanh<T: super::Float>(v: super::$VecN<T>) -> super::$VecN<T> {
-                super::$VecN {
-                    $($field: super::Float::tanh(v.$field),)+
-                }
-            }
-
-            pub fn sin_cos<T: super::Float>(v: super::$VecN<T>) -> (super::$VecN<T>, super::$VecN<T>) {
-                (
-                    super::$VecN {
-                        $($field: super::Float::sin(v.$field),)+
-                    },
-                    super::$VecN {
-                        $($field: super::Float::cos(v.$field),)+
-                    }
-                )
-            }
-
-            pub fn atan2<T: super::Float>(y: super::$VecN<T>, x: super::$VecN<T>) -> super::$VecN<T> {
-                super::$VecN {
-                    $($field: super::Float::atan2(y.$field, x.$field),)+
-                }
-            }
-
-            pub fn exp<T: super::Float>(v: super::$VecN<T>) -> super::$VecN<T> {
-                super::$VecN {
-                    $($field: super::Float::exp(v.$field),)+
-                }
-            }
-
-            pub fn exp2<T: super::Float>(v: super::$VecN<T>) -> super::$VecN<T> {
-                super::$VecN {
-                    $($field: super::Float::exp2(v.$field),)+
-                }
-            }
-
-            pub fn log2<T: super::Float>(v: super::$VecN<T>) -> super::$VecN<T> {
-                super::$VecN {
-                    $($field: super::Float::log2(v.$field),)+
-                }
-            }
-
-            pub fn log10<T: super::Float>(v: super::$VecN<T>) -> super::$VecN<T> {
-                super::$VecN {
-                    $($field: super::Float::log10(v.$field),)+
-                }
-            }
-
-            pub fn log<T: super::Float>(v: super::$VecN<T>, base: T) -> super::$VecN<T> {
-                super::$VecN {
-                    $($field: super::Float::log(v.$field, base),)+
-                }
             }
         }
     }

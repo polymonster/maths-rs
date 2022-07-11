@@ -45,7 +45,7 @@ macro_rules! mat_impl {
             pub m: [T; $elems]
         }
 
-        /// index into matrix with tuple [(row, column)]
+        /// index into matrix with tuple \[(row, column)\]
         impl<T> Index<(usize, usize)> for $MatN<T> {
             type Output = T;
             fn index(&self, rc: (usize, usize)) -> &Self::Output {
@@ -53,14 +53,14 @@ macro_rules! mat_impl {
             }
         }
 
-        /// mutably index into matrix with tuple [(row, column)]
+        /// mutably index into matrix with tuple \[(row, column)\]
         impl<T> IndexMut<(usize, usize)> for $MatN<T> {
             fn index_mut(&mut self, rc: (usize, usize)) -> &mut Self::Output {
                 &mut self.m[rc.0 * $cols + rc.1]
             }
         }
 
-        /// index into matrix raw array single [index]
+        /// index into matrix raw array single \[index\]
         impl<T> Index<usize> for $MatN<T> {
             type Output = T;
             fn index(&self, index: usize) -> &Self::Output {
@@ -68,7 +68,7 @@ macro_rules! mat_impl {
             }
         }
 
-        /// mutably index into matrix raw array with single [index]
+        /// mutably index into matrix raw array with single \[index\]
         impl<T> IndexMut<usize> for $MatN<T> {
             fn index_mut(&mut self, index: usize) -> &mut Self::Output {
                 &mut self.m[index]
@@ -797,6 +797,7 @@ impl<T> MulAssign<Mat34<T>> for Mat4<T> where T: Number {
     }
 }
 
+/// trait for minimum of 4 column matrices to create translation
 pub trait MatTranslate<V> {
     fn create_translation(t: V) -> Self;
 }
@@ -818,6 +819,7 @@ impl<T> MatTranslate<Vec3<T>> for Mat34<T> where T: Number {
     }
 }
 
+/// trait for all matrices to cerate a scaling matrix
 pub trait MatScale<V> {
     fn create_scale(t: V) -> Self;
 }

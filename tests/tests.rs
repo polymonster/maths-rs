@@ -328,14 +328,14 @@ fn mul_scalar() {
     let v2 = 33.0;
     let expected = vec2f(544.5, 732.6);
     let result = v1 * v2;
-    assert_eq!(v2::approx(expected, result, 0.001), true);
+    assert_eq!(Vec2f::approx(expected, result, 0.001), true);
 
     // mul with negative
     let v1 = vec2f(2.5, 4.8);
     let v2 = -11.1;
     let expected = vec2f(-27.75, -53.28);
     let result = v1 * v2;
-    assert_eq!(v2::approx(expected, result, 0.001), true);
+    assert_eq!(Vec2f::approx(expected, result, 0.001), true);
 }
 
 #[test]
@@ -345,7 +345,7 @@ fn mul_scalar_lhs() {
     let v2 = 33.0;
     let expected = vec2f(544.5, 732.6);
     let result = v2 * v1;
-    assert_eq!(v2::approx(expected, result, 0.001), true);
+    assert_eq!(Vec2f::approx(expected, result, 0.001), true);
 }
 
 #[test]
@@ -355,14 +355,14 @@ fn mul_assign_scalar() {
     let v2 = 33.0;
     let expected = vec2f(544.5, 732.6);
     v1 *= v2;
-    assert_eq!(v2::approx(expected, v1, 0.001), true);
+    assert_eq!(Vec2f::approx(expected, v1, 0.001), true);
 
     // mul with negative
     let mut v1 = vec2f(2.5, 4.8);
     let v2 = -11.1;
     let expected = vec2f(-27.75, -53.28);
     v1 *= v2;
-    assert_eq!(v2::approx(expected, v1, 0.001), true);
+    assert_eq!(Vec2f::approx(expected, v1, 0.001), true);
 }
 
 #[test]
@@ -372,14 +372,14 @@ fn div() {
     let v2 = vec2f(2.0, 10.0);
     let expected = vec2f(8.0, 54.3);
     let result = v1 / v2;
-    assert_eq!(v2::approx(expected, result, 0.001), true);
+    assert_eq!(Vec2f::approx(expected, result, 0.001), true);
 
     // div with negative
     let v1 = vec2f(18.0, 4.0);
     let v2 = vec2f(-56.0, -9.0);
     let expected = vec2f(-0.32142857142, -0.44444444444);
     let result = v1 / v2;
-    assert_eq!(v2::approx(expected, result, 0.001), true);
+    assert_eq!(Vec2f::approx(expected, result, 0.001), true);
 }
 
 #[test]
@@ -389,14 +389,14 @@ fn div_assign() {
     let v2 = vec2f(2.0, 10.0);
     let expected = vec2f(8.0, 54.3);
     v1 /= v2;
-    assert_eq!(v2::approx(expected, v1, 0.001), true);
+    assert_eq!(Vec2f::approx(expected, v1, 0.001), true);
 
     // div with negative
     let mut v1 = vec2f(18.0, 4.0);
     let v2 = vec2f(-56.0, -9.0);
     let expected = vec2f(-0.32142857142, -0.44444444444);
     v1 /= v2;
-    assert_eq!(v2::approx(expected, v1, 0.001), true);
+    assert_eq!(Vec2f::approx(expected, v1, 0.001), true);
 }
 
 #[test]
@@ -406,14 +406,14 @@ fn div_scalar() {
     let v2 = 33.0;
     let expected = vec2f(0.5, 0.67272727272);
     let result = v1 / v2;
-    assert_eq!(v2::approx(expected, result, 0.001), true);
+    assert_eq!(Vec2f::approx(expected, result, 0.001), true);
 
     // div with negative
     let v1 = vec2f(2.5, 4.8);
     let v2 = -11.1;
     let expected = vec2f(-0.22522522522, -0.43243243243);
     let result = v1 / v2;
-    assert_eq!(v2::approx(expected, result, 0.001), true);
+    assert_eq!(Vec2f::approx(expected, result, 0.001), true);
 }
 
 #[test]
@@ -423,7 +423,7 @@ fn div_scalar_lhs() {
     let v2 = 33.0;
     let expected = vec2f(2.0, 1.48648648649);
     let result = v2 / v1;
-    assert_eq!(v2::approx(expected, result, 0.001), true);
+    assert_eq!(Vec2f::approx(expected, result, 0.001), true);
 }
 
 #[test]
@@ -433,14 +433,14 @@ fn div_assign_scalar() {
     let v2 = 33.0;
     let expected = vec2f(0.5, 0.67272727272);
     v1 /= v2;
-    assert_eq!(v2::approx(expected, v1, 0.001), true);
+    assert_eq!(Vec2f::approx(expected, v1, 0.001), true);
 
     // div with negative
     let mut v1 = vec2f(2.5, 4.8);
     let v2 = -11.1;
     let expected = vec2f(-0.22522522522, -0.43243243243);
     v1 /= v2;
-    assert_eq!(v2::approx(expected, v1, 0.001), true);
+    assert_eq!(Vec2f::approx(expected, v1, 0.001), true);
 }
 
 #[test]
@@ -450,8 +450,8 @@ fn rem() {
     let expected = vec2f(2.0, 5.0);
     let result = v2 % v1;
     println!("{} {}", expected, result);
-    assert_eq!(v2::approx(expected, result, 0.001), true);
-    assert_eq!(v2::approx(expected, v2::fmod(v2, v1), 0.001), true);
+    assert_eq!(Vec2f::approx(expected, result, 0.001), true);
+    assert_eq!(Vec2f::approx(expected, Vec2f::fmod(v2, v1), 0.001), true);
 }
 
 #[test]
@@ -460,7 +460,7 @@ fn rem_assign() {
     let v2 = vec2f(8.0, 7.0);
     let expected = vec2f(3.0, 4.0);
     v1 %= v2;
-    assert_eq!(v2::approx(expected, v1, 0.001), true);
+    assert_eq!(Vec2f::approx(expected, v1, 0.001), true);
 }
 
 #[test]
@@ -469,7 +469,7 @@ fn rem_scalar() {
     let v2 = 4.0;
     let expected = vec2f(3.0, 0.0);
     let result = v1 % v2;
-    assert_eq!(v2::approx(expected, result, 0.001), true);
+    assert_eq!(Vec2f::approx(expected, result, 0.001), true);
 }
 
 #[test]
@@ -478,7 +478,7 @@ fn rem_scalar_lhs() {
     let v2 = 33.2;
     let expected = vec2f(1.2, 6.2);
     let result = v2 % v1;
-    assert_eq!(v2::approx(expected, result, 0.001), true);
+    assert_eq!(Vec2f::approx(expected, result, 0.001), true);
 }
 
 #[test]
@@ -487,7 +487,7 @@ fn rem_assign_scalar() {
     let v2 = 16.5;
     let expected = vec2f(0.2, 11.0);
     v1 %= v2;
-    assert_eq!(v2::approx(expected, v1, 0.001), true);
+    assert_eq!(Vec2f::approx(expected, v1, 0.001), true);
 }
 
 #[test]
@@ -518,7 +518,7 @@ fn mad() {
     let x = vec3f(4.0, 4.0, 4.0);
     let y = vec3f(2.0, 4.0, 6.0);
     let z = vec3f(3.0, 4.0, 5.0);
-    let result = v3::mad(x, y, z);
+    let result = Vec3f::mad(x, y, z);
     let expected = vec3f(11.0, 20.0, 29.0);
     assert_eq!(result, expected);
 }
@@ -619,9 +619,9 @@ fn all_any() {
 
 #[test]
 fn float_funcs() {
-    assert_eq!(v2::round(vec2f(0.1, 0.6)), vec2f(0.0, 1.0));
-    assert_eq!(v2::floor(vec2f(0.1, 0.6)), vec2f(0.0, 0.0));
-    assert_eq!(v2::ceil(vec2f(0.1, 0.6)), vec2f(1.0, 1.0));
+    assert_eq!(Vec2f::round(vec2f(0.1, 0.6)), vec2f(0.0, 1.0));
+    assert_eq!(Vec2f::floor(vec2f(0.1, 0.6)), vec2f(0.0, 0.0));
+    assert_eq!(Vec2f::ceil(vec2f(0.1, 0.6)), vec2f(1.0, 1.0));
 }
 
 #[test]
@@ -667,9 +667,9 @@ fn splat() {
 fn length() {
     let v3 = vec3f(1.0, 2.0, 3.0);
     let sq = (14.0_f32).sqrt();
-    assert_eq!(v3::length(v3), sq);
-    assert_eq!(v3::mag(v3), sq);
-    assert_eq!(v3::mag2(v3), 14.0);
+    assert_eq!(Vec3f::length(v3), sq);
+    assert_eq!(Vec3f::mag(v3), sq);
+    assert_eq!(Vec3f::mag2(v3), 14.0);
 }
 
 #[test]
@@ -677,99 +677,99 @@ fn distance() {
     let x = vec3f(5.0, 8.0, 4.0);
     let y = vec3f(20.0, 30.0, -10.0);
     let d = y - x;
-    assert_eq!(v3::distance(x, y), v3::mag(d));
-    assert_eq!(v3::dist(x, y), v3::mag(d));
-    assert_eq!(v3::dist2(x, y), v3::mag2(d));
+    assert_eq!(Vec3f::distance(x, y), Vec3f::mag(d));
+    assert_eq!(Vec3f::dist(x, y), Vec3f::mag(d));
+    assert_eq!(Vec3f::dist2(x, y), Vec3f::mag2(d));
 }
 
 #[test]
 fn float_checks() {
-    assert_eq!(v3::is_infinite(vec3f(f32::INFINITY, 0.0, f32::INFINITY)), vec3b(true, false, true));
-    assert_eq!(v3::is_nan(vec3f(f32::NAN, 0.0, f32::NAN)), vec3b(true, false, true));
-    assert_eq!(v3::is_finite(vec3f(f32::INFINITY, 0.0, f32::INFINITY)), vec3b(false, true, false));
+    assert_eq!(Vec3f::is_infinite(vec3f(f32::INFINITY, 0.0, f32::INFINITY)), vec3f(1.0, 0.0, 1.0));
+    assert_eq!(Vec3f::is_nan(vec3f(f32::NAN, 0.0, f32::NAN)), vec3f(1.0, 0.0, 1.0));
+    assert_eq!(Vec3f::is_finite(vec3f(f32::INFINITY, 0.0, f32::INFINITY)), vec3f(0.0, 1.0, 0.0));
 }
 
 #[test]
 fn pow() {
-    assert_eq!(v2::powi(vec2f(5.0, 8.0), vec2i(2, 4)), vec2f(25.0, 4096.0));
-    assert_eq!(v2::powf(vec2f(5.0, 8.0), vec2f(2.0, 4.0)), vec2f(25.0, 4096.0));
-    assert_eq!(v2::pow(vec2i(16, 8), vec2u(2, 8)), vec2i(256, 16777216));
+    assert_eq!(Vec2f::powi(vec2f(5.0, 8.0), vec2i(2, 4)), vec2f(25.0, 4096.0));
+    assert_eq!(Vec2f::powf(vec2f(5.0, 8.0), vec2f(2.0, 4.0)), vec2f(25.0, 4096.0));
+    assert_eq!(Vec2i::pow(vec2i(16, 8), vec2u(2, 8)), vec2i(256, 16777216));
 }
 
 #[test]
 fn clamp_min_max_saturate_step() {
     // min / max
-    assert_eq!(v3::min(vec3f(22.0, 7.0, 5.0), vec3f(27.0, 4.0, 1.0)), vec3f(22.0, 4.0, 1.0));
-    assert_eq!(v3::max(vec3f(22.0, 7.0, 5.0), vec3f(27.0, 4.0, 1.0)), vec3f(27.0, 7.0, 5.0));
-    assert_eq!(v3::min(vec3f(-22.0, -7.0, -5.0), vec3f(-27.0, -4.0, -1.0)), vec3f(-27.0, -7.0, -5.0));
-    assert_eq!(v3::max(vec3f(-22.0, -7.0, -5.0), vec3f(-27.0, -4.0, -1.0)), vec3f(-22.0, -4.0, -1.0));
+    assert_eq!(Vec3f::min(vec3f(22.0, 7.0, 5.0), vec3f(27.0, 4.0, 1.0)), vec3f(22.0, 4.0, 1.0));
+    assert_eq!(Vec3f::max(vec3f(22.0, 7.0, 5.0), vec3f(27.0, 4.0, 1.0)), vec3f(27.0, 7.0, 5.0));
+    assert_eq!(Vec3f::min(vec3f(-22.0, -7.0, -5.0), vec3f(-27.0, -4.0, -1.0)), vec3f(-27.0, -7.0, -5.0));
+    assert_eq!(Vec3f::max(vec3f(-22.0, -7.0, -5.0), vec3f(-27.0, -4.0, -1.0)), vec3f(-22.0, -4.0, -1.0));
 
     // clamp
-    assert_eq!(v3::clamp(vec3f(-22.0, 7.0, 5.0), vec3f(-5.0, -5.0, -5.0), vec3f(5.0, 5.0, 5.0)), vec3f(-5.0, 5.0, 5.0));
+    assert_eq!(Vec3f::clamp(vec3f(-22.0, 7.0, 5.0), vec3f(-5.0, -5.0, -5.0), vec3f(5.0, 5.0, 5.0)), vec3f(-5.0, 5.0, 5.0));
 
     // saturate
-    assert_eq!(v3::saturate(vec3f(22.0, -12.0, 55.0)), vec3f(1.0, 0.0, 1.0));
+    assert_eq!(Vec3f::saturate(vec3f(22.0, -12.0, 55.0)), vec3f(1.0, 0.0, 1.0));
 
     // step
-    assert_eq!(v3::step(vec3f(5.0, 6.0, 1.0), vec3f(1.0, 2.0, 3.0)), vec3f(1.0, 1.0, 0.0));
+    assert_eq!(Vec3f::step(vec3f(5.0, 6.0, 1.0), vec3f(1.0, 2.0, 3.0)), vec3f(1.0, 1.0, 0.0));
 }
 
 #[test]
 fn abs_sign() {
-    assert_eq!(v3::abs(vec3f(-22.0, -12.0, 66.0)), vec3f(22.0, 12.0, 66.0));
-    assert_eq!(v3::sign(vec3f(123.0, -123.0, 999.0)), vec3f(1.0, -1.0, 1.0));
-    assert_eq!(v3::signum(vec3f(123.0, -123.0, 999.0)), vec3f(1.0, -1.0, 1.0));
-    assert_eq!(v3::sign(vec3f(0.0, -0.0, 0.0)), vec3f(1.0, -1.0, 1.0));
-    assert_eq!(v3::sign(vec3i(-1, 0, 1)), vec3i(-1, 0, 1));
+    assert_eq!(Vec3f::abs(vec3f(-22.0, -12.0, 66.0)), vec3f(22.0, 12.0, 66.0));
+    assert_eq!(Vec3f::sign(vec3f(123.0, -123.0, 999.0)), vec3f(1.0, -1.0, 1.0));
+    assert_eq!(Vec3f::signum(vec3f(123.0, -123.0, 999.0)), vec3f(1.0, -1.0, 1.0));
+    assert_eq!(Vec3f::sign(vec3f(0.0, -0.0, 0.0)), vec3f(1.0, -1.0, 1.0));
+    assert_eq!(Vec3i::sign(vec3i(-1, 0, 1)), vec3i(-1, 0, 1));
 }
 
 #[test]
 fn interpolate() {
-    assert_eq!(v3::lerp(vec3f(10.0, 4.0, 60.0), vec3f(20.0, 0.0, -60.0), 0.5), vec3f(15.0, 2.0, 0.0));
-    assert_eq!(v3::lerpn(vec3f(10.0, 4.0, 60.0), vec3f(20.0, 0.0, -60.0), splat3f(0.5)), vec3f(15.0, 2.0, 0.0));
+    assert_eq!(Vec3f::lerp(vec3f(10.0, 4.0, 60.0), vec3f(20.0, 0.0, -60.0), 0.5), vec3f(15.0, 2.0, 0.0));
+    assert_eq!(Vec3f::lerpn(vec3f(10.0, 4.0, 60.0), vec3f(20.0, 0.0, -60.0), splat3f(0.5)), vec3f(15.0, 2.0, 0.0));
 
     // TODO: smoothstep
-    //assert_eq!(v3::smoothstep(vec3f(10.0, 4.0, 60.0), vec3f(20.0, 0.0, -60.0), 0.75), vec3f(15.0, 2.0, 0.0));
-    //assert_eq!(v3::smoothstepn(vec3f(10.0, 4.0, 60.0), vec3f(20.0, 0.0, -60.0), splat3f(0.75)), vec3f(15.0, 2.0, 0.0));
+    //assert_eq!(Vec3f::smoothstep(vec3f(10.0, 4.0, 60.0), vec3f(20.0, 0.0, -60.0), 0.75), vec3f(15.0, 2.0, 0.0));
+    //assert_eq!(Vec3f::smoothstepn(vec3f(10.0, 4.0, 60.0), vec3f(20.0, 0.0, -60.0), splat3f(0.75)), vec3f(15.0, 2.0, 0.0));
 }
 
 #[test]
 fn fractional() {
-    assert_eq!(v2::approx(v2::frac(vec2f(1.1, 2.2)), vec2f(0.1, 0.2), 0.001), true);
-    assert_eq!(v2::approx(v2::trunc(vec2f(1.1, 2.2)), vec2f(1.0, 2.0), 0.001), true);
+    assert_eq!(Vec2f::approx(Vec2f::frac(vec2f(1.1, 2.2)), vec2f(0.1, 0.2), 0.001), true);
+    assert_eq!(Vec2f::approx(Vec2f::trunc(vec2f(1.1, 2.2)), vec2f(1.0, 2.0), 0.001), true);
 
     // modf
-    let (fpart, ipart) = v2::modf(vec2f(1.1, 2.2));
-    assert_eq!(v2::approx(fpart, vec2f(0.1, 0.2), 0.001), true);
-    assert_eq!(v2::approx(ipart, vec2f(1.0, 2.0), 0.001), true);
+    let (fpart, ipart) = Vec2f::modf(vec2f(1.1, 2.2));
+    assert_eq!(Vec2f::approx(fpart, vec2f(0.1, 0.2), 0.001), true);
+    assert_eq!(Vec2f::approx(ipart, vec2f(1.0, 2.0), 0.001), true);
 }
 
 #[test]
 fn trig() {
-    assert_eq!(v2::sin(vec2f(0.0, 1.0)), vec2f(Float::sin(0.0), Float::sin(1.0)));
-    assert_eq!(v2::cos(vec2f(0.0, 1.0)), vec2f(Float::cos(0.0), Float::cos(1.0)));
-    assert_eq!(v2::tan(vec2f(0.0, 1.0)), vec2f(Float::tan(0.0), Float::tan(1.0)));
+    assert_eq!(Vec2f::sin(vec2f(0.0, 1.0)), vec2f(Float::sin(0.0), Float::sin(1.0)));
+    assert_eq!(Vec2f::cos(vec2f(0.0, 1.0)), vec2f(Float::cos(0.0), Float::cos(1.0)));
+    assert_eq!(Vec2f::tan(vec2f(0.0, 1.0)), vec2f(Float::tan(0.0), Float::tan(1.0)));
 
-    assert_eq!(v2::asin(vec2f(0.0, 1.0)), vec2f(Float::asin(0.0), Float::asin(1.0)));
-    assert_eq!(v2::acos(vec2f(0.0, 1.0)), vec2f(Float::acos(0.0), Float::acos(1.0)));
-    assert_eq!(v2::atan(vec2f(0.0, 1.0)), vec2f(Float::atan(0.0), Float::atan(1.0)));
+    assert_eq!(Vec2f::asin(vec2f(0.0, 1.0)), vec2f(Float::asin(0.0), Float::asin(1.0)));
+    assert_eq!(Vec2f::acos(vec2f(0.0, 1.0)), vec2f(Float::acos(0.0), Float::acos(1.0)));
+    assert_eq!(Vec2f::atan(vec2f(0.0, 1.0)), vec2f(Float::atan(0.0), Float::atan(1.0)));
 
-    assert_eq!(v2::sinh(vec2f(0.0, 1.0)), vec2f(Float::sinh(0.0), Float::sinh(1.0)));
-    assert_eq!(v2::cosh(vec2f(0.0, 1.0)), vec2f(Float::cosh(0.0), Float::cosh(1.0)));
-    assert_eq!(v2::tanh(vec2f(0.0, 1.0)), vec2f(Float::tanh(0.0), Float::tanh(1.0)));
+    assert_eq!(Vec2f::sinh(vec2f(0.0, 1.0)), vec2f(Float::sinh(0.0), Float::sinh(1.0)));
+    assert_eq!(Vec2f::cosh(vec2f(0.0, 1.0)), vec2f(Float::cosh(0.0), Float::cosh(1.0)));
+    assert_eq!(Vec2f::tanh(vec2f(0.0, 1.0)), vec2f(Float::tanh(0.0), Float::tanh(1.0)));
 
-    let (sin, cos) = v2::sin_cos(vec2f(0.0, 1.0));
-    assert_eq!(v2::approx(sin, vec2f(Float::sin(0.0), Float::sin(1.0)), 0.001), true);
-    assert_eq!(v2::approx(cos, vec2f(Float::cos(0.0), Float::cos(1.0)), 0.001), true);
+    let (sin, cos) = Vec2f::sin_cos(vec2f(0.0, 1.0));
+    assert_eq!(Vec2f::approx(sin, vec2f(Float::sin(0.0), Float::sin(1.0)), 0.001), true);
+    assert_eq!(Vec2f::approx(cos, vec2f(Float::cos(0.0), Float::cos(1.0)), 0.001), true);
 }
 
 #[test]
 fn exp_log() {
     let v3 = vec3f(1.0, 2.0, 3.0);
-    assert_eq!(v3::approx(v3::exp(v3), vec3f(Float::exp(1.0), Float::exp(2.0), Float::exp(3.0)), 0.1), true);
-    assert_eq!(v3::approx(v3::log10(v3), vec3f(Float::log10(1.0), Float::log10(2.0), Float::log10(3.0)), 0.1), true);
-    assert_eq!(v3::approx(v3::log2(v3), vec3f(Float::log2(1.0), Float::log2(2.0), Float::log2(3.0)), 0.1), true);
-    assert_eq!(v3::approx(v3::log(v3, 5.0), vec3f(Float::log(1.0, 5.0), Float::log(2.0, 5.0), Float::log(3.0, 5.0)), 0.1), true);
+    assert_eq!(Vec3f::approx(Vec3f::exp(v3), vec3f(Float::exp(1.0), Float::exp(2.0), Float::exp(3.0)), 0.1), true);
+    assert_eq!(Vec3f::approx(Vec3f::log10(v3), vec3f(Float::log10(1.0), Float::log10(2.0), Float::log10(3.0)), 0.1), true);
+    assert_eq!(Vec3f::approx(Vec3f::log2(v3), vec3f(Float::log2(1.0), Float::log2(2.0), Float::log2(3.0)), 0.1), true);
+    assert_eq!(Vec3f::approx(Vec3f::log(v3, 5.0), vec3f(Float::log(1.0, 5.0), Float::log(2.0, 5.0), Float::log(3.0, 5.0)), 0.1), true);
 }
 
 #[test]
@@ -777,7 +777,7 @@ fn reflect_refract() {
     // TODO:
     let v3 = vec3f(0.5, -0.5, 0.0);
     let normal = vec3f(0.0, 1.0, 0.0);
-    let _refl = v3::reflect(v3, normal);
+    let _refl = Vec3f::reflect(v3, normal);
     //assert_eq!(refl, vec3f(-0.5, 0.5, 0.0));
 }
 
@@ -1445,49 +1445,49 @@ fn matrix_mul_vec() {
     let v2 = Vec2f::unit_x();
     let transformed = m2 * v2;
     let expected = vec2f(0.0, 1.0);
-    assert_eq!(v2::approx(transformed, expected, 0.001), true);
+    assert_eq!(Vec2f::approx(transformed, expected, 0.001), true);
 
     // 3x3 * v3 rot
     let m3 = Mat3f::create_z_rotation(Float::deg_to_rad(-90.0));
     let v3 = Vec3f::unit_x();
     let transformed = m3 * v3;
     let expected = vec3f(0.0, -1.0, 0.0);
-    assert_eq!(v3::approx(transformed, expected, 0.001), true);
+    assert_eq!(Vec3f::approx(transformed, expected, 0.001), true);
 
     // 3x3 * v3 scale
     let m3 = Mat3f::create_scale(vec3f(10.0, 11.0, 12.0));
     let v3 = Vec3f::one();
     let transformed = m3 * v3;
     let expected = vec3f(10.0, 11.0, 12.0);
-    assert_eq!(v3::approx(transformed, expected, 0.001), true);
+    assert_eq!(Vec3f::approx(transformed, expected, 0.001), true);
 
     // 3x4 * v3 rot
     let m3 = Mat34f::create_x_rotation(Float::deg_to_rad(-90.0));
     let v3 = vec3f(0.0, 0.0, 5.0);
     let transformed = m3 * v3;
     let expected = vec3f(0.0, 5.0, 0.0);
-    assert_eq!(v3::approx(transformed, expected, 0.001), true);
+    assert_eq!(Vec3f::approx(transformed, expected, 0.001), true);
 
     // 3x4 * v3 scale
     let m3 = Mat34f::create_scale(vec3f(10.0, 2.0, 30.0));
     let v3 = vec3f(1.0, 2.0, 3.0);
     let transformed = m3 * v3;
     let expected = vec3f(10.0, 4.0, 90.0);
-    assert_eq!(v3::approx(transformed, expected, 0.001), true);
+    assert_eq!(Vec3f::approx(transformed, expected, 0.001), true);
 
     // 3x4 * v3 translate
     let m34 = Mat34f::create_translation(vec3f(50.0, -10.0, 20.0));
     let v3 = vec3f(3.0, 4.0, 5.0);
     let transformed = m34 * v3;
     let expected = vec3f(53.0, -6.0, 25.0);
-    assert_eq!(v3::approx(transformed, expected, 0.001), true);
+    assert_eq!(Vec3f::approx(transformed, expected, 0.001), true);
 
     // 4x4 rot
     let m4 = Mat4f::create_z_rotation(Float::deg_to_rad(90.0));
     let v3 = vec3f(10.0, 0.0, 0.0);
     let (transformed, _w) = m4 * v3;
     let expected = vec3f(0.0, 10.0, 0.0);
-    assert_eq!(v3::approx(transformed, expected, 0.001), true);
+    assert_eq!(Vec3f::approx(transformed, expected, 0.001), true);
     
     // 4x4 scale
     let m4 = Mat4f::create_scale(vec3f(50.0, -10.0, 20.0));
