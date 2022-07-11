@@ -57,6 +57,10 @@ pub trait VecFloatOps<T: Float> {
     fn reflect(i: Self, n: Self) -> Self;
     /// returns a refraction vector using an entering ray, a surface normal, and a refraction index
     fn refract(i: Self, n: Self, eta: T) -> Self;
+    /// performs linear interpolation between e0 and e1, t specifies the ratio to interpolate between the values
+    fn lerpn(e0: Self, e1: Self, t: Self) -> Self;
+    /// returns vector with component wise hermite interpolation between 0-1
+    fn smoothstepn(e0: Self, e1: Self, t: Self) -> Self;
 }
 
 // 
@@ -248,7 +252,7 @@ macro_rules! vec_impl {
             }
         }
 
-        impl<T> IntegerOps<T, $VecN<u32>> for $VecN<T> where T: Integer {
+        impl<T> IntegerOps<T, $VecN<u32>> for $VecN<T> where T: Integer + IntegerOps<T, u32> {
             fn pow(a: Self, exp: $VecN<u32>) -> Self {
                 Self {
                     $($field: T::pow(a.$field, exp.$field as u32),)+
@@ -256,7 +260,7 @@ macro_rules! vec_impl {
             }
         }
 
-        impl<T> NumberOps<T> for $VecN<T> where T: Number {
+        impl<T> NumberOps<T> for $VecN<T> where T: Number + NumberOps<T> {
             fn min(a: Self, b: Self) -> Self {
                 Self {
                     $($field: T::min(a.$field, b.$field),)+
@@ -282,7 +286,7 @@ macro_rules! vec_impl {
             }
         }
 
-        impl<T> SignedNumberOps<T> for $VecN<T> where T: SignedNumber {
+        impl<T> SignedNumberOps<T> for $VecN<T> where T: SignedNumber + SignedNumberOps<T> {
             fn sign(a: Self) -> Self {
                 Self {
                     $($field: T::signum(a.$field),)+
@@ -302,7 +306,7 @@ macro_rules! vec_impl {
             }
         }
 
-        impl<T> VecFloatOps<T> for $VecN<T> where T: Float {
+        impl<T> VecFloatOps<T> for $VecN<T> where T: Float + FloatOps<T, i32, (T,T)> {
             fn length(a: Self) -> T {
                 T::sqrt(Self::dot(a, a))
             }
@@ -348,9 +352,21 @@ macro_rules! vec_impl {
                 }
                 (i * eta) - n * ((n_dot_i + T::sqrt(k)) * eta)
             }
+
+            fn lerpn(e0: Self, e1: Self, t: Self) -> Self {
+                Self {
+                    $($field: T::lerp(e0.$field, e1.$field, t.$field),)+
+                }
+            }
+
+            fn smoothstepn(e0: Self, e1: Self, t: Self) -> Self {
+                Self {
+                    $($field: T::smoothstep(e0.$field, e1.$field, t.$field),)+
+                }
+            }
         }
 
-        impl<T> FloatOps<T, $VecN<i32>, (Self, Self)> for $VecN<T> where T: Float {
+        impl<T> FloatOps<T, $VecN<i32>, (Self, Self)> for $VecN<T> where T: Float + SignedNumberOps<T> + NumberOps<T> + FloatOps<T, i32, (T,T)> {
             fn sqrt(a: Self) -> Self {
                 Self {
                     $($field: T::sqrt(a.$field),)+
@@ -404,12 +420,6 @@ macro_rules! vec_impl {
                 }
             }
 
-            fn lerpn(e0: Self, e1: Self, t: Self) -> Self {
-                Self {
-                    $($field: T::lerp(e0.$field, e1.$field, t.$field),)+
-                }
-            }
-
             fn lerp(e0: Self, e1: Self, t: T) -> Self {
                 Self {
                     $($field: T::lerp(e0.$field, e1.$field, t),)+
@@ -422,12 +432,6 @@ macro_rules! vec_impl {
                 }
             }
 
-            fn smoothstepn(e0: Self, e1: Self, t: Self) -> Self {
-                Self {
-                    $($field: T::smoothstep(e0.$field, e1.$field, t.$field),)+
-                }
-            }
-
             fn round(a: Self) -> Self {
                 Self {
                     $($field: T::round(a.$field),)+
@@ -436,24 +440,36 @@ macro_rules! vec_impl {
         
             fn is_nan(a: Self) -> Self {
                 Self {
-                    $($field: if T::is_nan(a.$field) { T::one() } else { T::zero() },)+
+                    $($field: T::is_nan(a.$field),)+
                 }
             }
 
             fn is_infinite(a: Self) -> Self {
                 Self {
-                    $($field: if T::is_infinite(a.$field) { T::one() } else { T::zero() },)+
+                    $($field: T::is_infinite(a.$field),)+
                 }
             }
 
             fn is_finite(a: Self) -> Self {
                 Self {
-                    $($field: if T::is_finite(a.$field) { T::one() } else { T::zero() },)+
+                    $($field: T::is_finite(a.$field),)+
                 }
             }
 
             fn saturate(x: Self) -> Self {
                 Self::clamp(x, Self::zero(), Self::one())
+            }
+
+            fn deg_to_rad(a: Self) -> Self {
+                Self {
+                    $($field: T::deg_to_rad(a.$field),)+
+                }
+            }
+
+            fn rad_to_deg(a: Self) -> Self {
+                Self {
+                    $($field: T::rad_to_deg(a.$field),)+
+                }
             }
 
             fn fmod(x: Self, y: Self) -> Self {
@@ -1077,10 +1093,47 @@ pub fn perp<T: SignedNumber>(a: Vec2<T>) -> Vec2<T> {
     }
 }
 
+/// vector dot product between a . b returing a scalar value
 pub fn dot<T: Number, V: VecN<T>>(a: V, b: V) -> T {
     V::dot(a, b)
 }
 
+/// returns scalar magnitude or length of vector
+pub fn length<T: Float, V: VecFloatOps<T>>(a: V) -> T {
+    V::length(a)
+}
+
+/// returns scalar magnitude or length of vector
+pub fn mag<T: Float, V: VecFloatOps<T>>(a: V) -> T {
+    V::mag(a)
+}
+
+/// returns scalar magnitude or length of vector squared to avoid using sqrt
+pub fn mag2<T: Float, V: VecFloatOps<T>>(a: V) -> T {
+    V::mag2(a)
+}
+
+/// returns a normalized unit vector of a
+pub fn normalize<T: Float, V: VecFloatOps<T>>(a: V) -> V {
+    V::normalize(a)
+}
+
+/// returns scalar distance between 2 points (magnitude of the vector between the 2 points)
+pub fn distance<T: Float, V: VecFloatOps<T>>(a: V, b: V) -> T {
+    V::distance(a, b)
+}
+
+/// returns scalar distance between 2 points (magnitude of the vector between the 2 points)
+pub fn dist<T: Float, V: VecFloatOps<T>>(a: V, b: V) -> T {
+    V::dist(a, b)
+}
+
+/// returns scalar squared distance between 2 points to avoid using sqrt
+pub fn dist2<T: Float, V: VecFloatOps<T>>(a: V, b: V) -> T {
+    V::dist2(a, b)
+}
+
+/// TODO: move to lib top level + min, max, clamp, saturate
 pub fn sqrt<T: Float, Exp: VecN<i32>, Tuple: VecN<T>, V: FloatOps<T, Exp, (Tuple, Tuple)>>(a: V) {
     V::sqrt(a);
 }

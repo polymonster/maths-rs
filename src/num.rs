@@ -15,6 +15,91 @@ use std::cmp::PartialOrd;
 
 use std::fmt::Display;
 
+pub trait NumberOps<T: Number> {
+    /// returns a vector containing component wise min of a and b
+    fn min(a: Self, b: Self) -> Self;
+    /// returns a vector containing component wise max of a and b
+    fn max(a: Self, b: Self) -> Self;
+    /// returns a vector with elements of x clamped component wise to min and max
+    fn clamp(x: Self, min: Self, max: Self) -> Self;
+    /// returns a vector stepped component wise; 1 if a is >= b, 0 otherwise
+    fn step(a: Self, b: Self) -> Self;
+}
+
+pub trait SignedNumberOps<T: SignedNumber> {
+    /// returns component wise sign value; -1 = negative, 1 = positive or 0 (integers only)
+    fn sign(a: Self) -> Self;
+    /// returns component wise sign value; -1 = negative, 1 = positive or 0 (integers only)
+    fn signum(a: Self) -> Self;
+    /// returns a omponent wise vector containing the absolute (postive) value of a
+    fn abs(a: Self) -> Self;
+}
+
+pub trait IntegerOps<T: Integer, Exp> {
+    /// returns vector with component-wise values raised to unsigned integer power
+    fn pow(a: Self, exp: Exp) -> Self;
+}
+
+pub trait FloatOps<T: Float, Exp, Tuple> {
+    /// returns vector with component-wise square root
+    fn sqrt(a: Self) -> Self;
+    /// returns vector with component-wise reciprocal square root (1/sqrt(a))
+    fn rsqrt(a: Self) -> Self;
+    /// returns vector with component-wise reciprocal
+    fn recip(a: Self) -> Self;
+    /// returns vector with component-wise values raised to integer power
+    fn powi(a: Self, exp: Exp) -> Self;
+    /// returns vector with component-wise values raised to float power
+    fn powf(a: Self, exp: Self) -> Self;
+    /// returns vector with fused multiply add component wise
+    fn mad(m: Self, a: Self, b: Self) -> Self;
+    /// returns true if all elements in vectors a and b are approximately equal within the designated epsilon
+    fn approx(a: Self, b: Self, eps: T) -> bool;
+    /// returns the greatest integer which is less than or equal to each vector element component wise
+    fn floor(a: Self) -> Self;
+    /// returns the smallest integer which is greater than or equal to each vector element component wise
+    fn ceil(a: Self) -> Self;
+    /// performs linear interpolation between e0 and e1, t specifies the ratio to interpolate between the values
+    fn lerp(e0: Self, e1: Self, t: T) -> Self;
+    /// returns vector with component wise hermite interpolation between 0-1
+    fn smoothstep(e0: Self, e1: Self, t: T) -> Self;
+    /// returns vector with values from a rounded component wise
+    fn round(a: Self) -> Self;
+    /// returns true if a is not a number
+    fn is_nan(a: Self) -> Self;
+    /// returns true if a is inf
+    fn is_infinite(a: Self) -> Self;
+    /// returns true is a is finite
+    fn is_finite(a: Self) -> Self;
+    /// returns a vector with saturated elements clamped between 0-1. equivalent to clamp (x, 0, 1)
+    fn saturate(x: Self) -> Self;
+    /// convert degrees to radians
+    fn deg_to_rad(theta: Self) -> Self;
+    /// convert radians to degrees
+    fn rad_to_deg(theta: Self) -> Self;
+    // TODO: docs
+    fn fmod(x: Self, y: Self) -> Self;
+    fn frac(v: Self) -> Self;
+    fn trunc(v: Self) -> Self;
+    fn modf(v: Self) -> Tuple;
+    fn cos(v: Self) -> Self;
+    fn sin(v: Self) -> Self;
+    fn tan(v: Self) -> Self;
+    fn acos(v: Self) -> Self;
+    fn asin(v: Self) -> Self;
+    fn atan(v: Self) -> Self;
+    fn cosh(v: Self) -> Self;
+    fn sinh(v: Self) -> Self;
+    fn tanh(v: Self) -> Self;
+    fn sin_cos(v: Self) -> Tuple;
+    fn atan2(y: Self, x: Self) -> Self;
+    fn exp(v: Self) -> Self;
+    fn exp2(v: Self) -> Self;
+    fn log2(v: Self) -> Self;
+    fn log10(v: Self) -> Self;
+    fn log(v: Self, base: T) -> Self;
+}
+
 macro_rules! number_trait_impl {
     ($($func:ident),*) => {
         /// base number trait for signed or unsigned, floating point or integer numbers.
@@ -29,11 +114,8 @@ macro_rules! number_trait_impl {
                 fn zero() -> Self;
                 fn one() -> Self;
                 fn two() -> Self;
-                fn min(a: Self, b: Self) -> Self;
-                fn max(a: Self, b: Self) -> Self;
                 fn min_value() -> Self;
                 fn max_value() -> Self;
-                fn step(a: Self, b: Self) -> Self;
         }
         number_impl!(f64 { $($func),* }, 0.0, 1.0);
         number_impl!(f32 { $($func),* }, 0.0, 1.0);
@@ -53,20 +135,6 @@ macro_rules! number_trait_impl {
 macro_rules! number_impl {
     ($t:ident { $($func:ident),* }, $zero:literal, $one:literal) => {
         impl Number for $t {
-            $(
-                fn $func(v: Self) -> Self {
-                    v.$func()
-                }
-            )*
-
-            fn min(a: Self, b: Self) -> Self {
-                a.min(b)
-            }
-
-            fn max(a: Self, b: Self) -> Self {
-                a.max(b)
-            }
-
             fn min_value() -> Self {
                 $t::MIN
             }
@@ -86,6 +154,20 @@ macro_rules! number_impl {
             fn two() -> Self {
                 2 as Self
             }
+        }
+
+        impl NumberOps<$t> for $t {
+            fn min(a: Self, b: Self) -> Self {
+                a.min(b)
+            }
+
+            fn max(a: Self, b: Self) -> Self {
+                a.max(b)
+            }
+
+            fn clamp(x: Self, min: Self, max: Self) -> Self {
+                NumberOps::max(NumberOps::min(x, max), min)
+            }
 
             fn step(a: Self, b: Self) -> Self {
                 if a >= b {
@@ -103,7 +185,6 @@ macro_rules! signed_number_trait_impl {
     ($($func:ident),*) => {
         /// signed number trait for signed integers or floats.
         pub trait SignedNumber: Number + Neg<Output=Self> {
-            $(fn $func(v: Self) -> Self;)*
             fn minus_one() -> Self;
         }
         signed_number_impl!(f64 { $($func),* }, -1.0);
@@ -118,13 +199,20 @@ macro_rules! signed_number_trait_impl {
 macro_rules! signed_number_impl {
     ($t:ident { $($func:ident),* }, $minus_one:literal) => {
         impl SignedNumber for $t {
+            fn minus_one() -> Self {
+                $minus_one
+            }
+        }
+
+        impl SignedNumberOps<$t> for $t {
             $(
                 fn $func(v: Self) -> Self {
                     v.$func()
                 }
             )*
-            fn minus_one() -> Self {
-                $minus_one
+
+            fn sign(a: Self) -> Self {
+                Self::signum(a)
             }
         }
     }
@@ -134,43 +222,6 @@ macro_rules! float_trait_impl {
     ($($func:ident),*) => {
         /// floating point trait for various levels of fp precision
         pub trait Float: SignedNumber {
-            $(fn $func(v: Self) -> Self;)*
-            /// returns true if a and b are approximately equal within the designated epsilon
-            fn approx(a: Self, b: Self, eps: Self) -> bool;
-            /// fused multiply add, m * a + b
-            fn mad(m: Self, a: Self, b: Self) -> Self;
-            /// checks if value isnan
-            fn is_nan(v: Self) -> bool;
-            /// checks if value is infinite
-            fn is_infinite(v: Self) -> bool;
-            /// checks if value is not inf
-            fn is_finite(v: Self) -> bool;
-            /// performs linear interpolation between e0 and e1, t specifies the ratio to interpolate between the values
-            fn lerp(e0: Self, e1: Self, t: Self) -> Self;
-            /// performs hermite interpolation between e0 and e1 by t
-            fn smoothstep(e0: Self, e1: Self, t: Self) -> Self;
-            /// raise v to power of integer exponent 
-            fn powi(v: Self, exp: i32) -> Self;
-            /// raise v to power of float exponent 
-            fn powf(v: Self, exp: Self) -> Self;
-            /// floating point remainder of x / y
-            fn fmod(x: Self, y: Self) -> Self;
-            /// extract fractional (decimal) part of
-            fn frac(v: Self) -> Self;
-            /// truncate v to integer
-            fn trunc(v: Self) -> Self;
-            /// split v into fractional and integer part
-            fn modf(v: Self) -> (Self, Self);
-            /// returns the logarithm of the number with respect to an arbitrary base.
-            fn log(v: Self, base: Self) -> Self;
-            /// returns (sin(v), cos(v))
-            fn sin_cos(v: Self) -> (Self, Self);
-            /// atan2 computes arctan of y and x
-            fn atan2(y: Self, x: Self) -> Self;
-            /// convert degrees to radians
-            fn deg_to_rad(theta: Self) -> Self;
-            /// convert radians to degrees
-            fn rad_to_deg(theta: Self) -> Self;
         }
         float_impl!(f64 { $($func),* });
         float_impl!(f32 { $($func),* });
@@ -180,11 +231,18 @@ macro_rules! float_trait_impl {
 macro_rules! float_impl {
     ($t:ident { $($func:ident),* } ) => {
         impl Float for $t {
+        }
+
+        impl FloatOps<$t, i32, ($t, $t)> for $t {
             $(
                 fn $func(v: Self) -> Self {
                     v.$func()
                 }
             )*
+
+            fn rsqrt(a: Self) -> Self {
+                Self::one()/Self::sqrt(a)
+            }
 
             fn approx(a: Self, b: Self, eps: Self) -> bool {
                 Self::abs(a - b) < eps
@@ -194,16 +252,16 @@ macro_rules! float_impl {
                 m.mul_add(a, b)
             }
 
-            fn is_nan(v: Self) -> bool {
-                v.is_nan()
+            fn is_nan(v: Self) -> $t {
+                if v.is_nan() { $t::one() } else { $t::zero() }
             }
 
-            fn is_infinite(v: Self) -> bool {
-                v.is_infinite()
+            fn is_infinite(v: Self) -> $t {
+                if v.is_infinite() { $t::one() } else { $t::zero() }
             }
 
-            fn is_finite(v: Self) -> bool {
-                v.is_finite()
+            fn is_finite(v: Self) -> $t {
+                if v.is_finite() { $t::one() } else { $t::zero() }
             }
 
             fn lerp(e0: Self, e1: Self, t: Self) -> Self {
@@ -215,6 +273,10 @@ macro_rules! float_impl {
                 if (t >= e1) { return Self::one(); }
                 let x = (t - e0) / (e1 - e0);
                 x * x * (3 as Self - 2 as Self * x)
+            }
+
+            fn saturate(v: Self) -> Self {
+                Self::max(Self::min(v, 1.0), 0.0)
             }
 
             fn powi(v: Self, exp: i32) -> Self {
@@ -267,8 +329,7 @@ macro_rules! float_impl {
 macro_rules! integer_trait_impl {
     ($($func:ident),*) => {
         /// integer point trait for various sized integers
-        pub trait Integer: Number {
-            fn pow(v: Self, exp: u32) -> Self;
+        pub trait Integer: Number { 
         }
         integer_impl!(i8 { $($func),* });
         integer_impl!(u8 { $($func),* });
@@ -284,6 +345,9 @@ macro_rules! integer_trait_impl {
 macro_rules! integer_impl {
     ($t:ident { $($func:ident),* } ) => {
         impl Integer for $t {
+        }
+
+        impl IntegerOps<$t, u32> for $t {
             fn pow(v: Self, exp: u32) -> Self {
                 v.pow(exp)
             }
@@ -301,89 +365,3 @@ float_trait_impl!(
 );
 
 integer_trait_impl!();
-
-pub trait FloatOps<T: Float, Exp, Tuple> {
-    /// returns vector with component-wise square root
-    fn sqrt(a: Self) -> Self;
-    /// returns vector with component-wise reciprocal square root (1/sqrt(a))
-    fn rsqrt(a: Self) -> Self;
-    /// returns vector with component-wise reciprocal
-    fn recip(a: Self) -> Self;
-    /// returns vector with component-wise values raised to integer power
-    fn powi(a: Self, exp: Exp) -> Self;
-    /// returns vector with component-wise values raised to float power
-    fn powf(a: Self, exp: Self) -> Self;
-    /// returns vector with fused multiply add component wise
-    fn mad(m: Self, a: Self, b: Self) -> Self;
-    /// returns true if all elements in vectors a and b are approximately equal within the designated epsilon
-    fn approx(a: Self, b: Self, eps: T) -> bool;
-    /// returns the greatest integer which is less than or equal to each vector element component wise
-    fn floor(a: Self) -> Self;
-    /// returns the smallest integer which is greater than or equal to each vector element component wise
-    fn ceil(a: Self) -> Self;
-    /// performs linear interpolation between e0 and e1, t specifies the ratio to interpolate between the values
-    fn lerpn(e0: Self, e1: Self, t: Self) -> Self;
-    /// performs linear interpolation between e0 and e1, t specifies the ratio to interpolate between the values
-    fn lerp(e0: Self, e1: Self, t: T) -> Self;
-    /// returns vector with component wise hermite interpolation between 0-1
-    fn smoothstep(e0: Self, e1: Self, t: T) -> Self;
-    /// returns vector with component wise hermite interpolation between 0-1
-    fn smoothstepn(e0: Self, e1: Self, t: Self) -> Self;
-    /// returns vector with values from a rounded component wise
-    fn round(a: Self) -> Self;
-    /// returns true if a is not a number
-    fn is_nan(a: Self) -> Self;
-    /// returns true if a is inf
-    fn is_infinite(a: Self) -> Self;
-    /// returns true is a is finite
-    fn is_finite(a: Self) -> Self;
-    /// returns a vector with saturated elements clamped between 0-1. equivalent to clamp (x, 0, 1)
-    fn saturate(x: Self) -> Self;
-
-    // TODO: docs
-    fn fmod(x: Self, y: Self) -> Self;
-    fn frac(v: Self) -> Self;
-    fn trunc(v: Self) -> Self;
-    fn modf(v: Self) -> Tuple;
-    fn cos(v: Self) -> Self;
-    fn sin(v: Self) -> Self;
-    fn tan(v: Self) -> Self;
-    fn acos(v: Self) -> Self;
-    fn asin(v: Self) -> Self;
-    fn atan(v: Self) -> Self;
-    fn cosh(v: Self) -> Self;
-    fn sinh(v: Self) -> Self;
-    fn tanh(v: Self) -> Self;
-    fn sin_cos(v: Self) -> Tuple;
-    fn atan2(y: Self, x: Self) -> Self;
-    fn exp(v: Self) -> Self;
-    fn exp2(v: Self) -> Self;
-    fn log2(v: Self) -> Self;
-    fn log10(v: Self) -> Self;
-    fn log(v: Self, base: T) -> Self;
-}
-
-pub trait IntegerOps<T: Integer, Exp> {
-    /// returns vector with component-wise values raised to unsigned integer power
-    fn pow(a: Self, exp: Exp) -> Self;
-}
-
-pub trait NumberOps<T: Number> {
-    /// returns a vector containing component wise min of a and b
-    fn min(a: Self, b: Self) -> Self;
-    /// returns a vector containing component wise max of a and b
-    fn max(a: Self, b: Self) -> Self;
-    /// returns a vector with elements of x clamped component wise to min and max
-    fn clamp(x: Self, min: Self, max: Self) -> Self;
-    /// returns a vector stepped component wise; 1 if a is >= b, 0 otherwise
-    fn step(a: Self, b: Self) -> Self;
-}
-
-pub trait SignedNumberOps<T: SignedNumber> {
-    /// returns component wise sign value; -1 = negative, 1 = positive or 0 (integers only)
-    fn sign(a: Self) -> Self;
-    /// returns component wise sign value; -1 = negative, 1 = positive or 0 (integers only)
-    fn signum(a: Self) -> Self;
-    /// returns a omponent wise vector containing the absolute (postive) value of a
-    fn abs(a: Self) -> Self;
-}
