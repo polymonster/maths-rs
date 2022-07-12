@@ -1,6 +1,7 @@
 use maths_rs::vec::*;
 use maths_rs::num::*;
 use maths_rs::mat::*;
+use maths_rs::generics::*;
 
 pub type Vec2f = Vec2<f32>;
 pub type Vec3f = Vec3<f32>;
@@ -691,9 +692,9 @@ fn float_checks() {
 
 #[test]
 fn pow() {
-    assert_eq!(Vec2f::powi(vec2f(5.0, 8.0), vec2i(2, 4)), vec2f(25.0, 4096.0));
-    assert_eq!(Vec2f::powf(vec2f(5.0, 8.0), vec2f(2.0, 4.0)), vec2f(25.0, 4096.0));
-    assert_eq!(Vec2i::pow(vec2i(16, 8), vec2u(2, 8)), vec2i(256, 16777216));
+    assert_eq!(Vec2f::powi(vec2f(5.0, 8.0), 4), vec2f(625.0, 4096.0));
+    assert_eq!(Vec2f::powf(vec2f(5.0, 8.0), 4.0), vec2f(625.0, 4096.0));
+    assert_eq!(Vec2i::pow(vec2i(4, 8), 8), vec2i(65536, 16777216));
 }
 
 #[test]
@@ -1505,11 +1506,27 @@ fn matrix_mul_vec() {
 }
 
 #[test]
-fn global_scope() {
+fn generics() {
+    let v1 : f32 = 1.0;
     let v2 = vec2f(1.0, 1.0);
     let v3 = vec3f(1.0, 1.0, 1.0);
+    
+    let _s1 = sqrt(v1);
     let _s2 = sqrt(v2);
     let _s3 = sqrt(v3);
-    let _p2 = powi(v2, vec2i(10, 10));
-    let _p3 = powi(v3, vec3i(10, 10, 10));
+
+    let _p1 = powi(v1, 10);
+    let _p2 = powi(v2, 10);
+    let _p3 = powi(v3, 10);
+
+    let _min1 = min(v1, v1);
+    let _min2 = min(v2, v2);
+    let _min3 = min(v3, v3);
+
+    let _m2 = mag(v2);
+    let _m3 = mag(v3);
+    let _n2 = normalize(v2);
+    let _n3 = normalize(v3);
+    let _d2 = dot(v2, v2);
+    let _d3 = dot(v3, v3);
 }

@@ -127,7 +127,7 @@ macro_rules! mat_impl {
             }
         }
 
-        impl<T> $MatN<T> where T: Float + FloatOps<T, i32, (T,T)> {
+        impl<T> $MatN<T> where T: Float + FloatOps<T> {
             /// compare if matrices are approximately equal to account for floating point precision
             pub fn approx(lhs: Self, rhs: Self, eps: T) -> bool {
                 for i in 0..$elems {
@@ -869,7 +869,7 @@ pub trait MatRotate2D<T> {
     fn create_z_rotation(theta: T) -> Self;
 }
 
-impl<T> MatRotate2D<T> for Mat2<T> where T: Float + FloatOps<T, i32, (T,T)>  {
+impl<T> MatRotate2D<T> for Mat2<T> where T: Float + FloatOps<T>  {
     fn create_z_rotation(theta: T) -> Self {
         let mut m = Mat2::identity();
         let cos_theta = T::cos(theta);
@@ -882,7 +882,7 @@ impl<T> MatRotate2D<T> for Mat2<T> where T: Float + FloatOps<T, i32, (T,T)>  {
     }
 }
 
-impl<T> MatRotate2D<T> for Mat3<T> where T: Float + FloatOps<T, i32, (T,T)>  {
+impl<T> MatRotate2D<T> for Mat3<T> where T: Float + FloatOps<T>  {
     fn create_z_rotation(theta: T) -> Self {
         let mut m = Mat3::identity();
         let cos_theta = T::cos(theta);
@@ -895,7 +895,7 @@ impl<T> MatRotate2D<T> for Mat3<T> where T: Float + FloatOps<T, i32, (T,T)>  {
     }
 }
 
-impl<T> MatRotate2D<T> for Mat4<T> where T: Float + FloatOps<T, i32, (T,T)>  {
+impl<T> MatRotate2D<T> for Mat4<T> where T: Float + FloatOps<T>  {
     fn create_z_rotation(theta: T) -> Self {
         let mut m = Mat4::identity();
         let cos_theta = T::cos(theta);
@@ -908,7 +908,7 @@ impl<T> MatRotate2D<T> for Mat4<T> where T: Float + FloatOps<T, i32, (T,T)>  {
     }
 }
 
-impl<T> MatRotate2D<T> for Mat34<T> where T: Float + FloatOps<T, i32, (T,T)> {
+impl<T> MatRotate2D<T> for Mat34<T> where T: Float + FloatOps<T> {
     fn create_z_rotation(theta: T) -> Self {
         let mut m = Mat34::identity();
         let cos_theta = T::cos(theta);
@@ -931,7 +931,7 @@ pub trait MatRotate3D<T, V> {
     fn create_rotation(axis: V, theta: T) -> Self;
 }
 
-impl<T> MatRotate3D<T, Vec3<T>> for Mat3<T> where T: Float + FloatOps<T, i32, (T,T)>  {
+impl<T> MatRotate3D<T, Vec3<T>> for Mat3<T> where T: Float + FloatOps<T>  {
     fn create_x_rotation(theta: T) -> Self {
         let mut m = Mat3::identity();
         let cos_theta = T::cos(theta);
@@ -983,7 +983,7 @@ impl<T> MatRotate3D<T, Vec3<T>> for Mat3<T> where T: Float + FloatOps<T, i32, (T
     }
 }
 
-impl<T> MatRotate3D<T, Vec3<T>> for Mat34<T> where T: Float + FloatOps<T, i32, (T,T)> {
+impl<T> MatRotate3D<T, Vec3<T>> for Mat34<T> where T: Float + FloatOps<T> {
     fn create_x_rotation(theta: T) -> Self {
         Mat34::from(Mat3::create_x_rotation(theta))
     }
@@ -997,7 +997,7 @@ impl<T> MatRotate3D<T, Vec3<T>> for Mat34<T> where T: Float + FloatOps<T, i32, (
     }
 }
 
-impl<T> MatRotate3D<T, Vec3<T>> for Mat4<T> where T: Float + FloatOps<T, i32, (T,T)> {
+impl<T> MatRotate3D<T, Vec3<T>> for Mat4<T> where T: Float + FloatOps<T> {
     fn create_x_rotation(theta: T) -> Self {
         Mat4::from(Mat3::create_x_rotation(theta))
     }

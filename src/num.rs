@@ -35,12 +35,12 @@ pub trait SignedNumberOps<T: SignedNumber> {
     fn abs(a: Self) -> Self;
 }
 
-pub trait IntegerOps<T: Integer, Exp> {
+pub trait IntegerOps<T: Integer> {
     /// returns vector with component-wise values raised to unsigned integer power
-    fn pow(a: Self, exp: Exp) -> Self;
+    fn pow(a: Self, exp: u32) -> Self;
 }
 
-pub trait FloatOps<T: Float, Exp, Tuple> {
+pub trait FloatOps<T: Float> where Self: Sized {
     /// returns vector with component-wise square root
     fn sqrt(a: Self) -> Self;
     /// returns vector with component-wise reciprocal square root (1/sqrt(a))
@@ -48,9 +48,9 @@ pub trait FloatOps<T: Float, Exp, Tuple> {
     /// returns vector with component-wise reciprocal
     fn recip(a: Self) -> Self;
     /// returns vector with component-wise values raised to integer power
-    fn powi(a: Self, exp: Exp) -> Self;
+    fn powi(a: Self, exp: i32) -> Self;
     /// returns vector with component-wise values raised to float power
-    fn powf(a: Self, exp: Self) -> Self;
+    fn powf(a: Self, exp: T) -> Self;
     /// returns vector with fused multiply add component wise
     fn mad(m: Self, a: Self, b: Self) -> Self;
     /// returns true if all elements in vectors a and b are approximately equal within the designated epsilon
@@ -81,7 +81,7 @@ pub trait FloatOps<T: Float, Exp, Tuple> {
     fn fmod(x: Self, y: Self) -> Self;
     fn frac(v: Self) -> Self;
     fn trunc(v: Self) -> Self;
-    fn modf(v: Self) -> Tuple;
+    fn modf(v: Self) -> (Self, Self);
     fn cos(v: Self) -> Self;
     fn sin(v: Self) -> Self;
     fn tan(v: Self) -> Self;
@@ -91,7 +91,7 @@ pub trait FloatOps<T: Float, Exp, Tuple> {
     fn cosh(v: Self) -> Self;
     fn sinh(v: Self) -> Self;
     fn tanh(v: Self) -> Self;
-    fn sin_cos(v: Self) -> Tuple;
+    fn sin_cos(v: Self) -> (Self, Self);
     fn atan2(y: Self, x: Self) -> Self;
     fn exp(v: Self) -> Self;
     fn exp2(v: Self) -> Self;
@@ -233,7 +233,7 @@ macro_rules! float_impl {
         impl Float for $t {
         }
 
-        impl FloatOps<$t, i32, ($t, $t)> for $t {
+        impl FloatOps<$t> for $t {
             $(
                 fn $func(v: Self) -> Self {
                     v.$func()
@@ -283,7 +283,7 @@ macro_rules! float_impl {
                 v.powi(exp)
             }
             
-            fn powf(v: Self, exp: Self) -> Self {
+            fn powf(v: Self, exp: $t) -> Self {
                 v.powf(exp)
             }
 
@@ -347,7 +347,7 @@ macro_rules! integer_impl {
         impl Integer for $t {
         }
 
-        impl IntegerOps<$t, u32> for $t {
+        impl IntegerOps<$t> for $t {
             fn pow(v: Self, exp: u32) -> Self {
                 v.pow(exp)
             }

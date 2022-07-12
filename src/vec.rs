@@ -61,6 +61,8 @@ pub trait VecFloatOps<T: Float> {
     fn lerpn(e0: Self, e1: Self, t: Self) -> Self;
     /// returns vector with component wise hermite interpolation between 0-1
     fn smoothstepn(e0: Self, e1: Self, t: Self) -> Self;
+    /// returns vector with component wise pow 
+    fn powfn(a: Self, exp: Self) -> Self;
 }
 
 // 
@@ -252,10 +254,10 @@ macro_rules! vec_impl {
             }
         }
 
-        impl<T> IntegerOps<T, $VecN<u32>> for $VecN<T> where T: Integer + IntegerOps<T, u32> {
-            fn pow(a: Self, exp: $VecN<u32>) -> Self {
+        impl<T> IntegerOps<T> for $VecN<T> where T: Integer + IntegerOps<T> {
+            fn pow(a: Self, exp: u32) -> Self {
                 Self {
-                    $($field: T::pow(a.$field, exp.$field as u32),)+
+                    $($field: T::pow(a.$field, exp),)+
                 }
             }
         }
@@ -306,7 +308,7 @@ macro_rules! vec_impl {
             }
         }
 
-        impl<T> VecFloatOps<T> for $VecN<T> where T: Float + FloatOps<T, i32, (T,T)> {
+        impl<T> VecFloatOps<T> for $VecN<T> where T: Float + FloatOps<T> {
             fn length(a: Self) -> T {
                 T::sqrt(Self::dot(a, a))
             }
@@ -364,9 +366,15 @@ macro_rules! vec_impl {
                     $($field: T::smoothstep(e0.$field, e1.$field, t.$field),)+
                 }
             }
+
+            fn powfn(a: Self, exp: Self) -> Self {
+                Self {
+                    $($field: T::powf(a.$field, exp.$field),)+
+                }
+            }
         }
 
-        impl<T> FloatOps<T, $VecN<i32>, (Self, Self)> for $VecN<T> where T: Float + SignedNumberOps<T> + NumberOps<T> + FloatOps<T, i32, (T,T)> {
+        impl<T> FloatOps<T> for $VecN<T> where T: Float + SignedNumberOps<T> + NumberOps<T> + FloatOps<T> {
             fn sqrt(a: Self) -> Self {
                 Self {
                     $($field: T::sqrt(a.$field),)+
@@ -385,15 +393,15 @@ macro_rules! vec_impl {
                 }
             }
 
-            fn powi(a: Self, exp: $VecN<i32>) -> Self {
+            fn powi(a: Self, exp: i32) -> Self {
                 Self {
-                    $($field: T::powi(a.$field, exp.$field),)+
+                    $($field: T::powi(a.$field, exp),)+
                 }
             }
 
-            fn powf(a: Self, exp: Self) -> Self {
+            fn powf(a: Self, exp: T) -> Self {
                 Self {
-                    $($field: T::powf(a.$field, exp.$field),)+
+                    $($field: T::powf(a.$field, exp),)+
                 }
             }
 
@@ -1133,15 +1141,6 @@ pub fn dist2<T: Float, V: VecFloatOps<T>>(a: V, b: V) -> T {
     V::dist2(a, b)
 }
 
-/// TODO: move to lib top level + min, max, clamp, saturate
-pub fn sqrt<T: Float, Exp: VecN<i32>, Tuple: VecN<T>, V: FloatOps<T, Exp, (Tuple, Tuple)>>(a: V) {
-    V::sqrt(a);
-}
-
-pub fn powi<T: Float, Exp: VecN<i32>, Tuple: VecN<T>, V: FloatOps<T, Exp, (Tuple, Tuple)>>(a: V, b: Exp) {
-    V::powi(a, b);
-}
-
 //
 // Macro Decl
 //
@@ -1186,6 +1185,7 @@ vec_ctor!(Vec4 { x, y, z, w }, vec4u, splat4u, u32);
 
 // experims
 // v3 / v2 mod, with use... didnt correctly deduce the function by type
+// v3:: with use
 
 // generic... (code gen)
 /*
