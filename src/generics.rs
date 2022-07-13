@@ -1,7 +1,6 @@
 use crate::num::Number;
 use crate::num::SignedNumber;
 use crate::num::Float;
-
 use crate::num::NumberOps;
 use crate::num::SignedNumberOps;
 use crate::num::FloatOps;
@@ -28,6 +27,14 @@ pub fn sign<T: SignedNumber, V: SignedNumberOps<T>>(a: V) -> V {
 
 pub fn abs<T: SignedNumber, V: SignedNumberOps<T>>(a: V) -> V {
     V::abs(a)
+}
+
+pub fn deg_to_rad<T: Float, V: FloatOps<T>>(a: V) -> V {
+    V::deg_to_rad(a)
+}
+
+pub fn rad_to_deg<T: Float, V: FloatOps<T>>(a: V) -> V {
+    V::deg_to_rad(a)
 }
 
 pub fn floor<T: Float, V: FloatOps<T>>(a: V) -> V {

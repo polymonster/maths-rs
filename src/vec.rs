@@ -25,8 +25,19 @@ use crate::num::*;
 // Vec Traits 
 //
 
+
 /// generic vec trait to allow sized vectors to be treated generically
-pub trait VecN<T: Number>: Index<usize, Output=T> + IndexMut<usize> {
+pub trait VecN<T: Number>: 
+    Index<usize, Output=T> + 
+    IndexMut<usize> + 
+    Copy + Display +
+    Add<Output=Self> + AddAssign +
+    Sub<Output=Self> + SubAssign + 
+    Mul<Output=Self> + MulAssign + 
+    Div<Output=Self> + DivAssign +
+    Rem<Output=Self> + RemAssign +
+    Add<T, Output=Self> + Sub<T, Output=Self> +
+    Mul<T, Output=Self> + Div<T, Output=Self> {
     /// returns the count of elements in the vector
     fn len() -> usize;
     /// returns true if all elements in vector are non-zero

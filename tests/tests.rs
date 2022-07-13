@@ -1,3 +1,4 @@
+use maths_rs::closest_point_on_line;
 use maths_rs::vec::*;
 use maths_rs::num::*;
 use maths_rs::mat::*;
@@ -1529,4 +1530,32 @@ fn generics() {
     let _n3 = normalize(v3);
     let _d2 = dot(v2, v2);
     let _d3 = dot(v3, v3);
+}
+
+#[test]
+fn closest_point_on_line_test() {
+    // 2d
+    let l1 = vec2f(0.0, 0.0);
+    let l2 = vec2f(0.0, 10.0);
+    let p = vec2f(1.0, 5.0);
+    let cp = closest_point_on_line(l1, l2, p);
+    assert_eq!(cp, vec2f(0.0, 5.0));
+    // 3d
+    let l1 = vec3f(0.0, 0.0, 20.0);
+    let l2 = vec3f(0.0, 10.0, 20.0);
+    let p = vec3f(1.0, 5.0, 0.0);
+    let cp = closest_point_on_line(l1, l2, p);
+    assert_eq!(cp, vec3f(0.0, 5.0, 20.0));
+    // 2d clamp to start
+    let l1 = vec2f(10.0, 10.0);
+    let l2 = vec2f(20.0, 50.0);
+    let p = vec2f(-10.0, 0.0);
+    let cp = closest_point_on_line(l1, l2, p);
+    assert_eq!(cp, vec2f(10.0, 10.0));
+    // 2d clamp to end
+    let l1 = vec2f(10.0, 10.0);
+    let l2 = vec2f(20.0, 50.0);
+    let p = vec2f(25.0, 60.0);
+    let cp = closest_point_on_line(l1, l2, p);
+    assert_eq!(cp, vec2f(20.0, 50.0));
 }
