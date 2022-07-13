@@ -361,9 +361,11 @@ macro_rules! vec_impl {
                 let n_dot_i = Self::dot(n, i);
                 let k = T::one() - eta * eta * (T::one() - n_dot_i * n_dot_i);
                 if k < T::zero() {
-                    return Self::zero();
+                    Self::zero()
                 }
-                (i * eta) - n * ((n_dot_i + T::sqrt(k)) * eta)
+                else {
+                    (i * eta) - n * ((n_dot_i + T::sqrt(k)) * eta)
+                }
             }
 
             fn lerpn(e0: Self, e1: Self, t: Self) -> Self {
