@@ -1,4 +1,6 @@
+use maths_rs::closest_point_on_aabb;
 use maths_rs::closest_point_on_line;
+use maths_rs::closest_point_on_sphere;
 use maths_rs::vec::*;
 use maths_rs::num::*;
 use maths_rs::mat::*;
@@ -1558,4 +1560,38 @@ fn closest_point_on_line_test() {
     let p = vec2f(25.0, 60.0);
     let cp = closest_point_on_line(l1, l2, p);
     assert_eq!(cp, vec2f(20.0, 50.0));
+}
+
+#[test]
+fn closest_point_on_aabb_test() {
+    let aabb_min = vec2f(-10.0, -10.0);
+    let aabb_max = vec2f(10.0, 10.0);
+    // bottom edge
+    let p = vec2f(5.0, -15.0);
+    let cp = closest_point_on_aabb(aabb_min, aabb_max, p);
+    assert_eq!(cp, vec2f(5.0, -10.0));
+    // corner
+    let p = vec2f(-15.0, -15.0);
+    let cp = closest_point_on_aabb(aabb_min, aabb_max, p);
+    assert_eq!(cp, vec2f(-10.0, -10.0));
+    // right edge
+    let p = vec2f(20.0, -7.0);
+    let cp = closest_point_on_aabb(aabb_min, aabb_max, p);
+    assert_eq!(cp, vec2f(10.0, -7.0));
+}
+
+#[test]
+fn closest_point_on_sphere_test() {
+    // circle
+    let s = splat2f(0.0);
+    let r = 10.0;
+    let p = vec2f(20.0, 0.0);
+    let cp = closest_point_on_sphere(s, r, p);
+    assert_eq!(cp, vec2f(r, 0.0));
+    // sphere
+    let s = splat3f(0.0);
+    let r = 10.0;
+    let p = vec3f(20.0, 20.0, 20.0);
+    let cp = closest_point_on_sphere(s, r, p);
+    assert_eq!(cp, normalize(splat3f(1.0)) * r);
 }

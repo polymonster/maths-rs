@@ -25,7 +25,6 @@ use crate::num::*;
 // Vec Traits 
 //
 
-
 /// generic vec trait to allow sized vectors to be treated generically
 pub trait VecN<T: Number>: 
     Index<usize, Output=T> + 
