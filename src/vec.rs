@@ -49,6 +49,40 @@ pub trait VecN<T: Number>:
     fn zero() -> Self;
     /// returns a vector with all members set to 1
     fn one() -> Self;
+    /// returns a vector initialised as a unit vector in the x-axis [1, 0, 0, 0]
+    fn unit_x() -> Self;
+    /// returns a vector initialised as a unit vector in the y-axis [0, 1, 0, 0]
+    fn unit_y() -> Self;
+    /// returns a vector initialised as a unit vector in the z-axis [0, 0, 1, 0] value will be truncated to 0 for vectors < 3 dimension
+    fn unit_z() -> Self;
+    /// returns a vector initialised as a unit vector in the w-axis [0, 0, 0, 1] value will be truncated to 0 for vectors < 4 dimension
+    fn unit_w() -> Self;
+    /// returns a vector initialised to red [1, 0, 0, 1]
+    fn red() -> Self;
+    /// returns a vector initialised to green [0, 1, 0, 1]
+    fn green() -> Self;
+    /// returns a vector initialised to blue [0, 0, 1, 1] value will be truncated to 0 for vectors < 3 dimension
+    fn blue() -> Self;
+    /// returns a vector initialised to cyan [0, 1, 1, 1] value will be truncated to green for vectors < 3 dimension
+    fn cyan() -> Self;
+    /// returns a vector initialised to magenta [1, 0, 1, 1] value will be truncated to red for vectors < 3 dimension
+    fn magenta() -> Self;
+    /// returns a vector initialised to yellow [1, 1, 0, 0]
+    fn yellow() -> Self;
+    /// returns a vector initialised to black (zero's)
+    fn black() -> Self;
+    /// returns a vector initialised to white (ones's)
+    fn white() -> Self;
+    /// returns a vector initialised to the max supported value for type <T>
+    fn min_value() -> Self;
+    /// returns a vector initialised to the max supported value for type <T>
+    fn max_value() -> Self;
+    /// returns a slice T of the vector
+    fn as_slice(&self) -> &[T];
+    /// returns a mutable slice T of the vector
+    fn as_mut_slice(&mut self) -> &mut [T];
+    /// returns a slice of bytes for the vector
+    fn as_u8_slice(&self) -> &[u8];
 }
 
 /// operations to apply to n-dimensional vectors
@@ -98,136 +132,6 @@ macro_rules! vec_impl {
                     $($field: $field,)+
                 }
             }
-
-            /// returns a vector initialised as a unit vector in the x-axis [1, 0, 0, 0]
-            pub fn unit_x() -> $VecN<T> {
-                let v = [T::one(), T::zero(), T::zero(), T::zero()];
-                Self {
-                    $($field: v[$field_index],)+
-                }
-            }
-
-            /// returns a vector initialised as a unit vector in the y-axis [0, 1, 0, 0]
-            pub fn unit_y() -> $VecN<T> {
-                let v = [T::zero(), T::one(), T::zero(), T::zero()];
-                Self {
-                    $($field: v[$field_index],)+
-                }
-            }
-
-            /// returns a vector initialised as a unit vector in the z-axis [0, 0, 1, 0] value will be truncated to 0 for vectors < 3 dimension
-            pub fn unit_z() -> $VecN<T> {
-                let v = [T::zero(), T::zero(), T::one(), T::zero()];
-                Self {
-                    $($field: v[$field_index],)+
-                }
-            }
-
-            /// returns a vector initialised as a unit vector in the w-axis [0, 0, 0, 1] value will be truncated to 0 for vectors < 4 dimension
-            pub fn unit_w() -> $VecN<T> {
-                let v = [T::zero(), T::zero(), T::zero(), T::one()];
-                Self {
-                    $($field: v[$field_index],)+
-                }
-            }
-
-            /// returns a vector initialised to red [1, 0, 0, 1]
-            pub fn red() -> $VecN<T> {
-                let v = [T::one(), T::zero(), T::zero(), T::one()];
-                Self {
-                    $($field: v[$field_index],)+
-                }
-            }
-
-            /// returns a vector initialised to green [0, 1, 0, 1]
-            pub fn green() -> $VecN<T> {
-                let v = [T::zero(), T::one(), T::zero(), T::one()];
-                Self {
-                    $($field: v[$field_index],)+
-                }
-            }
-
-            /// returns a vector initialised to blue [0, 0, 1, 1] value will be truncated to 0 for vectors < 3 dimension
-            pub fn blue() -> $VecN<T> {
-                let v = [T::zero(), T::zero(), T::one(), T::one()];
-                Self {
-                    $($field: v[$field_index],)+
-                }
-            }
-
-            /// returns a vector initialised to cyan [0, 1, 1, 1] value will be truncated to green for vectors < 3 dimension
-            pub fn cyan() -> $VecN<T> {
-                let v = [T::zero(), T::one(), T::one(), T::one()];
-                Self {
-                    $($field: v[$field_index],)+
-                }
-            }
-
-            /// returns a vector initialised to magenta [1, 0, 1, 1] value will be truncated to red for vectors < 3 dimension
-            pub fn magenta() -> $VecN<T> {
-                let v = [T::one(), T::zero(), T::one(), T::one()];
-                Self {
-                    $($field: v[$field_index],)+
-                }
-            }
-
-            /// returns a vector initialised to yellow [1, 1, 0, 0]
-            pub fn yellow() -> $VecN<T> {
-                let v = [T::one(), T::one(), T::zero(), T::one()];
-                Self {
-                    $($field: v[$field_index],)+
-                }
-            }
-
-            /// returns a vector initialised to black (zero's)
-            pub fn black() -> $VecN<T> {
-                let v = [T::zero(), T::zero(), T::zero(), T::one()];
-                Self {
-                    $($field: v[$field_index],)+
-                }
-            }
-
-            /// returns a vector initialised to white (ones's)
-            pub fn white() -> $VecN<T> {
-                Self::one()
-            }
-
-            /// returns a vector initialised to the max supported value for type <T>
-            pub fn min_value() -> $VecN<T> {
-                let v = [T::min_value(), T::min_value(), T::min_value(), T::min_value()];
-                Self {
-                    $($field: v[$field_index],)+
-                }
-            }
-
-            /// returns a vector initialised to the max supported value for type <T>
-            pub fn max_value() -> $VecN<T> {
-                let v = [T::max_value(), T::max_value(), T::max_value(), T::max_value()];
-                Self {
-                    $($field: v[$field_index],)+
-                }
-            }
-
-            /// returns a slice T of the vector
-            pub fn as_slice(&self) -> &[T] {
-                unsafe {
-                    std::slice::from_raw_parts(&self.x, $len)
-                }
-            }
-
-            /// returns a mutable slice T of the vector
-            pub fn as_mut_slice(&mut self) -> &mut [T] {
-                unsafe {
-                    std::slice::from_raw_parts_mut(&mut self.x, $len)
-                }
-            }
-
-            /// returns a slice of bytes for the vector
-            pub fn as_u8_slice(&self) -> &[u8] {
-                unsafe {
-                    std::slice::from_raw_parts((&self.x as *const T) as *const u8, std::mem::size_of::<$VecN<T>>())
-                }
-            }
         }
 
         /// for n-dimensional functionality Self::len()
@@ -262,6 +166,119 @@ macro_rules! vec_impl {
             fn one() -> $VecN<T> {
                 $VecN {
                     $($field: T::one(),)+
+                }
+            }
+
+            fn unit_x() -> $VecN<T> {
+                let v = [T::one(), T::zero(), T::zero(), T::zero()];
+                Self {
+                    $($field: v[$field_index],)+
+                }
+            }
+
+            fn unit_y() -> $VecN<T> {
+                let v = [T::zero(), T::one(), T::zero(), T::zero()];
+                Self {
+                    $($field: v[$field_index],)+
+                }
+            }
+
+            fn unit_z() -> $VecN<T> {
+                let v = [T::zero(), T::zero(), T::one(), T::zero()];
+                Self {
+                    $($field: v[$field_index],)+
+                }
+            }
+
+            fn unit_w() -> $VecN<T> {
+                let v = [T::zero(), T::zero(), T::zero(), T::one()];
+                Self {
+                    $($field: v[$field_index],)+
+                }
+            }
+
+            fn red() -> $VecN<T> {
+                let v = [T::one(), T::zero(), T::zero(), T::one()];
+                Self {
+                    $($field: v[$field_index],)+
+                }
+            }
+
+            fn green() -> $VecN<T> {
+                let v = [T::zero(), T::one(), T::zero(), T::one()];
+                Self {
+                    $($field: v[$field_index],)+
+                }
+            }
+
+            fn blue() -> $VecN<T> {
+                let v = [T::zero(), T::zero(), T::one(), T::one()];
+                Self {
+                    $($field: v[$field_index],)+
+                }
+            }
+
+            fn cyan() -> $VecN<T> {
+                let v = [T::zero(), T::one(), T::one(), T::one()];
+                Self {
+                    $($field: v[$field_index],)+
+                }
+            }
+
+            fn magenta() -> $VecN<T> {
+                let v = [T::one(), T::zero(), T::one(), T::one()];
+                Self {
+                    $($field: v[$field_index],)+
+                }
+            }
+
+            fn yellow() -> $VecN<T> {
+                let v = [T::one(), T::one(), T::zero(), T::one()];
+                Self {
+                    $($field: v[$field_index],)+
+                }
+            }
+
+            fn black() -> $VecN<T> {
+                let v = [T::zero(), T::zero(), T::zero(), T::one()];
+                Self {
+                    $($field: v[$field_index],)+
+                }
+            }
+
+            fn white() -> $VecN<T> {
+                Self::one()
+            }
+
+            fn min_value() -> $VecN<T> {
+                let v = [T::min_value(), T::min_value(), T::min_value(), T::min_value()];
+                Self {
+                    $($field: v[$field_index],)+
+                }
+            }
+
+            fn max_value() -> $VecN<T> {
+                let v = [T::max_value(), T::max_value(), T::max_value(), T::max_value()];
+                Self {
+                    $($field: v[$field_index],)+
+                }
+            }
+
+            fn as_slice(&self) -> &[T] {
+                unsafe {
+                    std::slice::from_raw_parts(&self.x, $len)
+                }
+            }
+
+            fn as_mut_slice(&mut self) -> &mut [T] {
+                unsafe {
+                    std::slice::from_raw_parts_mut(&mut self.x, $len)
+                }
+            }
+
+            fn as_u8_slice(&self) -> &[u8] {
+                unsafe {
+                    std::slice::from_raw_parts((&self.x as *const T) as *const u8, std::mem::size_of::<$VecN<T>>())
                 }
             }
         }

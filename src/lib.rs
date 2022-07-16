@@ -1,6 +1,13 @@
+/// numerical traits for numbers, signed numbers, integers and floats
 pub mod num;
+
+/// multi dimensional vector with vec2, vec3 and vec4
 pub mod vec;
+
+/// multi dimensional matrix with mat2, mat3, mat34 and mat4
 pub mod mat;
+
+/// quaternion
 pub mod quat;
 
 use mat::*;

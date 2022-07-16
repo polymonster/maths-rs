@@ -1,7 +1,7 @@
-use maths_rs::*;
-use maths_rs::vec::*;
-use maths_rs::num::*;
-use maths_rs::mat::*;
+use maths::*;
+use maths::vec::*;
+use maths::num::*;
+use maths::mat::*;
 
 pub type Vec2f = Vec2<f32>;
 pub type Vec3f = Vec3<f32>;
