@@ -1602,3 +1602,16 @@ fn closest_point_on_ray_test() {
     let cp = closest_point_on_ray(r0, rv, p);
     assert_eq!(cp, vec2f(0.0, 500.0));
 }
+
+#[test]
+fn closest_point_on_obb_test() {
+    // 3x4
+    let mat = Mat34f::from((
+        1.44084, 4.81496, -0.0373597, -0.11, 
+        1.65605, -2.58742, -0.655296, -7.14, 
+        -1.41194, 1.87878, -0.806716, -1.55, 
+    ));
+    let p = vec3f(-7.98, 0.31, -7.8);
+    let result = closest_point_on_obb(mat, p);
+    assert_eq!(approx(result, vec3f(-3.49981, -3.17162, -5.17936), 0.01), true);
+}

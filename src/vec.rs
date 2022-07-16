@@ -85,6 +85,11 @@ pub trait VecN<T: Number>:
     fn as_u8_slice(&self) -> &[u8];
 }
 
+pub trait SingedVecN<T: SignedNumber>:  {
+    /// returns a vector initialised with -1
+    fn minus_one() -> Self;
+}
+
 /// operations to apply to n-dimensional vectors
 pub trait VecFloatOps<T: Float> {
     /// returns scalar magnitude or length of vector
@@ -279,6 +284,14 @@ macro_rules! vec_impl {
             fn as_u8_slice(&self) -> &[u8] {
                 unsafe {
                     std::slice::from_raw_parts((&self.x as *const T) as *const u8, std::mem::size_of::<$VecN<T>>())
+                }
+            }
+        }
+
+        impl<T> SingedVecN<T> for $VecN<T> where T: SignedNumber  {
+            fn minus_one() -> Self {
+                $VecN {
+                    $($field: T::minus_one(),)+
                 }
             }
         }
@@ -1110,66 +1123,6 @@ impl<T> From<(T, T, T, T)> for Vec4<T> where T: Number {
             w: other.3
         }
     }
-}
-
-//
-// Functions
-//
-
-pub fn cross<T: Number>(a: Vec3<T>, b: Vec3<T>) -> Vec3<T> {
-    Vec3 {
-        x: (a.y * b.z) - (a.z * b.y), 
-        y: (a.z * b.x) - (a.x * b.z),
-        z: (a.x * b.y) - (a.y * b.x),
-    }
-}
-
-/// perpedicular vector anti-clockwise rotation by 90 degrees
-pub fn perp<T: SignedNumber>(a: Vec2<T>) -> Vec2<T> {
-    Vec2 {
-        x: -a.y, 
-        y: a.x
-    }
-}
-
-/// vector dot product between a . b returing a scalar value
-pub fn dot<T: Number, V: VecN<T>>(a: V, b: V) -> T {
-    V::dot(a, b)
-}
-
-/// returns scalar magnitude or length of vector
-pub fn length<T: Float, V: VecFloatOps<T>>(a: V) -> T {
-    V::length(a)
-}
-
-/// returns scalar magnitude or length of vector
-pub fn mag<T: Float, V: VecFloatOps<T>>(a: V) -> T {
-    V::mag(a)
-}
-
-/// returns scalar magnitude or length of vector squared to avoid using sqrt
-pub fn mag2<T: Float, V: VecFloatOps<T>>(a: V) -> T {
-    V::mag2(a)
-}
-
-/// returns a normalized unit vector of a
-pub fn normalize<T: Float, V: VecFloatOps<T>>(a: V) -> V {
-    V::normalize(a)
-}
-
-/// returns scalar distance between 2 points (magnitude of the vector between the 2 points)
-pub fn distance<T: Float, V: VecFloatOps<T>>(a: V, b: V) -> T {
-    V::distance(a, b)
-}
-
-/// returns scalar distance between 2 points (magnitude of the vector between the 2 points)
-pub fn dist<T: Float, V: VecFloatOps<T>>(a: V, b: V) -> T {
-    V::dist(a, b)
-}
-
-/// returns scalar squared distance between 2 points to avoid using sqrt
-pub fn dist2<T: Float, V: VecFloatOps<T>>(a: V, b: V) -> T {
-    V::dist2(a, b)
 }
 
 //
