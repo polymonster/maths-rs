@@ -45,6 +45,10 @@ pub trait VecN<T: Number>:
     fn any(a: Self) -> bool;
     /// returns scalar value which is the vector dot product a . b
     fn dot(a: Self, b: Self) -> T;
+    /// returns a vector with all members set to 0
+    fn zero() -> Self;
+    /// returns a vector with all members set to 1
+    fn one() -> Self;
 }
 
 /// operations to apply to n-dimensional vectors
@@ -92,20 +96,6 @@ macro_rules! vec_impl {
             pub fn new($($field: T,)+) -> $VecN<T> {
                 $VecN {
                     $($field: $field,)+
-                }
-            }
-
-            /// returns a vector with all members set to 0
-            pub fn zero() -> $VecN<T> {
-                $VecN {
-                    $($field: T::zero(),)+
-                }
-            }
-
-            /// returns a vector with all members set to 1
-            pub fn one() -> $VecN<T> {
-                $VecN {
-                    $($field: T::one(),)+
                 }
             }
 
@@ -261,6 +251,18 @@ macro_rules! vec_impl {
                 $( 
                     +(a.$field * b.$field)
                 )+
+            }
+
+            fn zero() -> $VecN<T> {
+                $VecN {
+                    $($field: T::zero(),)+
+                }
+            }
+
+            fn one() -> $VecN<T> {
+                $VecN {
+                    $($field: T::one(),)+
+                }
             }
         }
 

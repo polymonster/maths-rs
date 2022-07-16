@@ -1,12 +1,7 @@
-use maths_rs::closest_point_on_aabb;
-use maths_rs::closest_point_on_line;
-use maths_rs::closest_point_on_sphere;
-use maths_rs::closest_point_on_ray;
-
+use maths_rs::*;
 use maths_rs::vec::*;
 use maths_rs::num::*;
 use maths_rs::mat::*;
-use maths_rs::generics::*;
 
 pub type Vec2f = Vec2<f32>;
 pub type Vec3f = Vec3<f32>;
