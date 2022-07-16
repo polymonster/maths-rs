@@ -32,3 +32,15 @@ pub fn closest_point_on_aabb<T: Float, V: NumberOps<T> + VecN<T>>(aabb_min: V, a
 pub fn closest_point_on_sphere<T: Float, V: VecFloatOps<T> + VecN<T>>(s: V, r: T, p: V) -> V {
     s + V::normalize(p - s) * r
 }
+
+// returns the closest point to p on the line the ray r0 with diection rv
+pub fn closest_point_on_ray<T: Float, V: VecFloatOps<T> + VecN<T>>(r0: V, rv: V, p: V) -> V {
+    let v1 = p - r0;
+    let t = dot(v1, rv);
+    if t < T::zero() {
+        r0
+    }
+    else {
+        r0 + rv * t
+    }
+}

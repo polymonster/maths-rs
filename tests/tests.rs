@@ -1,6 +1,8 @@
 use maths_rs::closest_point_on_aabb;
 use maths_rs::closest_point_on_line;
 use maths_rs::closest_point_on_sphere;
+use maths_rs::closest_point_on_ray;
+
 use maths_rs::vec::*;
 use maths_rs::num::*;
 use maths_rs::mat::*;
@@ -1594,4 +1596,14 @@ fn closest_point_on_sphere_test() {
     let p = vec3f(20.0, 20.0, 20.0);
     let cp = closest_point_on_sphere(s, r, p);
     assert_eq!(cp, normalize(splat3f(1.0)) * r);
+}
+
+#[test]
+fn closest_point_on_ray_test() {
+    // 2d
+    let r0 = vec2f(0.0, 0.0);
+    let rv = vec2f(0.0, 1.0);
+    let p = vec2f(1.0, 500.0);
+    let cp = closest_point_on_ray(r0, rv, p);
+    assert_eq!(cp, vec2f(0.0, 500.0));
 }
