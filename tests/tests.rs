@@ -1615,3 +1615,49 @@ fn closest_point_on_obb_test() {
     let result = closest_point_on_obb(mat, p);
     assert_eq!(approx(result, vec3f(-3.49981, -3.17162, -5.17936), 0.01), true);
 }
+
+#[test]
+fn point_inisde_aabb_test() {
+    let aabb_min = vec3f(-10.0, -10.0, -10.0);
+    let aabb_max = vec3f(10.0, 10.0, 10.0);
+    let p = vec3f(-5.0, -5.0, -5.0);
+    assert_eq!(point_inside_aabb(aabb_min, aabb_max, p), true);
+    let p = vec3f(9.0, 0.0, 9.0);
+    assert_eq!(point_inside_aabb(aabb_min, aabb_max, p), true);
+    let p = vec3f(-50.0, -50.0, -50.0);
+    assert_eq!(point_inside_aabb(aabb_min, aabb_max, p), false);
+    let p = vec3f(50.0, 50.0, 50.0);
+    assert_eq!(point_inside_aabb(aabb_min, aabb_max, p), false);
+}
+
+#[test]
+fn point_inside_sphere_test() {
+    let s = vec3f(10.0, 5.0, 10.0);
+    let r = 10.0;
+    let p = vec3f(11.0, 6.0, 11.0);
+    assert_eq!(point_inside_sphere(s, r, p), true);
+    let p = vec3f(0.0, 0.0, 0.0);
+    assert_eq!(point_inside_sphere(s, r, p), false);
+}
+
+#[test]
+fn point_inside_obb_test() {
+    // inside
+    let mat = Mat34f::from((
+        -2.10233, -0.747065, 0.887925, -3.2, 
+        0.964173, -2.97305, -0.208202, 3.48, 
+        7.7732, 0.166721, 0.265972, -0.21,
+    ));
+    let p = vec3f(-4.73, 6.14, 7.15);
+    let result = point_inside_obb(mat, p);
+    assert_eq!(result, true);
+    // outside
+    let mat = Mat34f::from((
+        1.44084, 4.81496, -0.0373597, -0.11, 
+        1.65605, -2.58742, -0.655296, -7.14, 
+        -1.41194, 1.87878, -0.806716, -1.55
+    ));
+    let p = vec3f(-7.98, 0.31, -7.8);
+    let result = point_inside_obb(mat, p);
+    assert_eq!(result, false);
+}

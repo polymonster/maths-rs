@@ -207,3 +207,35 @@ pub fn closest_point_on_obb<T: Float, V: VecFloatOps<T> + NumberOps<T> + SignedN
     let tcp = mat * cp;
     tcp
 }
+
+/*
+// TODO: requires point inside
+/// returns the cloest point on triangle v1-v2-v3 to point p
+/// side is 1 or -1 depending on whether the point is infront or behind the triangle
+pub fn closest_point_on_triangle<T: Float>(t0: Vec3<T>, t1: Vec3<T>, t2: Vec3<T>, p: Vec3<T>) {
+
+}
+*/
+
+/// returns true if point p is inside the aabb defined by min and max
+pub fn point_inside_aabb<T: Float, V: VecFloatOps<T> + VecN<T>>(min: V, max: V, p: V) -> bool {
+    for i in 0..V::len() {
+        if p[i] < min[i] || p[i] > max[i] {
+            return false;
+        }
+    }
+    true
+}
+
+/// returns true if sphere with centre s and radius r contains point p
+pub fn point_inside_sphere<T: Float, V: VecFloatOps<T> + VecN<T>>(s: V, r: T, p: V) -> bool {
+    dist2(p, s) < r * r
+}
+
+/// returns true if the point p is inside the obb defined by mat which will transform an aabb centred at 0 with extents -1 to 1 into an obb
+pub fn point_inside_obb<T: Float, V: VecFloatOps<T> + NumberOps<T> + SignedNumberOps<T> + VecN<T> + SingedVecN<T>, M: MatTranslate<V> + MatInverse<T> + std::ops::Mul<V, Output=V>>(mat: M, p: V) -> bool
+{
+    let invm = mat.inverse();
+    let tp = invm * p;
+    point_inside_aabb(V::minus_one(), V::one(), tp)
+}
