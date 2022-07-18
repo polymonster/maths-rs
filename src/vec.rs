@@ -85,7 +85,7 @@ pub trait VecN<T: Number>:
     fn as_u8_slice(&self) -> &[u8];
 }
 
-pub trait SingedVecN<T: SignedNumber>:  {
+pub trait SingedVecN<T: SignedNumber>: Neg<Output=Self> {
     /// returns a vector initialised with -1
     fn minus_one() -> Self;
 }

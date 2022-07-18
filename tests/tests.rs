@@ -1661,3 +1661,33 @@ fn point_inside_obb_test() {
     let result = point_inside_obb(mat, p);
     assert_eq!(result, false);
 }
+
+#[test]
+fn plane_distance_test() {
+    let x = vec3f(-1.22, 9.23, 7.09);
+    let n = vec3f(-0.675523, 0.731817, -0.0900697);
+    let p = vec3f(-0.7, 2.72, 5.44);
+    assert_eq!(approx(point_plane_distance(x, n, p), -4.96678, 0.0001), true);
+
+    let x = vec3f(-6.73, 7.29, -1.6);
+    let n = vec3f(-0.786656, 0.0268178, 0.61681);
+    let p = vec3f(0.42, 9.87, -4.97);
+    assert_eq!(approx(point_plane_distance(x, n, p), -7.63405, 0.0001), true);
+
+    let x = vec3f(-0.67, 0.99, -7.22);
+    let n = vec3f(-0.922576, 0.384407, -0.0329491);
+    let p = vec3f(7.09, 1.57, 5.6);
+    assert_eq!(approx(point_plane_distance(x, n, p), -7.35864, 0.0001), true);
+}
+
+#[test]
+fn closest_point_on_plane_test() {
+    let x = vec3f(0.0, 0.0, 0.0);
+    let n = vec3f(0.0, 1.0, 0.0);
+    let p = vec3f(10.0, 10.0, 10.0);
+    assert_eq!(closest_point_on_plane(x, n, p), vec3f(10.0, 0.0, 10.0));
+    let x = vec3f(0.0, 0.0, -5.0);
+    let n = vec3f(0.0, 0.0, -1.0);
+    let p = vec3f(10.0, 10.0, 10.0);
+    assert_eq!(closest_point_on_plane(x, n, p), vec3f(10.0, 10.0, -5.0));
+}

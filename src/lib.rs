@@ -161,6 +161,41 @@ pub fn dist2<T: Float, V: VecFloatOps<T>>(a: V, b: V) -> T {
     V::dist2(a, b)
 }
 
+/*
+// get distance to plane x defined by point on plane x0 and normal of plane xN
+maths_inline f32 plane_distance(const vec3f& x0, const vec3f& xN)
+{
+    return dot(xN, x0) * -1.0f;
+}
+
+// get distance from point p0 to plane defined by point x0 and normal xN
+maths_inline f32 point_plane_distance(const vec3f& p0, const vec3f& x0, const vec3f& xN)
+{
+    f32 d = plane_distance(x0, xN);
+    return dot(p0, xN) + d;
+}
+
+// returns the intersection point of ray defined by origin r0 and direction rV,
+// with plane defined by point on plane x0 normal of plane xN
+inline vec3f ray_plane_intersect(const vec3f& r0, const vec3f& rV, const vec3f& x0, const vec3f& xN)
+{
+    f32 d = plane_distance(x0, xN);
+    f32 t = -(dot(r0, xN) + d) / dot(rV, xN);
+    
+    return r0 + (rV * t);
+}
+*/
+
+/// returns the distance to the plane define by a point on the plane x and normal of the plane n
+pub fn plane_distance<T: SignedNumber, V: VecN<T>>(x: V, n: V) -> T {
+    -V::dot(x, n)
+}
+
+/// return the distance to the plane from point p where the plane is defined by point on plane x and normal n
+pub fn point_plane_distance<T: SignedNumber, V: VecN<T>>(x: V, n: V, p: V) -> T {
+    V::dot(p, n) - V::dot(x, n)
+}
+
 /// returns the closest point on the line l1-l2 to point p
 pub fn closest_point_on_line<T: Float, V: VecFloatOps<T> + VecN<T>>(l1: V, l2: V, p: V) -> V {
     let v1 = p - l1;
@@ -175,6 +210,11 @@ pub fn closest_point_on_line<T: Float, V: VecFloatOps<T> + VecN<T>>(l1: V, l2: V
     else {
         l1 + (v2 * t)
     }
+}
+
+/// returns the closest point on the plane defined by point on plane x and normal n to point p
+pub fn closest_point_on_plane<T: SignedNumber, V: VecN<T> + SingedVecN<T>>(x: V, n: V, p: V) -> V {
+    p - n * (V::dot(p, n) - V::dot(x, n))
 }
 
 /// returns the closest point on the AABB defined by aabb_min and aabb_max to point p
