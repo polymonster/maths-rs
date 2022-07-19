@@ -161,31 +161,6 @@ pub fn dist2<T: Float, V: VecFloatOps<T>>(a: V, b: V) -> T {
     V::dist2(a, b)
 }
 
-/*
-// get distance to plane x defined by point on plane x0 and normal of plane xN
-maths_inline f32 plane_distance(const vec3f& x0, const vec3f& xN)
-{
-    return dot(xN, x0) * -1.0f;
-}
-
-// get distance from point p0 to plane defined by point x0 and normal xN
-maths_inline f32 point_plane_distance(const vec3f& p0, const vec3f& x0, const vec3f& xN)
-{
-    f32 d = plane_distance(x0, xN);
-    return dot(p0, xN) + d;
-}
-
-// returns the intersection point of ray defined by origin r0 and direction rV,
-// with plane defined by point on plane x0 normal of plane xN
-inline vec3f ray_plane_intersect(const vec3f& r0, const vec3f& rV, const vec3f& x0, const vec3f& xN)
-{
-    f32 d = plane_distance(x0, xN);
-    f32 t = -(dot(r0, xN) + d) / dot(rV, xN);
-    
-    return r0 + (rV * t);
-}
-*/
-
 /// returns the distance to the plane define by a point on the plane x and normal of the plane n
 pub fn plane_distance<T: SignedNumber, V: VecN<T>>(x: V, n: V) -> T {
     -V::dot(x, n)
@@ -196,8 +171,26 @@ pub fn point_plane_distance<T: SignedNumber, V: VecN<T>>(x: V, n: V, p: V) -> T 
     V::dot(p, n) - V::dot(x, n)
 }
 
+/// returns the distance that point p is from the line segment defined by l1-l2
+pub fn point_line_segment_distance<T: Float + FloatOps<T>, V: VecFloatOps<T> + VecN<T>>(l1: V, l2: V, p: V) -> T {
+    
+    let dx = l2 - l1;
+    let m2 = mag2(dx);
+
+    // find parameter value of closest point on segment
+    let s12 = saturate(dot(l2 - p, dx) / m2);
+
+    // and find the distance
+    return dist(p, l1 * s12 + l2 * (T::one() - s12));
+}
+
+// returns the distance that point p is from an aabb defined by aabb_min -> aabb_max
+pub fn point_aabb_distance<T: Float, V: VecN<T> + NumberOps<T> + VecFloatOps<T>>(aabb_min: V, aabb_max: V, p: V) -> T {
+    dist(closest_point_on_aabb(aabb_min, aabb_max, p), p)
+}
+
 /// returns the closest point on the line l1-l2 to point p
-pub fn closest_point_on_line<T: Float, V: VecFloatOps<T> + VecN<T>>(l1: V, l2: V, p: V) -> V {
+pub fn closest_point_on_line_segment<T: Float, V: VecFloatOps<T> + VecN<T>>(l1: V, l2: V, p: V) -> V {
     let v1 = p - l1;
     let v2 = V::normalize(l2 - l1);
     let t = V::dot(v2, v1);
@@ -279,3 +272,19 @@ pub fn point_inside_obb<T: Float, V: VecFloatOps<T> + NumberOps<T> + SignedNumbe
     let tp = invm * p;
     point_inside_aabb(V::minus_one(), V::one(), tp)
 }
+
+/*
+// returns the intersection point of ray defined by origin r0 and direction rV,
+// with plane defined by point on plane x0 normal of plane xN
+inline vec3f ray_plane_intersect(const vec3f& r0, const vec3f& rV, const vec3f& x0, const vec3f& xN)
+{
+    f32 d = plane_distance(x0, xN);
+    f32 t = -(dot(r0, xN) + d) / dot(rV, xN);
+    
+    return r0 + (rV * t);
+}
+*/
+
+// TODO c++
+// point plane distance
+// point sphere distance

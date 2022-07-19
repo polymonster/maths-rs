@@ -1537,25 +1537,25 @@ fn closest_point_on_line_test() {
     let l1 = vec2f(0.0, 0.0);
     let l2 = vec2f(0.0, 10.0);
     let p = vec2f(1.0, 5.0);
-    let cp = closest_point_on_line(l1, l2, p);
+    let cp = closest_point_on_line_segment(l1, l2, p);
     assert_eq!(cp, vec2f(0.0, 5.0));
     // 3d
     let l1 = vec3f(0.0, 0.0, 20.0);
     let l2 = vec3f(0.0, 10.0, 20.0);
     let p = vec3f(1.0, 5.0, 0.0);
-    let cp = closest_point_on_line(l1, l2, p);
+    let cp = closest_point_on_line_segment(l1, l2, p);
     assert_eq!(cp, vec3f(0.0, 5.0, 20.0));
     // 2d clamp to start
     let l1 = vec2f(10.0, 10.0);
     let l2 = vec2f(20.0, 50.0);
     let p = vec2f(-10.0, 0.0);
-    let cp = closest_point_on_line(l1, l2, p);
+    let cp = closest_point_on_line_segment(l1, l2, p);
     assert_eq!(cp, vec2f(10.0, 10.0));
     // 2d clamp to end
     let l1 = vec2f(10.0, 10.0);
     let l2 = vec2f(20.0, 50.0);
     let p = vec2f(25.0, 60.0);
-    let cp = closest_point_on_line(l1, l2, p);
+    let cp = closest_point_on_line_segment(l1, l2, p);
     assert_eq!(cp, vec2f(20.0, 50.0));
 }
 
@@ -1690,4 +1690,46 @@ fn closest_point_on_plane_test() {
     let n = vec3f(0.0, 0.0, -1.0);
     let p = vec3f(10.0, 10.0, 10.0);
     assert_eq!(closest_point_on_plane(x, n, p), vec3f(10.0, 10.0, -5.0));
+}
+
+#[test]
+fn point_line_segment_distance_test() {
+    let x0 = vec3f(0.83, -9.52, -1.35);
+    let x1 = vec3f(-2.73, 2.4, 7.54);
+    let x2 = vec3f(-4.6, -6.04, -0.65);
+    let result = point_line_segment_distance(x1, x2, x0);
+    assert_eq!(approx(result, 6.48732, 0.001), true);
+
+    let x0 = vec3f(-8.08, -2.9, -2.53);
+    let x1 = vec3f(8.76, 2.37, -3.25);
+    let x2 = vec3f(-7.55, -2.9, -5.85);
+    let result = point_line_segment_distance(x1, x2, x0);
+    assert_eq!(approx(result, 3.36204, 0.001), true);
+
+    let x0 = vec3f(5.01, 5.25, -7.11);
+    let x1 = vec3f(7.15, 6.93, 5.79);
+    let x2 = vec3f(1.29, 1.64, 9.79);
+    let result = point_line_segment_distance(x1, x2, x0);
+    assert_eq!(approx(result, 13.1838, 0.001), true);
+}
+
+#[test]
+fn point_aabb_distance_test() {
+    let p = vec2f(233.960938, 277.550781);
+    let aabb_min = vec2f(172.299042, 266.398956);
+    let aabb_max = vec2f(304.234772, 287.898956);
+    let result = point_aabb_distance(aabb_min, aabb_max, p);
+    assert_eq!(approx(result, 0.0, 0.001), true);
+
+    let p = vec2f(233.960938, 277.550781);
+    let aabb_min = vec2f(193.332703, 505.797485);
+    let aabb_max = vec2f(291.221558, 532.797485);
+    let result = point_aabb_distance(aabb_min, aabb_max, p);
+    assert_eq!(approx(result, 228.246704, 0.001), true);
+
+    let p = vec2f(274.113281, 513.644531);
+    let aabb_min = vec2f(172.299042, 266.398956);
+    let aabb_max = vec2f(304.234772, 287.898956);
+    let result = point_aabb_distance(aabb_min, aabb_max, p);
+    assert_eq!(approx(result, 225.745575, 0.001), true);
 }
