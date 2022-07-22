@@ -222,6 +222,7 @@ macro_rules! float_trait_impl {
     ($($func:ident),*) => {
         /// floating point trait for various levels of fp precision
         pub trait Float: SignedNumber {
+            fn small_epsilon() -> Self;
         }
         float_impl!(f64 { $($func),* });
         float_impl!(f32 { $($func),* });
@@ -231,6 +232,9 @@ macro_rules! float_trait_impl {
 macro_rules! float_impl {
     ($t:ident { $($func:ident),* } ) => {
         impl Float for $t {
+            fn small_epsilon() -> Self {
+                1e-30
+            }
         }
 
         impl FloatOps<$t> for $t {

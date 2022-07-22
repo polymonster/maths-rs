@@ -1537,19 +1537,19 @@ fn closest_point_on_line_test() {
     let l1 = vec2f(0.0, 0.0);
     let l2 = vec2f(0.0, 10.0);
     let p = vec2f(1.0, 5.0);
-    let cp = closest_point_on_line_segment(l1, l2, p);
+    let cp = closest_point_on_line_segment(p, l1, l2);
     assert_eq!(cp, vec2f(0.0, 5.0));
     // 3d
     let l1 = vec3f(0.0, 0.0, 20.0);
     let l2 = vec3f(0.0, 10.0, 20.0);
     let p = vec3f(1.0, 5.0, 0.0);
-    let cp = closest_point_on_line_segment(l1, l2, p);
+    let cp = closest_point_on_line_segment(p, l1, l2);
     assert_eq!(cp, vec3f(0.0, 5.0, 20.0));
     // 2d clamp to start
     let l1 = vec2f(10.0, 10.0);
     let l2 = vec2f(20.0, 50.0);
     let p = vec2f(-10.0, 0.0);
-    let cp = closest_point_on_line_segment(l1, l2, p);
+    let cp = closest_point_on_line_segment(p, l1, l2);
     assert_eq!(cp, vec2f(10.0, 10.0));
     // 2d clamp to end
     let l1 = vec2f(10.0, 10.0);
@@ -1565,15 +1565,15 @@ fn closest_point_on_aabb_test() {
     let aabb_max = vec2f(10.0, 10.0);
     // bottom edge
     let p = vec2f(5.0, -15.0);
-    let cp = closest_point_on_aabb(aabb_min, aabb_max, p);
+    let cp = closest_point_on_aabb(p, aabb_min, aabb_max);
     assert_eq!(cp, vec2f(5.0, -10.0));
     // corner
     let p = vec2f(-15.0, -15.0);
-    let cp = closest_point_on_aabb(aabb_min, aabb_max, p);
+    let cp = closest_point_on_aabb(p, aabb_min, aabb_max);
     assert_eq!(cp, vec2f(-10.0, -10.0));
     // right edge
     let p = vec2f(20.0, -7.0);
-    let cp = closest_point_on_aabb(aabb_min, aabb_max, p);
+    let cp = closest_point_on_aabb(p, aabb_min, aabb_max);
     assert_eq!(cp, vec2f(10.0, -7.0));
 }
 
@@ -1583,13 +1583,13 @@ fn closest_point_on_sphere_test() {
     let s = splat2f(0.0);
     let r = 10.0;
     let p = vec2f(20.0, 0.0);
-    let cp = closest_point_on_sphere(s, r, p);
+    let cp = closest_point_on_sphere(p, s, r);
     assert_eq!(cp, vec2f(r, 0.0));
     // sphere
     let s = splat3f(0.0);
     let r = 10.0;
     let p = vec3f(20.0, 20.0, 20.0);
-    let cp = closest_point_on_sphere(s, r, p);
+    let cp = closest_point_on_sphere(p, s, r);
     assert_eq!(cp, normalize(splat3f(1.0)) * r);
 }
 
@@ -1599,7 +1599,7 @@ fn closest_point_on_ray_test() {
     let r0 = vec2f(0.0, 0.0);
     let rv = vec2f(0.0, 1.0);
     let p = vec2f(1.0, 500.0);
-    let cp = closest_point_on_ray(r0, rv, p);
+    let cp = closest_point_on_ray(p, r0, rv);
     assert_eq!(cp, vec2f(0.0, 500.0));
 }
 
@@ -1612,7 +1612,7 @@ fn closest_point_on_obb_test() {
         -1.41194, 1.87878, -0.806716, -1.55, 
     ));
     let p = vec3f(-7.98, 0.31, -7.8);
-    let result = closest_point_on_obb(mat, p);
+    let result = closest_point_on_obb(p, mat);
     assert_eq!(approx(result, vec3f(-3.49981, -3.17162, -5.17936), 0.01), true);
 }
 
@@ -1621,13 +1621,13 @@ fn point_inisde_aabb_test() {
     let aabb_min = vec3f(-10.0, -10.0, -10.0);
     let aabb_max = vec3f(10.0, 10.0, 10.0);
     let p = vec3f(-5.0, -5.0, -5.0);
-    assert_eq!(point_inside_aabb(aabb_min, aabb_max, p), true);
+    assert_eq!(point_inside_aabb(p, aabb_min, aabb_max), true);
     let p = vec3f(9.0, 0.0, 9.0);
-    assert_eq!(point_inside_aabb(aabb_min, aabb_max, p), true);
+    assert_eq!(point_inside_aabb(p, aabb_min, aabb_max), true);
     let p = vec3f(-50.0, -50.0, -50.0);
-    assert_eq!(point_inside_aabb(aabb_min, aabb_max, p), false);
+    assert_eq!(point_inside_aabb(p, aabb_min, aabb_max), false);
     let p = vec3f(50.0, 50.0, 50.0);
-    assert_eq!(point_inside_aabb(aabb_min, aabb_max, p), false);
+    assert_eq!(point_inside_aabb(p, aabb_min, aabb_max), false);
 }
 
 #[test]
@@ -1635,9 +1635,9 @@ fn point_inside_sphere_test() {
     let s = vec3f(10.0, 5.0, 10.0);
     let r = 10.0;
     let p = vec3f(11.0, 6.0, 11.0);
-    assert_eq!(point_inside_sphere(s, r, p), true);
+    assert_eq!(point_inside_sphere(p, s, r), true);
     let p = vec3f(0.0, 0.0, 0.0);
-    assert_eq!(point_inside_sphere(s, r, p), false);
+    assert_eq!(point_inside_sphere(p, s, r), false);
 }
 
 #[test]
@@ -1649,7 +1649,7 @@ fn point_inside_obb_test() {
         7.7732, 0.166721, 0.265972, -0.21,
     ));
     let p = vec3f(-4.73, 6.14, 7.15);
-    let result = point_inside_obb(mat, p);
+    let result = point_inside_obb(p, mat);
     assert_eq!(result, true);
     // outside
     let mat = Mat34f::from((
@@ -1658,7 +1658,7 @@ fn point_inside_obb_test() {
         -1.41194, 1.87878, -0.806716, -1.55
     ));
     let p = vec3f(-7.98, 0.31, -7.8);
-    let result = point_inside_obb(mat, p);
+    let result = point_inside_obb(p, mat);
     assert_eq!(result, false);
 }
 
@@ -1667,17 +1667,17 @@ fn plane_distance_test() {
     let x = vec3f(-1.22, 9.23, 7.09);
     let n = vec3f(-0.675523, 0.731817, -0.0900697);
     let p = vec3f(-0.7, 2.72, 5.44);
-    assert_eq!(approx(point_plane_distance(x, n, p), -4.96678, 0.0001), true);
+    assert_eq!(approx(point_plane_distance(p, x, n), -4.96678, 0.0001), true);
 
     let x = vec3f(-6.73, 7.29, -1.6);
     let n = vec3f(-0.786656, 0.0268178, 0.61681);
     let p = vec3f(0.42, 9.87, -4.97);
-    assert_eq!(approx(point_plane_distance(x, n, p), -7.63405, 0.0001), true);
+    assert_eq!(approx(point_plane_distance(p, x, n), -7.63405, 0.0001), true);
 
     let x = vec3f(-0.67, 0.99, -7.22);
     let n = vec3f(-0.922576, 0.384407, -0.0329491);
     let p = vec3f(7.09, 1.57, 5.6);
-    assert_eq!(approx(point_plane_distance(x, n, p), -7.35864, 0.0001), true);
+    assert_eq!(approx(point_plane_distance(p, x, n), -7.35864, 0.0001), true);
 }
 
 #[test]
@@ -1685,11 +1685,11 @@ fn closest_point_on_plane_test() {
     let x = vec3f(0.0, 0.0, 0.0);
     let n = vec3f(0.0, 1.0, 0.0);
     let p = vec3f(10.0, 10.0, 10.0);
-    assert_eq!(closest_point_on_plane(x, n, p), vec3f(10.0, 0.0, 10.0));
+    assert_eq!(closest_point_on_plane(p, x, n), vec3f(10.0, 0.0, 10.0));
     let x = vec3f(0.0, 0.0, -5.0);
     let n = vec3f(0.0, 0.0, -1.0);
     let p = vec3f(10.0, 10.0, 10.0);
-    assert_eq!(closest_point_on_plane(x, n, p), vec3f(10.0, 10.0, -5.0));
+    assert_eq!(closest_point_on_plane(p, x, n), vec3f(10.0, 10.0, -5.0));
 }
 
 #[test]
@@ -1697,19 +1697,19 @@ fn point_line_segment_distance_test() {
     let x0 = vec3f(0.83, -9.52, -1.35);
     let x1 = vec3f(-2.73, 2.4, 7.54);
     let x2 = vec3f(-4.6, -6.04, -0.65);
-    let result = point_line_segment_distance(x1, x2, x0);
+    let result = point_line_segment_distance(x0, x1, x2);
     assert_eq!(approx(result, 6.48732, 0.001), true);
 
     let x0 = vec3f(-8.08, -2.9, -2.53);
     let x1 = vec3f(8.76, 2.37, -3.25);
     let x2 = vec3f(-7.55, -2.9, -5.85);
-    let result = point_line_segment_distance(x1, x2, x0);
+    let result = point_line_segment_distance(x0, x1, x2);
     assert_eq!(approx(result, 3.36204, 0.001), true);
 
     let x0 = vec3f(5.01, 5.25, -7.11);
     let x1 = vec3f(7.15, 6.93, 5.79);
     let x2 = vec3f(1.29, 1.64, 9.79);
-    let result = point_line_segment_distance(x1, x2, x0);
+    let result = point_line_segment_distance(x0, x1, x2);
     assert_eq!(approx(result, 13.1838, 0.001), true);
 }
 
@@ -1718,18 +1718,108 @@ fn point_aabb_distance_test() {
     let p = vec2f(233.960938, 277.550781);
     let aabb_min = vec2f(172.299042, 266.398956);
     let aabb_max = vec2f(304.234772, 287.898956);
-    let result = point_aabb_distance(aabb_min, aabb_max, p);
+    let result = point_aabb_distance(p, aabb_min, aabb_max);
     assert_eq!(approx(result, 0.0, 0.001), true);
 
     let p = vec2f(233.960938, 277.550781);
     let aabb_min = vec2f(193.332703, 505.797485);
     let aabb_max = vec2f(291.221558, 532.797485);
-    let result = point_aabb_distance(aabb_min, aabb_max, p);
+    let result = point_aabb_distance(p, aabb_min, aabb_max);
     assert_eq!(approx(result, 228.246704, 0.001), true);
 
     let p = vec2f(274.113281, 513.644531);
     let aabb_min = vec2f(172.299042, 266.398956);
     let aabb_max = vec2f(304.234772, 287.898956);
-    let result = point_aabb_distance(aabb_min, aabb_max, p);
+    let result = point_aabb_distance(p, aabb_min, aabb_max);
     assert_eq!(approx(result, 225.745575, 0.001), true);
+}
+
+#[test]
+fn point_triangle_distance_test() {
+    let x0 = vec3f(-9.43, 0.0, 5.1);
+    let x1 = vec3f(2.95, 0.0, 8.21);
+    let x2 = vec3f(7.31, 0.0, -4.99);
+    let x3 = vec3f(-7.55, 0.0, -0.39);
+    let result = point_triangle_distance(x0, x1, x2, x3);
+    assert_eq!(approx(result, 5.43846, 0.001), true);
+
+    let x0 = vec3f(-3.25, 0.0, -4.82);
+    let x1 = vec3f(-8.27, 0.0, -8.63);
+    let x2 = vec3f(6.69, 0.0, 0.96);
+    let x3 = vec3f(-4.97, 0.0, 4.21);
+    let result = point_triangle_distance(x0, x1, x2, x3);
+    assert_eq!(approx(result, 4.76837e-07, 0.001), true);
+
+    let x0 = vec3f(-2.65, 0.0, 4.15);
+    let x1 = vec3f(-7.38, 0.0, -9.46);
+    let x2 = vec3f(-7.37, 0.0, -3.57);
+    let x3 = vec3f(-1.11, 0.0, 2.5);
+    let result = point_triangle_distance(x0, x1, x2, x3);
+    assert_eq!(approx(result, 2.25701, 0.001), true);
+}
+
+#[test]
+fn point_inside_triangle_test() {
+    let p = vec3f(-3.25, 0.0, -4.82);
+    let v1 = vec3f(-8.27, 0.0, -8.63);
+    let v2 = vec3f(6.69, 0.0, 0.96);
+    let v3 = vec3f(-4.97, 0.0, 4.21);
+    assert_eq!(point_inside_triangle(p, v1, v2, v3), true);
+
+    let p = vec3f(-4.57, 0.0, -2.67);
+    let v1 = vec3f(-0.2, 0.0, 0.0);
+    let v2 = vec3f(5.96, 0.0, 9.47);
+    let v3 = vec3f(3.7, 0.0, -9.13);
+    assert_eq!(point_inside_triangle(p, v1, v2, v3), false);
+
+    let p = vec3f(-2.65, 0.0, 4.15);
+    let v1 = vec3f(-7.38, 0.0, -9.46);
+    let v2 = vec3f(-7.37, 0.0, -3.57);
+    let v3 = vec3f(-1.11, 0.0, 2.5);
+    assert_eq!(point_inside_triangle(p, v1, v2, v3), false);
+}
+
+#[test]
+fn closest_point_on_triangle_test() {
+    let p = vec3f(-2.65, 0.0, 4.15);
+    let v1 = vec3f(-7.38, 0.0, -9.46);
+    let v2 = vec3f(-7.37, 0.0, -3.57);
+    let v3 = vec3f(-1.11, 0.0, 2.5);
+    let result = closest_point_on_triangle(p, v1, v2, v3);
+    assert_eq!(approx(result, vec3f(-1.11, 0.0, 2.5), 0.001), true);
+
+    let p = vec3f(4.2, 0.0, -9.4);
+    let v1 = vec3f(-0.37, 0.0, 7.58);
+    let v2 = vec3f(6.52, 0.0, 0.92);
+    let v3 = vec3f(3.16, 0.0, -2.86);
+    let result = closest_point_on_triangle(p, v1, v2, v3);
+    assert_eq!(approx(result, vec3f(3.16, 0.0, -2.86), 0.001), true);
+
+    let p = vec3f(1.28, 0.0, -4.29);
+    let v1 = vec3f(-2.59, 0.0, 8.47);
+    let v2 = vec3f(1.96, 0.0, -2.13);
+    let v3 = vec3f(-4.99, 0.0, -7.66);
+    let result = closest_point_on_triangle(p, v1, v2, v3);
+    assert_eq!(approx(result, vec3f(0.491223, 0.0, -3.29868), 0.001), true);
+
+    let p = vec3f(-1.8, 0.0, 7.64);
+    let v1 = vec3f(2.53, 0.0, 8.71);
+    let v2 = vec3f(3.29, 0.0, -7.07);
+    let v3 = vec3f(7.19, 0.0, 4.71);
+    let result = closest_point_on_triangle(p, v1, v2, v3);
+    assert_eq!(approx(result, vec3f(2.57139, 0.0, 7.85054), 0.001), true);
+
+    let p = vec3f(-9.56, 0.0, -1.72);
+    let v1 = vec3f(-5.9, 0.0, -9.2);
+    let v2 = vec3f(-8.87, 0.0, 3.42);
+    let v3 = vec3f(-8.62, 0.0, -6.18);
+    let result = closest_point_on_triangle(p, v1, v2, v3);
+    assert_eq!(approx(result, vec3f(-8.7367, 0.0, -1.69856), 0.001), true);
+
+    let p = vec3f(-4.57, 0.0, -2.67);
+    let v1 = vec3f(-0.2, 0.0, 0.0);
+    let v2 = vec3f(5.96, 0.0, 9.47);
+    let v3 = vec3f(3.7, 0.0, -9.13);
+    let result = closest_point_on_triangle(p, v1, v2, v3);
+    assert_eq!(approx(result, vec3f(0.0901885, 0.0, -0.67933846), 0.001), true);
 }

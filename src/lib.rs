@@ -167,12 +167,12 @@ pub fn plane_distance<T: SignedNumber, V: VecN<T>>(x: V, n: V) -> T {
 }
 
 /// return the distance to the plane from point p where the plane is defined by point on plane x and normal n
-pub fn point_plane_distance<T: SignedNumber, V: VecN<T>>(x: V, n: V, p: V) -> T {
+pub fn point_plane_distance<T: SignedNumber, V: VecN<T>>( p: V, x: V, n: V) -> T {
     V::dot(p, n) - V::dot(x, n)
 }
 
 /// returns the distance that point p is from the line segment defined by l1-l2
-pub fn point_line_segment_distance<T: Float + FloatOps<T>, V: VecFloatOps<T> + VecN<T>>(l1: V, l2: V, p: V) -> T {
+pub fn point_line_segment_distance<T: Float + FloatOps<T>, V: VecFloatOps<T> + VecN<T>>(p: V, l1: V, l2: V) -> T {
     
     let dx = l2 - l1;
     let m2 = mag2(dx);
@@ -184,13 +184,57 @@ pub fn point_line_segment_distance<T: Float + FloatOps<T>, V: VecFloatOps<T> + V
     return dist(p, l1 * s12 + l2 * (T::one() - s12));
 }
 
+/// projects point p along line l1-l2 to return distance t along the line, the value is not clamped to the line segment extents
+pub fn distance_on_line<T: Float + FloatOps<T>, V: VecFloatOps<T> + VecN<T>>(p: V, l1: V, l2: V) -> T {
+    let v1 = p - l1;
+    let v2 = V::normalize(l2 - l1);
+    dot(v2, v1)
+}
+
 // returns the distance that point p is from an aabb defined by aabb_min -> aabb_max
-pub fn point_aabb_distance<T: Float, V: VecN<T> + NumberOps<T> + VecFloatOps<T>>(aabb_min: V, aabb_max: V, p: V) -> T {
-    dist(closest_point_on_aabb(aabb_min, aabb_max, p), p)
+pub fn point_aabb_distance<T: Float, V: VecN<T> + NumberOps<T> + VecFloatOps<T>>(p: V, aabb_min: V, aabb_max: V) -> T {
+    dist(closest_point_on_aabb(p, aabb_min, aabb_max), p)
+}
+
+/// find the distance point p is from a triangle defined by t1-t2-t3
+pub fn point_triangle_distance<T: Float + FloatOps<T> + NumberOps<T>, V: VecN<T> + NumberOps<T> + VecFloatOps<T>>(p: V, t1: V, t2: V, t3: V) -> T {
+    // first find barycentric coordinates of closest point on infinite plane
+    let x13 = t1 - t3;
+    let x23 = t2 - t3;
+    let x03 = p - t3;
+    let m13 = mag2(x13);
+    let m23 = mag2(x23);
+    let d = dot(x13, x23);
+    let invdet = T::one() / T::max(m13 * m23 - d * d, T::small_epsilon());
+    let a = dot(x13, x03);
+    let b = dot(x23, x03);
+    // the barycentric coordinates themselves
+    let w23 = invdet * (m23 * a - d * b);
+    let w31 = invdet * (m13 * b - d * a);
+    let w12 = T::one() - w23 - w31;
+    if w23 >= T::zero() && w31 >= T::zero() && w12 >= T::zero() {
+        // if we're inside the triangle
+        dist(p, t1 * w23 + t2 * w31 + t3 * w12)
+    }
+    else {
+        // clamp to one of the edges
+        if w23 > T::zero() {
+            // this rules out edge 2-3 for us
+            T::min(point_line_segment_distance(p, t1, t2), point_line_segment_distance(p, t1, t3))
+        }
+        else if w31 > T::zero() {
+            // this rules out edge 1-3
+            T::min(point_line_segment_distance(p, t1, t2), point_line_segment_distance(p, t2, t3))
+        }
+        else {
+            // w12 must be >0, ruling out edge 1-2
+            T::min(point_line_segment_distance(p, t1, t3), point_line_segment_distance(p, t2, t3))
+        }
+    }
 }
 
 /// returns the closest point on the line l1-l2 to point p
-pub fn closest_point_on_line_segment<T: Float, V: VecFloatOps<T> + VecN<T>>(l1: V, l2: V, p: V) -> V {
+pub fn closest_point_on_line_segment<T: Float, V: VecFloatOps<T> + VecN<T>>(p: V, l1: V, l2: V) -> V {
     let v1 = p - l1;
     let v2 = V::normalize(l2 - l1);
     let t = V::dot(v2, v1);
@@ -206,22 +250,22 @@ pub fn closest_point_on_line_segment<T: Float, V: VecFloatOps<T> + VecN<T>>(l1: 
 }
 
 /// returns the closest point on the plane defined by point on plane x and normal n to point p
-pub fn closest_point_on_plane<T: SignedNumber, V: VecN<T> + SingedVecN<T>>(x: V, n: V, p: V) -> V {
+pub fn closest_point_on_plane<T: SignedNumber, V: VecN<T> + SingedVecN<T>>(p: V, x: V, n: V) -> V {
     p - n * (V::dot(p, n) - V::dot(x, n))
 }
 
 /// returns the closest point on the AABB defined by aabb_min and aabb_max to point p
-pub fn closest_point_on_aabb<T: Float, V: NumberOps<T> + VecN<T>>(aabb_min: V, aabb_max: V, p: V) -> V {
+pub fn closest_point_on_aabb<T: Float, V: NumberOps<T> + VecN<T>>(p: V, aabb_min: V, aabb_max: V) -> V {
     V::min(V::max(p, aabb_min), aabb_max)
 }
 
 /// returns the closest point from p on sphere or circle s with radius r
-pub fn closest_point_on_sphere<T: Float, V: VecFloatOps<T> + VecN<T>>(s: V, r: T, p: V) -> V {
+pub fn closest_point_on_sphere<T: Float, V: VecFloatOps<T> + VecN<T>>(p: V, s: V, r: T) -> V {
     s + V::normalize(p - s) * r
 }
 
 /// returns the closest point to p on the line the ray r0 with diection rv
-pub fn closest_point_on_ray<T: Float, V: VecFloatOps<T> + VecN<T>>(r0: V, rv: V, p: V) -> V {
+pub fn closest_point_on_ray<T: Float, V: VecFloatOps<T> + VecN<T>>(p: V, r0: V, rv: V) -> V {
     let v1 = p - r0;
     let t = dot(v1, rv);
     if t < T::zero() {
@@ -233,27 +277,75 @@ pub fn closest_point_on_ray<T: Float, V: VecFloatOps<T> + VecN<T>>(r0: V, rv: V,
 }
 
 /// returns the closest point to point p on the obb defined by mat which will transform an aabb centred at 0 with extents -1 to 1 into an obb
-pub fn closest_point_on_obb<T: Float, V: VecFloatOps<T> + NumberOps<T> + SignedNumberOps<T> + VecN<T> + SingedVecN<T>, M: MatTranslate<V> + MatInverse<T> + std::ops::Mul<V, Output=V>>(mat: M, p: V) -> V {
+pub fn closest_point_on_obb<T: Float, V: VecFloatOps<T> + NumberOps<T> + SignedNumberOps<T> + VecN<T> + SingedVecN<T>, M: MatTranslate<V> + MatInverse<T> + std::ops::Mul<V, Output=V>>(p: V, mat: M) -> V {
     let invm = M::inverse(&mat);
     let tp = invm * p;
-    let cp = closest_point_on_aabb(V::minus_one(), V::one(), tp);
+    let cp = closest_point_on_aabb(tp, V::minus_one(), V::one());
     let tcp = mat * cp;
     tcp
 }
 
-/*
-// TODO: requires point inside
-/// returns the cloest point on triangle v1-v2-v3 to point p
-/// side is 1 or -1 depending on whether the point is infront or behind the triangle
-pub fn closest_point_on_triangle<T: Float>(t0: Vec3<T>, t1: Vec3<T>, t2: Vec3<T>, p: Vec3<T>) {
-
+/// find the closest point to p on the triangle defined by t1-t2-t3
+pub fn closest_point_on_triangle<T: Float + FloatOps<T> + NumberOps<T>, V: VecN<T> + NumberOps<T> + VecFloatOps<T>>(p: V, t1: V, t2: V, t3: V) -> V {
+    // first find barycentric coordinates of closest point on infinite plane
+    let x13 = t1 - t3;
+    let x23 = t2 - t3;
+    let x03 = p - t3;
+    let m13 = mag2(x13);
+    let m23 = mag2(x23);
+    let d = dot(x13, x23);
+    let invdet = T::one() / T::max(m13 * m23 - d * d, T::small_epsilon());
+    let a = dot(x13, x03);
+    let b = dot(x23, x03);
+    // the barycentric coordinates themselves
+    let w23 = invdet * (m23 * a - d * b);
+    let w31 = invdet * (m13 * b - d * a);
+    let w12 = T::one() - w23 - w31;
+    if w23 >= T::zero() && w31 >= T::zero() && w12 >= T::zero() {
+        p
+    }
+    else {
+        // clamp to one of the edges
+        if w23 > T::zero() {
+            // this rules out edge 2-3 for us
+            let p1 = closest_point_on_line_segment(p, t1, t2);
+            let p2 = closest_point_on_line_segment(p, t1, t3);
+            if dist2(p, p1) < dist2(p, p2) {
+                p1
+            }
+            else {
+                p2
+            }
+        }
+        else if w31 > T::zero() {
+            // this rules out edge 1-3
+            let p1 = closest_point_on_line_segment(p, t1, t2);
+            let p2 = closest_point_on_line_segment(p, t2, t3);
+            if dist2(p, p1) < dist2(p, p2) {
+                p1
+            }
+            else {
+                p2
+            }
+        }
+        else {
+            // w12 must be >0, ruling out edge 1-2
+            let p1 = closest_point_on_line_segment(p, t1, t3);
+            let p2 = closest_point_on_line_segment(p, t2, t3);
+            if dist2(p, p1) < dist2(p, p2) {
+                p1
+            }
+            else {
+                p2
+            }
+        }
+    }
 }
-*/
 
-/// returns true if point p is inside the aabb defined by min and max
-pub fn point_inside_aabb<T: Float, V: VecFloatOps<T> + VecN<T>>(min: V, max: V, p: V) -> bool {
+/// returns true if point p is inside the aabb defined by aabb_min and aabb_max
+pub fn point_inside_aabb<T: Float, V: VecFloatOps<T> + VecN<T>>(p: V, aabb_min: V, aabb_max: V) -> bool {
     for i in 0..V::len() {
-        if p[i] < min[i] || p[i] > max[i] {
+        if p[i] < aabb_min[i] || p[i] > aabb_max[i] {
             return false;
         }
     }
@@ -261,30 +353,60 @@ pub fn point_inside_aabb<T: Float, V: VecFloatOps<T> + VecN<T>>(min: V, max: V, 
 }
 
 /// returns true if sphere with centre s and radius r contains point p
-pub fn point_inside_sphere<T: Float, V: VecFloatOps<T> + VecN<T>>(s: V, r: T, p: V) -> bool {
+pub fn point_inside_sphere<T: Float, V: VecFloatOps<T> + VecN<T>>(p: V, s: V, r: T) -> bool {
     dist2(p, s) < r * r
 }
 
 /// returns true if the point p is inside the obb defined by mat which will transform an aabb centred at 0 with extents -1 to 1 into an obb
-pub fn point_inside_obb<T: Float, V: VecFloatOps<T> + NumberOps<T> + SignedNumberOps<T> + VecN<T> + SingedVecN<T>, M: MatTranslate<V> + MatInverse<T> + std::ops::Mul<V, Output=V>>(mat: M, p: V) -> bool
-{
+pub fn point_inside_obb<T: Float, V: VecFloatOps<T> + NumberOps<T> + SignedNumberOps<T> + VecN<T> + SingedVecN<T>, M: MatTranslate<V> + MatInverse<T> + std::ops::Mul<V, Output=V>>(p: V, mat: M) -> bool {
     let invm = mat.inverse();
     let tp = invm * p;
-    point_inside_aabb(V::minus_one(), V::one(), tp)
+    point_inside_aabb(tp, V::minus_one(), V::one())
 }
 
-/*
-// returns the intersection point of ray defined by origin r0 and direction rV,
-// with plane defined by point on plane x0 normal of plane xN
-inline vec3f ray_plane_intersect(const vec3f& r0, const vec3f& rV, const vec3f& x0, const vec3f& xN)
-{
-    f32 d = plane_distance(x0, xN);
-    f32 t = -(dot(r0, xN) + d) / dot(rV, xN);
-    
-    return r0 + (rV * t);
+/// returns true if the point p is inside the triangle defined by t1-t2-t3
+pub fn point_inside_triangle<T: Float + FloatOps<T> + NumberOps<T>, V: VecN<T> + NumberOps<T> + VecFloatOps<T>>(p: V, t1: V, t2: V, t3: V) -> bool {
+    // first find barycentric coordinates of closest point on infinite plane
+    let x13 = t1 - t3;
+    let x23 = t2 - t3;
+    let x03 = p - t3;
+    let m13 = mag2(x13);
+    let m23 = mag2(x23);
+    let d = dot(x13, x23);
+    let invdet = T::one() / T::max(m13 * m23 - d * d, T::small_epsilon());
+    let a = dot(x13, x03);
+    let b = dot(x23, x03);
+    // the barycentric coordinates themselves
+    let w23 = invdet * (m23 * a - d * b);
+    let w31 = invdet * (m13 * b - d * a);
+    let w12 = T::one() - w23 - w31;
+    if w23 >= T::zero() && w31 >= T::zero() && w12 >= T::zero() {
+        true
+    }
+    else {
+        false
+    }
 }
-*/
+
+// return true if point p is inside cone defined by position cp facing direction cv with height h and radius r
+pub fn point_inside_cone<T: Float + FloatOps<T> + NumberOps<T>, V: VecN<T> + VecFloatOps<T>>(p: V, cp: V, cv: V, h: T, r: T) -> bool {
+    let l2 = cp + cv * h;
+    let dh = distance_on_line(cp, l2, p) / h;
+    let x0 = closest_point_on_line_segment(cp, l2, p);
+    let d = dist(x0, p);
+    if d < dh * r && dh < T::one() {
+        true
+    }
+    else {
+        false
+    }
+}
+
+// TODO:
+// distance on line test
+// point inside cone test
 
 // TODO c++
 // point plane distance
 // point sphere distance
+// fix point inside triangle, closest point on triangle + tests
