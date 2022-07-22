@@ -1823,3 +1823,33 @@ fn closest_point_on_triangle_test() {
     let result = closest_point_on_triangle(p, v1, v2, v3);
     assert_eq!(approx(result, vec3f(0.0901885, 0.0, -0.67933846), 0.001), true);
 }
+
+#[test]
+fn distance_on_line_test() {
+    let p = vec2f(5.0, 2.0);
+    let l1 = vec2f(0.0, 0.0);
+    let l2 = vec2f(0.0, 10.0);
+    assert_eq!(distance_on_line(p, l1, l2), 2.0);
+
+    let p = vec2f(5.0, -10.0);
+    let l1 = vec2f(0.0, 0.0);
+    let l2 = vec2f(0.0, 10.0);
+    assert_eq!(distance_on_line(p, l1, l2), -10.0);
+}
+
+#[test]
+fn point_inside_cone_test() {
+    let cp = vec3f(1.54, 0.25, 4.01);
+    let cv = vec3f(0.263491, 0.958387, -0.109847);
+    let p = cp + cv * 0.1;
+    let h = 1.08;
+    let r = 0.0599999;
+    assert_eq!(point_inside_cone(p, cp, cv, h, r), true);
+
+    let cp = vec3f(-3.79, 0.65, 0.89);
+    let cv = vec3f(0.520281, 0.414765, -0.74651);
+    let p = cp + cv * 0.5;
+    let h = 3.65;
+    let r = 4.71;
+    assert_eq!(point_inside_cone(p, cp, cv, h, r), true);
+}
