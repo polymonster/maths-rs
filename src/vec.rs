@@ -118,6 +118,10 @@ pub trait VecFloatOps<T: Float> {
     fn powfn(a: Self, exp: Self) -> Self;
 }
 
+pub trait VecCross<T> {
+    fn cross(a: Self, b: Self) -> Self;
+}
+
 // 
 // Macro Implementation
 //
@@ -1163,6 +1167,16 @@ vec_ctor!(Vec4 { x, y, z, w }, vec4i, splat4i, i32);
 vec_ctor!(Vec2 { x, y }, vec2u, splat2u, u32);
 vec_ctor!(Vec3 { x, y, z }, vec3u, splat3u, u32);
 vec_ctor!(Vec4 { x, y, z, w }, vec4u, splat4u, u32);
+
+impl<T> VecCross<T> for Vec3<T> where T: Number {
+    fn cross(a: Self, b: Self) -> Self {
+        Vec3 {
+            x: (a.y * b.z) - (a.z * b.y), 
+            y: (a.z * b.x) - (a.x * b.z),
+            z: (a.x * b.y) - (a.y * b.x),
+        }
+    }
+}
 
 // TODO: swizzles
 // TODO: refactor functions to follow dott

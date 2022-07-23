@@ -104,13 +104,9 @@ pub fn saturate<T: Float, V: FloatOps<T>>(x: V) -> V {
     V::saturate(x)
 }
 
-/// returns the 3 dimensional vector cross product of a x b
-pub fn cross<T: Number>(a: Vec3<T>, b: Vec3<T>) -> Vec3<T> {
-    Vec3 {
-        x: (a.y * b.z) - (a.z * b.y), 
-        y: (a.z * b.x) - (a.x * b.z),
-        z: (a.x * b.y) - (a.y * b.x),
-    }
+/// returns the vector cross product of a x b, makes sense only for 3 or 7 dimensional vectors 
+pub fn cross<T: Number, V: VecCross<T>>(a: V, b: V) -> V {
+    V::cross(a, b)
 }
 
 /// returns the perpedicular vector of a performing anti-clockwise rotation by 90 degrees
@@ -161,6 +157,28 @@ pub fn dist2<T: Float, V: VecFloatOps<T>>(a: V, b: V) -> T {
     V::dist2(a, b)
 }
 
+/// returns the barycentric coordinate (u, v, w) of point p inside triangle t1-t2-t3
+pub fn barycentric<T: Float + NumberOps<T>, V: VecFloatOps<T> + VecN<T> + NumberOps<T>>(p: V, t1: V, t2: V, t3: V) -> (T, T, T) {
+    let x13 = t1 - t3;
+    let x23 = t2 - t3;
+    let x03 = p - t3;
+    let m13 = mag2(x13);
+    let m23 = mag2(x23);
+    let d = dot(x13, x23);
+    let invdet = T::one() / T::max(m13 * m23 - d * d, T::small_epsilon());
+    let a = dot(x13, x03);
+    let b = dot(x23, x03);
+    let u = invdet * (m23 * a - d * b);
+    let v = invdet * (m13 * b - d * a);
+    let w = T::one() - u - v;
+    (u, v, w)
+}
+
+/// returns the normalized unit vector normal of triangle t1-t2-t3
+pub fn get_triangle_normal<T: Float, V: VecFloatOps<T> + VecN<T> + VecCross<T>>(t1: V, t2: V, t3: V) -> V {
+    normalize(cross(t2 - t1, t3 - t1))
+}
+
 /// returns the distance to the plane define by a point on the plane x and normal of the plane n
 pub fn plane_distance<T: SignedNumber, V: VecN<T>>(x: V, n: V) -> T {
     -V::dot(x, n)
@@ -198,20 +216,7 @@ pub fn point_aabb_distance<T: Float, V: VecN<T> + NumberOps<T> + VecFloatOps<T>>
 
 /// returns the distance point p is from a triangle defined by t1-t2-t3
 pub fn point_triangle_distance<T: Float + FloatOps<T> + NumberOps<T>, V: VecN<T> + NumberOps<T> + VecFloatOps<T>>(p: V, t1: V, t2: V, t3: V) -> T {
-    // first find barycentric coordinates of closest point on infinite plane
-    let x13 = t1 - t3;
-    let x23 = t2 - t3;
-    let x03 = p - t3;
-    let m13 = mag2(x13);
-    let m23 = mag2(x23);
-    let d = dot(x13, x23);
-    let invdet = T::one() / T::max(m13 * m23 - d * d, T::small_epsilon());
-    let a = dot(x13, x03);
-    let b = dot(x23, x03);
-    // the barycentric coordinates themselves
-    let w23 = invdet * (m23 * a - d * b);
-    let w31 = invdet * (m13 * b - d * a);
-    let w12 = T::one() - w23 - w31;
+    let (w23, w31, w12) = barycentric(p, t1, t2, t3);
     if w23 >= T::zero() && w31 >= T::zero() && w12 >= T::zero() {
         // if we're inside the triangle
         dist(p, t1 * w23 + t2 * w31 + t3 * w12)
@@ -287,20 +292,7 @@ pub fn closest_point_on_obb<T: Float, V: VecFloatOps<T> + NumberOps<T> + SignedN
 
 /// returns the closest point to p on the triangle defined by t1-t2-t3
 pub fn closest_point_on_triangle<T: Float + FloatOps<T> + NumberOps<T>, V: VecN<T> + NumberOps<T> + VecFloatOps<T>>(p: V, t1: V, t2: V, t3: V) -> V {
-    // first find barycentric coordinates of closest point on infinite plane
-    let x13 = t1 - t3;
-    let x23 = t2 - t3;
-    let x03 = p - t3;
-    let m13 = mag2(x13);
-    let m23 = mag2(x23);
-    let d = dot(x13, x23);
-    let invdet = T::one() / T::max(m13 * m23 - d * d, T::small_epsilon());
-    let a = dot(x13, x03);
-    let b = dot(x23, x03);
-    // the barycentric coordinates themselves
-    let w23 = invdet * (m23 * a - d * b);
-    let w31 = invdet * (m13 * b - d * a);
-    let w12 = T::one() - w23 - w31;
+    let (w23, w31, w12) = barycentric(p, t1, t2, t3);
     if w23 >= T::zero() && w31 >= T::zero() && w12 >= T::zero() {
         p
     }
@@ -366,20 +358,7 @@ pub fn point_inside_obb<T: Float, V: VecFloatOps<T> + NumberOps<T> + SignedNumbe
 
 /// returns true if the point p is inside the triangle defined by t1-t2-t3
 pub fn point_inside_triangle<T: Float + FloatOps<T> + NumberOps<T>, V: VecN<T> + NumberOps<T> + VecFloatOps<T>>(p: V, t1: V, t2: V, t3: V) -> bool {
-    // first find barycentric coordinates of closest point on infinite plane
-    let x13 = t1 - t3;
-    let x23 = t2 - t3;
-    let x03 = p - t3;
-    let m13 = mag2(x13);
-    let m23 = mag2(x23);
-    let d = dot(x13, x23);
-    let invdet = T::one() / T::max(m13 * m23 - d * d, T::small_epsilon());
-    let a = dot(x13, x03);
-    let b = dot(x23, x03);
-    // the barycentric coordinates themselves
-    let w23 = invdet * (m23 * a - d * b);
-    let w31 = invdet * (m13 * b - d * a);
-    let w12 = T::one() - w23 - w31;
+    let (w23, w31, w12) = barycentric(p, t1, t2, t3);
     if w23 >= T::zero() && w31 >= T::zero() && w12 >= T::zero() {
         true
     }
@@ -402,10 +381,63 @@ pub fn point_inside_cone<T: Float + FloatOps<T> + NumberOps<T>, V: VecN<T> + Vec
     }
 }
 
-// TODO:
-// point inside hull
-// point inside poly
+/// returns true if the point p is inside the 2D convex hull defined by point list 'hull' with clockwise winding
+pub fn point_inside_convex_hull<T: Float>(p: Vec2<T>, hull: Vec<Vec2<T>>) -> bool
+{
+    let p0 = Vec3::from((p, T::zero()));
+    let ncp = hull.len();
+    for i in 0..ncp {
+        let i2 = (i+1)%ncp;
+        let p1 = Vec3::from((hull[i], T::zero()));
+        let p2 = Vec3::from((hull[i2], T::zero()));
+        let v1 = p2 - p1;
+        let v2 = p0 - p1;
+        if cross(v1, v2).z > T::zero() {
+            return true;
+        }
+    }
+    true
+}
 
+/// returns true if point p is inside the polygon defined by point list 'poly'
+pub fn point_inside_poly<T: Float>(p: Vec2<T>, poly: Vec<Vec2<T>>) -> bool
+{
+    // copyright (c) 1970-2003, Wm. Randolph Franklin
+    // https://wrf.ecse.rpi.edu/Research/Short_Notes/pnpoly.html
+    let npol = poly.len();
+    let mut c = false;
+    let mut j = npol-1;
+    for i in 0..npol {
+        if (((poly[i].y <= p.y) && (p.y < poly[j].y)) || ((poly[j].y <= p.y) && (p.y < poly[i].y))) &&
+            (p.x < (poly[j].x - poly[i].x) * (p.y - poly[i].y) / (poly[j].y - poly[i].y) + poly[i].x) {
+            c = !c;
+        }
+        j = i
+    }
+    c
+}
+
+
+// TODO:
+// point inside hull (test)
+// point inside poly (test)
+
+// closest point on hull
+// closest point on poly
+// closest point on cone
+
+// point cone distance
+// point hull distance
+// point poly distance
+
+// intersetcs
+
+// mat
+// ortho basis frivs + huges
+
+// utils
+// hsv
+//
 
 // TODO c++
 // point inside cone test is whack
