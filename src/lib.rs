@@ -209,7 +209,7 @@ pub fn point_line_segment_distance<T: Float + FloatOps<T>, V: VecFloatOps<T> + V
     return dist(p, l1 * s12 + l2 * (T::one() - s12));
 }
 
-/// projects point p along line l1-l2 to return distance t along the line, the value is not clamped to the line segment extents
+/// returns the distance parameter t of point p projected along the line l1-l2, the value is not clamped to the line segment extents
 pub fn distance_on_line<T: Float, V: VecFloatOps<T> + VecN<T>>(p: V, l1: V, l2: V) -> T {
     let v1 = p - l1;
     let v2 = V::normalize(l2 - l1);
@@ -477,24 +477,42 @@ pub fn aabb_vs_plane<T: SignedNumber + SignedNumberOps<T>>(aabb_min: Vec3<T>, aa
     }
 }
 
-// sphere_vs_plane
-// ray_vs_plane
-// line_vs_plane
-// cone_vs_plane
+/// returns the classification of sphere defined by centre s and radius r vs the plane defined by point on plane x and normal n
+pub fn sphere_vs_plane<T: SignedNumber + SignedNumberOps<T>>(s: Vec3<T>, r: T,  x: Vec3<T>, n: Vec3<T>) -> Classification {
+    let pd = plane_distance(x, n);
+    let d = dot(n, s) + pd;
+    if d > r {
+        Classification::INFRONT
+    }
+    else if d < -r {
+        Classification::BEHIND
+    }
+    else {
+        Classification::INTERSECTS
+    }
+}
 
+/// returns the intersection point of the ray defined as point on ray r0 and direction rv with the plane defined by point on plane x and normal n
+pub fn ray_vs_plane<T: SignedNumber + SignedNumberOps<T>>(r0: Vec3<T>, rv: Vec3<T>, x: Vec3<T>, n: Vec3<T>) -> Vec3<T> {
+    let t = -(dot(r0, n) - dot(x, n))  / dot(rv, n);
+    r0 + rv * t
+}
+
+// ray diectional vs plane?
+// line_vs_plane
 // sphere_vs_sphere
 // aabb_vs_sphere
 // cone_vs_sphere
 // line_vs_sphere
 // ray_vs_sphere
-
 // aabb_vs_aabb
 // line_vs_aabb
 // ray_vs_aabb
 // cone_vs_aabb
-
 // line_vs_cone
 // ray_vs_cone
+// ray_vs_triangle
+// cone_vs_plane?
 
 // convex_hull_from_points
 // closest point on hull

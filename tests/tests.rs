@@ -1879,7 +1879,7 @@ fn closest_point_on_cone_test() {
 }
 
 #[test]
-fn aabb_vs_aabb_test() {
+fn aabb_vs_plane_test() {
     let aabb_min = vec3f(1.11, 6.35, 5.56);
     let aabb_max = vec3f(5.59, 11.01, 14.34);
     let x0 = vec3f(6.62, -7.89, 8.08);
@@ -1900,4 +1900,52 @@ fn aabb_vs_aabb_test() {
     let n = vec3f(-0.703985, -0.703985, 0.0938646);
     let result = aabb_vs_plane(aabb_min, aabb_max, x0, n);
     assert_eq!(result, Classification::BEHIND);
+}
+
+#[test]
+fn sphere_vs_plane_test() {
+    let s = vec3f(-4.54, 1.07, 2.38);
+    let r = 4.8;
+    let x0 = vec3f(3.58, 2.0, 2.54);
+    let n = vec3f(0.772411, 0.193103, 0.605056);
+    let result = sphere_vs_plane(s, r, x0, n);
+    assert_eq!(result, Classification::BEHIND);
+
+    let s = vec3f(-5.82, 3.57, -4.15);
+    let r = 5.93;
+    let x0 = vec3f(-10.0, -0.74, 0.35);
+    let n = vec3f(-0.91386, 0.276283, 0.297536);
+    let result = sphere_vs_plane(s, r, x0, n);
+    assert_eq!(result, Classification::INTERSECTS);
+
+    let s = vec3f(1.32, -0.27, 6.03);
+    let r = 4.06;
+    let x0 = vec3f(-5.27, 1.03, 7.48);
+    let n = vec3f(0.82288, -0.4066, -0.396919);
+    let result = sphere_vs_plane(s, r, x0, n);
+    assert_eq!(result, Classification::INFRONT);
+}
+
+#[test]
+fn ray_vs_plane_test() {
+    let r0 = vec3f(-2.48, 5.66, -2.84);
+    let rv = vec3f(0.437602, -0.733279, 0.520391);
+    let x = vec3f(5.01, -1.03, 8.71);
+    let n = vec3f(-0.723007, 0.371545, 0.582422);
+    let result = ray_vs_plane(r0, rv, x, n);
+    assert_eq!(approx(result, vec3f(-0.682132, 2.64736, -0.701995), 0.001), true);
+
+    let r0 = vec3f(1.77, -6.03, -7.06);
+    let rv = vec3f(0.0350043, -0.796348, -0.603825);
+    let x = vec3f(7.45, -8.25, 6.35);
+    let n = vec3f(-0.0185944, 0.390482, 0.920423);
+    let result = ray_vs_plane(r0, rv, x, n);
+    assert_eq!(approx(result, vec3f(1.31114, 4.40918, 0.855423), 0.001), true);
+
+    let r0 = vec3f(9.68, -5.88, -7.4);
+    let rv = vec3f(0.39763, 0.655741, -0.641789);
+    let x = vec3f(-6.05, 9.68, 1.13);
+    let n = vec3f(0.257437, -0.806637, 0.532037);
+    let result = ray_vs_plane(r0, rv, x, n);
+    assert_eq!(approx(result, vec3f(15.925, 4.41882, -17.4797), 0.001), true);
 }
