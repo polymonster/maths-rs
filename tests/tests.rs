@@ -1877,3 +1877,27 @@ fn closest_point_on_cone_test() {
     let c = cp + (cv * h * 0.5);
     assert_eq!(closest_point_on_cone(p, cp, cv, h, r), c + Vec3f::unit_x() * r * 0.5);
 }
+
+#[test]
+fn aabb_vs_aabb_test() {
+    let aabb_min = vec3f(1.11, 6.35, 5.56);
+    let aabb_max = vec3f(5.59, 11.01, 14.34);
+    let x0 = vec3f(6.62, -7.89, 8.08);
+    let n = vec3f(0.623017, 0.493559, -0.606835);
+    let result = aabb_vs_plane(aabb_min, aabb_max, x0, n);
+    assert_eq!(result, Classification::INTERSECTS);
+
+    let aabb_min = vec3f(-16.95, -4.23, -2.3);
+    let aabb_max = vec3f(-1.17, 3.91, 17.4);
+    let x0 = vec3f(8.74, 3.31, -4.44);
+    let n = vec3f(0.0151013, -0.422837, 0.90608);
+    let result = aabb_vs_plane(aabb_min, aabb_max, x0, n);
+    assert_eq!(result, Classification::INFRONT);
+
+    let aabb_min = vec3f(-1.45, 2.53, -9.93);
+    let aabb_max = vec3f(0.71, 7.51, 3.45);
+    let x0 = vec3f(-8.07, -2.31, 6.8);
+    let n = vec3f(-0.703985, -0.703985, 0.0938646);
+    let result = aabb_vs_plane(aabb_min, aabb_max, x0, n);
+    assert_eq!(result, Classification::BEHIND);
+}

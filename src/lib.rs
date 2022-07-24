@@ -14,10 +14,11 @@ use mat::*;
 use vec::*;
 use num::*;
 
+#[derive(PartialEq, Debug)]
 pub enum Classification {
     BEHIND,
     INFRONT,
-    INTERSECT
+    INTERSECTS
 }
 
 /// returns the minimum of a and b
@@ -458,21 +459,55 @@ pub fn point_inside_poly<T: Float>(p: Vec2<T>, poly: Vec<Vec2<T>>) -> bool
     c
 }
 
+/// returns the classification of the 3D aabb defined as aabb_min to aabb_max vs the plane defined by point on plane x and normal n
+pub fn aabb_vs_plane<T: SignedNumber + SignedNumberOps<T>>(aabb_min: Vec3<T>, aabb_max: Vec3<T>, x: Vec3<T>, n: Vec3<T>) -> Classification {
+    let e = (aabb_max - aabb_min) / T::two();
+    let centre = aabb_min + e;
+    let radius = abs(n.x * e.x) + abs(n.y * e.y) + abs(n.z * e.z);
+    let pd = plane_distance(x, n);
+    let d = dot(n, centre) + pd;
+    if d > radius {
+        Classification::INFRONT
+    }
+    else if d < -radius {
+        Classification::BEHIND
+    }
+    else {
+        Classification::INTERSECTS
+    }
+}
+
+// sphere_vs_plane
+// ray_vs_plane
+// line_vs_plane
+// cone_vs_plane
+
+// sphere_vs_sphere
+// aabb_vs_sphere
+// cone_vs_sphere
+// line_vs_sphere
+// ray_vs_sphere
+
+// aabb_vs_aabb
+// line_vs_aabb
+// ray_vs_aabb
+// cone_vs_aabb
+
+// line_vs_cone
+// ray_vs_cone
+
+// convex_hull_from_points
 // closest point on hull
 // closest point on poly
-
 // point hull distance
 // point poly distance
 // point cone distance
-
-// intersetcs
 
 // mat
 // ortho basis frivs + huges
 
 // utils
 // hsv etc
-//
 
 // TODO:
 // point inside hull (test)
