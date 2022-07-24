@@ -14,6 +14,12 @@ use mat::*;
 use vec::*;
 use num::*;
 
+pub enum Classification {
+    BEHIND,
+    INFRONT,
+    INTERSECT
+}
+
 /// returns the minimum of a and b
 pub fn min<T: Number, V: NumberOps<T>>(a: V, b: V) -> V {
     V::min(a, b)
@@ -203,7 +209,7 @@ pub fn point_line_segment_distance<T: Float + FloatOps<T>, V: VecFloatOps<T> + V
 }
 
 /// projects point p along line l1-l2 to return distance t along the line, the value is not clamped to the line segment extents
-pub fn distance_on_line<T: Float + FloatOps<T>, V: VecFloatOps<T> + VecN<T>>(p: V, l1: V, l2: V) -> T {
+pub fn distance_on_line<T: Float, V: VecFloatOps<T> + VecN<T>>(p: V, l1: V, l2: V) -> T {
     let v1 = p - l1;
     let v2 = V::normalize(l2 - l1);
     dot(v2, v1)
@@ -334,6 +340,41 @@ pub fn closest_point_on_triangle<T: Float + FloatOps<T> + NumberOps<T>, V: VecN<
     }
 }
 
+/// find the closest point to p on the cone defined by cp position, with direction cv height h an radius r
+pub fn closest_point_on_cone<T: Float, V: VecN<T> + SingedVecN<T> + VecFloatOps<T>>(p: V, cp: V, cv: V, h: T, r: T) -> V {
+    let l2 = cp + cv * h;
+    let dh = distance_on_line(p, cp, l2) / h;
+    let x0 = closest_point_on_line_segment(p, cp, l2);
+    let d = dist(x0, p);
+    if dh >= T::one() {
+        // clamp to the tip
+        l2
+    }
+    else if dh <= T::zero() {
+        // clamp to the base
+        // base plane
+        let pp = closest_point_on_plane(p, cp, cv);
+        let vv = pp - x0;
+        let m = mag(pp - x0);
+        if m < r {
+            pp
+        }
+        else {
+            let v = vv / m;
+            x0 + v * r
+        }
+    }
+    else if d < dh * r {
+        // inside the code
+        p
+    }
+    else {
+        let v = normalize(p - x0);
+        // clamp to the radius
+        x0 + (v * dh * r)
+    }
+}
+
 /// returns true if point p is inside the aabb defined by aabb_min and aabb_max
 pub fn point_inside_aabb<T: Float, V: VecFloatOps<T> + VecN<T>>(p: V, aabb_min: V, aabb_max: V) -> bool {
     for i in 0..V::len() {
@@ -370,8 +411,8 @@ pub fn point_inside_triangle<T: Float + FloatOps<T> + NumberOps<T>, V: VecN<T> +
 /// returns true if point p is inside cone defined by position cp facing direction cv with height h and radius r
 pub fn point_inside_cone<T: Float + FloatOps<T> + NumberOps<T>, V: VecN<T> + VecFloatOps<T>>(p: V, cp: V, cv: V, h: T, r: T) -> bool {
     let l2 = cp + cv * h;
-    let dh = distance_on_line(cp, l2, p) / h;
-    let x0 = closest_point_on_line_segment(cp, l2, p);
+    let dh = distance_on_line(p, cp, l2) / h;
+    let x0 = closest_point_on_line_segment(p, cp, l2);
     let d = dist(x0, p);
     if d < dh * r && dh < T::one() {
         true
@@ -417,18 +458,12 @@ pub fn point_inside_poly<T: Float>(p: Vec2<T>, poly: Vec<Vec2<T>>) -> bool
     c
 }
 
-
-// TODO:
-// point inside hull (test)
-// point inside poly (test)
-
 // closest point on hull
 // closest point on poly
-// closest point on cone
 
-// point cone distance
 // point hull distance
 // point poly distance
+// point cone distance
 
 // intersetcs
 
@@ -436,11 +471,16 @@ pub fn point_inside_poly<T: Float>(p: Vec2<T>, poly: Vec<Vec2<T>>) -> bool
 // ortho basis frivs + huges
 
 // utils
-// hsv
+// hsv etc
 //
+
+// TODO:
+// point inside hull (test)
+// point inside poly (test)
 
 // TODO c++
 // point inside cone test is whack
 // point plane distance
 // point sphere distance
 // fix point inside triangle, closest point on triangle + tests
+// closest point on cone

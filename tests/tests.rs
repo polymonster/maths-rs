@@ -1853,3 +1853,27 @@ fn point_inside_cone_test() {
     let r = 4.71;
     assert_eq!(point_inside_cone(p, cp, cv, h, r), true);
 }
+
+#[test]
+fn closest_point_on_cone_test() {
+    let cp = vec3f(0.0, 0.0, 0.0);
+    let cv = Vec3f::unit_y();
+    let h = 10.0;
+    let r = 5.0;
+    // inside
+    let p = cp + cv * r * 0.5;
+    assert_eq!(closest_point_on_cone(p, cp, cv, h, r), p);
+    // clamp to tip
+    let p = vec3f(0.0, 12.0, 0.0);
+    assert_eq!(closest_point_on_cone(p, cp, cv, h, r), vec3f(0.0, 10.0, 0.0));
+    // clamp to base bottom within base radius
+    let p = vec3f(2.0, -5.0, 2.0);
+    assert_eq!(closest_point_on_cone(p, cp, cv, h, r), vec3f(2.0, 0.0, 2.0));
+    // clamp to base side
+    let p = vec3f(0.0, 0.0, 100.0);
+    assert_eq!(closest_point_on_cone(p, cp, cv, h, r), vec3f(0.0, 0.0, r));
+    // clamp to side in the middle
+    let p = cp + (cv * h * 0.5) + Vec3f::unit_x() * 20.0;
+    let c = cp + (cv * h * 0.5);
+    assert_eq!(closest_point_on_cone(p, cp, cv, h, r), c + Vec3f::unit_x() * r * 0.5);
+}
