@@ -14,11 +14,12 @@ use mat::*;
 use vec::*;
 use num::*;
 
+/// classification for tests vs planes, behind the plane, infront of the plane (facing the normal) or intersecting with the plane
 #[derive(PartialEq, Debug)]
 pub enum Classification {
-    BEHIND,
-    INFRONT,
-    INTERSECTS
+    Behind,
+    Infront,
+    Intersects,
 }
 
 /// returns the minimum of a and b
@@ -467,13 +468,13 @@ pub fn aabb_vs_plane<T: SignedNumber + SignedNumberOps<T>>(aabb_min: Vec3<T>, aa
     let pd = plane_distance(x, n);
     let d = dot(n, centre) + pd;
     if d > radius {
-        Classification::INFRONT
+        Classification::Infront
     }
     else if d < -radius {
-        Classification::BEHIND
+        Classification::Behind
     }
     else {
-        Classification::INTERSECTS
+        Classification::Intersects
     }
 }
 
@@ -482,20 +483,37 @@ pub fn sphere_vs_plane<T: SignedNumber + SignedNumberOps<T>>(s: Vec3<T>, r: T,  
     let pd = plane_distance(x, n);
     let d = dot(n, s) + pd;
     if d > r {
-        Classification::INFRONT
+        Classification::Infront
     }
     else if d < -r {
-        Classification::BEHIND
+        Classification::Behind
     }
     else {
-        Classification::INTERSECTS
+        Classification::Intersects
     }
 }
 
-/// returns the intersection point of the ray defined as point on ray r0 and direction rv with the plane defined by point on plane x and normal n
-pub fn ray_vs_plane<T: SignedNumber + SignedNumberOps<T>>(r0: Vec3<T>, rv: Vec3<T>, x: Vec3<T>, n: Vec3<T>) -> Vec3<T> {
+/// returns the intersection point of the ray defined as origin of ray r0 and direction rv with the plane defined by point on plane x and normal n
+pub fn ray_vs_plane<T: Float + SignedNumberOps<T>>(r0: Vec3<T>, rv: Vec3<T>, x: Vec3<T>, n: Vec3<T>) -> Option<Vec3<T>> {
     let t = -(dot(r0, n) - dot(x, n))  / dot(rv, n);
-    r0 + rv * t
+    if t < T::zero() {
+        None
+    }
+    else {
+        Some(r0 + rv * t)
+    }
+}
+
+/// returns the intersection point of the bidirectional ray defined as point on ray r0 and direction rv with the plane defined by point on plane x and normal n
+pub fn bidirectional_ray_vs_plane<T: Float + SignedNumberOps<T>>(r0: Vec3<T>, rv: Vec3<T>, x: Vec3<T>, n: Vec3<T>) -> Option<Vec3<T>> {
+    let r = dot(rv, n);
+    if r == T::zero() {
+        None
+    }
+    else {
+        let t = -(dot(r0, n) - dot(x, n))  / dot(rv, n);
+        Some(r0 + rv * t)
+    }
 }
 
 /// returns the intersection point of the line l1-l2 and plane defined by point on plane x and normal n, returns None if no intersection exists
@@ -512,17 +530,26 @@ pub fn line_vs_plane<T: Float + FloatOps<T> + SignedNumber + SignedNumberOps<T>>
     }
 }
 
+/// returns true if the sphere or circle at centre s1 with radius r1 intsercts s2-r2
+pub fn sphere_vs_sphere<T: Float, V: VecN<T> + VecFloatOps<T>>(s1: V, r1: T, s2: V, r2: T) -> bool {
+    let d2 = dist2(s1, s2);
+    let r22 = r1 + r2;
+    d2 < r22 * r22
+}
+
 // ray diectional vs plane?
-// line_vs_plane
+
 // sphere_vs_sphere
 // aabb_vs_sphere
 // cone_vs_sphere
 // line_vs_sphere
 // ray_vs_sphere
+
 // aabb_vs_aabb
 // line_vs_aabb
 // ray_vs_aabb
 // cone_vs_aabb
+
 // line_vs_cone
 // ray_vs_cone
 // ray_vs_triangle
