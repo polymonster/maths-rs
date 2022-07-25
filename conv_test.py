@@ -6,6 +6,7 @@ import sys
 
 def conv(str):
     str = str.replace("const vec3f", "let")
+    str = str.replace("vec3f", "let")
     str = str.replace("(f32)", "")
     str = str.replace("f32", "let")
     str = str.replace("u32(0)", "Classification::INTERSECTS")

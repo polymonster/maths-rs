@@ -498,6 +498,20 @@ pub fn ray_vs_plane<T: SignedNumber + SignedNumberOps<T>>(r0: Vec3<T>, rv: Vec3<
     r0 + rv * t
 }
 
+/// returns the intersection point of the line l1-l2 and plane defined by point on plane x and normal n, returns None if no intersection exists
+pub fn line_vs_plane<T: Float + FloatOps<T> + SignedNumber + SignedNumberOps<T>>(l1: Vec3<T>, l2: Vec3<T>, x: Vec3<T>, n: Vec3<T>) -> Option<Vec3<T>> {
+    let ll = l2-l1;
+    let m = mag(ll);
+    let lv = ll / m;
+    let t = -(dot(l1, n) - dot(x, n))  / dot(lv, n);
+    if t < T::zero() || t > m {
+        None
+    }
+    else {
+        Some(l1 + lv * t)
+    }
+}
+
 // ray diectional vs plane?
 // line_vs_plane
 // sphere_vs_sphere
