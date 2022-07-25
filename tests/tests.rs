@@ -1949,3 +1949,22 @@ fn ray_vs_plane_test() {
     let result = ray_vs_plane(r0, rv, x, n);
     assert_eq!(approx(result, vec3f(15.925, 4.41882, -17.4797), 0.001), true);
 }
+
+#[test]
+pub fn line_vs_plane_test() {
+    let x = vec3f(0.0, 0.0, 0.0);
+    let n = vec3f(1.0, 0.0, 0.0);
+    // intersects
+    let l1 = vec3f(10.0, 5.0, 10.0);
+    let l2 = vec3f(-10.0, 5.0, 10.0);
+    let ip = line_vs_plane(l1, l2, x, n);
+    assert_eq!(ip.is_some(), true);
+    if let Some(ip) = ip {
+        assert_eq!(ip, vec3f(0.0, 5.0, 10.0));
+    }
+    // does not intersect
+    let l1 = vec3f(10.0, 5.0, -10.0);
+    let l2 = vec3f(10.0, 5.0, 10.0);
+    let ip = line_vs_plane(l1, l2, x, n);
+    assert_eq!(ip.is_none(), true);
+}
