@@ -196,12 +196,11 @@ pub fn convex_hull_from_points<T: Float + SignedNumberOps<T> + NumberOps<T> + Fl
     //find right most
     let mut cur = to_sort[0];
     let mut curi = 0;
-    for i in 1..to_sort.len() {
-        if to_sort[i].x > cur.x {
-            if to_sort[i].y > cur.y {
-                cur = to_sort[i];
-                curi = i;
-            }
+    // for i in 1..to_sort.len() {
+    for (i, item) in to_sort.iter().enumerate().skip(1) {
+        if item.x > cur.x && item.y > cur.y {
+            cur = *item;
+            curi = i;
         }
     }
     
@@ -212,16 +211,17 @@ pub fn convex_hull_from_points<T: Float + SignedNumberOps<T> + NumberOps<T> + Fl
         let mut rm = (curi+1)%to_sort.len();
         let mut x1 = to_sort[rm];
 
-        for i in 0..to_sort.len() {
+        // for i in 0..to_sort.len() {
+        for (i, item) in to_sort.iter().enumerate() {
             if i == curi {
                 continue;
             }
-            let x2 = to_sort[i];
+            let x2 = *item;
             let v1 = x1 - cur;
             let v2 = x2 - cur;
             let cp = cross(v2, v1);
             if cp.z > T::zero() {
-                x1 = to_sort[i];
+                x1 = *item;
                 rm = i;
             }
         }
@@ -279,7 +279,7 @@ pub fn project_to_sc_vdown<T: Float>(p: Vec3<T>, view_projection: Mat4<T>, viewp
 pub fn unproject_ndc<T: Float>(p: Vec3<T>, view_projection: Mat4<T>) -> Vec3<T> {
     let inv = view_projection.inverse();
     let (usc, w) = inv * p;
-    return usc / w;
+    usc / w
 }
 
 /// returns the unprojected 3D world position of screen coordinate p
@@ -310,15 +310,12 @@ pub fn point_plane_distance<T: SignedNumber, V: VecN<T>>( p: V, x: V, n: V) -> T
 
 /// returns the distance that point p is from the line segment defined by l1-l2
 pub fn point_line_segment_distance<T: Float + FloatOps<T>, V: VecFloatOps<T> + VecN<T>>(p: V, l1: V, l2: V) -> T {
-    
     let dx = l2 - l1;
     let m2 = mag2(dx);
-
     // find parameter value of closest point on segment
     let s12 = saturate(dot(l2 - p, dx) / m2);
-
     // and find the distance
-    return dist(p, l1 * s12 + l2 * (T::one() - s12));
+    dist(p, l1 * s12 + l2 * (T::one() - s12))
 }
 
 /// returns the distance parameter t of point p projected along the line l1-l2, the value is not clamped to the line segment extents
@@ -410,8 +407,7 @@ pub fn closest_point_on_obb<T: Float, V: VecFloatOps<T> + NumberOps<T> + SignedN
     let invm = M::inverse(&mat);
     let tp = invm * p;
     let cp = closest_point_on_aabb(tp, V::minus_one(), V::one());
-    let tcp = mat * cp;
-    tcp
+    mat * cp
 }
 
 /// returns the closest point to p on the triangle defined by t1-t2-t3
@@ -518,12 +514,7 @@ pub fn point_inside_obb<T: Float, V: VecFloatOps<T> + NumberOps<T> + SignedNumbe
 /// returns true if the point p is inside the triangle defined by t1-t2-t3
 pub fn point_inside_triangle<T: Float + FloatOps<T> + NumberOps<T>, V: VecN<T> + NumberOps<T> + VecFloatOps<T>>(p: V, t1: V, t2: V, t3: V) -> bool {
     let (w23, w31, w12) = barycentric(p, t1, t2, t3);
-    if w23 >= T::zero() && w31 >= T::zero() && w12 >= T::zero() {
-        true
-    }
-    else {
-        false
-    }
+    w23 >= T::zero() && w31 >= T::zero() && w12 >= T::zero()
 }
 
 /// returns true if point p is inside cone defined by position cp facing direction cv with height h and radius r
@@ -532,12 +523,7 @@ pub fn point_inside_cone<T: Float + FloatOps<T> + NumberOps<T>, V: VecN<T> + Vec
     let dh = distance_on_line(p, cp, l2) / h;
     let x0 = closest_point_on_line_segment(p, cp, l2);
     let d = dist(x0, p);
-    if d < dh * r && dh < T::one() {
-        true
-    }
-    else {
-        false
-    }
+    d < dh * r && dh < T::one()
 }
 
 /// returns true if the point p is inside the 2D convex hull defined by point list 'hull' with clockwise winding
@@ -711,12 +697,9 @@ pub fn ray_vs_aabb<T: Number + NumberOps<T>, V: VecN<T>>(r0: V, rv: V, aabb_min:
             tmax = min(max(t1, t2), tmax);
         }
 
-        if tmax < T::zero() {
-            // if tmax < 0, ray (line) is intersecting AABB, but the whole AABB is behind us
-            None
-        }
-        else if tmin > tmax {
+        if tmax < T::zero() || tmin > tmax {
             // if tmin > tmax, ray doesn't intersect AABB
+            // if tmax < 0, ray (line) is intersecting AABB, but the whole AABB is behind us
             None
         }
         else {
@@ -735,12 +718,7 @@ pub fn ray_vs_obb<T: Float + NumberOps<T>,
     let rotm : Mat3<T> = invm.into();
     let trv = rotm * rv;
     let ip = ray_vs_aabb(tr1, normalize(trv), -V::one(), V::one());
-    if let Some(ip) = ip {
-        Some(mat * ip)
-    }
-    else {
-        None
-    }
+    ip.map(|ip| mat * ip)
 }
 
 /// returns the intersection  point of ray r0 and normalized direction rv with triangle t0-t1-t2

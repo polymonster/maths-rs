@@ -138,7 +138,7 @@ macro_rules! vec_impl {
         impl<T> $VecN<T> where T: Number {
             pub fn new($($field: T,)+) -> $VecN<T> {
                 $VecN {
-                    $($field: $field,)+
+                    $($field,)+
                 }
             }
         }
@@ -883,7 +883,7 @@ macro_rules! vec_ctor {
     ($VecN:ident { $($field:ident),+ }, $ctor:ident, $splat:ident, $t:ident) => {
         pub fn $ctor($($field: $t,)+) -> $VecN<$t> {
             $VecN {
-                $($field: $field,)+
+                $($field,)+
             }
         }
         pub fn $splat(v: $t) -> $VecN<$t> {

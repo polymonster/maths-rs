@@ -1031,6 +1031,7 @@ impl<T> MatDeterminant<T> for Mat3<T> where T: Number {
 }
 
 /// returns the 4x4 determinant using laplace expansion theorum
+#[allow(clippy::zero_prefixed_literal)] 
 impl<T> MatDeterminant<T> for Mat4<T> where T: Number {
     fn determinant(&self) -> T {
         let s0 = (self.m[00] * self.m[05]) - (self.m[01] * self.m[04]);
@@ -1104,6 +1105,7 @@ impl<T> MatInverse<T> for Mat34<T> where T: SignedNumber {
     }
 }
 
+#[allow(clippy::zero_prefixed_literal)] 
 impl<T> MatInverse<T> for Mat4<T> where T: SignedNumber {
     fn inverse(&self) -> Self {
         let s0 = (self.m[00] * self.m[05]) - (self.m[01] * self.m[04]);
