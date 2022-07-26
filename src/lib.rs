@@ -249,6 +249,11 @@ pub fn point_triangle_distance<T: Float + FloatOps<T> + NumberOps<T>, V: VecN<T>
     }
 }
 
+/// returns the distance from point p to the cone defined by position cp, with height h and radius at the base of r
+pub fn point_cone_distance<T: Float, V: VecN<T> + SingedVecN<T> + VecFloatOps<T>>(p: V, cp: V, cv: V, h: T, r: T) -> T {
+    dist(p, closest_point_on_cone(p, cp, cv, h, r))
+}
+
 /// returns the closest point on the line l1-l2 to point p
 pub fn closest_point_on_line_segment<T: Float, V: VecFloatOps<T> + VecN<T>>(p: V, l1: V, l2: V) -> V {
     let v1 = p - l1;
@@ -560,6 +565,7 @@ pub fn aabb_vs_aabb<T: Number, V: VecN<T> + NumberOps<T>>(aabb_min1: V, aabb_max
 // ray_vs_sphere
 // line_vs_aabb
 // ray_vs_aabb
+// line_vs_tri
 // ray_vs_triangle
 
 // convex_hull_from_points
@@ -567,9 +573,6 @@ pub fn aabb_vs_aabb<T: Number, V: VecN<T> + NumberOps<T>>(aabb_min1: V, aabb_max
 // closest point on poly
 // point hull distance
 // point poly distance
-// point cone distance
-
-// aabb_vs_aabb
 
 // TODO: new
 // line_vs_cone

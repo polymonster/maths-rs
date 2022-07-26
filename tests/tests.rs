@@ -1879,6 +1879,29 @@ fn closest_point_on_cone_test() {
 }
 
 #[test]
+fn point_cone_distance_test() {
+    let cp = vec3f(0.0, 0.0, 0.0);
+    let cv = Vec3f::unit_y();
+    let h = 10.0;
+    let r = 5.0;
+    // inside
+    let p = cp + cv * r * 0.5;
+    assert_eq!(point_cone_distance(p, cp, cv, h, r), 0.0);
+    // clamp to tip
+    let p = vec3f(0.0, 12.0, 0.0);
+    assert_eq!(point_cone_distance(p, cp, cv, h, r), 2.0);
+    // clamp to base bottom within base radius
+    let p = vec3f(2.0, -5.0, 2.0);
+    assert_eq!(point_cone_distance(p, cp, cv, h, r), 5.0);
+    // clamp to base side
+    let p = vec3f(0.0, 0.0, 100.0);
+    assert_eq!(point_cone_distance(p, cp, cv, h, r), 95.0);
+    // clamp to side in the middle
+    let p = cp + (cv * h * 0.5) + Vec3f::unit_x() * 20.0;
+    assert_eq!(point_cone_distance(p, cp, cv, h, r), 17.5);
+}
+
+#[test]
 fn aabb_vs_plane_test() {
     let aabb_min = vec3f(1.11, 6.35, 5.56);
     let aabb_max = vec3f(5.59, 11.01, 14.34);
