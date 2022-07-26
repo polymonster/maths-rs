@@ -1,10 +1,10 @@
-/// numerical traits for numbers, signed numbers, integers and floats
+/// numerical traits and operations for scalar numbers, signed numbers, integers and floats
 pub mod num;
 
-/// multi dimensional vector with vec2, vec3 and vec4
+/// multi dimensional column vector with vec2, vec3 and vec4 implementations
 pub mod vec;
 
-/// multi dimensional matrix with mat2, mat3, mat34 and mat4
+/// multi dimensional row-major matrix with mat2, mat3, mat34 and mat4 implementations
 pub mod mat;
 
 /// quaternion
@@ -504,7 +504,7 @@ pub fn point_inside_convex_hull<T: Float>(p: Vec2<T>, hull: Vec<Vec2<T>>) -> boo
 }
 
 /// returns true if point p is inside the polygon defined by point list 'poly'
-pub fn point_inside_poly<T: Float>(p: Vec2<T>, poly: Vec<Vec2<T>>) -> bool
+pub fn point_inside_polygon<T: Float>(p: Vec2<T>, poly: Vec<Vec2<T>>) -> bool
 {
     // copyright (c) 1970-2003, Wm. Randolph Franklin
     // https://wrf.ecse.rpi.edu/Research/Short_Notes/pnpoly.html
@@ -577,8 +577,8 @@ pub fn bidirectional_ray_vs_plane<T: Float + SignedNumberOps<T>>(r0: Vec3<T>, rv
     }
 }
 
-/// returns the intersection point of the line l1-l2 and plane defined by point on plane x and normal n, returns None if no intersection exists
-pub fn line_vs_plane<T: Float + FloatOps<T> + SignedNumber + SignedNumberOps<T>>(l1: Vec3<T>, l2: Vec3<T>, x: Vec3<T>, n: Vec3<T>) -> Option<Vec3<T>> {
+/// returns the intersection point of the line segment l1-l2 and plane defined by point on plane x and normal n, returns None if no intersection exists
+pub fn line_segment_vs_plane<T: Float + FloatOps<T> + SignedNumber + SignedNumberOps<T>>(l1: Vec3<T>, l2: Vec3<T>, x: Vec3<T>, n: Vec3<T>) -> Option<Vec3<T>> {
     let ll = l2-l1;
     let m = mag(ll);
     let lv = ll / m;
@@ -670,49 +670,47 @@ pub fn ray_vs_aabb<T: Number + NumberOps<T>, V: VecN<T>>(r0: V, rv: V, aabb_min:
         }
 }
 
-/*
-bool RayIntersectsTriangle(Vector3D rayOrigin, 
-                           Vector3D rayVector, 
-                           Triangle* inTriangle,
-                           Vector3D& outIntersectionPoint)
-{
-    const float EPSILON = 0.0000001;
-    Vector3D vertex0 = inTriangle->vertex0;
-    Vector3D vertex1 = inTriangle->vertex1;  
-    Vector3D vertex2 = inTriangle->vertex2;
-    Vector3D edge1, edge2, h, s, q;
-    float a,f,u,v;
-    edge1 = vertex1 - vertex0;
-    edge2 = vertex2 - vertex0;
-    h = rayVector.crossProduct(edge2);
-    a = edge1.dotProduct(h);
-    if (a > -EPSILON && a < EPSILON)
-        return false;    // This ray is parallel to this triangle.
-    f = 1.0/a;
-    s = rayOrigin - vertex0;
-    u = f * s.dotProduct(h);
-    if (u < 0.0 || u > 1.0)
-        return false;
-    q = s.crossProduct(edge1);
-    v = f * rayVector.dotProduct(q);
-    if (v < 0.0 || u + v > 1.0)
-        return false;
-    // At this stage we can compute t to find out where the intersection point is on the line.
-    float t = f * edge2.dotProduct(q);
-    if (t > EPSILON) // ray intersection
-    {
-        outIntersectionPoint = rayOrigin + rayVector * t;
-        return true;
+/// returns the intersection  point of ray r0 and normalized direction rv with triangle t0-t1-t2
+pub fn ray_vs_triangle<T: Float>(r0: Vec3<T>, rv: Vec3<T>, t0: Vec3<T>, t1: Vec3<T>, t2: Vec3<T>) -> Option<Vec3<T>> {
+    let edge1 = t1 - t0;
+    let edge2 = t2 - t0;
+    let h = cross(rv, edge2);
+    let a = dot(edge1, h);
+    if a > T::small_epsilon() && a < T::small_epsilon() {
+        // ray is parallel to the triangle
+        None
     }
-    else // This means that there is a line intersection but not a ray intersection.
-        return false;
+    else {
+        let f = T::one() / a;
+        let s = r0 - t0;
+        let u = f * dot(s, h);
+        if u < T::zero() || u > T::one() {
+            None
+        }
+        else {
+            let q = cross(s, edge1);
+            let v = f * dot(rv, q);
+            if v < T::zero() || u + v > T::one() {
+                None
+            }
+            else {
+                // now we can compute t to find out where the intersection point is on the line
+                let t = f * dot(edge2, q);
+                if t > T::zero() {
+                    Some(r0 + rv * t)
+                }
+                else {
+                    // line intersects but ray does not
+                    None
+                }
+            }
+        }
+    }
 }
-*/
 
-// ray_vs_aabb
-// ray_vs_triangle
+// sphere vs frustum
+// aabb vs frustum
 // ray_vs_obb
-
 // closest point on hull
 // closest point on poly
 // point hull distance
@@ -720,6 +718,8 @@ bool RayIntersectsTriangle(Vector3D rayOrigin,
 
 // mat
 // ortho basis frivs + huges
+// frustum planes
+// frustum corners
 
 // utils
 // hsv
@@ -729,6 +729,7 @@ bool RayIntersectsTriangle(Vector3D rayOrigin,
 // point inside hull (test)
 // point inside poly (test)
 // ray sphere (test)
+// ray triangle (test)
 
 // TODO c++
 // point inside cone test is whack
@@ -738,6 +739,10 @@ bool RayIntersectsTriangle(Vector3D rayOrigin,
 // closest point on cone
 // point cone distance
 // convex hull from points test
+// point inside hull (test)
+// point inside poly (test)
+// ray sphere (test)
+// ray triangle (test)
 
 // TODO: new?
 // line_vs_cone

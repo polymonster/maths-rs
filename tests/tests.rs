@@ -2036,7 +2036,7 @@ pub fn line_vs_plane_test() {
     // intersects
     let l1 = vec3f(10.0, 5.0, 10.0);
     let l2 = vec3f(-10.0, 5.0, 10.0);
-    let ip = line_vs_plane(l1, l2, x, n);
+    let ip = line_segment_vs_plane(l1, l2, x, n);
     assert_eq!(ip.is_some(), true);
     if let Some(ip) = ip {
         assert_eq!(ip, vec3f(0.0, 5.0, 10.0));
@@ -2044,7 +2044,7 @@ pub fn line_vs_plane_test() {
     // does not intersect
     let l1 = vec3f(10.0, 5.0, -10.0);
     let l2 = vec3f(10.0, 5.0, 10.0);
-    let ip = line_vs_plane(l1, l2, x, n);
+    let ip = line_segment_vs_plane(l1, l2, x, n);
     assert_eq!(ip.is_none(), true);
 }
 
@@ -2213,5 +2213,25 @@ fn ray_vs_aabb_test() {
     let rv = vec2f(1.0, 0.0);
     let result = ray_vs_aabb(r1, rv, emin, emax);
     assert_eq!(approx(result.unwrap(), vec2f(-10.0, 5.0), 0.0001), true);
+}
 
+#[test]
+fn ray_vs_triangle_test() {
+    let t0 = vec3f(-5.0, 0.0, -5.0);
+    let t1 = vec3f(0.0, 0.0, 0.0);
+    let t2 = vec3f(5.0, 0.0, -5.0);
+    let r0 = vec3f(0.0, 10.0, 0.0);
+    let rv = -Vec3f::unit_y();
+    let result = ray_vs_triangle(r0, rv, t0, t1, t2);
+    assert_eq!(result.unwrap(), Vec3f::zero());
+
+    let r0 = vec3f(-2.0, -10.0, -2.0);
+    let rv = Vec3f::unit_y();
+    let result = ray_vs_triangle(r0, rv, t0, t1, t2);
+    assert_eq!(result.unwrap(), vec3f(-2.0, 0.0, -2.0));
+
+    let r0 = vec3f(-4.0, 10.0, -4.5);
+    let rv = -Vec3f::unit_y();
+    let result = ray_vs_triangle(r0, rv, t0, t1, t2);
+    assert_eq!(result.unwrap(), vec3f(-4.0, 0.0, -4.5));
 }
