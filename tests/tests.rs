@@ -2010,3 +2010,34 @@ pub fn sphere_vs_sphere_test() {
     let result = sphere_vs_sphere(s0, r0, s1, r1);
     assert_eq!(result, false);
 }
+
+#[test]
+pub fn aabb_vs_sphere_test() {
+    let s0 = vec3f(5.95, -5.31, -2.9);
+    let r0 = 7.49;
+    let aabb_min = vec3f(-5.71, -11.76, -14.12);
+    let aabb_max = vec3f(13.33, 7.16, -5.32);
+    let result = aabb_vs_sphere(aabb_min, aabb_max, s0, r0);
+    assert_eq!(result, true);
+
+    let s0 = vec3f(-3.3, 3.94, -3.9);
+    let r0 = 2.43;
+    let aabb_min = vec3f(-16.09, -10.73, -4.44);
+    let aabb_max = vec3f(0.47, 7.73, 13.06);
+    let result = aabb_vs_sphere(aabb_min, aabb_max, s0, r0);
+    assert_eq!(result,true);
+
+    let s0 = vec3f(-3.95, 6.07, -3.67);
+    let r0 = 8.11;
+    let aabb_min = vec3f(2.58, -7.65, -6.75);
+    let aabb_max = vec3f(16.34, 4.67, 0.19);
+    let result = aabb_vs_sphere(aabb_min, aabb_max, s0, r0);
+    assert_eq!(result,true);
+
+    let s0 = vec3f(7.28, 1.2, -0.98);
+    let r0 = 3.55;
+    let aabb_min = vec3f(7.49, -5.93, -8.37);
+    let aabb_max = vec3f(11.63, 1.35, -4.81);
+    let result = aabb_vs_sphere(aabb_min, aabb_max, s0, r0);
+    assert_eq!(result,false);
+}

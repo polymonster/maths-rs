@@ -14,11 +14,14 @@ use mat::*;
 use vec::*;
 use num::*;
 
-/// classification for tests vs planes, behind the plane, infront of the plane (facing the normal) or intersecting with the plane
+/// classification for tests vs planes
 #[derive(PartialEq, Debug)]
 pub enum Classification {
+    /// behind the plane in the opposite direction of the planes normal
     Behind,
+    /// infront of the plane in the direction of the planes normal
     Infront,
+    /// intersecting the plane
     Intersects,
 }
 
@@ -537,9 +540,13 @@ pub fn sphere_vs_sphere<T: Float, V: VecN<T> + VecFloatOps<T>>(s1: V, r1: T, s2:
     d2 < r22 * r22
 }
 
+pub fn aabb_vs_sphere<T: Float, V: VecN<T> + VecFloatOps<T> + NumberOps<T>>(aabb_min: V, aabb_max:V, s: V, r: T) -> bool {
+    let cp = closest_point_on_aabb(s, aabb_min, aabb_max);
+    dist2(cp, s) < r * r
+}
+
 // ray diectional vs plane?
 
-// sphere_vs_sphere
 // aabb_vs_sphere
 // cone_vs_sphere
 // line_vs_sphere
