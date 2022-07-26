@@ -114,6 +114,7 @@ macro_rules! number_trait_impl {
                 fn zero() -> Self;
                 fn one() -> Self;
                 fn two() -> Self;
+                fn four() -> Self;
                 fn min_value() -> Self;
                 fn max_value() -> Self;
         }
@@ -153,6 +154,10 @@ macro_rules! number_impl {
 
             fn two() -> Self {
                 2 as Self
+            }
+
+            fn four() -> Self {
+                4 as Self
             }
         }
 

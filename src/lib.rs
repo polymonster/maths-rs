@@ -185,6 +185,59 @@ pub fn barycentric<T: Float + NumberOps<T>, V: VecFloatOps<T> + VecN<T> + Number
     (u, v, w)
 }
 
+/// returns a convex hull wound clockwise from point cloud "points"
+pub fn convex_hull_from_points<T: Float + SignedNumberOps<T> + NumberOps<T> + FloatOps<T>>(points: Vec<Vec2<T>>) -> Vec<Vec2<T>> {
+    // initialise to sort as vec3's from vec2's
+    let mut to_sort = Vec::new();
+    for p in points {
+        to_sort.push(Vec3::<T>::from(p));
+    }
+    
+    //find right most
+    let mut cur = to_sort[0];
+    let mut curi = 0;
+    for i in 1..to_sort.len() {
+        if to_sort[i].x > cur.x {
+            if to_sort[i].y > cur.y {
+                cur = to_sort[i];
+                curi = i;
+            }
+        }
+    }
+    
+    // wind the hull clockwise by using cross products to test which side of an edge a point lies on
+    // discarding points that do not form the perimeter
+    let mut hull = vec![Vec2::<T>::from(cur)];
+    loop {
+        let mut rm = (curi+1)%to_sort.len();
+        let mut x1 = to_sort[rm];
+
+        for i in 0..to_sort.len() {
+            if i == curi {
+                continue;
+            }
+            let x2 = to_sort[i];
+            let v1 = x1 - cur;
+            let v2 = x2 - cur;
+            let cp = cross(v2, v1);
+            if cp.z > T::zero() {
+                x1 = to_sort[i];
+                rm = i;
+            }
+        }
+
+        let x1v2 = Vec2::<T>::from(x1);
+        if approx(x1v2, hull[0], T::small_epsilon()) {
+            break;
+        }
+            
+        cur = x1;
+        curi = rm;
+        hull.push(x1v2);
+    }
+    hull
+}
+
 /// returns the normalized unit vector normal of triangle t1-t2-t3
 pub fn get_triangle_normal<T: Float, V: VecFloatOps<T> + VecN<T> + VecCross<T>>(t1: V, t2: V, t3: V) -> V {
     normalize(cross(t2 - t1, t3 - t1))
@@ -561,36 +614,121 @@ pub fn aabb_vs_aabb<T: Number, V: VecN<T> + NumberOps<T>>(aabb_min1: V, aabb_max
     true
 }
 
-// line_vs_sphere
-// ray_vs_sphere
-// line_vs_aabb
-// ray_vs_aabb
-// line_vs_tri
-// ray_vs_triangle
+/// returns the intersection point of ray wih origin r0 and direction rv against the sphere (or circle) centred at s0 with radius r
+pub fn ray_vs_sphere<T: Float + FloatOps<T> + NumberOps<T>, V: VecN<T> + VecFloatOps<T>>(r0: V, rv: V, s0: V, r: T) -> Option<V> {
+    let oc = r0 - s0;
+    let a = dot(rv, rv);
+    let b = T::two() * dot(oc, rv);
+    let c = dot(oc,oc) - r*r;
+    let discriminant = b*b - T::four()*a*c;
+    let hit = discriminant > T::zero();
+    if !hit {
+        None
+    }
+    else {
+        let t1 = (-b - sqrt(discriminant)) / (T::two()*a);
+        let t2 = (-b + sqrt(discriminant)) / (T::two()*a);
+        let t = if t1 > T::zero() && t2 > T::zero() {
+            min(t1, t2)
+        }
+        else if t1 > T::zero() {
+            t1
+        }
+        else {
+            t2
+        };
+        Some(r0 + rv * t)
+    }
+}
 
-// convex_hull_from_points
+/// returns the intersection point of the ray with origin r0 and direction rv with the aabb defined by aabb_min and aabb_max
+pub fn ray_vs_aabb<T: Number + NumberOps<T>, V: VecN<T>>(r0: V, rv: V, aabb_min: V, aabb_max: V) -> Option<V> {
+        // min / max's from aabb axes
+        let dirfrac = V::one() / rv;
+        let tx = (aabb_min[0] - r0[0]) * dirfrac[0];
+        let tm = (aabb_max[0] - r0[0]) * dirfrac[0];
+        let mut tmin = min(tx, tm);
+        let mut tmax = max(tx, tm);
+        for i in 0..V::len() {
+            let t1 = (aabb_min[i] - r0[i]) * dirfrac[i];
+            let t2 = (aabb_max[i] - r0[i]) * dirfrac[i];
+            tmin = max(min(t1, t2), tmin);
+            tmax = min(max(t1, t2), tmax);
+        }
+
+        if tmax < T::zero() {
+            // if tmax < 0, ray (line) is intersecting AABB, but the whole AABB is behind us
+            None
+        }
+        else if tmin > tmax {
+            // if tmin > tmax, ray doesn't intersect AABB
+            None
+        }
+        else {
+            // otherwise tmin is length along the ray we intersect at
+            Some(r0 + rv * tmin)
+        }
+}
+
+/*
+bool RayIntersectsTriangle(Vector3D rayOrigin, 
+                           Vector3D rayVector, 
+                           Triangle* inTriangle,
+                           Vector3D& outIntersectionPoint)
+{
+    const float EPSILON = 0.0000001;
+    Vector3D vertex0 = inTriangle->vertex0;
+    Vector3D vertex1 = inTriangle->vertex1;  
+    Vector3D vertex2 = inTriangle->vertex2;
+    Vector3D edge1, edge2, h, s, q;
+    float a,f,u,v;
+    edge1 = vertex1 - vertex0;
+    edge2 = vertex2 - vertex0;
+    h = rayVector.crossProduct(edge2);
+    a = edge1.dotProduct(h);
+    if (a > -EPSILON && a < EPSILON)
+        return false;    // This ray is parallel to this triangle.
+    f = 1.0/a;
+    s = rayOrigin - vertex0;
+    u = f * s.dotProduct(h);
+    if (u < 0.0 || u > 1.0)
+        return false;
+    q = s.crossProduct(edge1);
+    v = f * rayVector.dotProduct(q);
+    if (v < 0.0 || u + v > 1.0)
+        return false;
+    // At this stage we can compute t to find out where the intersection point is on the line.
+    float t = f * edge2.dotProduct(q);
+    if (t > EPSILON) // ray intersection
+    {
+        outIntersectionPoint = rayOrigin + rayVector * t;
+        return true;
+    }
+    else // This means that there is a line intersection but not a ray intersection.
+        return false;
+}
+*/
+
+// ray_vs_aabb
+// ray_vs_triangle
+// ray_vs_obb
+
 // closest point on hull
 // closest point on poly
 // point hull distance
 // point poly distance
 
-// TODO: new
-// line_vs_cone
-// ray_vs_cone
-// cone_vs_sphere
-// cone_vs_plane
-// cone_vs_aabb
-// capsules?
-
 // mat
 // ortho basis frivs + huges
 
 // utils
-// hsv etc
+// hsv
+// projection
 
-// TODO:
+// TODO: tests
 // point inside hull (test)
 // point inside poly (test)
+// ray sphere (test)
 
 // TODO c++
 // point inside cone test is whack
@@ -598,3 +736,19 @@ pub fn aabb_vs_aabb<T: Number, V: VecN<T> + NumberOps<T>>(aabb_min1: V, aabb_max
 // point sphere distance
 // fix point inside triangle, closest point on triangle + tests
 // closest point on cone
+// point cone distance
+// convex hull from points test
+
+// TODO: new?
+// line_vs_cone
+// ray_vs_cone
+// cone_vs_sphere
+// cone_vs_plane
+// cone_vs_aabb
+// capsules?
+// obb_vs_aabb
+// obb_vs_sphere
+// line_vs_sphere
+// line_vs_aabb
+// obb_vs_aabb
+// obb_vs_sphere

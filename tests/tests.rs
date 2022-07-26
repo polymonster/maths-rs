@@ -2127,3 +2127,91 @@ fn aabb_vs_aabb_test() {
     let result = aabb_vs_aabb(min0, max0, min1, max1);
     assert_eq!(result,false);
 }
+
+#[test]
+fn convex_hull_from_points_test() {
+    //  0   1   2   3   4   5   6   7
+    //  -   -   -   x   -   -   -   -          
+    //      x   0       0   x
+    //          0   0   0   0
+    //  x       0   0       0       x
+    //              0
+    //              0
+    //              x
+    //
+
+    // x = edge, 0 = dscarded
+
+    let points = vec![
+        vec2f(3.0, 0.0), // x
+        vec2f(1.0, 1.0), // x
+        vec2f(2.0, 1.0), // 0
+        vec2f(4.0, 1.0), // 0
+        vec2f(5.0, 1.0), // x
+        vec2f(2.0, 2.0), // 0
+        vec2f(3.0, 2.0), // 0
+        vec2f(4.0, 2.0), // 0
+        vec2f(5.0, 2.0), // 0
+        vec2f(0.0, 3.0), // x
+        vec2f(2.0, 3.0), // 0
+        vec2f(3.0, 3.0), // 0
+        vec2f(5.0, 3.0), // 0
+        vec2f(7.0, 3.0), // x
+        vec2f(3.0, 4.0), // 0
+        vec2f(3.0, 5.0), // 0
+        vec2f(3.0, 6.0), // x
+    ];
+
+    let hull = convex_hull_from_points(points);
+
+    let expected = vec![
+        vec2f(7.0, 3.0), // x
+        vec2f(3.0, 6.0), // x
+        vec2f(0.0, 3.0), // x
+        vec2f(1.0, 1.0), // x
+        vec2f(3.0, 0.0), // x
+        vec2f(5.0, 1.0), // x
+    ];
+
+    assert_eq!(hull, expected);
+}
+
+#[test]
+fn ray_vs_aabb_test() {
+    let emin = vec3f(-8.94, -8.37, -5.3);
+    let emax = vec3f(7.18, -3.57, 13.9);
+    let r1 = vec3f(-1.95, -6.86, 6.52);
+    let rv = vec3f(-0.428178, 0.616866, 0.660409);
+    let result = ray_vs_aabb(r1, rv, emin, emax);
+    assert_eq!(approx(result.unwrap(), vec3f(-0.901882, -8.37, 4.90341), 0.0001), true);
+
+    let emin = vec3f(2.87, -2.17, -11.75);
+    let emax = vec3f(12.21, -1.41, -2.53);
+    let r1 = vec3f(3.97, -10.0, -6.86);
+    let rv = vec3f(-0.0352975, 0.873613, -0.48534);
+    let result = ray_vs_aabb(r1, rv, emin, emax);
+    assert_eq!(approx(result.unwrap() ,vec3f(3.65364, -2.17, -11.21), 0.0001), true);
+
+    let emin = vec3f(1.49, -13.86, -0.16);
+    let emax = vec3f(2.57, 2.28, 9.1);
+    let r1 = vec3f(-1.68, -8.66, -0.72);
+    let rv = vec3f(0.891587, -0.435426, 0.124407);
+    let result = ray_vs_aabb(r1, rv, emin, emax);
+    assert_eq!(approx(result.unwrap(), vec3f(2.33334, -10.62, -0.16), 0.0001), true);
+
+    let emin = vec3f(3.04, -2.38, -9.95);
+    let emax = vec3f(14.78, 9.32, -2.67);
+    let r1 = vec3f(-4.4, 9.57, -9.08);
+    let rv = vec3f(0.390941, 0.681875, 0.618233);
+    let result = ray_vs_aabb(r1, rv, emin, emax);
+    assert_eq!(result.is_none(), true);
+
+    // 2D
+    let emin = vec2f(-10.0, -10.0);
+    let emax = vec2f(10.0, 10.0);
+    let r1 = vec2f(-20.0, 5.0);
+    let rv = vec2f(1.0, 0.0);
+    let result = ray_vs_aabb(r1, rv, emin, emax);
+    assert_eq!(approx(result.unwrap(), vec2f(-10.0, 5.0), 0.0001), true);
+
+}
