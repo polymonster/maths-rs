@@ -5,6 +5,7 @@ import sys
 # converts c++ test code to rust, with some caveats
 def conv(str):
     str = str.replace("const vec3f", "let")
+    str = str.replace("const mat4", "let")
     str = str.replace("vec3f", "let")
     str = str.replace("(f32)", "")
     str = str.replace("f32", "let")

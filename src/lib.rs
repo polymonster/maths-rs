@@ -670,6 +670,24 @@ pub fn ray_vs_aabb<T: Number + NumberOps<T>, V: VecN<T>>(r0: V, rv: V, aabb_min:
         }
 }
 
+pub fn ray_vs_obb<T: Float + NumberOps<T>, 
+    V: VecFloatOps<T> + NumberOps<T> + SignedNumberOps<T> + VecN<T> + SingedVecN<T>, 
+    M: MatTranslate<V> + MatInverse<T> + MatRotate3D<T, V> + std::ops::Mul<V, Output=V>
+    + Into<Mat3<T>> + Copy>
+    (r0: V, rv: V, mat: M) -> Option<V> where Mat3<T> : std::ops::Mul<V, Output=V> {
+    let invm = mat.inverse();
+    let tr1 = invm * r0;
+    let rotm : Mat3<T> = invm.into();
+    let trv = rotm * rv;
+    let ip = ray_vs_aabb(tr1, normalize(trv), -V::one(), V::one());
+    if let Some(ip) = ip {
+        Some(mat * ip)
+    }
+    else {
+        None
+    }
+}
+
 /// returns the intersection  point of ray r0 and normalized direction rv with triangle t0-t1-t2
 pub fn ray_vs_triangle<T: Float>(r0: Vec3<T>, rv: Vec3<T>, t0: Vec3<T>, t1: Vec3<T>, t2: Vec3<T>) -> Option<Vec3<T>> {
     // möller–trumbore intersection algorithm
@@ -712,7 +730,6 @@ pub fn ray_vs_triangle<T: Float>(r0: Vec3<T>, rv: Vec3<T>, t0: Vec3<T>, t1: Vec3
 
 // sphere vs frustum
 // aabb vs frustum
-// ray_vs_obb
 
 // closest point on hull
 // closest point on poly
@@ -727,6 +744,9 @@ pub fn ray_vs_triangle<T: Float>(r0: Vec3<T>, rv: Vec3<T>, t0: Vec3<T>, t1: Vec3
 // utils
 // hsv
 // projection
+
+// TODO: finalise
+// think about obb's and mul with vec3 returning tuple
 
 // TODO: tests
 // point inside hull (test)

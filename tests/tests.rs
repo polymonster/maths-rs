@@ -2235,3 +2235,28 @@ fn ray_vs_triangle_test() {
     let result = ray_vs_triangle(r0, rv, t0, t1, t2);
     assert_eq!(result.unwrap(), vec3f(-4.0, 0.0, -4.5));
 }
+
+#[test]
+fn ray_vs_obb_test() {
+    // 3x4 hit
+    let mat = Mat34f::from((
+        -4.29814, -0.134092, 4.26139, 4.39, 
+        2.24637, -0.347541, 8.13622, -1.33, 
+        0.0485004, 4.21357, 0.806702, -8.81
+    ));
+    let r1 = vec3f(6.85, -0.81, -6.19);
+    let rv = vec3f(-0.70182, 0.062384, -0.709618);
+    let result = ray_vs_obb(r1, rv, mat);
+    assert_eq!(approx(result.unwrap(), vec3f(8.62138, -0.967456, -4.39894), 0.0001), true);
+
+    // 3x4 hit
+    let mat = Mat34f::from((
+        -1.62582, -3.23365, 1.34286, 7.29, 
+        -0.884833, 5.89037, 0.796295, -0.45, 
+        -0.613404, 0.0739455, -4.70789, 0.82, 
+    ));
+    let r1 = vec3f(0.13, -5.59, -2.19);
+    let rv = vec3f(0.783562, 0.178533, 0.595111);
+    let result = ray_vs_obb(r1, rv, mat);
+    assert_eq!(approx(result.unwrap(), vec3f(6.33623, -4.17592, 2.52359), 0.0001), true);
+}
