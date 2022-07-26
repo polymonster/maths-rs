@@ -1143,6 +1143,23 @@ impl<T> MatInverse<T> for Mat4<T> where T: SignedNumber {
     }
 }
 
+pub trait MatProjection<T> {
+    //fn get_frustum_planes() -> [Vec4<T>; 6];
+    //fn get_frustum_corners() -> [Vec3<T>; 8];
+}
+
+impl<T> MatProjection<T> for Mat4<T> where T: Float {
+    /*
+    fn get_frustum_planes() -> [Vec4<T>; 6] {
+
+    }
+
+    fn get_frustum_corners() -> [Vec3<T>; 8] {
+
+    }
+    */
+}
+
 mat_impl!(Mat2, 2, 2, 4, Vec2 {x, 0, y, 1}, Vec2 {x, 0, y, 1});
 mat_impl!(Mat3, 3, 3, 9, Vec3 {x, 0, y, 1, z, 2}, Vec3 {x, 0, y, 1, z, 2});
 mat_impl!(Mat4, 4, 4, 16, Vec4 {x, 0, y, 1, z, 2, w, 3}, Vec4 {x, 0, y, 1, z, 2, w, 3});

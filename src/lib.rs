@@ -238,9 +238,64 @@ pub fn convex_hull_from_points<T: Float + SignedNumberOps<T> + NumberOps<T> + Fl
     hull
 }
 
+/// returns a plane placked into Vec4 in the form .xyz = plane normal, .w = plane distance / constant from x (point on plane) and n (planes normal)
+pub fn plane_from_normal_and_point<T: SignedNumber>(x: Vec3<T>, n: Vec3<T>) -> Vec4<T> {
+    Vec4 {
+        x: n.x,
+        y: n.y,
+        z: n.z,
+        w: plane_distance(x, n)
+    }
+}
+
 /// returns the normalized unit vector normal of triangle t1-t2-t3
 pub fn get_triangle_normal<T: Float, V: VecFloatOps<T> + VecN<T> + VecCross<T>>(t1: V, t2: V, t3: V) -> V {
     normalize(cross(t2 - t1, t3 - t1))
+}
+
+/// returns the 3D normalized device coordinate of point p projected by view_projection matrix, perfroming homogenous divide
+pub fn project_to_ndc<T: Float>(p: Vec3<T>, view_projection: Mat4<T>) -> Vec3<T> {
+    let ndc = view_projection * Vec4::from((p, T::one()));
+    Vec3::from(ndc) / ndc.w
+}
+
+/// returns the 2D screen coordinate of 3D point p projected with view_projection, performing homogenous divide and viewport correction
+/// assumes screen coordinates are vup in the y-axis y.0 = bottom y.height = top
+pub fn project_to_sc<T: Float>(p: Vec3<T>, view_projection: Mat4<T>, viewport: Vec2<T>) -> Vec2<T> {
+    let ndc = project_to_ndc(p, view_projection);
+    let sc  = ndc * T::point_five() + T::point_five();
+    Vec2::<T>::from(sc) * viewport
+}
+
+/// returns the 2D screen coordinate of 3D point p projected with view_projection, performing homogenous divide and viewport correction
+/// coordinates are vdown in the y-axis vdown = y.0 = top y.height = bottom
+pub fn project_to_sc_vdown<T: Float>(p: Vec3<T>, view_projection: Mat4<T>, viewport: Vec2<T>) -> Vec2<T> {
+    let ndc = project_to_ndc(p, view_projection);
+    let sc  = ndc * Vec3::new(T::point_five(), -T::point_five(), T::point_five()) + T::point_five();
+    Vec2::<T>::from(sc) * viewport
+}
+
+/// returns the unprojected 3D world position of point p which is specified in normalized device coordinates
+pub fn unproject_ndc<T: Float>(p: Vec3<T>, view_projection: Mat4<T>) -> Vec3<T> {
+    let inv = view_projection.inverse();
+    let (usc, w) = inv * p;
+    return usc / w;
+}
+
+/// returns the unprojected 3D world position of screen coordinate p
+/// assumes screen coordinates are vup in the y-axis y.0 = bottom y.height = top
+pub fn unproject_sc<T: Float>(p: Vec3<T>, view_projection: Mat4<T>, viewport: Vec2<T>) -> Vec3<T> {
+    let ndc_xy = (Vec2::from(p) / viewport) * Vec2::from(T::two()) - Vec2::from(T::one());
+    let ndc = Vec3::from((ndc_xy, p.z));
+    unproject_ndc(ndc, view_projection)
+}
+
+/// returns the unprojected 3D world position of screen coordinate p
+/// coordinates are vdown in the y-axis vdown = y.0 = top y.height = bottom
+pub fn unproject_sc_vdown<T: Float>(p: Vec3<T>, view_projection: Mat4<T>, viewport: Vec2<T>) -> Vec3<T> {
+    let ndc_xy = (Vec2::from(p) / viewport) * Vec2::new(T::two(), -T::two()) - Vec2::from(T::one());
+    let ndc = Vec3::from((ndc_xy, p.z));
+    unproject_ndc(ndc, view_projection)
 }
 
 /// returns the distance to the plane define by a point on the plane x and normal of the plane n
@@ -728,8 +783,13 @@ pub fn ray_vs_triangle<T: Float>(r0: Vec3<T>, rv: Vec3<T>, t0: Vec3<T>, t1: Vec3
     }
 }
 
-// sphere vs frustum
-// aabb vs frustum
+pub fn sphere_vs_frustum() -> bool {
+    false
+}
+
+pub fn aabb_vs_frustum() -> bool {
+    false
+}
 
 // closest point on hull
 // closest point on poly
@@ -749,10 +809,15 @@ pub fn ray_vs_triangle<T: Float>(r0: Vec3<T>, rv: Vec3<T>, t0: Vec3<T>, t1: Vec3
 // think about obb's and mul with vec3 returning tuple
 
 // TODO: tests
+// missing fail cases
 // point inside hull (test)
 // point inside poly (test)
 // ray sphere (test)
 // ray triangle (test)
+// projection, ndc
+// projection, sc
+// unprojection, ndc,
+// unprojection sc
 
 // TODO c++
 // point inside cone test is whack

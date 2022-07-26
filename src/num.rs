@@ -111,11 +111,19 @@ macro_rules! number_trait_impl {
             Div<Output=Self> + DivAssign +
             Rem<Output=Self> + RemAssign +
             PartialEq + PartialOrd {
+                /// returns 0.0
                 fn zero() -> Self;
+                /// returns 0.5
+                fn point_five() -> Self;
+                /// returns 1.0
                 fn one() -> Self;
+                /// returns 2.0
                 fn two() -> Self;
+                /// returns 4.0
                 fn four() -> Self;
+                /// returns the smallest representable number with the available precision
                 fn min_value() -> Self;
+                /// returns the largest representable number with the available precision
                 fn max_value() -> Self;
         }
         number_impl!(f64 { $($func),* }, 0.0, 1.0);
@@ -150,6 +158,10 @@ macro_rules! number_impl {
 
             fn one() -> Self {
                 $one
+            }
+
+            fn point_five() -> Self {
+                0.5 as Self
             }
 
             fn two() -> Self {
