@@ -1968,6 +1968,45 @@ fn bidirectional_ray_vs_plane_test() {
 }
 
 #[test]
+fn ray_vs_plane_test() {
+    // intersect
+    let r0 = vec3f(-2.48, 5.66, -2.84);
+    let rv = vec3f(0.437602, -0.733279, 0.520391);
+    let x = vec3f(5.01, -1.03, 8.71);
+    let n = vec3f(-0.723007, 0.371545, 0.582422);
+    let result = ray_vs_plane(r0, rv, x, n);
+    assert_eq!(result.is_some(), true);
+    if let Some(result) = result {
+        assert_eq!(approx(result, vec3f(-0.682132, 2.64736, -0.701995), 0.001), true);
+    }
+
+    let r0 = vec3f(9.68, -5.88, -7.4);
+    let rv = vec3f(0.39763, 0.655741, -0.641789);
+    let x = vec3f(-6.05, 9.68, 1.13);
+    let n = vec3f(0.257437, -0.806637, 0.532037);
+    let result = ray_vs_plane(r0, rv, x, n);
+    assert_eq!(result.is_some(), true);
+    if let Some(result) = result {
+        assert_eq!(approx(result, vec3f(15.925, 4.41882, -17.4797), 0.001), true);
+    }
+    
+    // no intersect
+    let x = vec3f(0.0, 0.0, 0.0);
+    let n = vec3f(1.0, 0.0, 0.0);
+    let r0 = vec3f(10.0, 5.0, -10.0);
+    let rv = vec3f(0.0, 0.0, 1.0);
+    let result = ray_vs_plane(r0, rv, x, n);
+    assert_eq!(result.is_none(), true);
+
+    let r0 = vec3f(1.77, -6.03, -7.06);
+    let rv = vec3f(0.0350043, -0.796348, -0.603825);
+    let x = vec3f(7.45, -8.25, 6.35);
+    let n = vec3f(-0.0185944, 0.390482, 0.920423);
+    let result = ray_vs_plane(r0, rv, x, n);
+    assert_eq!(result.is_none(), true);
+}
+
+#[test]
 pub fn line_vs_plane_test() {
     let x = vec3f(0.0, 0.0, 0.0);
     let n = vec3f(1.0, 0.0, 0.0);
