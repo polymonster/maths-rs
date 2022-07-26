@@ -2041,3 +2041,27 @@ pub fn aabb_vs_sphere_test() {
     let result = aabb_vs_sphere(aabb_min, aabb_max, s0, r0);
     assert_eq!(result,false);
 }
+
+#[test]
+fn aabb_vs_aabb_test() {
+    let min0 = vec3f(6.23, 0.35, -5.4);
+    let max0 = vec3f(12.35, 17.15, -2.64);
+    let min1 = vec3f(-4.32, -3.97, -7.92);
+    let max1 = vec3f(9.84, 8.69, 0.84);
+    let result = aabb_vs_aabb(min0, max0, min1, max1);
+    assert_eq!(result,true);
+
+    let min0 = vec3f(-5.54, 2.4, -4.68);
+    let max0 = vec3f(-3.94, 7.04, 9.06);
+    let min1 = vec3f(-15.49, -13.51, 3.21);
+    let max1 = vec3f(-2.67, 2.41, 4.19);
+    let result = aabb_vs_aabb(min0, max0, min1, max1);
+    assert_eq!(result,true);
+
+    let min0 = vec3f(0.59, -15.13, -2.59);
+    let max0 = vec3f(17.91, -4.07, 5.65);
+    let min1 = vec3f(-16.04, -14.82, -4.47);
+    let max1 = vec3f(-1.18, -0.16, 9.63);
+    let result = aabb_vs_aabb(min0, max0, min1, max1);
+    assert_eq!(result,false);
+}

@@ -540,27 +540,27 @@ pub fn sphere_vs_sphere<T: Float, V: VecN<T> + VecFloatOps<T>>(s1: V, r1: T, s2:
     d2 < r22 * r22
 }
 
-pub fn aabb_vs_sphere<T: Float, V: VecN<T> + VecFloatOps<T> + NumberOps<T>>(aabb_min: V, aabb_max:V, s: V, r: T) -> bool {
+/// returns ture if the aabb defined by aabb_min to aabb_max intersects the sphere (or circle) centred at s with radius r
+pub fn aabb_vs_sphere<T: Float, V: VecN<T> + VecFloatOps<T> + NumberOps<T>>(aabb_min: V, aabb_max: V, s: V, r: T) -> bool {
     let cp = closest_point_on_aabb(s, aabb_min, aabb_max);
     dist2(cp, s) < r * r
 }
 
-// ray diectional vs plane?
+/// returns true if the aabb defined by aabb_min1 to aabb_max1 intersects aabb_min2-aabb_max2
+pub fn aabb_vs_aabb<T: Number, V: VecN<T> + NumberOps<T>>(aabb_min1: V, aabb_max1: V, aabb_min2: V, aabb_max2: V) -> bool {
+    for i in 0..V::len() {
+        if aabb_max1[i] < aabb_min2[i] || aabb_min1[i] > aabb_max2[i] {
+            return false;
+        } 
+    }
+    true
+}
 
-// aabb_vs_sphere
-// cone_vs_sphere
 // line_vs_sphere
 // ray_vs_sphere
-
-// aabb_vs_aabb
 // line_vs_aabb
 // ray_vs_aabb
-// cone_vs_aabb
-
-// line_vs_cone
-// ray_vs_cone
 // ray_vs_triangle
-// cone_vs_plane?
 
 // convex_hull_from_points
 // closest point on hull
@@ -568,6 +568,16 @@ pub fn aabb_vs_sphere<T: Float, V: VecN<T> + VecFloatOps<T> + NumberOps<T>>(aabb
 // point hull distance
 // point poly distance
 // point cone distance
+
+// aabb_vs_aabb
+
+// TODO: new
+// line_vs_cone
+// ray_vs_cone
+// cone_vs_sphere
+// cone_vs_plane
+// cone_vs_aabb
+// capsules?
 
 // mat
 // ortho basis frivs + huges
