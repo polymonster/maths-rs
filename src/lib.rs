@@ -211,7 +211,6 @@ pub fn convex_hull_from_points<T: Float + SignedNumberOps<T> + NumberOps<T> + Fl
         let mut rm = (curi+1)%to_sort.len();
         let mut x1 = to_sort[rm];
 
-        // for i in 0..to_sort.len() {
         for (i, item) in to_sort.iter().enumerate() {
             if i == curi {
                 continue;
@@ -527,8 +526,7 @@ pub fn point_inside_cone<T: Float + FloatOps<T> + NumberOps<T>, V: VecN<T> + Vec
 }
 
 /// returns true if the point p is inside the 2D convex hull defined by point list 'hull' with clockwise winding
-pub fn point_inside_convex_hull<T: Float>(p: Vec2<T>, hull: Vec<Vec2<T>>) -> bool
-{
+pub fn point_inside_convex_hull<T: Float>(p: Vec2<T>, hull: Vec<Vec2<T>>) -> bool {
     let p0 = Vec3::from((p, T::zero()));
     let ncp = hull.len();
     for i in 0..ncp {
@@ -538,15 +536,14 @@ pub fn point_inside_convex_hull<T: Float>(p: Vec2<T>, hull: Vec<Vec2<T>>) -> boo
         let v1 = p2 - p1;
         let v2 = p0 - p1;
         if cross(v1, v2).z > T::zero() {
-            return true;
+            return false;
         }
     }
     true
 }
 
 /// returns true if point p is inside the polygon defined by point list 'poly'
-pub fn point_inside_polygon<T: Float>(p: Vec2<T>, poly: Vec<Vec2<T>>) -> bool
-{
+pub fn point_inside_polygon<T: Float>(p: Vec2<T>, poly: Vec<Vec2<T>>) -> bool {
     // copyright (c) 1970-2003, Wm. Randolph Franklin
     // https://wrf.ecse.rpi.edu/Research/Short_Notes/pnpoly.html
     let npol = poly.len();
@@ -761,12 +758,30 @@ pub fn ray_vs_triangle<T: Float>(r0: Vec3<T>, rv: Vec3<T>, t0: Vec3<T>, t1: Vec3
     }
 }
 
-pub fn sphere_vs_frustum() -> bool {
-    false
+/// returns true if the sphere with centre s and radius r is inside the furstum defined by 6 planes packed as vec4's .xyz = normal, .w = plane distance
+pub fn sphere_vs_frustum<T: Number>(s: Vec3<T>, r: T, planes: &[Vec4<T>; 6]) -> bool {
+    for p in 0..6 {
+        let d = dot(s, Vec3::from(planes[p])) + planes[p].w;
+        if d > r {
+            return false;
+        }
+    }
+    true
 }
 
-pub fn aabb_vs_frustum() -> bool {
-    false
+/// returns true if the aabb defined by aabb_pos (centre) and aabb_extent is inside the furstum defined by 6 planes packed as vec4's .xyz = normal, .w = plane distance
+pub fn aabb_vs_frustum<T: SignedNumber + SignedNumberOps<T>>(aabb_pos: Vec3<T>, aabb_extent: Vec3<T>, planes: &[Vec4<T>; 6]) -> bool {
+    let mut inside = true;
+    for p in 0..6 {
+        let pn = Vec3::from(planes[p]);
+        let sign_flip = Vec3::signum(pn) * T::minus_one();
+        let pd = planes[p].w;
+        let d2 = dot(aabb_pos + aabb_extent * sign_flip, pn);
+        if d2 > -pd {
+            inside = false;
+        }
+    }
+    inside
 }
 
 // closest point on hull

@@ -1146,20 +1146,86 @@ impl<T> MatInverse<T> for Mat4<T> where T: SignedNumber {
 }
 
 pub trait MatProjection<T> {
-    //fn get_frustum_planes() -> [Vec4<T>; 6];
-    //fn get_frustum_corners() -> [Vec3<T>; 8];
+    /// returns 6 frustum planes as Vec4's in the form .xyz = normal, .w = plane distance 
+    fn get_frustum_planes(&self) -> [Vec4<T>; 6];
+    /// returns 8 points which are the corners of the frustum first 4 near, second 4 far
+    fn get_frustum_corners(&self) -> [Vec3<T>; 8];
 }
 
-impl<T> MatProjection<T> for Mat4<T> where T: Float {
-    /*
-    fn get_frustum_planes() -> [Vec4<T>; 6] {
+fn plane_from_vectors<T: Float + FloatOps<T>>(plane_vectors: &[Vec3<T>; 18], offset: usize) -> Vec4<T> {
+    let v1 = super::normalize(plane_vectors[offset + 1] - plane_vectors[offset + 0]);
+    let v2 = super::normalize(plane_vectors[offset + 2] - plane_vectors[offset + 0]);
+    let pn = super::cross(v1, v2);
+    let pd = super::plane_distance(plane_vectors[offset], pn);
+    Vec4::from((pn, pd))
+}
 
+impl<T> MatProjection<T> for Mat4<T> where T: Float + FloatOps<T>, Vec3<T>: FloatOps<T> {
+    fn get_frustum_planes(&self) -> [Vec4<T>; 6] {
+        // unproject matrix to get frustum corners grouped as 4 near, 4 far.
+        let ndc_coords = [
+            Vec2::<T>::new(T::zero(), T::one()),
+            Vec2::<T>::new(T::one(), T::one()),
+            Vec2::<T>::new(T::zero(), T::zero()),
+            Vec2::<T>::new(T::one(), T::zero()),
+        ];
+
+        // construct corner points
+        let corners = [[
+            super::unproject_sc(Vec3::from((ndc_coords[0], T::zero())), *self, Vec2::one()),
+            super::unproject_sc(Vec3::from((ndc_coords[1], T::zero())), *self, Vec2::one()),
+            super::unproject_sc(Vec3::from((ndc_coords[2], T::zero())), *self, Vec2::one()),
+            super::unproject_sc(Vec3::from((ndc_coords[3], T::zero())), *self, Vec2::one()),
+        ],
+        [
+            super::unproject_sc(Vec3::from((ndc_coords[0], T::one())), *self, Vec2::one()),
+            super::unproject_sc(Vec3::from((ndc_coords[1], T::one())), *self, Vec2::one()),
+            super::unproject_sc(Vec3::from((ndc_coords[2], T::one())), *self, Vec2::one()),
+            super::unproject_sc(Vec3::from((ndc_coords[3], T::one())), *self, Vec2::one()),
+        ]];
+
+        // construct vectors to obtain normals
+        let plane_vectors = [
+            corners[0][0], corners[1][0], corners[0][2], // left
+            corners[0][0], corners[0][1], corners[1][0], // top
+            corners[0][1], corners[0][3], corners[1][1], // right
+            corners[0][2], corners[1][2], corners[0][3], // bottom
+            corners[0][0], corners[0][2], corners[0][1], // near
+            corners[1][0], corners[1][1], corners[1][2]  // far
+        ];
+
+        // return array of planes
+        [
+            plane_from_vectors(&plane_vectors, 0),
+            plane_from_vectors(&plane_vectors, 3),
+            plane_from_vectors(&plane_vectors, 6),
+            plane_from_vectors(&plane_vectors, 9),
+            plane_from_vectors(&plane_vectors, 12),
+            plane_from_vectors(&plane_vectors, 15),
+        ]
     }
 
-    fn get_frustum_corners() -> [Vec3<T>; 8] {
+    fn get_frustum_corners(&self) -> [Vec3<T>; 8] {
+        // unproject matrix to get frustum corners grouped as 4 near, 4 far.
+        let ndc_coords = [
+            Vec2::<T>::new(T::zero(), T::one()),
+            Vec2::<T>::new(T::one(), T::one()),
+            Vec2::<T>::new(T::zero(), T::zero()),
+            Vec2::<T>::new(T::one(), T::zero()),
+        ];
 
+        // construct corner points
+        [
+            super::unproject_sc(Vec3::from((ndc_coords[0], T::zero())), *self, Vec2::one()),
+            super::unproject_sc(Vec3::from((ndc_coords[1], T::zero())), *self, Vec2::one()),
+            super::unproject_sc(Vec3::from((ndc_coords[2], T::zero())), *self, Vec2::one()),
+            super::unproject_sc(Vec3::from((ndc_coords[3], T::zero())), *self, Vec2::one()),
+            super::unproject_sc(Vec3::from((ndc_coords[0], T::one())), *self, Vec2::one()),
+            super::unproject_sc(Vec3::from((ndc_coords[1], T::one())), *self, Vec2::one()),
+            super::unproject_sc(Vec3::from((ndc_coords[2], T::one())), *self, Vec2::one()),
+            super::unproject_sc(Vec3::from((ndc_coords[3], T::one())), *self, Vec2::one()),
+        ]
     }
-    */
 }
 
 mat_impl!(Mat2, 2, 2, 4, Vec2 {x, 0, y, 1}, Vec2 {x, 0, y, 1});

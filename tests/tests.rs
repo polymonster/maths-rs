@@ -2260,3 +2260,67 @@ fn ray_vs_obb_test() {
     let result = ray_vs_obb(r1, rv, mat);
     assert_eq!(approx(result.unwrap(), vec3f(6.33623, -4.17592, 2.52359), 0.0001), true);
 }
+
+#[test]
+fn sphere_vs_frustum_test() {
+    let planes = Mat4f::from((
+		0.85501, 1.45179e-08, 0.467094, 0.0, 
+		0.39811, 1.52002, -0.728735, 0.0, 
+		0.420904, -0.479617, -0.770459, 60.004, 
+		0.420736, -0.479426, -0.770151, 60.0
+    )).get_frustum_planes();
+
+    // intersect
+    let pos = vec3f(-4.21, -1.79, 9.67);
+    let radius = 6.33;
+    let result = sphere_vs_frustum(pos, radius, &planes);
+    assert_eq!(result, true);
+
+    let pos = vec3f(-8.76, -8.04, 5.3);
+    let radius = 9.44;
+    let result = sphere_vs_frustum(pos, radius, &planes);
+    assert_eq!(result, true);
+
+    // outside
+    let pos = vec3f(4.85, 7.45, 2.28);
+    let radius = 3.28;
+    let result = sphere_vs_frustum(pos, radius, &planes);
+    assert_eq!(result, false);
+
+    let pos = vec3f(0.0100002, 1.53, -2.92);
+    let radius = 9.09;
+    let result = sphere_vs_frustum(pos, radius, &planes);
+    assert_eq!(result, false);
+}
+
+#[test]
+fn aabb_vs_frustum_test() {
+    let planes = Mat4f::from((
+		0.85501, 1.45179e-08, 0.467094, 0.0, 
+		0.39811, 1.52002, -0.728735, 0.0, 
+		0.420904, -0.479617, -0.770459, 60.004, 
+		0.420736, -0.479426, -0.770151, 60.0
+    )).get_frustum_planes();
+
+    // fail / outside
+    let epos = vec3f(-9.09, -8.06, -6.43);
+    let eext = vec3f(4.85, 7.45, 2.28);
+    let result = aabb_vs_frustum(epos, eext, &planes);
+    assert_eq!(result, false);
+
+    let epos = vec3f(-6.03, -7.06, 9.04);
+    let eext = vec3f(1.37, 3.58, 1.77);
+    let result = aabb_vs_frustum(epos, eext, &planes);
+    assert_eq!(result, false);
+
+	// intersect inside
+    let epos = vec3f(-1.03, 8.71, 8.28);
+    let eext = vec3f(5.62, 1.44, 5.01);
+    let result = aabb_vs_frustum(epos, eext, &planes);
+    assert_eq!(result, true);
+
+    let epos = vec3f(-8.25, 6.35, -7.02);
+    let eext = vec3f(6.09, 7.69, 7.45);
+    let result = aabb_vs_frustum(epos, eext, &planes);
+    assert_eq!(result, true);
+}
