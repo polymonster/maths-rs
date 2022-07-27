@@ -186,53 +186,45 @@ pub fn barycentric<T: Float + NumberOps<T>, V: VecFloatOps<T> + VecN<T> + Number
 }
 
 /// returns a convex hull wound clockwise from point cloud "points"
-pub fn convex_hull_from_points<T: Float + SignedNumberOps<T> + NumberOps<T> + FloatOps<T>>(points: Vec<Vec2<T>>) -> Vec<Vec2<T>> {
-    // initialise to sort as vec3's from vec2's
-    let mut to_sort = Vec::new();
-    for p in points {
-        to_sort.push(Vec3::<T>::from(p));
-    }
-    
-    //find right most
-    let mut cur = to_sort[0];
+pub fn convex_hull_from_points<T: Float + SignedNumberOps<T> + NumberOps<T> + FloatOps<T>>(points: &Vec<Vec2<T>>) -> Vec<Vec2<T>> {    
+    //find right most point
+    let mut cur = points[0];
     let mut curi = 0;
-    // for i in 1..to_sort.len() {
-    for (i, item) in to_sort.iter().enumerate().skip(1) {
+    for (i, item) in points.iter().enumerate().skip(1) {
         if item.x > cur.x && item.y > cur.y {
             cur = *item;
             curi = i;
         }
     }
     
-    // wind the hull clockwise by using cross products to test which side of an edge a point lies on
+    // wind the hull clockwise by using cross product to test which side of an edge a point lies on
     // discarding points that do not form the perimeter
-    let mut hull = vec![Vec2::<T>::from(cur)];
+    let mut hull = vec![cur];
     loop {
-        let mut rm = (curi+1)%to_sort.len();
-        let mut x1 = to_sort[rm];
+        let mut rm = (curi+1)%points.len();
+        let mut x1 = points[rm];
 
-        for (i, item) in to_sort.iter().enumerate() {
+        for (i, item) in points.iter().enumerate() {
             if i == curi {
                 continue;
             }
             let x2 = *item;
             let v1 = x1 - cur;
             let v2 = x2 - cur;
-            let cp = cross(v2, v1);
-            if cp.z > T::zero() {
+            let z = v2.x * v1.y - v2.y * v1.x;
+            if z > T::zero() {
                 x1 = *item;
                 rm = i;
             }
         }
 
-        let x1v2 = Vec2::<T>::from(x1);
-        if approx(x1v2, hull[0], T::small_epsilon()) {
+        if approx(x1, hull[0], T::small_epsilon()) {
             break;
         }
             
         cur = x1;
         curi = rm;
-        hull.push(x1v2);
+        hull.push(x1);
     }
     hull
 }
@@ -791,12 +783,9 @@ pub fn aabb_vs_frustum<T: SignedNumber + SignedNumberOps<T>>(aabb_pos: Vec3<T>, 
 
 // mat
 // ortho basis frivs + huges
-// frustum planes
-// frustum corners
 
 // utils
 // hsv
-// projection
 
 // TODO: finalise
 // think about obb's and mul with vec3 returning tuple

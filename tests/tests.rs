@@ -2162,7 +2162,7 @@ fn convex_hull_from_points_test() {
         vec2f(3.0, 6.0), // x
     ];
 
-    let hull = convex_hull_from_points(points);
+    let hull = convex_hull_from_points(&points);
 
     let expected = vec![
         vec2f(7.0, 3.0), // x
