@@ -185,6 +185,21 @@ pub fn barycentric<T: Float + NumberOps<T>, V: VecFloatOps<T> + VecN<T> + Number
     (u, v, w)
 }
 
+/// returns an xyz vector converted from azimuth altitude
+pub fn azimuth_altitude_to_xyz<T: Float + FloatOps<T>>(azimuth: T, altitude: T) -> Vec3<T>
+{
+    let z = T::sin(altitude);
+    let hyp = T::cos(altitude);
+    let y = hyp * T::cos(azimuth);
+    let x = hyp * T::sin(azimuth);
+    Vec3::<T>::new(x, z, y)
+}
+
+/// returns (azimuth, altitude) converted from vector xyz
+pub fn xyz_to_azimuth_altitude<T: Float + FloatOps<T>>(xyz: Vec3<T>) -> (T, T) {
+    (T::atan2(xyz.y, xyz.x), T::atan2(xyz.z, sqrt(xyz.x * xyz.x + xyz.y * xyz.y)))
+}
+   
 /// returns a convex hull wound clockwise from point cloud "points"
 pub fn convex_hull_from_points<T: Float + SignedNumberOps<T> + NumberOps<T> + FloatOps<T>>(points: &Vec<Vec2<T>>) -> Vec<Vec2<T>> {    
     //find right most point
@@ -776,15 +791,19 @@ pub fn aabb_vs_frustum<T: SignedNumber + SignedNumberOps<T>>(aabb_pos: Vec3<T>, 
     inside
 }
 
+pub fn impulse<T: Float, X: FloatOps<T> + std::ops::Mul<Output=X>>(k: X, x: X) -> X {
+    let h = k * x;
+    X::exp(h)
+    //h * X::exp(X::one() - h)
+}
+
 // closest point on hull
 // closest point on poly
 // point hull distance
 // point poly distance
 
-// mat
+// mat new?
 // ortho basis frivs + huges
-
-// utils
 // hsv
 
 // TODO: finalise

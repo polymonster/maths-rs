@@ -2324,3 +2324,13 @@ fn aabb_vs_frustum_test() {
     let result = aabb_vs_frustum(epos, eext, &planes);
     assert_eq!(result, true);
 }
+
+#[test]
+fn utils() {
+    let f : f32 = 0.0;
+    let ii = impulse(f, f);
+
+    let v = vec3f(-8.25, 6.35, -7.02);
+    let iv = impulse(v, v);
+    
+}
