@@ -1,20 +1,20 @@
-/// numerical traits and operations for scalar numbers, signed numbers, integers and floats
+/// base traits and operations for scalar numbers, signed numbers, integers and floats
 pub mod num;
 
-/// multi dimensional column vector with vec2, vec3 and vec4 implementations
+/// multi dimensional column vector with generic vec2, vec3 and vec4 implementations
 pub mod vec;
 
-/// multi dimensional row-major matrix with mat2, mat3, mat34 and mat4 implementations
+/// multi dimensional row-major matrix with generic mat2, mat3, mat34 and mat4 implementations
 pub mod mat;
 
-/// quaternion
+/// generic quaternion for varying floating point precision
 pub mod quat;
 
 use mat::*;
 use vec::*;
 use num::*;
 
-/// classification for tests vs planes
+/// classification for tests vs planes (behind, infront or intersects)
 #[derive(PartialEq, Debug)]
 pub enum Classification {
     /// behind the plane in the opposite direction of the planes normal
@@ -186,8 +186,7 @@ pub fn barycentric<T: Float + NumberOps<T>, V: VecFloatOps<T> + VecN<T> + Number
 }
 
 /// returns an xyz vector converted from azimuth altitude
-pub fn azimuth_altitude_to_xyz<T: Float + FloatOps<T>>(azimuth: T, altitude: T) -> Vec3<T>
-{
+pub fn azimuth_altitude_to_xyz<T: Float + FloatOps<T>>(azimuth: T, altitude: T) -> Vec3<T> {
     let z = T::sin(altitude);
     let hyp = T::cos(altitude);
     let y = hyp * T::cos(azimuth);
@@ -688,30 +687,31 @@ pub fn ray_vs_sphere<T: Float + FloatOps<T> + NumberOps<T>, V: VecN<T> + VecFloa
 
 /// returns the intersection point of the ray with origin r0 and direction rv with the aabb defined by aabb_min and aabb_max
 pub fn ray_vs_aabb<T: Number + NumberOps<T>, V: VecN<T>>(r0: V, rv: V, aabb_min: V, aabb_max: V) -> Option<V> {
-        // min / max's from aabb axes
-        let dirfrac = V::one() / rv;
-        let tx = (aabb_min[0] - r0[0]) * dirfrac[0];
-        let tm = (aabb_max[0] - r0[0]) * dirfrac[0];
-        let mut tmin = min(tx, tm);
-        let mut tmax = max(tx, tm);
-        for i in 0..V::len() {
-            let t1 = (aabb_min[i] - r0[i]) * dirfrac[i];
-            let t2 = (aabb_max[i] - r0[i]) * dirfrac[i];
-            tmin = max(min(t1, t2), tmin);
-            tmax = min(max(t1, t2), tmax);
-        }
+    // min / max's from aabb axes
+    let dirfrac = V::one() / rv;
+    let tx = (aabb_min[0] - r0[0]) * dirfrac[0];
+    let tm = (aabb_max[0] - r0[0]) * dirfrac[0];
+    let mut tmin = min(tx, tm);
+    let mut tmax = max(tx, tm);
+    for i in 0..V::len() {
+        let t1 = (aabb_min[i] - r0[i]) * dirfrac[i];
+        let t2 = (aabb_max[i] - r0[i]) * dirfrac[i];
+        tmin = max(min(t1, t2), tmin);
+        tmax = min(max(t1, t2), tmax);
+    }
 
-        if tmax < T::zero() || tmin > tmax {
-            // if tmin > tmax, ray doesn't intersect AABB
-            // if tmax < 0, ray (line) is intersecting AABB, but the whole AABB is behind us
-            None
-        }
-        else {
-            // otherwise tmin is length along the ray we intersect at
-            Some(r0 + rv * tmin)
-        }
+    if tmax < T::zero() || tmin > tmax {
+        // if tmin > tmax, ray doesn't intersect AABB
+        // if tmax < 0, ray (line) is intersecting AABB, but the whole AABB is behind us
+        None
+    }
+    else {
+        // otherwise tmin is length along the ray we intersect at
+        Some(r0 + rv * tmin)
+    }
 }
 
+/// returns the intersection of the 3D ray with origin r0 and direction rv with the obb defined by mat
 pub fn ray_vs_obb<T: Float + NumberOps<T>, 
     V: VecFloatOps<T> + NumberOps<T> + SignedNumberOps<T> + VecN<T> + SingedVecN<T>, 
     M: MatTranslate<V> + MatInverse<T> + MatRotate3D<T, V> + std::ops::Mul<V, Output=V>
@@ -767,8 +767,8 @@ pub fn ray_vs_triangle<T: Float>(r0: Vec3<T>, rv: Vec3<T>, t0: Vec3<T>, t1: Vec3
 
 /// returns true if the sphere with centre s and radius r is inside the furstum defined by 6 planes packed as vec4's .xyz = normal, .w = plane distance
 pub fn sphere_vs_frustum<T: Number>(s: Vec3<T>, r: T, planes: &[Vec4<T>; 6]) -> bool {
-    for p in 0..6 {
-        let d = dot(s, Vec3::from(planes[p])) + planes[p].w;
+    for p in planes.iter().take(6) {
+        let d = dot(s, Vec3::from(*p)) + p.w;
         if d > r {
             return false;
         }
@@ -779,10 +779,10 @@ pub fn sphere_vs_frustum<T: Number>(s: Vec3<T>, r: T, planes: &[Vec4<T>; 6]) -> 
 /// returns true if the aabb defined by aabb_pos (centre) and aabb_extent is inside the furstum defined by 6 planes packed as vec4's .xyz = normal, .w = plane distance
 pub fn aabb_vs_frustum<T: SignedNumber + SignedNumberOps<T>>(aabb_pos: Vec3<T>, aabb_extent: Vec3<T>, planes: &[Vec4<T>; 6]) -> bool {
     let mut inside = true;
-    for p in 0..6 {
-        let pn = Vec3::from(planes[p]);
+    for p in planes.iter().take(6) {
+        let pn = Vec3::from(*p);
         let sign_flip = Vec3::signum(pn) * T::minus_one();
-        let pd = planes[p].w;
+        let pd = p.w;
         let d2 = dot(aabb_pos + aabb_extent * sign_flip, pn);
         if d2 > -pd {
             inside = false;
@@ -791,10 +791,9 @@ pub fn aabb_vs_frustum<T: SignedNumber + SignedNumberOps<T>>(aabb_pos: Vec3<T>, 
     inside
 }
 
-pub fn impulse<T: Float, X: FloatOps<T> + std::ops::Mul<Output=X>>(k: X, x: X) -> X {
+pub fn impulse<T: Number + Float, X: Base<T> + FloatOps<T>>(k: X, x: X) -> X {
     let h = k * x;
-    X::exp(h)
-    //h * X::exp(X::one() - h)
+    h * X::exp(X::one() - h)
 }
 
 // closest point on hull

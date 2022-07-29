@@ -2328,9 +2328,9 @@ fn aabb_vs_frustum_test() {
 #[test]
 fn utils() {
     let f : f32 = 0.0;
-    let ii = impulse(f, f);
+    let _ii = impulse(f, f);
 
     let v = vec3f(-8.25, 6.35, -7.02);
-    let iv = impulse(v, v);
+    let _iv = impulse(v, v);
     
 }

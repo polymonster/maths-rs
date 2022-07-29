@@ -27,14 +27,8 @@ use crate::num::*;
 
 /// generic vec trait to allow sized vectors to be treated generically
 pub trait VecN<T: Number>: 
-    Index<usize, Output=T> + 
-    IndexMut<usize> + 
-    Copy + Display +
-    Add<Output=Self> + AddAssign +
-    Sub<Output=Self> + SubAssign + 
-    Mul<Output=Self> + MulAssign + 
-    Div<Output=Self> + DivAssign +
-    Rem<Output=Self> + RemAssign +
+    Base<T> +
+    Index<usize, Output=T> + IndexMut<usize> + 
     Add<T, Output=Self> + Sub<T, Output=Self> +
     Mul<T, Output=Self> + Div<T, Output=Self> {
     /// returns the count of elements in the vector
@@ -45,10 +39,6 @@ pub trait VecN<T: Number>:
     fn any(a: Self) -> bool;
     /// returns scalar value which is the vector dot product a . b
     fn dot(a: Self, b: Self) -> T;
-    /// returns a vector with all members set to 0
-    fn zero() -> Self;
-    /// returns a vector with all members set to 1
-    fn one() -> Self;
     /// returns a vector initialised as a unit vector in the x-axis [1, 0, 0, 0]
     fn unit_x() -> Self;
     /// returns a vector initialised as a unit vector in the y-axis [0, 1, 0, 0]
@@ -73,10 +63,6 @@ pub trait VecN<T: Number>:
     fn black() -> Self;
     /// returns a vector initialised to white (ones's)
     fn white() -> Self;
-    /// returns a vector initialised to the max supported value for type <T>
-    fn min_value() -> Self;
-    /// returns a vector initialised to the max supported value for type <T>
-    fn max_value() -> Self;
     /// returns a slice T of the vector
     fn as_slice(&self) -> &[T];
     /// returns a mutable slice T of the vector
@@ -166,18 +152,6 @@ macro_rules! vec_impl {
                 )+
             }
 
-            fn zero() -> $VecN<T> {
-                $VecN {
-                    $($field: T::zero(),)+
-                }
-            }
-
-            fn one() -> $VecN<T> {
-                $VecN {
-                    $($field: T::one(),)+
-                }
-            }
-
             fn unit_x() -> $VecN<T> {
                 let v = [T::one(), T::zero(), T::zero(), T::zero()];
                 Self {
@@ -257,20 +231,6 @@ macro_rules! vec_impl {
 
             fn white() -> $VecN<T> {
                 Self::one()
-            }
-
-            fn min_value() -> $VecN<T> {
-                let v = [T::min_value(), T::min_value(), T::min_value(), T::min_value()];
-                Self {
-                    $($field: v[$field_index],)+
-                }
-            }
-
-            fn max_value() -> $VecN<T> {
-                let v = [T::max_value(), T::max_value(), T::max_value(), T::max_value()];
-                Self {
-                    $($field: v[$field_index],)+
-                }
             }
 
             fn as_slice(&self) -> &[T] {
@@ -418,6 +378,50 @@ macro_rules! vec_impl {
             fn powfn(a: Self, exp: Self) -> Self {
                 Self {
                     $($field: T::powf(a.$field, exp.$field),)+
+                }
+            }
+        }
+
+        impl<T> Base<T> for $VecN<T> where T: Number {
+            fn zero() -> Self {
+                $VecN {
+                    $($field: T::zero(),)+
+                }
+            }
+
+            fn point_five() -> Self {
+                $VecN {
+                    $($field: T::point_five(),)+
+                }
+            }
+
+            fn one() -> Self {
+                $VecN {
+                    $($field: T::one(),)+
+                }
+            }
+
+            fn two() -> Self {
+                $VecN {
+                    $($field: T::two(),)+
+                }
+            }
+
+            fn four() -> Self {
+                $VecN {
+                    $($field: T::four(),)+
+                }
+            }
+
+            fn min_value() -> Self {
+                $VecN {
+                    $($field: T::min_value(),)+
+                }
+            }
+
+            fn max_value() -> Self {
+                $VecN {
+                    $($field: T::max_value(),)+
                 }
             }
         }

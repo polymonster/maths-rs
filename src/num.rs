@@ -15,6 +15,31 @@ use std::cmp::PartialOrd;
 
 use std::fmt::Display;
 
+/// base trait for scalar and vector numerical operations, arithmetic and generic constants 
+pub trait Base<T: Number>:
+    Copy + Display +
+    Add<Output=Self> + AddAssign +
+    Sub<Output=Self> + SubAssign + 
+    Mul<Output=Self> + MulAssign + 
+    Div<Output=Self> + DivAssign +
+    Rem<Output=Self> + RemAssign
+    where Self: Sized {
+    /// returns 0.0
+    fn zero() -> Self;
+    /// returns 0.5 for floating point types or 0 for integer types
+    fn point_five() -> Self;
+    /// returns 1
+    fn one() -> Self;
+    /// returns 2
+    fn two() -> Self;
+    /// returns 4
+    fn four() -> Self;
+    /// returns the smallest representable number with the available precision
+    fn min_value() -> Self;
+    /// returns the largest representable number with the available precision
+    fn max_value() -> Self;
+}
+
 pub trait NumberOps<T: Number> {
     /// returns a vector containing component wise min of a and b
     fn min(a: Self, b: Self) -> Self;
@@ -103,29 +128,7 @@ pub trait FloatOps<T: Float> where Self: Sized {
 macro_rules! number_trait_impl {
     ($($func:ident),*) => {
         /// base number trait for signed or unsigned, floating point or integer numbers.
-        pub trait Number: 
-            Copy + Default + Display +
-            Add<Output=Self> + AddAssign +
-            Sub<Output=Self> + SubAssign + 
-            Mul<Output=Self> + MulAssign + 
-            Div<Output=Self> + DivAssign +
-            Rem<Output=Self> + RemAssign +
-            PartialEq + PartialOrd {
-                /// returns 0.0
-                fn zero() -> Self;
-                /// returns 0.5
-                fn point_five() -> Self;
-                /// returns 1.0
-                fn one() -> Self;
-                /// returns 2.0
-                fn two() -> Self;
-                /// returns 4.0
-                fn four() -> Self;
-                /// returns the smallest representable number with the available precision
-                fn min_value() -> Self;
-                /// returns the largest representable number with the available precision
-                fn max_value() -> Self;
-        }
+        pub trait Number: Base<Self> + Default + PartialEq + PartialOrd  {}
         number_impl!(f64 { $($func),* }, 0.0, 1.0);
         number_impl!(f32 { $($func),* }, 0.0, 1.0);
         number_impl!(usize { $($func),* }, 0, 1);
@@ -143,7 +146,7 @@ macro_rules! number_trait_impl {
 
 macro_rules! number_impl {
     ($t:ident { $($func:ident),* }, $zero:literal, $one:literal) => {
-        impl Number for $t {
+        impl Base<$t> for $t {
             fn min_value() -> Self {
                 $t::MIN
             }
@@ -172,6 +175,8 @@ macro_rules! number_impl {
                 4 as Self
             }
         }
+
+        impl Number for $t {}
 
         impl NumberOps<$t> for $t {
             fn min(a: Self, b: Self) -> Self {

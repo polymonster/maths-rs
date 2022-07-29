@@ -1153,8 +1153,8 @@ pub trait MatProjection<T> {
 }
 
 fn plane_from_vectors<T: Float + FloatOps<T>>(plane_vectors: &[Vec3<T>; 18], offset: usize) -> Vec4<T> {
-    let v1 = super::normalize(plane_vectors[offset + 1] - plane_vectors[offset + 0]);
-    let v2 = super::normalize(plane_vectors[offset + 2] - plane_vectors[offset + 0]);
+    let v1 = super::normalize(plane_vectors[offset + 1] - plane_vectors[offset]);
+    let v2 = super::normalize(plane_vectors[offset + 2] - plane_vectors[offset]);
     let pn = super::cross(v1, v2);
     let pd = super::plane_distance(plane_vectors[offset], pn);
     Vec4::from((pn, pd))
