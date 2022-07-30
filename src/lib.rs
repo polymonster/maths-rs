@@ -458,7 +458,7 @@ pub fn closest_point_on_triangle<T: Float + FloatOps<T> + NumberOps<T>, V: VecN<
     }
 }
 
-/// find the closest point to p on the cone defined by cp position, with direction cv height h an radius r
+/// returns the closest point to p on the cone defined by cp position, with direction cv height h an radius r
 pub fn closest_point_on_cone<T: Float, V: VecN<T> + SingedVecN<T> + VecFloatOps<T>>(p: V, cp: V, cv: V, h: T, r: T) -> V {
     let l2 = cp + cv * h;
     let dh = distance_on_line(p, cp, l2) / h;
@@ -792,13 +792,15 @@ pub fn aabb_vs_frustum<T: SignedNumber + SignedNumberOps<T>>(aabb_pos: Vec3<T>, 
 
 /// returns soft clipping (in a cubic fashion) of x; let m be the threshold (anything above m stays unchanged), and n the value things will take when the signal is zero <https://iquilezles.org/articles/functions/>
 pub fn almost_identity<T: Number + Float>(x: T, m: T, n: T) -> T {
-    if x > m {
-        return x;
-    }
     let a = T::two()*n - m;
     let b = T::two()*m - T::three()*n;
     let t = x/m;
-    (a*t + b)*t*t + n
+    if x > m {
+        x
+    }
+    else {
+        (a*t + b)*t*t + n
+    }
 }
 
 /// returns the integral smoothstep of x it's derivative is never larger than 1 <https://iquilezles.org/articles/functions/>
@@ -838,10 +840,12 @@ pub fn exp_sustained_impulse<T: SignedNumber + Float, X: Base<T> + FloatOps<T> +
 pub fn cubic_pulse<X: Float + SignedNumberOps<X>>(c: X, w: X, x: X) -> X{
     let mut x = abs(x - c);
     if x > w {
-        return X::zero();
+        X::zero()
     }
-    x /= w;
-    X::one() - x * x*(X::three() - X::two()*x)
+    else {
+        x /= w;
+        X::one() - x * x*(X::three() - X::two()*x)
+    }
 }
 
 /// returns an exponential step (y position on a graph for x); k is control parameter, n is power which gives sharper curves.
@@ -881,6 +885,102 @@ pub fn pcurve<T: SignedNumber + Float + Base<T> + FloatOps<T>>(x: T, a: T, b: T)
 pub fn sinc<T: SignedNumber + Float, X: Base<T> + FloatOps<T> + SignedNumberOps<T>>(x: X, k: X) -> X {
     let a = X::zero() * (k*x-X::one());
     X::sin(a)/a
+}
+
+ /// returns a hsv value in 0-1 range converted from rgb in 0-1 range
+ pub fn rgb_to_hsv<T: Float + SignedNumberOps<T> + From<f64>>(rgb: Vec3<T>) -> Vec3<T> {
+    // from Foley & van Dam p592
+    // optimized: http://lolengine.net/blog/2013/01/13/fast-rgb-to-hsv 
+    let mut r = rgb.x;
+    let mut g = rgb.y;
+    let mut b = rgb.z;
+    
+    let mut k = T::zero();
+    if g < b {
+        std::mem::swap(&mut g, &mut b);
+        k = T::minus_one();
+    }
+
+    if r < g {
+        std::mem::swap(&mut r, &mut g);
+        k = -T::two() / T::from(6.0) - k;
+    }
+    
+    let chroma = r - if g < b { g } else { b };
+
+    Vec3 {
+    x: abs(k + (g - b) / (T::from(6.0)  * chroma + T::small_epsilon())),
+    y: chroma / (r + T::small_epsilon()),
+    z: r
+    }
+ }
+ 
+ /// returns an rgb value in 0-1 range converted from hsv in 0-1 range
+ pub fn hsv_to_rgb<T: Float + FloatOps<T> + From<f64>>(hsv: Vec3<T>) -> Vec3<T> where i32: From<T> {
+    // from Foley & van Dam p593: http://en.wikipedia.org/wiki/HSL_and_HSV
+    let h = hsv.x;
+    let s = hsv.y;
+    let v = hsv.z;
+        
+    if s == T::zero() {
+        // gray
+        return Vec3 {
+            x: v,
+            y: v,
+            z: v
+        };
+    }
+
+    let h = T::fmod(h, T::one()) / T::from(0.16666666666);
+    let i = i32::from(h);
+    let f = h - floor(h);
+    let p = v * (T::one() - s);
+    let q = v * (T::one() - s * f);
+    let t = v * (T::one() - s * (T::one() - f));
+
+    match i {
+        0 => {
+            Vec3::new(v, t, p)
+        }
+        1 => {
+            Vec3::new(q, v, p)
+        }
+        2 => {
+            Vec3::new(p, v, t)
+        }
+        3 => {
+            Vec3::new(p, q, v)
+        }
+        4 => {
+            Vec3::new(t, p, v)
+        }
+        _ => {
+            Vec3::new(v, p, q)
+        }
+    }
+}
+
+/// returns a vec4 of rgba in 0-1 range from a packed rgba8 inside u32 (4 bytes, R8G8B8A8)
+pub fn rgba8_to_vec4<T: Float + FloatOps<T> + From<u32> + From<f64>>(rgba: u32) -> Vec4<T> {
+    let one_over_255 = T::from(1.0 / 255.0);
+    Vec4 {
+        x: T::from((rgba >>  0) & 0xff) * one_over_255,
+        y: T::from((rgba >>  8) & 0xff) * one_over_255,
+        z: T::from((rgba >> 16) & 0xff) * one_over_255,
+        w: T::from((rgba >> 24) & 0xff) * one_over_255
+    }
+}
+
+/// returns a packed u32 containing rgba8 (4 bytes, R8G8B8A8) converted from a Vec4 of rgba in 0-1 range
+pub fn vec4f_to_rgba8<T: Float + From<f64>>(v: Vec4<T>) -> u32 where u32: From<T>
+{
+    let mut rgba : u32 = 0;
+    let x = T::from(255.0);
+    rgba |= u32::from(v[0] * x);
+    rgba |= u32::from(v[1] * x) << 8;
+    rgba |= u32::from(v[2] * x) << 16;
+    rgba |= u32::from(v[3] * x) << 24;
+    rgba
 }
 
 /*
@@ -945,10 +1045,8 @@ maths_inline T smooth_stop5(T t, T b = 0.0, T c = 1.0, T d = 1.0)
 // closest point on poly
 // point hull distance
 // point poly distance
-
 // mat new?
 // ortho basis frivs + huges
-// hsv
 
 // TODO: tests
 // missing fail cases
@@ -959,6 +1057,7 @@ maths_inline T smooth_stop5(T t, T b = 0.0, T c = 1.0, T d = 1.0)
 // projection, sc
 // unprojection, ndc,
 // unprojection sc
+// quilez functions
 
 // TODO c++
 // point inside cone test is whack
