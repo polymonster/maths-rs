@@ -933,6 +933,39 @@ impl<T> MatRotate2D<T> for Mat34<T> where T: Float + FloatOps<T> {
     }
 }
 
+/// given the normalised vector n, constructs an orthonormal basis returned as tuple
+pub fn get_orthonormal_basis_hughes_moeller<T: Float + SignedNumberOps<T> + FloatOps<T>>(n: Vec3<T>) -> (Vec3<T>, Vec3<T>) {
+    // choose a vector orthogonal to n as the direction of b2.
+    let b2 = if T::abs(n.x) > T::abs(n.z) {
+        Vec3::new(-n.y, n.x, T::zero())
+    }
+    else {
+        Vec3::new(T::zero(), -n.z, n.y)
+    };
+    
+    // normalise b2
+    let b2 = b2 * T::rsqrt(Vec3::dot(b2, b2));
+    
+    // construct b1 using cross product
+    let b1 = Vec3::cross(b2, n);
+
+    (b1, b2)
+}
+
+/// given the normalised vector n construct an orthonormal basis without sqrt..
+pub fn get_orthonormal_basis_frisvad<T: Float + SignedNumberOps<T> + FloatOps<T> + From<f64>>(n: Vec3<T>) -> (Vec3<T>, Vec3<T>) {
+    let epsilon = T::from(-0.99999999);
+    if n.z < epsilon {
+        (-Vec3::unit_y(), -Vec3::unit_x())
+    }
+    else {
+        let a = T::one()/(T::one() + n.z);
+        let b = -n.x * n.y * a;
+        (Vec3::new(T::one() - n.x * n.x * a, b, -n.x), Vec3::new(b, T::one() - n.y * n.y * a, -n.y))
+    }
+}
+
+
 /// trait for minimum of 3x3 matrices applying rotation to x, y or aribtrary 3D axes
 pub trait MatRotate3D<T, V> {
     /// create rotation about the x axis by theta radians
@@ -941,9 +974,11 @@ pub trait MatRotate3D<T, V> {
     fn create_y_rotation(theta: T) -> Self;
     /// create rotation about the abitrary axis by theta radians
     fn create_rotation(axis: V, theta: T) -> Self;
+    /// create an othonormal basis from the normal vector
+    fn create_orthonormal_basis(normal: Vec3<T>) -> Self;
 }
 
-impl<T> MatRotate3D<T, Vec3<T>> for Mat3<T> where T: Float + FloatOps<T>  {
+impl<T> MatRotate3D<T, Vec3<T>> for Mat3<T> where T: Float + FloatOps<T> + SignedNumberOps<T> {
     fn create_x_rotation(theta: T) -> Self {
         let mut m = Mat3::identity();
         let cos_theta = T::cos(theta);
@@ -967,35 +1002,39 @@ impl<T> MatRotate3D<T, Vec3<T>> for Mat3<T> where T: Float + FloatOps<T>  {
     }
 
     fn create_rotation(axis: Vec3<T>, theta: T) -> Self {
-        let mut m = Mat3::identity();
-
         let cos_theta = T::cos(theta);
         let sin_theta = T::sin(theta);
         let inv_cos_theta = T::one() - cos_theta;
+        Mat3::from((
+            Vec3::new(
+                inv_cos_theta * axis.x * axis.x + cos_theta,
+                inv_cos_theta * axis.x * axis.y - sin_theta * axis.z,
+                inv_cos_theta * axis.x * axis.z + sin_theta * axis.y
+            ),
+            Vec3::new(
+                inv_cos_theta * axis.x * axis.y + sin_theta * axis.z,
+                inv_cos_theta * axis.y * axis.y + cos_theta,
+                inv_cos_theta * axis.y * axis.z - sin_theta * axis.x
+            ),
+            Vec3::new(
+                inv_cos_theta * axis.x * axis.z - sin_theta * axis.y,
+                inv_cos_theta * axis.y * axis.z + sin_theta * axis.x,
+                inv_cos_theta * axis.z * axis.z + cos_theta
+            )
+        ))
+    }
 
-        m.set_row(0, Vec3::new(
-            inv_cos_theta * axis.x * axis.x + cos_theta,
-            inv_cos_theta * axis.x * axis.y - sin_theta * axis.z,
-            inv_cos_theta * axis.x * axis.z + sin_theta * axis.y
-        ));
-
-        m.set_row(1, Vec3::new(
-            inv_cos_theta * axis.x * axis.y + sin_theta * axis.z,
-            inv_cos_theta * axis.y * axis.y + cos_theta,
-            inv_cos_theta * axis.y * axis.z - sin_theta * axis.x
-        ));
-
-        m.set_row(2, Vec3::new(
-            inv_cos_theta * axis.x * axis.z - sin_theta * axis.y,
-            inv_cos_theta * axis.y * axis.z + sin_theta * axis.x,
-            inv_cos_theta * axis.z * axis.z + cos_theta,
-        ));
-        
-        m
+    fn create_orthonormal_basis(normal: Vec3<T>) -> Self {
+        let (b1, b2) = get_orthonormal_basis_hughes_moeller(normal);
+        Mat3::from((
+            b1,
+            normal,
+            b2
+        ))
     }
 }
 
-impl<T> MatRotate3D<T, Vec3<T>> for Mat34<T> where T: Float + FloatOps<T> {
+impl<T> MatRotate3D<T, Vec3<T>> for Mat34<T> where T: Float + FloatOps<T> + SignedNumberOps<T> {
     fn create_x_rotation(theta: T) -> Self {
         Mat34::from(Mat3::create_x_rotation(theta))
     }
@@ -1007,9 +1046,13 @@ impl<T> MatRotate3D<T, Vec3<T>> for Mat34<T> where T: Float + FloatOps<T> {
     fn create_rotation(axis: Vec3<T>, theta: T) -> Self {
         Mat34::from(Mat3::create_rotation(axis, theta))
     }
+
+    fn create_orthonormal_basis(normal: Vec3<T>) -> Self {
+        Mat34::from(Mat3::create_orthonormal_basis(normal))
+    }
 }
 
-impl<T> MatRotate3D<T, Vec3<T>> for Mat4<T> where T: Float + FloatOps<T> {
+impl<T> MatRotate3D<T, Vec3<T>> for Mat4<T> where T: Float + FloatOps<T> + SignedNumberOps<T> {
     fn create_x_rotation(theta: T) -> Self {
         Mat4::from(Mat3::create_x_rotation(theta))
     }
@@ -1020,6 +1063,10 @@ impl<T> MatRotate3D<T, Vec3<T>> for Mat4<T> where T: Float + FloatOps<T> {
 
     fn create_rotation(axis: Vec3<T>, theta: T) -> Self {
         Mat4::from(Mat3::create_rotation(axis, theta))
+    }
+
+    fn create_orthonormal_basis(normal: Vec3<T>) -> Self {
+        Mat4::from(Mat3::create_orthonormal_basis(normal))
     }
 }
 
@@ -1157,6 +1204,7 @@ impl<T> MatInverse<T> for Mat4<T> where T: SignedNumber {
     }
 }
 
+/// trait for 4x4 projection matrices
 pub trait MatProjection<T> {
     /// returns 6 frustum planes as Vec4's in the form .xyz = normal, .w = plane distance 
     fn get_frustum_planes(&self) -> [Vec4<T>; 6];

@@ -1036,7 +1036,6 @@ pub fn smooth_stop5<T: Float, X: Base<T> + SignedNumberOps<T>>(t: X, b: X, c: X,
 // point hull distance
 // point poly distance
 // mat new?
-// ortho basis frivs + huges
 // quat
 
 // TODO: tests

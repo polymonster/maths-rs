@@ -40,18 +40,19 @@ pub trait Base<T: Number>:
     fn max_value() -> Self;
 }
 
+/// operations applicable to both floating point, integer and unsigned types
 pub trait NumberOps<T: Number> {
     /// returns the minimum value of a and b
     fn min(a: Self, b: Self) -> Self;
     /// returns the maximum value of a and b
     fn max(a: Self, b: Self) -> Self;
-
     /// returns a vector with elements of x clamped component wise to min and max
     fn clamp(x: Self, min: Self, max: Self) -> Self;
     /// returns a vector stepped component wise; 1 if a is >= b, 0 otherwise
     fn step(a: Self, b: Self) -> Self;
 }
 
+/// operations applicable to signed types
 pub trait SignedNumberOps<T: SignedNumber>: Neg<Output=Self> {
     /// returns sign value of a; -1 = negative, 1 = positive or 0 (integers only)
     fn signum(a: Self) -> Self;
@@ -59,11 +60,13 @@ pub trait SignedNumberOps<T: SignedNumber>: Neg<Output=Self> {
     fn abs(a: Self) -> Self;
 }
 
+/// operations applicable to integer types
 pub trait IntegerOps<T: Integer> {
     /// returns vector with component-wise values raised to unsigned integer power
     fn pow(a: Self, exp: u32) -> Self;
 }
 
+/// operations applicable to floating point types
 pub trait FloatOps<T: Float> where Self: Sized {
     /// returns 0.5
     fn point_five() -> Self;
