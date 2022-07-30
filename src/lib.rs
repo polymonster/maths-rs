@@ -983,63 +983,53 @@ pub fn vec4f_to_rgba8<T: Float + From<f64>>(v: Vec4<T>) -> u32 where u32: From<T
     rgba
 }
 
-/*
-template<class T>
-maths_inline T smooth_start2(T t, T b = 0.0, T c = 1.0, T d = 1.0)
-{
-    t /= d;
-    return c * t*t + b;
+/// returns value t between the range c and d with offset b creating smooth easing at the start (squared)
+pub fn smooth_start2<T: Float, X: Base<T>>(t: X, b: X, c: X, d: X) -> X {
+    let t = t/d;
+    c * t*t + b
 }
 
-template<class T>
-maths_inline T smooth_start3(T t, T b = 0.0, T c = 1.0, T d = 1.0)
-{
-    t /= d;
-    return c * t*t*t + b;
+/// returns value t between the range c and d with offset b creating smooth easing at the start (cubed)
+pub fn smooth_start3<T: Float, X: Base<T>>(t: X, b: X, c: X, d: X) -> X {
+    let t = t/d;
+    c * t*t*t + b
 }
 
-template<class T>
-maths_inline T smooth_start4(T t, T b = 0.0, T c = 1.0, T d = 1.0)
-{
-    t /= d;
-    return c * t*t*t*t + b;
+/// returns value t between the range c and d with offset b creating smooth easing at the start (4th degree)
+pub fn smooth_start4<T: Float, X: Base<T>>(t: X, b: X, c: X, d: X) -> X {
+    let t = t/d;
+    c * t*t*t*t + b
 }
 
-template<class T>
-maths_inline T smooth_start5(T t, T b = 0.0, T c = 1.0, T d = 1.0)
-{
-    t /= d;
-    return c * t*t*t*t*t + b;
+/// returns value t between the range c and d with offset b creating smooth easing at the start (4th degree)
+pub fn smooth_start5<T: Float, X: Base<T>>(t: X, b: X, c: X, d: X) -> X {
+    let t = t/d;
+    c * t*t*t*t*t + b
 }
 
-template<class T>
-maths_inline T smooth_stop2(T t, T b = 0.0, T c = 1.0, T d = 1.0)
-{
-    t /= d;
-    return -c * t * (t - 2) + b;
+/// returns value t between the range c and d with offset b creating smooth easing at the end of t (squared)
+pub fn smooth_stop2<T: Float, X: Base<T> + SignedNumberOps<T>>(t: X, b: X, c: X, d: X) -> X {
+    let t = t/d;
+    -c * t * (t - X::two()) + b
 }
 
-template<class T>
-maths_inline T smooth_stop3(T t, T b = 0.0, T c = 1.0, T d = 1.0)
-{
-    t = t / d - 1;
-    return c * (t*t*t + (T)1) + b;
+/// returns value t between the range c and d with offset b creating smooth easing at the end of t (cubed)
+pub fn smooth_stop3<T: Float, X: Base<T> + SignedNumberOps<T>>(t: X, b: X, c: X, d: X) -> X {
+    let t = t/d;
+    c * (t*t*t + X::one()) + b
 }
 
-template<class T>
-maths_inline T smooth_stop4(T t, T b = 0.0, T c = 1.0, T d = 1.0)
-{
-    t = t / d - 1;
-    return -c * (t*t*t*t - (T)1) + b;
+/// returns value t between the range c and d with offset b creating smooth easing at the end of t (4th degree)
+pub fn smooth_stop4<T: Float, X: Base<T> + SignedNumberOps<T>>(t: X, b: X, c: X, d: X) -> X {
+    let t = t/d;
+    c * (t*t*t*t + X::one()) + b
 }
 
-template<class T>
-maths_inline T smooth_stop5(T t, T b = 0.0, T c = 1.0, T d = 1.0)
-{
-    t = t / d - 1;
-    return c * (t*t*t*t*t + (T)1) + b;
+/// returns value t between the range c and d with offset b creating smooth easing at the end of t (5th degree)
+pub fn smooth_stop5<T: Float, X: Base<T> + SignedNumberOps<T>>(t: X, b: X, c: X, d: X) -> X {
+    let t = t/d;
+    c * (t*t*t*t*t + X::one()) + b
 }
-*/
 
 // closest point on hull
 // closest point on poly
