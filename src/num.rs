@@ -176,6 +176,7 @@ macro_rules! number_impl {
             fn four() -> Self {
                 4 as Self
             }
+
         }
 
         impl Number for $t {}
@@ -268,6 +269,7 @@ macro_rules! float_impl {
                 0.5 as Self
             }
 
+            #[allow(clippy::excessive_precision)] 
             fn pi() -> Self {
                 3.14159265358979323846264338327950288 as Self
             }

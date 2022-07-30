@@ -964,7 +964,7 @@ pub fn sinc<T: SignedNumber + Float, X: Base<T> + FloatOps<T> + SignedNumberOps<
 pub fn rgba8_to_vec4<T: Float + FloatOps<T> + From<u32> + From<f64>>(rgba: u32) -> Vec4<T> {
     let one_over_255 = T::from(1.0 / 255.0);
     Vec4 {
-        x: T::from((rgba >>  0) & 0xff) * one_over_255,
+        x: T::from(rgba & 0xff) * one_over_255,
         y: T::from((rgba >>  8) & 0xff) * one_over_255,
         z: T::from((rgba >> 16) & 0xff) * one_over_255,
         w: T::from((rgba >> 24) & 0xff) * one_over_255
@@ -1037,6 +1037,7 @@ pub fn smooth_stop5<T: Float, X: Base<T> + SignedNumberOps<T>>(t: X, b: X, c: X,
 // point poly distance
 // mat new?
 // ortho basis frivs + huges
+// quat
 
 // TODO: tests
 // missing fail cases
@@ -1048,6 +1049,7 @@ pub fn smooth_stop5<T: Float, X: Base<T> + SignedNumberOps<T>>(t: X, b: X, c: X,
 // unprojection, ndc,
 // unprojection sc
 // quilez functions
+// quat tests
 
 // TODO c++
 // point inside cone test is whack
@@ -1061,6 +1063,7 @@ pub fn smooth_stop5<T: Float, X: Base<T> + SignedNumberOps<T>>(t: X, b: X, c: X,
 // point inside poly (test)
 // ray sphere (test)
 // ray triangle (test)
+// quat tests
 
 // TODO: new?
 // line_vs_cone
