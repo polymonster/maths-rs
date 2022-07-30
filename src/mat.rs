@@ -14,7 +14,7 @@ use std::cmp::PartialEq;
 use std::fmt::Display;
 use std::fmt::Formatter;
 
-/// Matrix Index Layouts
+/// row major matrix index layouts
 /// 
 /// Mat2:
 /// 00 01
@@ -702,18 +702,16 @@ impl<T> Mul<Vec4<T>> for Mat4<T> where T: Number {
     }
 }
 
-/// performs multiplication with implicit w = 1.0, returning Vec3 and w in a tuple
+/// performs multiplication on vec3 with implicit w = 1.0, returning Vec3 which has been divided by w
 impl<T> Mul<Vec3<T>> for Mat4<T> where T: Number {
-    type Output = (Vec3<T>, T);
+    type Output = Vec3<T>;
     fn mul(self, rhs: Vec3<T>) -> Self::Output {
-        (
-            Vec3 {
-                x: self.m[0] * rhs.x + self.m[1] * rhs.y + self.m[2] * rhs.z + self.m[3],
-                y: self.m[4] * rhs.x + self.m[5] * rhs.y + self.m[6] * rhs.z + self.m[7],
-                z: self.m[8] * rhs.x + self.m[9] * rhs.y + self.m[10] * rhs.z + self.m[11],
-            },
-            self.m[12] * rhs.x + self.m[13] * rhs.y + self.m[14] * rhs.z + self.m[15]
-        )
+        let w = self.m[12] * rhs.x + self.m[13] * rhs.y + self.m[14] * rhs.z + self.m[15];
+        Vec3 {
+            x: self.m[0] * rhs.x + self.m[1] * rhs.y + self.m[2] * rhs.z + self.m[3],
+            y: self.m[4] * rhs.x + self.m[5] * rhs.y + self.m[6] * rhs.z + self.m[7],
+            z: self.m[8] * rhs.x + self.m[9] * rhs.y + self.m[10] * rhs.z + self.m[11],
+        } / w
     }
 }
 
@@ -796,6 +794,20 @@ impl<T> MulAssign<Mat34<T>> for Mat4<T> where T: Number {
         *self = mul4x4_3x4(*self, rhs)
     }
 }
+
+/// base matrix trait for arithmetic ops
+pub trait MatN<T: Number, V: VecN<T>>: 
+    Sized + Display + Copy + Clone +
+    Mul<V, Output=V> + Mul<Self, Output=Self> + MulAssign<Self> + 
+{
+}
+
+impl<T> MatN<T, Vec2<T>> for Mat2<T> where T: Number {}
+impl<T> MatN<T, Vec3<T>> for Mat3<T> where T: Number {}
+impl<T> MatN<T, Vec3<T>> for Mat34<T> where T: Number {}
+impl<T> MatN<T, Vec4<T>> for Mat4<T> where T: Number {}
+impl<T> MatN<T, Vec3<T>> for Mat4<T> where T: Number {}
+
 
 /// trait for minimum of 4 column matrices to create translation
 pub trait MatTranslate<V> {

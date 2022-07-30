@@ -295,12 +295,6 @@ macro_rules! vec_impl {
         }
 
         impl<T> SignedNumberOps<T> for $VecN<T> where T: SignedNumber + SignedNumberOps<T> {
-            fn sign(a: Self) -> Self {
-                Self {
-                    $($field: T::signum(a.$field),)+
-                }
-            }
-
             fn signum(a: Self) -> Self {
                 Self {
                     $($field: T::signum(a.$field),)+
@@ -389,12 +383,6 @@ macro_rules! vec_impl {
                 }
             }
 
-            fn point_five() -> Self {
-                $VecN {
-                    $($field: T::point_five(),)+
-                }
-            }
-
             fn one() -> Self {
                 $VecN {
                     $($field: T::one(),)+
@@ -404,6 +392,12 @@ macro_rules! vec_impl {
             fn two() -> Self {
                 $VecN {
                     $($field: T::two(),)+
+                }
+            }
+
+            fn three() -> Self {
+                $VecN {
+                    $($field: T::four(),)+
                 }
             }
 
@@ -427,6 +421,18 @@ macro_rules! vec_impl {
         }
 
         impl<T> FloatOps<T> for $VecN<T> where T: Float + SignedNumberOps<T> + NumberOps<T> + FloatOps<T> {
+            fn point_five() -> Self {
+                $VecN {
+                    $($field: T::point_five(),)+
+                }
+            }
+
+            fn pi() -> Self {
+                $VecN {
+                    $($field: T::pi(),)+
+                }
+            }
+
             fn sqrt(a: Self) -> Self {
                 Self {
                     $($field: T::sqrt(a.$field),)+

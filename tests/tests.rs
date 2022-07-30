@@ -718,10 +718,10 @@ fn clamp_min_max_saturate_step() {
 #[test]
 fn abs_sign() {
     assert_eq!(Vec3f::abs(vec3f(-22.0, -12.0, 66.0)), vec3f(22.0, 12.0, 66.0));
-    assert_eq!(Vec3f::sign(vec3f(123.0, -123.0, 999.0)), vec3f(1.0, -1.0, 1.0));
     assert_eq!(Vec3f::signum(vec3f(123.0, -123.0, 999.0)), vec3f(1.0, -1.0, 1.0));
-    assert_eq!(Vec3f::sign(vec3f(0.0, -0.0, 0.0)), vec3f(1.0, -1.0, 1.0));
-    assert_eq!(Vec3i::sign(vec3i(-1, 0, 1)), vec3i(-1, 0, 1));
+    assert_eq!(Vec3f::signum(vec3f(123.0, -123.0, 999.0)), vec3f(1.0, -1.0, 1.0));
+    assert_eq!(Vec3f::signum(vec3f(0.0, -0.0, 0.0)), vec3f(1.0, -1.0, 1.0));
+    assert_eq!(Vec3i::signum(vec3i(-1, 0, 1)), vec3i(-1, 0, 1));
 }
 
 #[test]
@@ -1486,21 +1486,21 @@ fn matrix_mul_vec() {
     // 4x4 rot
     let m4 = Mat4f::create_z_rotation(f32::deg_to_rad(90.0));
     let v3 = vec3f(10.0, 0.0, 0.0);
-    let (transformed, _w) = m4 * v3;
+    let transformed = m4 * v3;
     let expected = vec3f(0.0, 10.0, 0.0);
     assert_eq!(Vec3f::approx(transformed, expected, 0.001), true);
     
     // 4x4 scale
     let m4 = Mat4f::create_scale(vec3f(50.0, -10.0, 20.0));
     let v3 = vec3f(3.0, 4.0, 5.0);
-    let (transformed, _w) = m4 * v3;
+    let transformed = m4 * v3;
     let expected = vec3f(150.0, -40.0, 100.0);
     assert_eq!(transformed, expected);
 
     // 4x4 translate
     let m4 = Mat4f::create_translation(vec3f(50.0, 90.0, -20.0));
     let v3 = vec3f(3.0, 4.0, 5.0);
-    let (transformed, _w) = m4 * v3;
+    let transformed = m4 * v3;
     let expected = vec3f(53.0, 94.0, -15.0);
     assert_eq!(transformed, expected);
 }
@@ -1614,6 +1614,17 @@ fn closest_point_on_obb_test() {
     let p = vec3f(-7.98, 0.31, -7.8);
     let result = closest_point_on_obb(p, mat);
     assert_eq!(approx(result, vec3f(-3.49981, -3.17162, -5.17936), 0.01), true);
+
+    // 4x4
+    let mat = Mat4f::from((
+        1.44084, 4.81496, -0.0373597, -0.11, 
+        1.65605, -2.58742, -0.655296, -7.14, 
+        -1.41194, 1.87878, -0.806716, -1.55,
+        0.0, 0.0, 0.0, 1.0
+    ));
+    let p = vec3f(-7.98, 0.31, -7.8);
+    let result = closest_point_on_obb(p, mat);
+    assert_eq!(approx(result, vec3f(-3.49981, -3.17162, -5.17936), 0.01), true);
 }
 
 #[test]
@@ -1656,6 +1667,28 @@ fn point_inside_obb_test() {
         1.44084, 4.81496, -0.0373597, -0.11, 
         1.65605, -2.58742, -0.655296, -7.14, 
         -1.41194, 1.87878, -0.806716, -1.55
+    ));
+    let p = vec3f(-7.98, 0.31, -7.8);
+    let result = point_inside_obb(p, mat);
+    assert_eq!(result, false);
+
+    // 4x4
+    // inside
+    let mat = Mat4f::from((
+        -2.10233, -0.747065, 0.887925, -3.2, 
+        0.964173, -2.97305, -0.208202, 3.48, 
+        7.7732, 0.166721, 0.265972, -0.21,
+        0.0, 0.0, 0.0, 1.0
+    ));
+    let p = vec3f(-4.73, 6.14, 7.15);
+    let result = point_inside_obb(p, mat);
+    assert_eq!(result, true);
+    // outside
+    let mat = Mat4f::from((
+        1.44084, 4.81496, -0.0373597, -0.11, 
+        1.65605, -2.58742, -0.655296, -7.14, 
+        -1.41194, 1.87878, -0.806716, -1.55,
+        0.0, 0.0, 0.0, 1.0
     ));
     let p = vec3f(-7.98, 0.31, -7.8);
     let result = point_inside_obb(p, mat);
@@ -1950,12 +1983,12 @@ fn sphere_vs_plane_test() {
 }
 
 #[test]
-fn bidirectional_ray_vs_plane_test() {
+fn line_vs_plane_test() {
     let r0 = vec3f(-2.48, 5.66, -2.84);
     let rv = vec3f(0.437602, -0.733279, 0.520391);
     let x = vec3f(5.01, -1.03, 8.71);
     let n = vec3f(-0.723007, 0.371545, 0.582422);
-    let result = bidirectional_ray_vs_plane(r0, rv, x, n);
+    let result = line_vs_plane(r0, rv, x, n);
     assert_eq!(result.is_some(), true);
     if let Some(result) = result {
         assert_eq!(approx(result, vec3f(-0.682132, 2.64736, -0.701995), 0.001), true);
@@ -1965,7 +1998,7 @@ fn bidirectional_ray_vs_plane_test() {
     let rv = vec3f(0.0350043, -0.796348, -0.603825);
     let x = vec3f(7.45, -8.25, 6.35);
     let n = vec3f(-0.0185944, 0.390482, 0.920423);
-    let result = bidirectional_ray_vs_plane(r0, rv, x, n);
+    let result = line_vs_plane(r0, rv, x, n);
     assert_eq!(result.is_some(), true);
     if let Some(result) = result {
         assert_eq!(approx(result, vec3f(1.31114, 4.40918, 0.855423), 0.001), true);
@@ -1975,7 +2008,7 @@ fn bidirectional_ray_vs_plane_test() {
     let rv = vec3f(0.39763, 0.655741, -0.641789);
     let x = vec3f(-6.05, 9.68, 1.13);
     let n = vec3f(0.257437, -0.806637, 0.532037);
-    let result = bidirectional_ray_vs_plane(r0, rv, x, n);
+    let result = line_vs_plane(r0, rv, x, n);
     assert_eq!(result.is_some(), true);
     if let Some(result) = result {
         assert_eq!(approx(result, vec3f(15.925, 4.41882, -17.4797), 0.001), true);
@@ -1986,7 +2019,7 @@ fn bidirectional_ray_vs_plane_test() {
     let n = vec3f(1.0, 0.0, 0.0);
     let r0 = vec3f(10.0, 5.0, -10.0);
     let rv = vec3f(0.0, 0.0, 1.0);
-    let result = bidirectional_ray_vs_plane(r0, rv, x, n);
+    let result = line_vs_plane(r0, rv, x, n);
     assert_eq!(result.is_none(), true);
 }
 
@@ -2030,7 +2063,7 @@ fn ray_vs_plane_test() {
 }
 
 #[test]
-pub fn line_vs_plane_test() {
+pub fn line_segment_vs_plane_test() {
     let x = vec3f(0.0, 0.0, 0.0);
     let n = vec3f(1.0, 0.0, 0.0);
     // intersects
@@ -2129,15 +2162,15 @@ fn aabb_vs_aabb_test() {
 }
 
 #[test]
-fn convex_hull_from_points_test() {
+fn convex_hull() {
     //  0   1   2   3   4   5   6   7
     //  -   -   -   x   -   -   -   -          
-    //      x   0       0   x
+    //  a   x   0       0   x
     //          0   0   0   0
     //  x       0   0       0       x
     //              0
     //              0
-    //              x
+    //  a           x       a
     //
 
     // x = edge, 0 = dscarded
@@ -2174,6 +2207,30 @@ fn convex_hull_from_points_test() {
     ];
 
     assert_eq!(hull, expected);
+
+    //  0   1   2   3   4   5   6   7
+    //  -   -   -   x   -   -   -   -          
+    //  a   x   0       0   x
+    //          0   0   0   0
+    //  x       0   0       0       x
+    //              0
+    //              0
+    //  a           x       a
+    //
+
+    assert_eq!(point_inside_convex_hull(vec2f(0.0, 0.0), &hull), false);
+    assert_eq!(point_inside_convex_hull(vec2f(0.0, 5.0), &hull), false);
+    assert_eq!(point_inside_convex_hull(vec2f(5.0, 5.0), &hull), false);
+
+    assert_eq!(point_inside_convex_hull(vec2f(1.0, 2.0), &hull), false);
+    assert_eq!(point_inside_convex_hull(vec2f(1.0, 3.0), &hull), false);
+    assert_eq!(point_inside_convex_hull(vec2f(1.0, 4.0), &hull), false);
+    assert_eq!(point_inside_convex_hull(vec2f(1.0, 5.0), &hull), false);
+    assert_eq!(point_inside_convex_hull(vec2f(2.0, 2.0), &hull), false);
+    assert_eq!(point_inside_convex_hull(vec2f(2.0, 3.0), &hull), false);
+    assert_eq!(point_inside_convex_hull(vec2f(2.0, 5.0), &hull), false);
+    assert_eq!(point_inside_convex_hull(vec2f(3.0, 3.0), &hull), false);
+    assert_eq!(point_inside_convex_hull(vec2f(4.0, 3.0), &hull), false);
 }
 
 #[test]
@@ -2328,9 +2385,9 @@ fn aabb_vs_frustum_test() {
 #[test]
 fn utils() {
     let f : f32 = 0.0;
-    let _ii = impulse(f, f);
+    let _ii = exp_impulse(f, f);
 
     let v = vec3f(-8.25, 6.35, -7.02);
-    let _iv = impulse(v, v);
+    let _iv = exp_impulse(v, v);
     
 }

@@ -24,14 +24,14 @@ pub trait Base<T: Number>:
     Div<Output=Self> + DivAssign +
     Rem<Output=Self> + RemAssign
     where Self: Sized {
-    /// returns 0.0
+    /// returns 0
     fn zero() -> Self;
-    /// returns 0.5 for floating point types or 0 for integer types
-    fn point_five() -> Self;
     /// returns 1
     fn one() -> Self;
     /// returns 2
     fn two() -> Self;
+    /// returns 3
+    fn three() -> Self;
     /// returns 4
     fn four() -> Self;
     /// returns the smallest representable number with the available precision
@@ -41,22 +41,21 @@ pub trait Base<T: Number>:
 }
 
 pub trait NumberOps<T: Number> {
-    /// returns a vector containing component wise min of a and b
+    /// returns the minimum value of a and b
     fn min(a: Self, b: Self) -> Self;
-    /// returns a vector containing component wise max of a and b
+    /// returns the maximum value of a and b
     fn max(a: Self, b: Self) -> Self;
+
     /// returns a vector with elements of x clamped component wise to min and max
     fn clamp(x: Self, min: Self, max: Self) -> Self;
     /// returns a vector stepped component wise; 1 if a is >= b, 0 otherwise
     fn step(a: Self, b: Self) -> Self;
 }
 
-pub trait SignedNumberOps<T: SignedNumber> {
-    /// returns component wise sign value; -1 = negative, 1 = positive or 0 (integers only)
-    fn sign(a: Self) -> Self;
-    /// returns component wise sign value; -1 = negative, 1 = positive or 0 (integers only)
+pub trait SignedNumberOps<T: SignedNumber>: Neg<Output=Self> {
+    /// returns sign value of a; -1 = negative, 1 = positive or 0 (integers only)
     fn signum(a: Self) -> Self;
-    /// returns a omponent wise vector containing the absolute (postive) value of a
+    /// returns the absolute (postive) value of a
     fn abs(a: Self) -> Self;
 }
 
@@ -66,29 +65,33 @@ pub trait IntegerOps<T: Integer> {
 }
 
 pub trait FloatOps<T: Float> where Self: Sized {
-    /// returns vector with component-wise square root
+    /// returns 0.5
+    fn point_five() -> Self;
+    /// returns pi
+    fn pi() -> Self;
+    /// returns square root of a
     fn sqrt(a: Self) -> Self;
-    /// returns vector with component-wise reciprocal square root (1/sqrt(a))
+    /// returns reciprocal square root of a (1/sqrt(a))
     fn rsqrt(a: Self) -> Self;
-    /// returns vector with component-wise reciprocal
+    /// returns the reciprocal of a
     fn recip(a: Self) -> Self;
-    /// returns vector with component-wise values raised to integer power
+    /// returns a raised to integer power
     fn powi(a: Self, exp: i32) -> Self;
-    /// returns vector with component-wise values raised to float power
+    /// returns a raised to float power
     fn powf(a: Self, exp: T) -> Self;
-    /// returns vector with fused multiply add component wise
+    /// returns fused multiply add a * m + b
     fn mad(m: Self, a: Self, b: Self) -> Self;
-    /// returns true if all elements in vectors a and b are approximately equal within the designated epsilon
+    /// returns true if a and b are approximately equal within the designated epsilon
     fn approx(a: Self, b: Self, eps: T) -> bool;
-    /// returns the greatest integer which is less than or equal to each vector element component wise
+    /// returns the greatest integer which is less than or equal to a
     fn floor(a: Self) -> Self;
-    /// returns the smallest integer which is greater than or equal to each vector element component wise
+    /// returns the smallest integer which is greater than or equal to a
     fn ceil(a: Self) -> Self;
-    /// performs linear interpolation between e0 and e1, t specifies the ratio to interpolate between the values
+    /// returns linear interpolation of t between e0 and e1, t specifies the ratio to interpolate between the values
     fn lerp(e0: Self, e1: Self, t: T) -> Self;
-    /// returns vector with component wise hermite interpolation between 0-1
+    /// returns hermite interpolation between 0-1 of t between edges e0 and e1
     fn smoothstep(e0: Self, e1: Self, t: T) -> Self;
-    /// returns vector with values from a rounded component wise
+    /// returns a rounded component wise
     fn round(a: Self) -> Self;
     /// returns true if a is not a number
     fn is_nan(a: Self) -> Self;
@@ -96,13 +99,12 @@ pub trait FloatOps<T: Float> where Self: Sized {
     fn is_infinite(a: Self) -> Self;
     /// returns true is a is finite
     fn is_finite(a: Self) -> Self;
-    /// returns a vector with saturated elements clamped between 0-1. equivalent to clamp (x, 0, 1)
+    /// returns the value of a saturated (clamped between 0-1). equivalent to clamp (x, 0, 1)
     fn saturate(x: Self) -> Self;
-    /// convert degrees to radians
+    /// returns theta converted from degrees to radians
     fn deg_to_rad(theta: Self) -> Self;
-    /// convert radians to degrees
+    /// returns theta converted from radians to degrees
     fn rad_to_deg(theta: Self) -> Self;
-    // TODO: docs
     fn fmod(x: Self, y: Self) -> Self;
     fn frac(v: Self) -> Self;
     fn trunc(v: Self) -> Self;
@@ -163,12 +165,12 @@ macro_rules! number_impl {
                 $one
             }
 
-            fn point_five() -> Self {
-                0.5 as Self
-            }
-
             fn two() -> Self {
                 2 as Self
+            }
+
+            fn three() -> Self {
+                3 as Self
             }
 
             fn four() -> Self {
@@ -232,10 +234,6 @@ macro_rules! signed_number_impl {
                     v.$func()
                 }
             )*
-
-            fn sign(a: Self) -> Self {
-                Self::signum(a)
-            }
         }
     }
 }
@@ -265,6 +263,14 @@ macro_rules! float_impl {
                     v.$func()
                 }
             )*
+
+            fn point_five() -> Self {
+                0.5 as Self
+            }
+
+            fn pi() -> Self {
+                3.14159265358979323846264338327950288 as Self
+            }
 
             fn rsqrt(a: Self) -> Self {
                 Self::one()/Self::sqrt(a)

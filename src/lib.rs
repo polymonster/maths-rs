@@ -46,8 +46,8 @@ pub fn step<T: Number, V: NumberOps<T>>(a: V, b: V) -> V {
 }
 
 /// returns -1 if number is negative, 1 if positive and 0 if zero (integers)
-pub fn sign<T: SignedNumber, V: SignedNumberOps<T>>(a: V) -> V {
-    V::sign(a)
+pub fn signum<T: SignedNumber, V: SignedNumberOps<T>>(a: V) -> V {
+    V::signum(a)
 }
 
 /// returns the absolute (positive) value of a 
@@ -266,7 +266,7 @@ pub fn project_to_ndc<T: Float>(p: Vec3<T>, view_projection: Mat4<T>) -> Vec3<T>
 
 /// returns the 2D screen coordinate of 3D point p projected with view_projection, performing homogenous divide and viewport correction
 /// assumes screen coordinates are vup in the y-axis y.0 = bottom y.height = top
-pub fn project_to_sc<T: Float>(p: Vec3<T>, view_projection: Mat4<T>, viewport: Vec2<T>) -> Vec2<T> {
+pub fn project_to_sc<T: Float + FloatOps<T>>(p: Vec3<T>, view_projection: Mat4<T>, viewport: Vec2<T>) -> Vec2<T> {
     let ndc = project_to_ndc(p, view_projection);
     let sc  = ndc * T::point_five() + T::point_five();
     Vec2::<T>::from(sc) * viewport
@@ -274,7 +274,7 @@ pub fn project_to_sc<T: Float>(p: Vec3<T>, view_projection: Mat4<T>, viewport: V
 
 /// returns the 2D screen coordinate of 3D point p projected with view_projection, performing homogenous divide and viewport correction
 /// coordinates are vdown in the y-axis vdown = y.0 = top y.height = bottom
-pub fn project_to_sc_vdown<T: Float>(p: Vec3<T>, view_projection: Mat4<T>, viewport: Vec2<T>) -> Vec2<T> {
+pub fn project_to_sc_vdown<T: Float + FloatOps<T>>(p: Vec3<T>, view_projection: Mat4<T>, viewport: Vec2<T>) -> Vec2<T> {
     let ndc = project_to_ndc(p, view_projection);
     let sc  = ndc * Vec3::new(T::point_five(), -T::point_five(), T::point_five()) + T::point_five();
     Vec2::<T>::from(sc) * viewport
@@ -283,8 +283,7 @@ pub fn project_to_sc_vdown<T: Float>(p: Vec3<T>, view_projection: Mat4<T>, viewp
 /// returns the unprojected 3D world position of point p which is specified in normalized device coordinates
 pub fn unproject_ndc<T: Float>(p: Vec3<T>, view_projection: Mat4<T>) -> Vec3<T> {
     let inv = view_projection.inverse();
-    let (usc, w) = inv * p;
-    usc / w
+    inv * p
 }
 
 /// returns the unprojected 3D world position of screen coordinate p
@@ -408,7 +407,7 @@ pub fn closest_point_on_ray<T: Float, V: VecFloatOps<T> + VecN<T>>(p: V, r0: V, 
 }
 
 /// returns the closest point to point p on the obb defined by mat which will transform an aabb centred at 0 with extents -1 to 1 into an obb
-pub fn closest_point_on_obb<T: Float, V: VecFloatOps<T> + NumberOps<T> + SignedNumberOps<T> + VecN<T> + SingedVecN<T>, M: MatTranslate<V> + MatInverse<T> + std::ops::Mul<V, Output=V>>(p: V, mat: M) -> V {
+pub fn closest_point_on_obb<T: Float, V: VecFloatOps<T> + NumberOps<T> + SignedNumberOps<T> + VecN<T> + SingedVecN<T>, M: MatTranslate<V> + MatInverse<T> + MatN<T, V>>(p: V, mat: M) -> V {
     let invm = M::inverse(&mat);
     let tp = invm * p;
     let cp = closest_point_on_aabb(tp, V::minus_one(), V::one());
@@ -510,7 +509,7 @@ pub fn point_inside_sphere<T: Float, V: VecFloatOps<T> + VecN<T>>(p: V, s: V, r:
 }
 
 /// returns true if the point p is inside the obb defined by mat which will transform an aabb centred at 0 with extents -1 to 1 into an obb
-pub fn point_inside_obb<T: Float, V: VecFloatOps<T> + NumberOps<T> + SignedNumberOps<T> + VecN<T> + SingedVecN<T>, M: MatTranslate<V> + MatInverse<T> + std::ops::Mul<V, Output=V>>(p: V, mat: M) -> bool {
+pub fn point_inside_obb<T: Float, V: VecFloatOps<T> + NumberOps<T> + SignedNumberOps<T> + VecN<T> + SingedVecN<T>, M: MatTranslate<V> + MatInverse<T> + MatN<T, V>>(p: V, mat: M) -> bool {
     let invm = mat.inverse();
     let tp = invm * p;
     point_inside_aabb(tp, V::minus_one(), V::one())
@@ -532,16 +531,16 @@ pub fn point_inside_cone<T: Float + FloatOps<T> + NumberOps<T>, V: VecN<T> + Vec
 }
 
 /// returns true if the point p is inside the 2D convex hull defined by point list 'hull' with clockwise winding
-pub fn point_inside_convex_hull<T: Float>(p: Vec2<T>, hull: Vec<Vec2<T>>) -> bool {
-    let p0 = Vec3::from((p, T::zero()));
+pub fn point_inside_convex_hull<T: Float>(p: Vec2<T>, hull: &Vec<Vec2<T>>) -> bool {
     let ncp = hull.len();
     for i in 0..ncp {
         let i2 = (i+1)%ncp;
-        let p1 = Vec3::from((hull[i], T::zero()));
-        let p2 = Vec3::from((hull[i2], T::zero()));
+        let p1 = hull[i];
+        let p2 = hull[i2];
         let v1 = p2 - p1;
-        let v2 = p0 - p1;
-        if cross(v1, v2).z > T::zero() {
+        let v2 = p - p1;
+        let z = v1.x * v2.y - v2.x - v1.y;
+        if z > T::zero() {
             return false;
         }
     }
@@ -609,15 +608,15 @@ pub fn ray_vs_plane<T: Float + SignedNumberOps<T>>(r0: Vec3<T>, rv: Vec3<T>, x: 
     }
 }
 
-/// returns the intersection point of the bidirectional ray defined as point on ray r0 and direction rv with the plane defined by point on plane x and normal n
-pub fn bidirectional_ray_vs_plane<T: Float + SignedNumberOps<T>>(r0: Vec3<T>, rv: Vec3<T>, x: Vec3<T>, n: Vec3<T>) -> Option<Vec3<T>> {
-    let r = dot(rv, n);
+/// returns the intersection point of the infinite line defined as point on line l0 and direction lv with the plane defined by point on plane x and normal n
+pub fn line_vs_plane<T: Float + SignedNumberOps<T>>(l0: Vec3<T>, lv: Vec3<T>, x: Vec3<T>, n: Vec3<T>) -> Option<Vec3<T>> {
+    let r = dot(lv, n);
     if r == T::zero() {
         None
     }
     else {
-        let t = -(dot(r0, n) - dot(x, n))  / dot(rv, n);
-        Some(r0 + rv * t)
+        let t = -(dot(l0, n) - dot(x, n))  / dot(lv, n);
+        Some(l0 + lv * t)
     }
 }
 
@@ -714,9 +713,9 @@ pub fn ray_vs_aabb<T: Number + NumberOps<T>, V: VecN<T>>(r0: V, rv: V, aabb_min:
 /// returns the intersection of the 3D ray with origin r0 and direction rv with the obb defined by mat
 pub fn ray_vs_obb<T: Float + NumberOps<T>, 
     V: VecFloatOps<T> + NumberOps<T> + SignedNumberOps<T> + VecN<T> + SingedVecN<T>, 
-    M: MatTranslate<V> + MatInverse<T> + MatRotate3D<T, V> + std::ops::Mul<V, Output=V>
+    M: MatTranslate<V> + MatInverse<T> + MatRotate3D<T, V> + MatN<T, V>
     + Into<Mat3<T>> + Copy>
-    (r0: V, rv: V, mat: M) -> Option<V> where Mat3<T> : std::ops::Mul<V, Output=V> {
+    (r0: V, rv: V, mat: M) -> Option<V> where Mat3<T> : MatN<T, V> {
     let invm = mat.inverse();
     let tr1 = invm * r0;
     let rotm : Mat3<T> = invm.into();
@@ -791,10 +790,156 @@ pub fn aabb_vs_frustum<T: SignedNumber + SignedNumberOps<T>>(aabb_pos: Vec3<T>, 
     inside
 }
 
-pub fn impulse<T: Number + Float, X: Base<T> + FloatOps<T>>(k: X, x: X) -> X {
+/// returns soft clipping (in a cubic fashion) of x; let m be the threshold (anything above m stays unchanged), and n the value things will take when the signal is zero <https://iquilezles.org/articles/functions/>
+pub fn almost_identity<T: Number + Float>(x: T, m: T, n: T) -> T {
+    if x > m {
+        return x;
+    }
+    let a = T::two()*n - m;
+    let b = T::two()*m - T::three()*n;
+    let t = x/m;
+    (a*t + b)*t*t + n
+}
+
+/// returns the integral smoothstep of x it's derivative is never larger than 1 <https://iquilezles.org/articles/functions/>
+pub fn integral_smoothstep<T: Number + Float + FloatOps<T>>(x: T, t: T) -> T {
+    if x > t {
+        x - t/T::two()
+    }
+    else {
+        x*x*x*(T::one()-x*T::point_five()/t)/t/t
+    }
+}
+
+/// returns an exponential impulse (y position on a graph for x); k controls the stretching of the function <https://iquilezles.org/articles/functions/>
+pub fn exp_impulse<T: Number + Float, X: Base<T> + FloatOps<T>>(k: X, x: X) -> X {
     let h = k * x;
     h * X::exp(X::one() - h)
 }
+
+/// returns an quadratic impulse (y position on a graph for x); k controls the stretching of the function <https://iquilezles.org/articles/functions/>
+pub fn quad_impulse<T: Number + Float + Base<T> + FloatOps<T>>(k: T, x: T) -> T{
+    T::two() * T::sqrt(k) * x / (T::one()+k*x*x)
+}
+
+/// returns a quadratic impulse (y position on a graph for x); n is the degree of the polynomial and k controls the stretching of the function <https://iquilezles.org/articles/functions/>
+pub fn poly_impulse<T: Number + Float + Base<T> + FloatOps<T>>(k: T, x: T, n: T) -> T {
+    let one = T::one();
+    (n/(n-one))* T::powf((n-one)*k,one/n)*x/(one+k*T::powf(x,n))
+}
+
+/// returns an exponential sustained impulse (y position on a graph for x); control on the width of attack with k and release with f <https://iquilezles.org/articles/functions/>
+pub fn exp_sustained_impulse<T: SignedNumber + Float, X: Base<T> + FloatOps<T> + SignedNumberOps<T> + Ord>(x: X, f: X, k: X) -> X {
+    let s = X::max(x-f, X::zero());
+    X::min(x*x/(f*f), X::one() + (X::two()/f)*s*X::exp(-k*s))
+}
+
+/// returns a cubic pulse (y position on a graph for x); equivalent to: smoothstep(c-w,c,x)-smoothstep(c,c+w,x) <https://iquilezles.org/articles/functions/>
+pub fn cubic_pulse<X: Float + SignedNumberOps<X>>(c: X, w: X, x: X) -> X{
+    let mut x = abs(x - c);
+    if x > w {
+        return X::zero();
+    }
+    x /= w;
+    X::one() - x * x*(X::three() - X::two()*x)
+}
+
+/// returns an exponential step (y position on a graph for x); k is control parameter, n is power which gives sharper curves.
+pub fn exp_step<T: SignedNumber + Float, X: Base<T> + FloatOps<T> + SignedNumberOps<T>>(x: X, k: X, n: T) -> X {
+    X::exp(-k * X::powf(x, n))
+}
+
+/// returns gain (y position on a graph for x); remapping the unit interval into the unit interval by expanding the sides and compressing the center <https://iquilezles.org/articles/functions/>
+pub fn gain<T: SignedNumber + Float + FloatOps<T>>(x: T, k: T) -> T {
+    let y = if x < T::point_five() { 
+        x
+    }
+    else {
+        T::one()-x
+    };
+    let a = T::point_five()*T::powf(T::two()*(y), k);
+    if x < T::point_five() {
+        a
+    }
+    else {
+        T::one() - a
+    }
+}
+
+/// returns a parabola (y position on a graph for x); use k to control its shape <https://iquilezles.org/articles/functions/>
+pub fn parabola<T: SignedNumber + Float, X: Base<T> + FloatOps<T> + SignedNumberOps<T>>(x: X, k: T) -> X {
+    powf(X::four() * x * (X::one() - x), k)
+}
+
+/// returns a power curve (y position on a graph for x); this is a generalziation of the parabola <https://iquilezles.org/articles/functions/>
+pub fn pcurve<T: SignedNumber + Float + Base<T> + FloatOps<T>>(x: T, a: T, b: T) -> T {
+    let k = powf(a + b, a + b) / (powf(a, a) * powf(b, b));
+    k * powf(x, a) * powf(T::one() - x, b)
+}
+
+/// returns a sin curve (y position on a graph for x); can be used for some bouncing behaviors. give k different integer values to tweak the amount of bounces <https://iquilezles.org/articles/functions/>
+pub fn sinc<T: SignedNumber + Float, X: Base<T> + FloatOps<T> + SignedNumberOps<T>>(x: X, k: X) -> X {
+    let a = X::zero() * (k*x-X::one());
+    X::sin(a)/a
+}
+
+/*
+template<class T>
+maths_inline T smooth_start2(T t, T b = 0.0, T c = 1.0, T d = 1.0)
+{
+    t /= d;
+    return c * t*t + b;
+}
+
+template<class T>
+maths_inline T smooth_start3(T t, T b = 0.0, T c = 1.0, T d = 1.0)
+{
+    t /= d;
+    return c * t*t*t + b;
+}
+
+template<class T>
+maths_inline T smooth_start4(T t, T b = 0.0, T c = 1.0, T d = 1.0)
+{
+    t /= d;
+    return c * t*t*t*t + b;
+}
+
+template<class T>
+maths_inline T smooth_start5(T t, T b = 0.0, T c = 1.0, T d = 1.0)
+{
+    t /= d;
+    return c * t*t*t*t*t + b;
+}
+
+template<class T>
+maths_inline T smooth_stop2(T t, T b = 0.0, T c = 1.0, T d = 1.0)
+{
+    t /= d;
+    return -c * t * (t - 2) + b;
+}
+
+template<class T>
+maths_inline T smooth_stop3(T t, T b = 0.0, T c = 1.0, T d = 1.0)
+{
+    t = t / d - 1;
+    return c * (t*t*t + (T)1) + b;
+}
+
+template<class T>
+maths_inline T smooth_stop4(T t, T b = 0.0, T c = 1.0, T d = 1.0)
+{
+    t = t / d - 1;
+    return -c * (t*t*t*t - (T)1) + b;
+}
+
+template<class T>
+maths_inline T smooth_stop5(T t, T b = 0.0, T c = 1.0, T d = 1.0)
+{
+    t = t / d - 1;
+    return c * (t*t*t*t*t + (T)1) + b;
+}
+*/
 
 // closest point on hull
 // closest point on poly
@@ -805,12 +950,8 @@ pub fn impulse<T: Number + Float, X: Base<T> + FloatOps<T>>(k: X, x: X) -> X {
 // ortho basis frivs + huges
 // hsv
 
-// TODO: finalise
-// think about obb's and mul with vec3 returning tuple
-
 // TODO: tests
 // missing fail cases
-// point inside hull (test)
 // point inside poly (test)
 // ray sphere (test)
 // ray triangle (test)
