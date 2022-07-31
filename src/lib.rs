@@ -548,7 +548,7 @@ pub fn point_inside_convex_hull<T: Float>(p: Vec2<T>, hull: &Vec<Vec2<T>>) -> bo
 }
 
 /// returns true if point p is inside the polygon defined by point list 'poly'
-pub fn point_inside_polygon<T: Float>(p: Vec2<T>, poly: Vec<Vec2<T>>) -> bool {
+pub fn point_inside_polygon<T: Float>(p: Vec2<T>, poly: &Vec<Vec2<T>>) -> bool {
     // copyright (c) 1970-2003, Wm. Randolph Franklin
     // https://wrf.ecse.rpi.edu/Research/Short_Notes/pnpoly.html
     let npol = poly.len();
@@ -1110,7 +1110,6 @@ pub fn smooth_stop5<T: Float, X: Base<T> + SignedNumberOps<T>>(t: X, b: X, c: X,
 
 // TODO: tests
 // missing fail cases
-// point inside poly (test)
 // ray sphere (test)
 // ray triangle (test)
 // projection, ndc

@@ -2173,7 +2173,7 @@ fn convex_hull() {
     //  a           x       a
     //
 
-    // x = edge, 0 = dscarded
+    // x = edge, 0 = dscarded, a = outside
 
     let points = vec![
         vec2f(3.0, 0.0), // x
@@ -2208,20 +2208,12 @@ fn convex_hull() {
 
     assert_eq!(hull, expected);
 
-    //  0   1   2   3   4   5   6   7
-    //  -   -   -   x   -   -   -   -          
-    //  a   x   0       0   x
-    //          0   0   0   0
-    //  x       0   0       0       x
-    //              0
-    //              0
-    //  a           x       a
-    //
-
+    // outside
     assert_eq!(point_inside_convex_hull(vec2f(0.0, 0.0), &hull), false);
     assert_eq!(point_inside_convex_hull(vec2f(0.0, 5.0), &hull), false);
     assert_eq!(point_inside_convex_hull(vec2f(5.0, 5.0), &hull), false);
 
+    // inside
     assert_eq!(point_inside_convex_hull(vec2f(1.0, 2.0), &hull), false);
     assert_eq!(point_inside_convex_hull(vec2f(1.0, 3.0), &hull), false);
     assert_eq!(point_inside_convex_hull(vec2f(1.0, 4.0), &hull), false);
@@ -2231,6 +2223,52 @@ fn convex_hull() {
     assert_eq!(point_inside_convex_hull(vec2f(2.0, 5.0), &hull), false);
     assert_eq!(point_inside_convex_hull(vec2f(3.0, 3.0), &hull), false);
     assert_eq!(point_inside_convex_hull(vec2f(4.0, 3.0), &hull), false);
+}
+
+#[test]
+fn polygon() {
+    //   0   1   2   3   4   5   6   7
+    //0  -   -   -   x   -   -   -   -          
+    //1  a   x   0       0   x
+    //2          0   0   0   0
+    //3  x       0   0       0       x
+    //4              x
+    //5              a
+    //6  x                    a      x
+    //--------------------------------
+
+    // x = edge, 0 = inside, a = outside
+
+    let square = vec![
+        vec2f(0.0, 0.0),
+        vec2f(0.0, 1.0),
+        vec2f(1.0, 1.0),
+        vec2f(1.0, 0.0),
+    ];
+    assert_eq!(point_inside_polygon(vec2f(0.5, 0.5), &square), true);
+
+    let poly = vec![
+        vec2f(3.0, 0.0), // x
+        vec2f(5.0, 1.0), // x
+        vec2f(7.0, 3.0), // x
+        vec2f(7.0, 6.0), // x
+        vec2f(3.0, 4.0), // x
+        vec2f(0.0, 6.0), // x
+        vec2f(0.0, 3.0), // x
+        vec2f(1.0, 1.0), // x
+    ];
+
+    // outside
+    assert_eq!(point_inside_polygon(vec2f(0.0, 0.0), &poly), false);
+    assert_eq!(point_inside_polygon(vec2f(3.0, 5.0), &poly), false);
+    assert_eq!(point_inside_polygon(vec2f(5.0, 6.0), &poly), false);
+
+    // inside
+    assert_eq!(point_inside_polygon(vec2f(4.0, 2.0), &poly), true);
+    assert_eq!(point_inside_polygon(vec2f(3.0, 2.0), &poly), true);
+    assert_eq!(point_inside_polygon(vec2f(3.0, 3.0), &poly), true);
+    assert_eq!(point_inside_polygon(vec2f(2.0, 1.0), &poly), true);
+    assert_eq!(point_inside_polygon(vec2f(4.0, 1.0), &poly), true);
 }
 
 #[test]
