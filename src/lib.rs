@@ -359,7 +359,7 @@ pub fn point_triangle_distance<T: Float + FloatOps<T> + NumberOps<T>, V: VecN<T>
 }
 
 /// returns the distance from point p to the cone defined by position cp, with height h and radius at the base of r
-pub fn point_cone_distance<T: Float, V: VecN<T> + SingedVecN<T> + VecFloatOps<T>>(p: V, cp: V, cv: V, h: T, r: T) -> T {
+pub fn point_cone_distance<T: Float, V: VecN<T> + SignedVecN<T> + VecFloatOps<T>>(p: V, cp: V, cv: V, h: T, r: T) -> T {
     dist(p, closest_point_on_cone(p, cp, cv, h, r))
 }
 
@@ -380,7 +380,7 @@ pub fn closest_point_on_line_segment<T: Float, V: VecFloatOps<T> + VecN<T>>(p: V
 }
 
 /// returns the closest point on the plane to point p wher the plane is defined by point on plane x and normal n
-pub fn closest_point_on_plane<T: SignedNumber, V: VecN<T> + SingedVecN<T>>(p: V, x: V, n: V) -> V {
+pub fn closest_point_on_plane<T: SignedNumber, V: VecN<T> + SignedVecN<T>>(p: V, x: V, n: V) -> V {
     p - n * (V::dot(p, n) - V::dot(x, n))
 }
 
@@ -407,7 +407,7 @@ pub fn closest_point_on_ray<T: Float, V: VecFloatOps<T> + VecN<T>>(p: V, r0: V, 
 }
 
 /// returns the closest point to point p on the obb defined by mat which will transform an aabb centred at 0 with extents -1 to 1 into an obb
-pub fn closest_point_on_obb<T: Float, V: VecFloatOps<T> + NumberOps<T> + SignedNumberOps<T> + VecN<T> + SingedVecN<T>, M: MatTranslate<V> + MatInverse<T> + MatN<T, V>>(p: V, mat: M) -> V {
+pub fn closest_point_on_obb<T: Float, V: VecFloatOps<T> + NumberOps<T> + SignedNumberOps<T> + VecN<T> + SignedVecN<T>, M: MatTranslate<V> + MatInverse<T> + MatN<T, V>>(p: V, mat: M) -> V {
     let invm = M::inverse(&mat);
     let tp = invm * p;
     let cp = closest_point_on_aabb(tp, V::minus_one(), V::one());
@@ -459,7 +459,7 @@ pub fn closest_point_on_triangle<T: Float + FloatOps<T> + NumberOps<T>, V: VecN<
 }
 
 /// returns the closest point to p on the cone defined by cp position, with direction cv height h an radius r
-pub fn closest_point_on_cone<T: Float, V: VecN<T> + SingedVecN<T> + VecFloatOps<T>>(p: V, cp: V, cv: V, h: T, r: T) -> V {
+pub fn closest_point_on_cone<T: Float, V: VecN<T> + SignedVecN<T> + VecFloatOps<T>>(p: V, cp: V, cv: V, h: T, r: T) -> V {
     let l2 = cp + cv * h;
     let dh = distance_on_line(p, cp, l2) / h;
     let x0 = closest_point_on_line_segment(p, cp, l2);
@@ -509,7 +509,7 @@ pub fn point_inside_sphere<T: Float, V: VecFloatOps<T> + VecN<T>>(p: V, s: V, r:
 }
 
 /// returns true if the point p is inside the obb defined by mat which will transform an aabb centred at 0 with extents -1 to 1 into an obb
-pub fn point_inside_obb<T: Float, V: VecFloatOps<T> + NumberOps<T> + SignedNumberOps<T> + VecN<T> + SingedVecN<T>, M: MatTranslate<V> + MatInverse<T> + MatN<T, V>>(p: V, mat: M) -> bool {
+pub fn point_inside_obb<T: Float, V: VecFloatOps<T> + NumberOps<T> + SignedNumberOps<T> + VecN<T> + SignedVecN<T>, M: MatTranslate<V> + MatInverse<T> + MatN<T, V>>(p: V, mat: M) -> bool {
     let invm = mat.inverse();
     let tp = invm * p;
     point_inside_aabb(tp, V::minus_one(), V::one())
@@ -712,7 +712,7 @@ pub fn ray_vs_aabb<T: Number + NumberOps<T>, V: VecN<T>>(r0: V, rv: V, aabb_min:
 
 /// returns the intersection of the 3D ray with origin r0 and direction rv with the obb defined by mat
 pub fn ray_vs_obb<T: Float + NumberOps<T>, 
-    V: VecFloatOps<T> + NumberOps<T> + SignedNumberOps<T> + VecN<T> + SingedVecN<T>, 
+    V: VecFloatOps<T> + NumberOps<T> + SignedNumberOps<T> + VecN<T> + SignedVecN<T>, 
     M: MatTranslate<V> + MatInverse<T> + MatRotate3D<T, V> + MatN<T, V>
     + Into<Mat3<T>> + Copy>
     (r0: V, rv: V, mat: M) -> Option<V> where Mat3<T> : MatN<T, V> {
@@ -788,6 +788,33 @@ pub fn aabb_vs_frustum<T: SignedNumber + SignedNumberOps<T>>(aabb_pos: Vec3<T>, 
         }
     }
     inside
+}
+
+/// returns the intersection point if the line segment l1-l2 intersects with s1-s2
+pub fn line_segment_vs_line_segment<T: Float + SignedNumberOps<T> + FloatOps<T>>(l1: Vec3<T>, l2: Vec3<T>,  s1: Vec3<T>, s2: Vec3<T>) -> Option<Vec3<T>> {
+    let da = l2 - l1;
+    let db = s2 - s1;
+    let dc = s1 - l1;
+    if dot(dc, cross(da, db)) != T::zero() {
+        // lines are not coplanar
+        None
+    }
+    else {
+        let s = dot(cross(dc, db), cross(da, db)) / mag2(cross(da, db));
+        if s >= T::zero() && s <= T::one() {
+            let ip = l1 + da * s;
+            let t = distance_on_line(s1, s2, ip) / dist(s1, s2);
+            if t >= T::zero() && t <= T::one() {
+                Some(ip)
+            }
+            else {
+                None
+            }
+        }
+        else {
+            None
+        }
+    }
 }
 
 /// returns soft clipping (in a cubic fashion) of x; let m be the threshold (anything above m stays unchanged), and n the value things will take when the signal is zero <https://iquilezles.org/articles/functions/>
@@ -1030,6 +1057,10 @@ pub fn smooth_stop5<T: Float, X: Base<T> + SignedNumberOps<T>>(t: X, b: X, c: X,
     let t = t/d;
     c * (t*t*t*t*t + X::one()) + b
 }
+
+// line seg vs 
+// line vs
+// + tests
 
 // closest point on hull
 // closest point on poly

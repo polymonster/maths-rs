@@ -71,7 +71,8 @@ pub trait VecN<T: Number>:
     fn as_u8_slice(&self) -> &[u8];
 }
 
-pub trait SingedVecN<T: SignedNumber>: Neg<Output=Self> {
+/// trait for vectors of signed types to allow Neg
+pub trait SignedVecN<T: SignedNumber>: Neg<Output=Self> {
     /// returns a vector initialised with -1
     fn minus_one() -> Self;
 }
@@ -104,6 +105,7 @@ pub trait VecFloatOps<T: Float> {
     fn powfn(a: Self, exp: Self) -> Self;
 }
 
+/// trait for cross product, this is only applicable to 3D or 7D vectors
 pub trait VecCross<T> {
     fn cross(a: Self, b: Self) -> Self;
 }
@@ -252,7 +254,7 @@ macro_rules! vec_impl {
             }
         }
 
-        impl<T> SingedVecN<T> for $VecN<T> where T: SignedNumber  {
+        impl<T> SignedVecN<T> for $VecN<T> where T: SignedNumber  {
             fn minus_one() -> Self {
                 $VecN {
                     $($field: T::minus_one(),)+
