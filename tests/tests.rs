@@ -2383,6 +2383,45 @@ fn aabb_vs_frustum_test() {
 }
 
 #[test]
+fn live_vs_line_test() {
+    let l1 = vec3f(4.76, 0.0, 4.61);
+    let l2 = vec3f(5.63, 0.0, -7.86);
+    let s1 = vec3f(7.22, 0.0, 5.11);
+    let s2 = vec3f(-2.09, 0.0, -1.29);
+    let result = line_segment_vs_line_segment(l1, l2, s1, s2);
+    assert_eq!(approx(result.unwrap(), vec3f(4.8393, 0.0, 3.47343), 0.0001), true);
+
+    let l1 = vec3f(-0.93, 0.0, 9.43);
+    let l2 = vec3f(-7.42, 0.0, -4.61);
+    let s1 = vec3f(-7.19, 0.0, -0.35);
+    let s2 = vec3f(4.57, 0.0, 6.05);
+    let result = line_segment_vs_line_segment(l1, l2, s1, s2);
+    assert_eq!(approx(result.unwrap(), vec3f(-4.86623, 0.0, 0.914634), 0.0001), true);
+
+    let l1 = vec3f(8.79, 0.0, 1.98);
+    let l2 = vec3f(-1.1, 0.0, -3.97);
+    let s1 = vec3f(-1.73, 0.0, 5.85);
+    let s2 = vec3f(-8.02, 0.0, -4.13);
+    let result = line_segment_vs_line_segment(l1, l2, s1, s2);
+    assert_eq!(result.is_none(), true);
+
+    // infitine line
+    let l1 = vec3f(4.76, 0.0, 4.61);
+    let l2 = vec3f(5.63, 0.0, -7.86);
+    let s1 = vec3f(7.22, 0.0, 5.11);
+    let s2 = vec3f(-2.09, 0.0, -1.29);
+    let result = line_vs_line(l1, l2, s1, s2);
+    assert_eq!(approx(result.unwrap(), vec3f(4.8393, 0.0, 3.47343), 0.0001), true);
+
+    let l1 = vec3f(8.79, 0.0, 1.98);
+    let l2 = vec3f(-1.1, 0.0, -3.97);
+    let s1 = vec3f(-1.73, 0.0, 5.85);
+    let s2 = vec3f(-8.02, 0.0, -4.13);
+    let result = line_vs_line(l1, l2, s1, s2);
+    assert_eq!(result.is_none(), true);
+}
+
+#[test]
 fn utils() {
     let f : f32 = 0.0;
     let _ii = exp_impulse(f, f);

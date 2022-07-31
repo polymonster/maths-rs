@@ -803,13 +803,56 @@ pub fn line_segment_vs_line_segment<T: Float + SignedNumberOps<T> + FloatOps<T>>
         let s = dot(cross(dc, db), cross(da, db)) / mag2(cross(da, db));
         if s >= T::zero() && s <= T::one() {
             let ip = l1 + da * s;
-            let t = distance_on_line(s1, s2, ip) / dist(s1, s2);
+            let t = distance_on_line(ip, s1, s2) / dist(s1, s2);
             if t >= T::zero() && t <= T::one() {
                 Some(ip)
             }
             else {
                 None
             }
+        }
+        else {
+            None
+        }
+    }
+}
+
+/// returns the intersection point if the infinite line l1-l2 intersects with s1-s2
+pub fn line_vs_line<T: Float + SignedNumberOps<T> + FloatOps<T>>(l1: Vec3<T>, l2: Vec3<T>,  s1: Vec3<T>, s2: Vec3<T>) -> Option<Vec3<T>> {
+    let da = l2 - l1;
+    let db = s2 - s1;
+    let dc = s1 - l1;
+    if dot(dc, cross(da, db)) != T::zero() {
+        // lines are not coplanar
+        None
+    }
+    else {
+        let s = dot(cross(dc, db), cross(da, db)) / mag2(cross(da, db));
+        let ip = l1 + da * s;
+        let t = distance_on_line(ip, s1, s2) / dist(s1, s2);
+        if t >= T::zero() && t <= T::one() {
+            Some(ip)
+        }
+        else {
+            None
+        }
+    }
+}
+
+/// returns the intersection point if the ray intersects the line segment l1-l2 
+pub fn ray_vs_line_segment<T: Float + SignedNumberOps<T> + FloatOps<T>>(r0: Vec3<T>, rv: Vec3<T>, l1: Vec3<T>, l2: Vec3<T>) -> Option<Vec3<T>> {
+    let da = l2 - l1;
+    let db = rv;
+    let dc = r0 - l1;
+    
+    if dot(dc, cross(da, db)) != T::zero() {
+        // lines are not coplanar
+        None
+    }
+    else {
+        let s = dot(cross(dc, db), cross(da, db)) / mag2(cross(da, db));
+        if s >= T::zero() && s <= T::one() {
+            Some(l1 + da * s)
         }
         else {
             None
@@ -1058,10 +1101,6 @@ pub fn smooth_stop5<T: Float, X: Base<T> + SignedNumberOps<T>>(t: X, b: X, c: X,
     c * (t*t*t*t*t + X::one()) + b
 }
 
-// line seg vs 
-// line vs
-// + tests
-
 // closest point on hull
 // closest point on poly
 // point hull distance
@@ -1080,6 +1119,7 @@ pub fn smooth_stop5<T: Float, X: Base<T> + SignedNumberOps<T>>(t: X, b: X, c: X,
 // unprojection sc
 // quilez functions
 // quat tests
+// ray vs line segment
 
 // TODO c++
 // point inside cone test is whack
