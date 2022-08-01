@@ -185,7 +185,7 @@ pub fn barycentric<T: Float + NumberOps<T>, V: VecFloatOps<T> + VecN<T> + Number
     (u, v, w)
 }
 
-/// returns an xyz vector converted from azimuth altitude
+/// returns an xyz directional unit vector converted from azimuth altitude
 pub fn azimuth_altitude_to_xyz<T: Float + FloatOps<T>>(azimuth: T, altitude: T) -> Vec3<T> {
     let z = T::sin(altitude);
     let hyp = T::cos(altitude);
@@ -194,7 +194,7 @@ pub fn azimuth_altitude_to_xyz<T: Float + FloatOps<T>>(azimuth: T, altitude: T) 
     Vec3::<T>::new(x, z, y)
 }
 
-/// returns (azimuth, altitude) converted from vector xyz
+/// returns (azimuth, altitude) converted from xyz directional unit vector
 pub fn xyz_to_azimuth_altitude<T: Float + FloatOps<T>>(xyz: Vec3<T>) -> (T, T) {
     (T::atan2(xyz.y, xyz.x), T::atan2(xyz.z, sqrt(xyz.x * xyz.x + xyz.y * xyz.y)))
 }
@@ -1059,49 +1059,49 @@ pub fn vec4f_to_rgba8<T: Float + From<f64>>(v: Vec4<T>) -> u32 where u32: From<T
     rgba
 }
 
-/// returns value t between the range c and d with offset b creating smooth easing at the start (squared)
+/// returns value t between the range c and d with offset b creating smooth easing at the start (t^2)
 pub fn smooth_start2<T: Float, X: Base<T>>(t: X, b: X, c: X, d: X) -> X {
     let t = t/d;
     c * t*t + b
 }
 
-/// returns value t between the range c and d with offset b creating smooth easing at the start (cubed)
+/// returns value t between the range c and d with offset b creating smooth easing at the start (t^3)
 pub fn smooth_start3<T: Float, X: Base<T>>(t: X, b: X, c: X, d: X) -> X {
     let t = t/d;
     c * t*t*t + b
 }
 
-/// returns value t between the range c and d with offset b creating smooth easing at the start (4th degree)
+/// returns value t between the range c and d with offset b creating smooth easing at the start (t^4)
 pub fn smooth_start4<T: Float, X: Base<T>>(t: X, b: X, c: X, d: X) -> X {
     let t = t/d;
     c * t*t*t*t + b
 }
 
-/// returns value t between the range c and d with offset b creating smooth easing at the start (4th degree)
+/// returns value t between the range c and d with offset b creating smooth easing at the start (t^5)
 pub fn smooth_start5<T: Float, X: Base<T>>(t: X, b: X, c: X, d: X) -> X {
     let t = t/d;
     c * t*t*t*t*t + b
 }
 
-/// returns value t between the range c and d with offset b creating smooth easing at the end of t (squared)
+/// returns value t between the range c and d with offset b creating smooth easing at the end of t (t^2)
 pub fn smooth_stop2<T: Float, X: Base<T> + SignedNumberOps<T>>(t: X, b: X, c: X, d: X) -> X {
     let t = t/d;
     -c * t * (t - X::two()) + b
 }
 
-/// returns value t between the range c and d with offset b creating smooth easing at the end of t (cubed)
+/// returns value t between the range c and d with offset b creating smooth easing at the end of t (t^3)
 pub fn smooth_stop3<T: Float, X: Base<T> + SignedNumberOps<T>>(t: X, b: X, c: X, d: X) -> X {
     let t = t/d;
     c * (t*t*t + X::one()) + b
 }
 
-/// returns value t between the range c and d with offset b creating smooth easing at the end of t (4th degree)
+/// returns value t between the range c and d with offset b creating smooth easing at the end of t (t^4)
 pub fn smooth_stop4<T: Float, X: Base<T> + SignedNumberOps<T>>(t: X, b: X, c: X, d: X) -> X {
     let t = t/d;
     c * (t*t*t*t + X::one()) + b
 }
 
-/// returns value t between the range c and d with offset b creating smooth easing at the end of t (5th degree)
+/// returns value t between the range c and d with offset b creating smooth easing at the end of t (t^5)
 pub fn smooth_stop5<T: Float, X: Base<T> + SignedNumberOps<T>>(t: X, b: X, c: X, d: X) -> X {
     let t = t/d;
     c * (t*t*t*t*t + X::one()) + b

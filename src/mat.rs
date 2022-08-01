@@ -1288,6 +1288,7 @@ impl<T> MatProjection<T> for Mat4<T> where T: Float + FloatOps<T>, Vec3<T>: Floa
     }
 }
 
+/// trait to construct matrix from 4 scalars
 pub trait MatNew2<T> {
     fn new(
         m00: T, m01: T, 
@@ -1304,6 +1305,7 @@ pub trait MatNew2<T> {
 
 impl<T> MatNew2<T> for Mat2<T> where T: Number {}
 
+/// trait to construct matrix from 9 scalars
 pub trait MatNew3<T> {
     fn new(
         m00: T, m01: T, m02: T,
@@ -1322,6 +1324,7 @@ pub trait MatNew3<T> {
 
 impl<T> MatNew3<T> for Mat3<T> where T: Number {}
 
+/// trait to construct matrix from 12 scalars
 pub trait MatNew34<T> {
     fn new(
         m00: T, m01: T, m02: T, m03: T,
@@ -1340,6 +1343,7 @@ pub trait MatNew34<T> {
 
 impl<T> MatNew34<T> for Mat34<T> where T: Number {}
 
+/// trait to construct matrix from 16 scalars
 pub trait MatNew4<T> {
     fn new(
         m00: T, m01: T, m02: T, m03: T,
