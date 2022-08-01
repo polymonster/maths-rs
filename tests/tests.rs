@@ -872,12 +872,12 @@ fn matrix_index() {
     mm[(1, 1)] = 3.0;
     mm[(2, 2)] = 4.0;
     mm[(3, 3)] = 5.0;
-    let expected = Mat4f::from((
+    let expected = Mat4f::new(
         2.0, 0.0, 0.0, 0.0,
         0.0, 3.0, 0.0, 0.0,
         0.0, 0.0, 4.0, 0.0,
         0.0, 0.0, 0.0, 5.0
-    ));
+    );
     assert_eq!(mm, expected);
 }
 
@@ -902,12 +902,12 @@ fn matrix_determinant() {
     let det = m3.determinant();
     assert_eq!(det, 4.0);
 
-    let m4 = Mat4f::from((
+    let m4 = Mat4f::new(
         1.0, 3.0, 5.0, 9.0,
         1.0, 3.0, 1.0, 7.0,
         4.0, 3.0, 9.0, 7.0,
         5.0, 2.0, 0.0, 9.0
-    ));
+    );
     let det = m4.determinant();
     assert_eq!(det, -376.0);
 }
@@ -915,93 +915,93 @@ fn matrix_determinant() {
 #[test]
 fn matrix_transpose() {
     // 2x2
-    let m2 = Mat2f::from((
+    let m2 = Mat2f::new(
         0.0, 1.0,
         2.0, 3.0
-    ));
-    let t2 = Mat2f::from((
+    );
+    let t2 = Mat2f::new(
         0.0, 2.0,
         1.0, 3.0
-    ));
+    );
     assert_eq!(m2.transpose(),t2);
 
     // 3x3
-    let m3 = Mat3f::from((
+    let m3 = Mat3f::new(
         0.0, 1.0, 2.0,
         3.0, 4.0, 5.0,
         6.0, 7.0, 8.0
-    ));
-    let t3 = Mat3f::from((
+    );
+    let t3 = Mat3f::new(
         0.0, 3.0, 6.0,
         1.0, 4.0, 7.0,
         2.0, 5.0, 8.0
-    ));
+    );
     assert_eq!(m3.transpose(),t3);
 
     // 4x4
-    let m4 = Mat4f::from((
+    let m4 = Mat4f::new(
         0.0, 1.0, 2.0, 3.0, 
         4.0, 5.0, 6.0, 7.0, 
         8.0, 9.0, 10.0, 11.0,
         12.0, 13.0, 14.0, 15.0
-    ));
-    let t4 = Mat4f::from((
+    );
+    let t4 = Mat4f::new(
         0.0, 4.0, 8.0, 12.0, 
         1.0, 5.0, 9.0, 13.0, 
         2.0, 6.0, 10.0, 14.0,
         3.0, 7.0, 11.0, 15.0
-    ));
+    );
     assert_eq!(m4.transpose(),t4);
 }
 
 #[test]
 fn matrix_inverse() {
     // 2x2
-    let m2 = Mat2f::from((
+    let m2 = Mat2f::new(
         5.0, 2.0,
         -7.0, -3.0
-    ));
+    );
     let inv = m2.inverse();
-    let expected = Mat2f::from((
+    let expected = Mat2f::new(
         3.0, 2.0,
         -7.0, -5.0
-    ));
+    );
     assert_eq!(inv, expected);
     let m2_inv = m2 * inv;
     assert_eq!(m2_inv, Mat2f::identity());
 
     // 3x3
-    let m3 = Mat3f::from((
+    let m3 = Mat3f::new(
         1.0, 2.0, 3.0,
         0.0, 1.0, 4.0,
         5.0, 6.0, 0.0
-    ));
+    );
     let inv = m3.inverse();
-    let expected = Mat3f::from((
+    let expected = Mat3f::new(
         -24.0, 18.0, 5.0,
         20.0, -15.0, -4.0,
         -5.0, 4.0, 1.0
-    ));
+    );
     assert_eq!(inv, expected);
     let m3_inv = m3 * inv;
     assert_eq!(m3_inv, Mat3f::identity());
 
     // 3x4
-    let m34 = Mat34f::from((
+    let m34 = Mat34f::new(
         1.0, 2.0, 3.0, 10.0,
         0.0, 1.0, 4.0, 100.0,
         5.0, 6.0, 0.0, 20.0,
-    ));
+    );
     let m34_inv = m34 * m34.inverse();
     assert_eq!(m34_inv, Mat34f::identity());
 
     // 4x4
-    let m4 = Mat4f::from((
+    let m4 = Mat4f::new(
         1.0, 2.0, 3.0, 10.0,
         0.0, 1.0, 4.0, 100.0,
         5.0, 6.0, 0.0, 20.0,
         9.0, 0.0, 1.0, 1.0,
-    ));
+    );
     let m4_inv = m4 * m4.inverse();
     assert_eq!(Mat4f::approx(m4_inv, Mat4f::identity(), 0.001), true);
 }
@@ -1009,10 +1009,10 @@ fn matrix_inverse() {
 #[test]
 fn matrix_from_get_row_get_column() {
     // 2x2
-    let m2 = Mat2f::from((
+    let m2 = Mat2f::new(
         1.0, 2.0,
         3.0, 4.0
-    ));
+    );
     let m2v = Mat2f::from((
         vec2f(1.0, 2.0),
         vec2f(3.0, 4.0)
@@ -1034,11 +1034,11 @@ fn matrix_from_get_row_get_column() {
     assert_eq!(m2.get_column(1), vec2f(2.0, 4.0));
 
     // 3x3
-    let m3 = Mat3f::from((
+    let m3 = Mat3f::new(
         1.0, 2.0, 3.0,
         4.0, 5.0, 6.0,
         7.0, 8.0, 9.0
-    ));
+    );
     let m3v = Mat3f::from((
         vec3f(1.0, 2.0, 3.0),
         vec3f(4.0, 5.0, 6.0),
@@ -1064,11 +1064,11 @@ fn matrix_from_get_row_get_column() {
     assert_eq!(m3.get_column(2), vec3f(3.0, 6.0, 9.0));
 
     // 3x4
-    let m34 = Mat34f::from((
+    let m34 = Mat34f::new(
         1.0, 2.0, 3.0, 4.0, 
         5.0, 6.0, 7.0, 8.0, 
         9.0, 10.0, 11.0, 12.0
-    ));
+    );
     let m34v = Mat34f::from((
         vec4f(1.0, 2.0, 3.0, 4.0),
         vec4f(5.0, 6.0, 7.0, 8.0),
@@ -1095,12 +1095,12 @@ fn matrix_from_get_row_get_column() {
     assert_eq!(m34.get_column(3), vec3f(4.0, 8.0, 12.0));
 
     // 4x4
-    let m4 = Mat4f::from((
+    let m4 = Mat4f::new(
         1.0, 2.0, 3.0, 4.0, 
         5.0, 6.0, 7.0, 8.0, 
         9.0, 10.0, 11.0, 12.0,
         13.0, 14.0, 15.0, 16.0
-    ));
+    );
     let m4v = Mat4f::from((
         vec4f(1.0, 2.0, 3.0, 4.0),
         vec4f(5.0, 6.0, 7.0, 8.0),
@@ -1235,11 +1235,11 @@ fn matrix_from_get_row_get_column() {
 
 #[test]
 fn matrix_deref() {
-    let mut m3 = Mat3f::from((
+    let mut m3 = Mat3f::new(
         1.0, 2.0, 3.0,
         4.0, 5.0, 6.0,
         7.0, 8.0, 9.0
-    ));
+    );
     let m3_slice : &[f32] = &m3;
     assert_eq!(m3_slice[0], 1.0);
     assert_eq!(m3_slice[1], 2.0);
@@ -1278,21 +1278,21 @@ fn matrix_rotate() {
     let m2 = Mat2f::create_z_rotation(f32::deg_to_rad(90.0));
     let mi = Mat2f::identity();
     let rotated = m2 * mi;
-    let expected = Mat2f::from((
+    let expected = Mat2f::new(
         0.0, -1.0,
         1.0, 0.0
-    ));
+    );
     assert_eq!(Mat2f::approx(rotated, expected, 0.001), true);
 
     // 3x3 z rotation
     let m3 = Mat3f::create_z_rotation(f32::deg_to_rad(-90.0));
     let mi = Mat3f::identity();
     let rotated = m3 * mi;
-    let expected = Mat3f::from((
+    let expected = Mat3f::new(
         0.0, 1.0, 0.0,
         -1.0, 0.0, 0.0,
         0.0, 0.0, 1.0
-    ));
+    );
     assert_eq!(Mat3f::approx(rotated, expected, 0.001), true);
 
     // 3x3 z-axis
@@ -1304,11 +1304,11 @@ fn matrix_rotate() {
     let m34 = Mat34f::create_z_rotation(f32::deg_to_rad(270.0));
     let mi = Mat34f::identity();
     let rotated = m34 * mi;
-    let expected = Mat34f::from((
+    let expected = Mat34f::new(
         0.0, 1.0, 0.0, 0.0,
         -1.0, 0.0, 0.0, 0.0,
         0.0, 0.0, 1.0, 0.0,
-    ));
+    );
     assert_eq!(Mat34f::approx(rotated, expected, 0.001), true);
     
     // 3x4 z-axis
@@ -1320,12 +1320,12 @@ fn matrix_rotate() {
     let m4 = Mat4f::create_z_rotation(f32::deg_to_rad(180.0));
     let mi = Mat4f::identity();
     let rotated = m4 * mi;
-    let expected = Mat4f::from((
+    let expected = Mat4f::new(
         -1.0, 0.0, 0.0, 0.0,
         0.0, -1.0, 0.0, 0.0,
         0.0, 0.0, 1.0, 0.0,
         0.0, 0.0, 0.0, 1.0
-    ));
+    );
     assert_eq!(Mat4f::approx(rotated, expected, 0.001), true);
 
     // 4x4 z-axis
@@ -1337,11 +1337,11 @@ fn matrix_rotate() {
     let m3 = Mat3f::create_x_rotation(f32::deg_to_rad(90.0));
     let mi = Mat3f::identity();
     let rotated = m3 * mi;
-    let expected = Mat3f::from((
+    let expected = Mat3f::new(
         1.0, 0.0, 0.0,
         0.0, 0.0, -1.0,
         0.0, 1.0, 0.0
-    ));
+    );
     assert_eq!(Mat3f::approx(rotated, expected, 0.001), true);
 
     // 3x3 x-axis
@@ -1353,11 +1353,11 @@ fn matrix_rotate() {
     let m34 = Mat34f::create_x_rotation(f32::deg_to_rad(180.0));
     let mi = Mat34f::identity();
     let rotated = m34 * mi;
-    let expected = Mat34f::from((
+    let expected = Mat34f::new(
         1.0, 0.0, 0.0, 0.0,
         0.0, -1.0, 0.0, 0.0,
         0.0, 0.0, -1.0, 0.0,
-    ));
+    );
     assert_eq!(Mat34f::approx(rotated, expected, 0.001), true);
 
     // 3x4 x-axis
@@ -1369,12 +1369,12 @@ fn matrix_rotate() {
     let m4 = Mat4f::create_x_rotation(f32::deg_to_rad(-90.0));
     let mi = Mat4f::identity();
     let rotated = m4 * mi;
-    let expected = Mat4f::from((
+    let expected = Mat4f::new(
         1.0, 0.0, 0.0, 0.0,
         0.0, 0.0, 1.0, 0.0,
         0.0, -1.0, 0.0, 0.0,
         0.0, 0.0, 0.0, 1.0
-    ));
+    );
     assert_eq!(Mat4f::approx(rotated, expected, 0.001), true);
 
     // 4x4 x-axis
@@ -1386,11 +1386,11 @@ fn matrix_rotate() {
     let m3 = Mat3f::create_y_rotation(f32::deg_to_rad(90.0));
     let mi = Mat3f::identity();
     let rotated = m3 * mi;
-    let expected = Mat3f::from((
+    let expected = Mat3f::new(
         0.0, 0.0, 1.0,
         0.0, 1.0, 0.0,
         -1.0, 0.0, 0.0
-    ));
+    );
     assert_eq!(Mat3f::approx(rotated, expected, 0.001), true);
 
     // 3x3 y-axis
@@ -1402,11 +1402,11 @@ fn matrix_rotate() {
     let m34 = Mat34f::create_y_rotation(f32::deg_to_rad(180.0));
     let mi = Mat34f::identity();
     let rotated = m34 * mi;
-    let expected = Mat34f::from((
+    let expected = Mat34f::new(
         -1.0, 0.0, 0.0, 0.0,
         0.0, 1.0, 0.0, 0.0,
         0.0, 0.0, -1.0, 0.0,
-    ));
+    );
     assert_eq!(Mat34f::approx(rotated, expected, 0.001), true);
 
     // 3x4 y-axis
@@ -1418,12 +1418,12 @@ fn matrix_rotate() {
     let m4 = Mat4f::create_y_rotation(f32::deg_to_rad(-90.0));
     let mi = Mat4f::identity();
     let rotated = m4 * mi;
-    let expected = Mat4f::from((
+    let expected = Mat4f::new(
         0.0, 0.0, -1.0, 0.0,
         0.0, 1.0, 0.0, 0.0,
         1.0, -0.0, 0.0, 0.0,
         0.0, 0.0, 0.0, 1.0
-    ));
+    );
     assert_eq!(Mat4f::approx(rotated, expected, 0.001), true);
 
     // 4x4 y-axis
@@ -1606,22 +1606,22 @@ fn closest_point_on_ray_test() {
 #[test]
 fn closest_point_on_obb_test() {
     // 3x4
-    let mat = Mat34f::from((
+    let mat = Mat34f::new(
         1.44084, 4.81496, -0.0373597, -0.11, 
         1.65605, -2.58742, -0.655296, -7.14, 
         -1.41194, 1.87878, -0.806716, -1.55, 
-    ));
+    );
     let p = vec3f(-7.98, 0.31, -7.8);
     let result = closest_point_on_obb(p, mat);
     assert_eq!(approx(result, vec3f(-3.49981, -3.17162, -5.17936), 0.01), true);
 
     // 4x4
-    let mat = Mat4f::from((
+    let mat = Mat4f::new(
         1.44084, 4.81496, -0.0373597, -0.11, 
         1.65605, -2.58742, -0.655296, -7.14, 
         -1.41194, 1.87878, -0.806716, -1.55,
         0.0, 0.0, 0.0, 1.0
-    ));
+    );
     let p = vec3f(-7.98, 0.31, -7.8);
     let result = closest_point_on_obb(p, mat);
     assert_eq!(approx(result, vec3f(-3.49981, -3.17162, -5.17936), 0.01), true);
@@ -1654,42 +1654,42 @@ fn point_inside_sphere_test() {
 #[test]
 fn point_inside_obb_test() {
     // inside
-    let mat = Mat34f::from((
+    let mat = Mat34f::new(
         -2.10233, -0.747065, 0.887925, -3.2, 
         0.964173, -2.97305, -0.208202, 3.48, 
         7.7732, 0.166721, 0.265972, -0.21,
-    ));
+    );
     let p = vec3f(-4.73, 6.14, 7.15);
     let result = point_inside_obb(p, mat);
     assert_eq!(result, true);
     // outside
-    let mat = Mat34f::from((
+    let mat = Mat34f::new(
         1.44084, 4.81496, -0.0373597, -0.11, 
         1.65605, -2.58742, -0.655296, -7.14, 
         -1.41194, 1.87878, -0.806716, -1.55
-    ));
+    );
     let p = vec3f(-7.98, 0.31, -7.8);
     let result = point_inside_obb(p, mat);
     assert_eq!(result, false);
 
     // 4x4
     // inside
-    let mat = Mat4f::from((
+    let mat = Mat4f::new(
         -2.10233, -0.747065, 0.887925, -3.2, 
         0.964173, -2.97305, -0.208202, 3.48, 
         7.7732, 0.166721, 0.265972, -0.21,
         0.0, 0.0, 0.0, 1.0
-    ));
+    );
     let p = vec3f(-4.73, 6.14, 7.15);
     let result = point_inside_obb(p, mat);
     assert_eq!(result, true);
     // outside
-    let mat = Mat4f::from((
+    let mat = Mat4f::new(
         1.44084, 4.81496, -0.0373597, -0.11, 
         1.65605, -2.58742, -0.655296, -7.14, 
         -1.41194, 1.87878, -0.806716, -1.55,
         0.0, 0.0, 0.0, 1.0
-    ));
+    );
     let p = vec3f(-7.98, 0.31, -7.8);
     let result = point_inside_obb(p, mat);
     assert_eq!(result, false);
@@ -2334,22 +2334,22 @@ fn ray_vs_triangle_test() {
 #[test]
 fn ray_vs_obb_test() {
     // 3x4 hit
-    let mat = Mat34f::from((
+    let mat = Mat34f::new(
         -4.29814, -0.134092, 4.26139, 4.39, 
         2.24637, -0.347541, 8.13622, -1.33, 
         0.0485004, 4.21357, 0.806702, -8.81
-    ));
+    );
     let r1 = vec3f(6.85, -0.81, -6.19);
     let rv = vec3f(-0.70182, 0.062384, -0.709618);
     let result = ray_vs_obb(r1, rv, mat);
     assert_eq!(approx(result.unwrap(), vec3f(8.62138, -0.967456, -4.39894), 0.0001), true);
 
     // 3x4 hit
-    let mat = Mat34f::from((
+    let mat = Mat34f::new(
         -1.62582, -3.23365, 1.34286, 7.29, 
         -0.884833, 5.89037, 0.796295, -0.45, 
         -0.613404, 0.0739455, -4.70789, 0.82, 
-    ));
+    );
     let r1 = vec3f(0.13, -5.59, -2.19);
     let rv = vec3f(0.783562, 0.178533, 0.595111);
     let result = ray_vs_obb(r1, rv, mat);
@@ -2358,12 +2358,12 @@ fn ray_vs_obb_test() {
 
 #[test]
 fn sphere_vs_frustum_test() {
-    let planes = Mat4f::from((
+    let planes = Mat4f::new(
 		0.85501, 1.45179e-08, 0.467094, 0.0, 
 		0.39811, 1.52002, -0.728735, 0.0, 
 		0.420904, -0.479617, -0.770459, 60.004, 
 		0.420736, -0.479426, -0.770151, 60.0
-    )).get_frustum_planes();
+    ).get_frustum_planes();
 
     // intersect
     let pos = vec3f(-4.21, -1.79, 9.67);
@@ -2390,12 +2390,12 @@ fn sphere_vs_frustum_test() {
 
 #[test]
 fn aabb_vs_frustum_test() {
-    let planes = Mat4f::from((
+    let planes = Mat4f::new(
 		0.85501, 1.45179e-08, 0.467094, 0.0, 
 		0.39811, 1.52002, -0.728735, 0.0, 
 		0.420904, -0.479617, -0.770459, 60.004, 
 		0.420736, -0.479426, -0.770151, 60.0
-    )).get_frustum_planes();
+    ).get_frustum_planes();
 
     // fail / outside
     let epos = vec3f(-9.09, -8.06, -6.43);
@@ -2457,6 +2457,39 @@ fn live_vs_line_test() {
     let s2 = vec3f(-8.02, 0.0, -4.13);
     let result = line_vs_line(l1, l2, s1, s2);
     assert_eq!(result.is_none(), true);
+}
+
+#[test]
+fn ray_vs_line_segment_test() {
+    // intersect
+    let r0 = vec3f(5.0, 0.0, -10.0);
+    let rv = vec3f(0.0, 0.0, 1.0);
+    let l1 = vec3f(-10.0, 0.0, 0.0);
+    let l2 = vec3f(10.0, 0.0, -0.0);
+    let result = ray_vs_line_segment(r0, rv, l1, l2);
+    assert_eq!(approx(result.unwrap(), vec3f(5.0, 0.0, 0.0), 0.0001), true);
+
+    // line is behind ray
+    let r0 = vec3f(5.0, 0.0, 10.0);
+    let rv = vec3f(0.0, 0.0, 1.0);
+    let l1 = vec3f(-10.0, 0.0, 0.0);
+    let l2 = vec3f(10.0, 0.0, 0.0);
+    let result = ray_vs_line_segment(r0, rv, l1, l2);
+    assert_eq!(result.is_none(), true);
+
+    // distance on line
+    let r0 = vec3f(0.0, 0.0, 0.0);
+    let rv = vec3f(0.0, 0.0, 1.0);
+    let ip = vec3f(0.0, 0.0, -1.0);
+    let t = distance_on_line(ip, r0, rv);
+    assert_eq!(t, -1.0);
+
+    // distance on ray
+    let r0 = vec3f(5.0, 0.0, 10.0);
+    let rv = vec3f(0.0, 0.0, 1.0);
+    let ip = vec3f(5.0, 0.0, 0.0);
+    let t = distance_on_ray(ip, r0, rv);
+    assert_eq!(t, -10.0);
 }
 
 #[test]

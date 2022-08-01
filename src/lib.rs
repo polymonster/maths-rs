@@ -329,6 +329,11 @@ pub fn distance_on_line<T: Float, V: VecFloatOps<T> + VecN<T>>(p: V, l1: V, l2: 
     dot(v2, v1)
 }
 
+/// returns the distance parameter t of point p projected along the ray r0 with direction rv, the value is not clamped to 0 or the start of the ray
+pub fn distance_on_ray<T: Float, V: VecFloatOps<T> + VecN<T>>(p: V, r0: V, rv: V) -> T {
+    dot(p - r0, rv)
+}
+
 /// returns the distance that point p is from an aabb defined by aabb_min to aabb_max
 pub fn point_aabb_distance<T: Float, V: VecN<T> + NumberOps<T> + VecFloatOps<T>>(p: V, aabb_min: V, aabb_max: V) -> T {
     dist(closest_point_on_aabb(p, aabb_min, aabb_max), p)
@@ -844,15 +849,16 @@ pub fn ray_vs_line_segment<T: Float + SignedNumberOps<T> + FloatOps<T>>(r0: Vec3
     let da = l2 - l1;
     let db = rv;
     let dc = r0 - l1;
-    
     if dot(dc, cross(da, db)) != T::zero() {
         // lines are not coplanar
         None
     }
     else {
         let s = dot(cross(dc, db), cross(da, db)) / mag2(cross(da, db));
-        if s >= T::zero() && s <= T::one() {
-            Some(l1 + da * s)
+        let ip = l1 + da * s;
+        let t = distance_on_ray(ip, r0, rv);
+        if s >= T::zero() && s <= T::one() && t >= T::zero() {
+            Some(ip)
         }
         else {
             None
@@ -1105,7 +1111,6 @@ pub fn smooth_stop5<T: Float, X: Base<T> + SignedNumberOps<T>>(t: X, b: X, c: X,
 // closest point on poly
 // point hull distance
 // point poly distance
-// mat new?
 // quat
 
 // TODO: tests
@@ -1118,7 +1123,6 @@ pub fn smooth_stop5<T: Float, X: Base<T> + SignedNumberOps<T>>(t: X, b: X, c: X,
 // unprojection sc
 // quilez functions
 // quat tests
-// ray vs line segment
 
 // TODO c++
 // point inside cone test is whack
@@ -1132,6 +1136,7 @@ pub fn smooth_stop5<T: Float, X: Base<T> + SignedNumberOps<T>>(t: X, b: X, c: X,
 // point inside poly (test)
 // ray sphere (test)
 // ray triangle (test)
+// ray vs line segment
 // quat tests
 
 // TODO: new?

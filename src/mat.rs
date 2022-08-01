@@ -1288,6 +1288,78 @@ impl<T> MatProjection<T> for Mat4<T> where T: Float + FloatOps<T>, Vec3<T>: Floa
     }
 }
 
+pub trait MatNew2<T> {
+    fn new(
+        m00: T, m01: T, 
+        m10: T, m11: T
+    ) -> Mat2<T> {
+        Mat2 {  
+            m: [
+                m00, m01,
+                m10, m11
+            ]
+        }
+    }
+}
+
+impl<T> MatNew2<T> for Mat2<T> where T: Number {}
+
+pub trait MatNew3<T> {
+    fn new(
+        m00: T, m01: T, m02: T,
+        m10: T, m11: T, m12: T,
+        m20: T, m21: T, m22: T,
+    ) -> Mat3<T> {
+        Mat3 {
+            m: [
+                m00, m01, m02,
+                m10, m11, m12,
+                m20, m21, m22,
+            ]
+        }
+    }
+}
+
+impl<T> MatNew3<T> for Mat3<T> where T: Number {}
+
+pub trait MatNew34<T> {
+    fn new(
+        m00: T, m01: T, m02: T, m03: T,
+        m10: T, m11: T, m12: T, m13: T,
+        m20: T, m21: T, m22: T, m23: T,
+    ) -> Mat34<T> {
+        Mat34 {
+            m: [
+                m00, m01, m02, m03,
+                m10, m11, m12, m13,
+                m20, m21, m22, m23
+            ]
+        }
+    }
+}
+
+impl<T> MatNew34<T> for Mat34<T> where T: Number {}
+
+pub trait MatNew4<T> {
+    fn new(
+        m00: T, m01: T, m02: T, m03: T,
+        m10: T, m11: T, m12: T, m13: T,
+        m20: T, m21: T, m22: T, m23: T,
+        m30: T, m31: T, m32: T, m33: T,
+    ) -> Mat4<T> {
+        Mat4 {
+            m: [
+                m00, m01, m02, m03,
+                m10, m11, m12, m13,
+                m20, m21, m22, m23,
+                m30, m31, m32, m33
+            ]
+        }
+    }
+}
+
+impl<T> MatNew4<T> for Mat4<T> where T: Number {}
+
 mat_impl!(Mat2, 2, 2, 4, Vec2 {x, 0, y, 1}, Vec2 {x, 0, y, 1});
 mat_impl!(Mat3, 3, 3, 9, Vec3 {x, 0, y, 1, z, 2}, Vec3 {x, 0, y, 1, z, 2});
 mat_impl!(Mat4, 4, 4, 16, Vec4 {x, 0, y, 1, z, 2, w, 3}, Vec4 {x, 0, y, 1, z, 2, w, 3});
