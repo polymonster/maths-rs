@@ -2165,7 +2165,7 @@ fn aabb_vs_aabb_test() {
 fn convex_hull() {
     //  0   1   2   3   4   5   6   7
     //  -   -   -   x   -   -   -   -          
-    //  a   x   0       0   x
+    //  a   x   0       0   x       y
     //          0   0   0   0
     //  x       0   0       0       x
     //              0
@@ -2223,18 +2223,22 @@ fn convex_hull() {
     assert_eq!(point_inside_convex_hull(vec2f(2.0, 5.0), &hull), false);
     assert_eq!(point_inside_convex_hull(vec2f(3.0, 3.0), &hull), false);
     assert_eq!(point_inside_convex_hull(vec2f(4.0, 3.0), &hull), false);
+
+    // closest point to y
+    let p = vec2f(7.0, 1.0);
+    assert_eq!(closest_point_on_convex_hull(p, &hull), closest_point_on_line_segment(p, vec2f(5.0, 1.0), vec2f(7.0, 3.0)));
 }
 
 #[test]
 fn polygon() {
     //   0   1   2   3   4   5   6   7
     //0  -   -   -   x   -   -   -   -          
-    //1  a   x   0       0   x
+    //1  a   x   0       0   x       y
     //2          0   0   0   0
     //3  x       0   0       0       x
     //4              x
     //5              a
-    //6  x                    a      x
+    //6  x           y        a      x
     //--------------------------------
 
     // x = edge, 0 = inside, a = outside
@@ -2269,6 +2273,13 @@ fn polygon() {
     assert_eq!(point_inside_polygon(vec2f(3.0, 3.0), &poly), true);
     assert_eq!(point_inside_polygon(vec2f(2.0, 1.0), &poly), true);
     assert_eq!(point_inside_polygon(vec2f(4.0, 1.0), &poly), true);
+
+    // closest point to y
+    let p = vec2f(7.0, 1.0);
+    assert_eq!(closest_point_on_convex_hull(p, &poly), closest_point_on_line_segment(p, vec2f(5.0, 1.0), vec2f(7.0, 3.0)));
+
+    let p = vec2f(2.5, 6.0);
+    assert_eq!(closest_point_on_convex_hull(p, &poly), closest_point_on_line_segment(p, vec2f(3.0, 4.0), vec2f(0.0, 6.0)));
 }
 
 #[test]

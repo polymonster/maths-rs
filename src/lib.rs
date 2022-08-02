@@ -307,6 +307,18 @@ pub fn plane_distance<T: SignedNumber, V: VecN<T>>(x: V, n: V) -> T {
     -V::dot(x, n)
 }
 
+/// returns the distance parameter t of point p projected along the line l1-l2, the value is not clamped to the line segment extents
+pub fn distance_on_line<T: Float, V: VecFloatOps<T> + VecN<T>>(p: V, l1: V, l2: V) -> T {
+    let v1 = p - l1;
+    let v2 = V::normalize(l2 - l1);
+    dot(v2, v1)
+}
+
+/// returns the distance parameter t of point p projected along the ray r0 with direction rv, the value is not clamped to 0 or the start of the ray
+pub fn distance_on_ray<T: Float, V: VecFloatOps<T> + VecN<T>>(p: V, r0: V, rv: V) -> T {
+    dot(p - r0, rv)
+}
+
 /// returns the distance to the plane from point p where the plane is defined by point on plane x and normal n
 pub fn point_plane_distance<T: SignedNumber, V: VecN<T>>( p: V, x: V, n: V) -> T {
     V::dot(p, n) - V::dot(x, n)
@@ -320,18 +332,6 @@ pub fn point_line_segment_distance<T: Float + FloatOps<T>, V: VecFloatOps<T> + V
     let s12 = saturate(dot(l2 - p, dx) / m2);
     // and find the distance
     dist(p, l1 * s12 + l2 * (T::one() - s12))
-}
-
-/// returns the distance parameter t of point p projected along the line l1-l2, the value is not clamped to the line segment extents
-pub fn distance_on_line<T: Float, V: VecFloatOps<T> + VecN<T>>(p: V, l1: V, l2: V) -> T {
-    let v1 = p - l1;
-    let v2 = V::normalize(l2 - l1);
-    dot(v2, v1)
-}
-
-/// returns the distance parameter t of point p projected along the ray r0 with direction rv, the value is not clamped to 0 or the start of the ray
-pub fn distance_on_ray<T: Float, V: VecFloatOps<T> + VecN<T>>(p: V, r0: V, rv: V) -> T {
-    dot(p - r0, rv)
 }
 
 /// returns the distance that point p is from an aabb defined by aabb_min to aabb_max
@@ -496,6 +496,29 @@ pub fn closest_point_on_cone<T: Float, V: VecN<T> + SignedVecN<T> + VecFloatOps<
         // clamp to the radius
         x0 + (v * dh * r)
     }
+}
+
+
+/// returns the clostest point to p on the edge of the convex hull defined by point list 'hull' with clockwise winding
+pub fn closest_point_on_convex_hull<T: Float + FloatOps<T>>(p: Vec2<T>, hull: &Vec<Vec2<T>>) -> Vec2<T> {
+    closest_point_on_polygon(p, hull)
+}
+
+/// returns the clostest point to p on the edge of the polygon defined by point list polygon.
+pub fn closest_point_on_polygon<T: Float + FloatOps<T>>(p: Vec2<T>, poly: &Vec<Vec2<T>>) -> Vec2<T> {
+    let ncp = poly.len();
+    let mut cp = Vec2::max_value();
+    let mut cd2 = T::max_value();
+    for i in 0..ncp {
+        let i2 = (i+1)%ncp;
+        let cpp = closest_point_on_line_segment(p, poly[i], poly[i2]);
+        let cppd2 = dist2(p, cpp);
+        if dist2(p, cpp) < cd2 { 
+            cp = cpp;
+            cd2 = cppd2;
+        }
+    }
+    cp
 }
 
 /// returns true if point p is inside the aabb defined by aabb_min and aabb_max
