@@ -9,6 +9,16 @@ use std::ops::DivAssign;
 use std::ops::Rem;
 use std::ops::RemAssign;
 use std::ops::Neg;
+use std::ops::Shl;
+use std::ops::ShlAssign;
+use std::ops::Shr;
+use std::ops::ShrAssign;
+use std::ops::BitOr;
+use std::ops::BitOrAssign;
+use std::ops::BitAnd;
+use std::ops::BitAndAssign;
+use std::ops::BitXor;
+use std::ops::BitXorAssign;
 
 use std::cmp::PartialEq;
 use std::cmp::PartialOrd;
@@ -366,7 +376,12 @@ macro_rules! float_impl {
 macro_rules! integer_trait_impl {
     ($($func:ident),*) => {
         /// integer point trait for various sized integers
-        pub trait Integer: Number { 
+        pub trait Integer: Number + 
+            Shl<Output=Self> + ShlAssign +
+            Shr<Output=Self> + ShrAssign + 
+            BitOr<Output=Self> + BitOrAssign +
+            BitAnd<Output=Self> + BitAndAssign + 
+            BitXor<Output=Self> + BitXorAssign { 
         }
         integer_impl!(i8 { $($func),* });
         integer_impl!(u8 { $($func),* });

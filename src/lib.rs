@@ -389,7 +389,7 @@ pub fn closest_point_on_plane<T: SignedNumber, V: VecN<T> + SignedVecN<T>>(p: V,
     p - n * (V::dot(p, n) - V::dot(x, n))
 }
 
-/// returns the closest point on the aabb defined by aabb_min and aabb_max to point p
+/// returns the closest point on the aabb defined by aabb_min and aabb_max to point p, if the point is inside the aabb it will return p
 pub fn closest_point_on_aabb<T: Float, V: NumberOps<T> + VecN<T>>(p: V, aabb_min: V, aabb_max: V) -> V {
     V::min(V::max(p, aabb_min), aabb_max)
 }
@@ -1130,8 +1130,44 @@ pub fn smooth_stop5<T: Float, X: Base<T> + SignedNumberOps<T>>(t: X, b: X, c: X,
     c * (t*t*t*t*t + X::one()) + b
 }
 
-// closest point on hull
-// closest point on poly
+/// returns the morten order index from x,y position
+pub fn morton_xy2d<T: Integer + From<u64>>(x: T, y: T) -> T {
+    let mut x = x;
+    x = (x | (x << T::from(16))) & T::from(0x0000FFFF0000FFFF);
+    x = (x | (x << T::from(8))) & T::from(0x00FF00FF00FF00FF);
+    x = (x | (x << T::from(4))) & T::from(0x0F0F0F0F0F0F0F0F);
+    x = (x | (x << T::from(2))) & T::from(0x3333333333333333);
+    x = (x | (x << T::from(1))) & T::from(0x5555555555555555);
+
+    let mut y = y;
+    y = (y | (y << T::from(16))) & T::from(0x0000FFFF0000FFFF);
+    y = (y | (y << T::from(8))) & T::from(0x00FF00FF00FF00FF);
+    y = (y | (y << T::from(4))) & T::from(0x0F0F0F0F0F0F0F0F);
+    y = (y | (y << T::from(2))) & T::from(0x3333333333333333);
+    y = (y | (y << T::from(1))) & T::from(0x5555555555555555);
+
+    x | (y << T::one())
+}
+
+/// returns the even bits extracted from x
+pub fn morton_1<T: Integer + From<u64>>(x: T) -> T {
+    let mut x = x & T::from(0x5555555555555555);
+    x = (x | (x >> T::from(1))) & T::from(0x3333333333333333);
+    x = (x | (x >> T::from(2))) & T::from(0x0F0F0F0F0F0F0F0F);
+    x = (x | (x >> T::from(4))) & T::from(0x00FF00FF00FF00FF);
+    x = (x | (x >> T::from(8))) & T::from(0x0000FFFF0000FFFF);
+    x = (x | (x >> T::from(16))) & T::from(0x00000000FFFFFFFF);
+    x
+}
+
+/// returns the x,t grid position for morten order index d
+pub fn morton_d2xy<T: Integer + From<u64>>(d: T) -> (T, T) {
+    (morton_1(d), morton_1(d >> T::one()))
+}
+
+// morton 
+// map_to_range
+
 // point hull distance
 // point poly distance
 // quat
@@ -1161,6 +1197,8 @@ pub fn smooth_stop5<T: Float, X: Base<T> + SignedNumberOps<T>>(t: X, b: X, c: X,
 // ray triangle (test)
 // ray vs line segment
 // quat tests
+// closest point on hull (test)
+// closest point on poly (test)
 
 // TODO: new?
 // line_vs_cone

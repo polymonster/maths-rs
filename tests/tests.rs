@@ -1575,6 +1575,10 @@ fn closest_point_on_aabb_test() {
     let p = vec2f(20.0, -7.0);
     let cp = closest_point_on_aabb(p, aabb_min, aabb_max);
     assert_eq!(cp, vec2f(10.0, -7.0));
+    // inside 
+    let p = vec2f(1.0, 1.0);
+    let cp = closest_point_on_aabb(p, aabb_min, aabb_max);
+    assert_eq!(cp, vec2f(1.0, 1.0));
 }
 
 #[test]
