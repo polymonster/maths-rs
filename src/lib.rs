@@ -1131,38 +1131,38 @@ pub fn smooth_stop5<T: Float, X: Base<T> + SignedNumberOps<T>>(t: X, b: X, c: X,
 }
 
 /// returns the morten order index from x,y position
-pub fn morton_xy2d<T: Integer + From<u64>>(x: T, y: T) -> T {
+pub fn morton_xy2d(x: u64, y: u64) -> u64 {
     let mut x = x;
-    x = (x | (x << T::from(16))) & T::from(0x0000FFFF0000FFFF);
-    x = (x | (x << T::from(8))) & T::from(0x00FF00FF00FF00FF);
-    x = (x | (x << T::from(4))) & T::from(0x0F0F0F0F0F0F0F0F);
-    x = (x | (x << T::from(2))) & T::from(0x3333333333333333);
-    x = (x | (x << T::from(1))) & T::from(0x5555555555555555);
+    x = (x | (x << 16)) & 0x0000FFFF0000FFFF;
+    x = (x | (x << 8)) & 0x00FF00FF00FF00FF;
+    x = (x | (x << 4)) & 0x0F0F0F0F0F0F0F0F;
+    x = (x | (x << 2)) & 0x3333333333333333;
+    x = (x | (x << 1)) & 0x5555555555555555;
 
     let mut y = y;
-    y = (y | (y << T::from(16))) & T::from(0x0000FFFF0000FFFF);
-    y = (y | (y << T::from(8))) & T::from(0x00FF00FF00FF00FF);
-    y = (y | (y << T::from(4))) & T::from(0x0F0F0F0F0F0F0F0F);
-    y = (y | (y << T::from(2))) & T::from(0x3333333333333333);
-    y = (y | (y << T::from(1))) & T::from(0x5555555555555555);
+    y = (y | (y << 16)) & 0x0000FFFF0000FFFF;
+    y = (y | (y << 8)) & 0x00FF00FF00FF00FF;
+    y = (y | (y << 4)) & 0x0F0F0F0F0F0F0F0F;
+    y = (y | (y << 2)) & 0x3333333333333333;
+    y = (y | (y << 1)) & 0x5555555555555555;
 
-    x | (y << T::one())
+    x | (y << 1)
 }
 
-/// returns the even bits extracted from x
-pub fn morton_1<T: Integer + From<u64>>(x: T) -> T {
-    let mut x = x & T::from(0x5555555555555555);
-    x = (x | (x >> T::from(1))) & T::from(0x3333333333333333);
-    x = (x | (x >> T::from(2))) & T::from(0x0F0F0F0F0F0F0F0F);
-    x = (x | (x >> T::from(4))) & T::from(0x00FF00FF00FF00FF);
-    x = (x | (x >> T::from(8))) & T::from(0x0000FFFF0000FFFF);
-    x = (x | (x >> T::from(16))) & T::from(0x00000000FFFFFFFF);
+/// returns the number even bits extracted from x as set bits in the return; value 0b010101 returns 0b111
+pub fn morton_1(x: u64) -> u64 {
+    let mut x = x & 0x5555555555555555;
+    x = (x | (x >> 1)) & 0x3333333333333333;
+    x = (x | (x >> 2)) & 0x0F0F0F0F0F0F0F0F;
+    x = (x | (x >> 4)) & 0x00FF00FF00FF00FF;
+    x = (x | (x >> 8)) & 0x0000FFFF0000FFFF;
+    x = (x | (x >> 16)) & 0x00000000FFFFFFFF;
     x
 }
 
 /// returns the x,t grid position for morten order index d
-pub fn morton_d2xy<T: Integer + From<u64>>(d: T) -> (T, T) {
-    (morton_1(d), morton_1(d >> T::one()))
+pub fn morton_d2xy(d: u64) -> (u64, u64) {
+    (morton_1(d), morton_1(d >> 1))
 }
 
 // morton 
