@@ -368,6 +368,16 @@ pub fn point_cone_distance<T: Float, V: VecN<T> + SignedVecN<T> + VecFloatOps<T>
     dist(p, closest_point_on_cone(p, cp, cv, h, r))
 }
 
+/// returns the distance from point p to the edge of the convex hull defined by point list 'hull' with clockwise winding
+pub fn point_convex_hull_distance<T: Float + FloatOps<T>>(p: Vec2<T>, hull: &Vec<Vec2<T>>) -> T {
+    dist(p, closest_point_on_polygon(p, hull))
+}
+
+/// returns the distance from point p to the edge of the polygon defined by point list 'poly'
+pub fn point_polygon_distance<T: Float + FloatOps<T>>(p: Vec2<T>, hull: &Vec<Vec2<T>>) -> T {
+    dist(p, closest_point_on_polygon(p, hull))
+}
+
 /// returns the closest point on the line l1-l2 to point p
 pub fn closest_point_on_line_segment<T: Float, V: VecFloatOps<T> + VecN<T>>(p: V, l1: V, l2: V) -> V {
     let v1 = p - l1;
@@ -889,8 +899,9 @@ pub fn ray_vs_line_segment<T: Float + SignedNumberOps<T> + FloatOps<T>>(r0: Vec3
     }
 }
 
-/// returns soft clipping (in a cubic fashion) of x; let m be the threshold (anything above m stays unchanged), and n the value things will take when the signal is zero <https://iquilezles.org/articles/functions/>
+/// returns soft clipping (in a cubic fashion) of x; let m be the threshold (anything above m stays unchanged), and n the value things will take when the signal is zero
 pub fn almost_identity<T: Number + Float>(x: T, m: T, n: T) -> T {
+    // <https://iquilezles.org/articles/functions/>
     let a = T::two()*n - m;
     let b = T::two()*m - T::three()*n;
     let t = x/m;
@@ -902,8 +913,9 @@ pub fn almost_identity<T: Number + Float>(x: T, m: T, n: T) -> T {
     }
 }
 
-/// returns the integral smoothstep of x it's derivative is never larger than 1 <https://iquilezles.org/articles/functions/>
+/// returns the integral smoothstep of x it's derivative is never larger than 1
 pub fn integral_smoothstep<T: Number + Float + FloatOps<T>>(x: T, t: T) -> T {
+    // inigo quilez: https://iquilezles.org/articles/functions/
     if x > t {
         x - t/T::two()
     }
@@ -912,31 +924,36 @@ pub fn integral_smoothstep<T: Number + Float + FloatOps<T>>(x: T, t: T) -> T {
     }
 }
 
-/// returns an exponential impulse (y position on a graph for x); k controls the stretching of the function <https://iquilezles.org/articles/functions/>
+/// returns an exponential impulse (y position on a graph for x); k controls the stretching of the function
 pub fn exp_impulse<T: Number + Float, X: Base<T> + FloatOps<T>>(k: X, x: X) -> X {
+    // inigo quilez: https://iquilezles.org/articles/functions/
     let h = k * x;
     h * X::exp(X::one() - h)
 }
 
-/// returns an quadratic impulse (y position on a graph for x); k controls the stretching of the function <https://iquilezles.org/articles/functions/>
-pub fn quad_impulse<T: Number + Float + Base<T> + FloatOps<T>>(k: T, x: T) -> T{
+/// returns an quadratic impulse (y position on a graph for x); k controls the stretching of the function
+pub fn quad_impulse<T: Number + Float + Base<T> + FloatOps<T>>(k: T, x: T) -> T {
+    // inigo quilez: https://iquilezles.org/articles/functions/
     T::two() * T::sqrt(k) * x / (T::one()+k*x*x)
 }
 
-/// returns a quadratic impulse (y position on a graph for x); n is the degree of the polynomial and k controls the stretching of the function <https://iquilezles.org/articles/functions/>
+/// returns a quadratic impulse (y position on a graph for x); n is the degree of the polynomial and k controls the stretching of the function
 pub fn poly_impulse<T: Number + Float + Base<T> + FloatOps<T>>(k: T, x: T, n: T) -> T {
+    // inigo quilez: https://iquilezles.org/articles/functions/
     let one = T::one();
     (n/(n-one))* T::powf((n-one)*k,one/n)*x/(one+k*T::powf(x,n))
 }
 
-/// returns an exponential sustained impulse (y position on a graph for x); control on the width of attack with k and release with f <https://iquilezles.org/articles/functions/>
+/// returns an exponential sustained impulse (y position on a graph for x); control on the width of attack with k and release with f
 pub fn exp_sustained_impulse<T: SignedNumber + Float, X: Base<T> + FloatOps<T> + SignedNumberOps<T> + Ord>(x: X, f: X, k: X) -> X {
+    // inigo quilez: https://iquilezles.org/articles/functions/
     let s = X::max(x-f, X::zero());
     X::min(x*x/(f*f), X::one() + (X::two()/f)*s*X::exp(-k*s))
 }
 
-/// returns a cubic pulse (y position on a graph for x); equivalent to: smoothstep(c-w,c,x)-smoothstep(c,c+w,x) <https://iquilezles.org/articles/functions/>
+/// returns a cubic pulse (y position on a graph for x); equivalent to: smoothstep(c-w,c,x)-smoothstep(c,c+w,x)
 pub fn cubic_pulse<X: Float + SignedNumberOps<X>>(c: X, w: X, x: X) -> X{
+    // inigo quilez: https://iquilezles.org/articles/functions/
     let mut x = abs(x - c);
     if x > w {
         X::zero()
@@ -949,11 +966,13 @@ pub fn cubic_pulse<X: Float + SignedNumberOps<X>>(c: X, w: X, x: X) -> X{
 
 /// returns an exponential step (y position on a graph for x); k is control parameter, n is power which gives sharper curves.
 pub fn exp_step<T: SignedNumber + Float, X: Base<T> + FloatOps<T> + SignedNumberOps<T>>(x: X, k: X, n: T) -> X {
+    // inigo quilez: https://iquilezles.org/articles/functions/
     X::exp(-k * X::powf(x, n))
 }
 
-/// returns gain (y position on a graph for x); remapping the unit interval into the unit interval by expanding the sides and compressing the center <https://iquilezles.org/articles/functions/>
+/// returns gain (y position on a graph for x); remapping the unit interval into the unit interval by expanding the sides and compressing the center
 pub fn gain<T: SignedNumber + Float + FloatOps<T>>(x: T, k: T) -> T {
+    // inigo quilez: https://iquilezles.org/articles/functions/
     let y = if x < T::point_five() { 
         x
     }
@@ -969,19 +988,22 @@ pub fn gain<T: SignedNumber + Float + FloatOps<T>>(x: T, k: T) -> T {
     }
 }
 
-/// returns a parabola (y position on a graph for x); use k to control its shape <https://iquilezles.org/articles/functions/>
+/// returns a parabola (y position on a graph for x); use k to control its shape
 pub fn parabola<T: SignedNumber + Float, X: Base<T> + FloatOps<T> + SignedNumberOps<T>>(x: X, k: T) -> X {
+    // inigo quilez: https://iquilezles.org/articles/functions/
     powf(X::four() * x * (X::one() - x), k)
 }
 
-/// returns a power curve (y position on a graph for x); this is a generalziation of the parabola <https://iquilezles.org/articles/functions/>
+/// returns a power curve (y position on a graph for x); this is a generalziation of the parabola
 pub fn pcurve<T: SignedNumber + Float + Base<T> + FloatOps<T>>(x: T, a: T, b: T) -> T {
+    // inigo quilez: https://iquilezles.org/articles/functions/
     let k = powf(a + b, a + b) / (powf(a, a) * powf(b, b));
     k * powf(x, a) * powf(T::one() - x, b)
 }
 
-/// returns a sin curve (y position on a graph for x); can be used for some bouncing behaviors. give k different integer values to tweak the amount of bounces <https://iquilezles.org/articles/functions/>
+/// returns a sin curve (y position on a graph for x); can be used for some bouncing behaviors. give k different integer values to tweak the amount of bounces
 pub fn sinc<T: SignedNumber + Float, X: Base<T> + FloatOps<T> + SignedNumberOps<T>>(x: X, k: X) -> X {
+    // inigo quilez: https://iquilezles.org/articles/functions/
     let a = X::zero() * (k*x-X::one());
     X::sin(a)/a
 }
@@ -1165,11 +1187,12 @@ pub fn morton_d2xy(d: u64) -> (u64, u64) {
     (morton_1(d), morton_1(d >> 1))
 }
 
-// morton 
-// map_to_range
+/// remap v within in_start -> in_end range to the new range out_start -> out_end
+pub fn map_to_range<T: Float, X: Base<T>>(v: X, in_start: X, in_end: X, out_start: X, out_end: X) -> X {
+    let slope = X::one() * (out_end - out_start) / (in_end - in_start);
+    out_start + slope * (v - in_start)
+}
 
-// point hull distance
-// point poly distance
 // quat
 
 // TODO: tests
@@ -1199,6 +1222,10 @@ pub fn morton_d2xy(d: u64) -> (u64, u64) {
 // quat tests
 // closest point on hull (test)
 // closest point on poly (test)
+// morton tests
+// map to range
+// point hull distance
+// point poly distance
 
 // TODO: new?
 // line_vs_cone

@@ -2230,7 +2230,12 @@ fn convex_hull() {
 
     // closest point to y
     let p = vec2f(7.0, 1.0);
+    let seg = closest_point_on_line_segment(p, vec2f(5.0, 1.0), vec2f(7.0, 3.0));
     assert_eq!(closest_point_on_convex_hull(p, &hull), closest_point_on_line_segment(p, vec2f(5.0, 1.0), vec2f(7.0, 3.0)));
+    
+    let p = vec2f(7.0, 1.0);
+    assert_eq!(point_convex_hull_distance(p, &hull), dist(p, seg));
+
 }
 
 #[test]
@@ -2280,10 +2285,19 @@ fn polygon() {
 
     // closest point to y
     let p = vec2f(7.0, 1.0);
-    assert_eq!(closest_point_on_convex_hull(p, &poly), closest_point_on_line_segment(p, vec2f(5.0, 1.0), vec2f(7.0, 3.0)));
+    let seg = closest_point_on_line_segment(p, vec2f(5.0, 1.0), vec2f(7.0, 3.0));
+    assert_eq!(closest_point_on_polygon(p, &poly), seg);
+    assert_eq!(point_polygon_distance(p, &poly), dist(p, seg));
 
     let p = vec2f(2.5, 6.0);
-    assert_eq!(closest_point_on_convex_hull(p, &poly), closest_point_on_line_segment(p, vec2f(3.0, 4.0), vec2f(0.0, 6.0)));
+    let seg = closest_point_on_line_segment(p, vec2f(3.0, 4.0), vec2f(0.0, 6.0));
+    assert_eq!(closest_point_on_polygon(p, &poly), seg);
+    assert_eq!(point_polygon_distance(p, &poly), dist(p, seg));
+
+    let p = vec2f(3.0, 4.0);
+    let seg = vec2f(3.0, 4.0);
+    assert_eq!(closest_point_on_polygon(p, &poly), seg);
+    assert_eq!(point_polygon_distance(p, &poly), dist(p, seg));
 }
 
 #[test]
@@ -2509,11 +2523,19 @@ fn ray_vs_line_segment_test() {
 
 #[test]
 fn utils() {
+    // TODO: quilez... these were to just test compilation
     let f : f32 = 0.0;
     let _ii = exp_impulse(f, f);
-
     let v = vec3f(-8.25, 6.35, -7.02);
-    let _iv = exp_impulse(v, v);   
+    let _iv = exp_impulse(v, v);
+
+    // lerp
+    assert_eq!(lerp(10.0, 50.0, 0.5), 30.0);
+    assert_eq!(lerp(0.0, 100.0, 0.75), 75.0);
+
+    // map to range
+    assert_eq!(map_to_range(5.0, 0.0, 10.0, 0.0, 1.0), 0.5);
+    assert_eq!(map_to_range(0.9, 0.0, 2.0, 0.0, 100.0), 45.0);
 }
 
 #[test]
