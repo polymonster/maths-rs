@@ -100,9 +100,19 @@ pub fn powf<T: Float, V: FloatOps<T>>(a: V, b: T) -> V {
     V::powf(a, b)
 }
 
-/// returns value t linearly interpolated between edge e0 and e1
+/// returns a value interpolated between edges e0 and e1 by percentage t
 pub fn lerp<T: Float, V: FloatOps<T>>(e0: V, e1: V, t: T) -> V {
     V::lerp(e0, e1, t)
+}
+
+/// returns a value interpolated between edges e0 and e1 by percentage t with the result being normalised
+pub fn nlerp<T: Float, V: VecFloatOps<T>>(e0: V, e1: V, t: T) -> V {
+    V::nlerp(e0, e1, t)
+}
+
+/// returns a value spherically interpolated between edges e0 and e1 by percentage t
+pub fn slerp<T: Float + NumberOps<T> + FloatOps<T>, V: Slerp<T>>(e0: V, e1: V, t: T) -> V {
+    V::slerp(e0, e1, t)
 }
 
 /// returns the hermite interpolated value t between edge e0 and e1
@@ -116,7 +126,7 @@ pub fn saturate<T: Float, V: FloatOps<T>>(x: V) -> V {
 }
 
 /// returns the vector cross product of a x b, makes sense only for 3 or 7 dimensional vectors 
-pub fn cross<T: Number, V: VecCross<T>>(a: V, b: V) -> V {
+pub fn cross<T: Number, V: Cross<T>>(a: V, b: V) -> V {
     V::cross(a, b)
 }
 
@@ -169,7 +179,7 @@ pub fn dist2<T: Float, V: VecFloatOps<T>>(a: V, b: V) -> T {
 }
 
 /// returns the barycentric coordinate (u, v, w) of point p inside triangle t1-t2-t3
-pub fn barycentric<T: Float + NumberOps<T>, V: VecFloatOps<T> + VecN<T> + NumberOps<T>>(p: V, t1: V, t2: V, t3: V) -> (T, T, T) {
+pub fn barycentric<T: Float + NumberOps<T>, V: VecN<T> + VecFloatOps<T> + NumberOps<T>>(p: V, t1: V, t2: V, t3: V) -> (T, T, T) {
     let x13 = t1 - t3;
     let x23 = t2 - t3;
     let x03 = p - t3;
@@ -254,7 +264,7 @@ pub fn plane_from_normal_and_point<T: SignedNumber>(x: Vec3<T>, n: Vec3<T>) -> V
 }
 
 /// returns the normalized unit vector normal of triangle t1-t2-t3
-pub fn get_triangle_normal<T: Float, V: VecFloatOps<T> + VecN<T> + VecCross<T>>(t1: V, t2: V, t3: V) -> V {
+pub fn get_triangle_normal<T: Float, V: VecFloatOps<T> + VecN<T> + Cross<T>>(t1: V, t2: V, t3: V) -> V {
     normalize(cross(t2 - t1, t3 - t1))
 }
 
@@ -474,7 +484,7 @@ pub fn closest_point_on_triangle<T: Float + FloatOps<T> + NumberOps<T>, V: VecN<
 }
 
 /// returns the closest point to p on the cone defined by cp position, with direction cv height h an radius r
-pub fn closest_point_on_cone<T: Float, V: VecN<T> + SignedVecN<T> + VecFloatOps<T>>(p: V, cp: V, cv: V, h: T, r: T) -> V {
+pub fn closest_point_on_cone<T: Float, V: VecN<T> + VecFloatOps<T>>(p: V, cp: V, cv: V, h: T, r: T) -> V {
     let l2 = cp + cv * h;
     let dh = distance_on_line(p, cp, l2) / h;
     let x0 = closest_point_on_line_segment(p, cp, l2);
@@ -508,7 +518,6 @@ pub fn closest_point_on_cone<T: Float, V: VecN<T> + SignedVecN<T> + VecFloatOps<
     }
 }
 
-
 /// returns the clostest point to p on the edge of the convex hull defined by point list 'hull' with clockwise winding
 pub fn closest_point_on_convex_hull<T: Float + FloatOps<T>>(p: Vec2<T>, hull: &Vec<Vec2<T>>) -> Vec2<T> {
     closest_point_on_polygon(p, hull)
@@ -532,7 +541,7 @@ pub fn closest_point_on_polygon<T: Float + FloatOps<T>>(p: Vec2<T>, poly: &Vec<V
 }
 
 /// returns true if point p is inside the aabb defined by aabb_min and aabb_max
-pub fn point_inside_aabb<T: Float, V: VecFloatOps<T> + VecN<T>>(p: V, aabb_min: V, aabb_max: V) -> bool {
+pub fn point_inside_aabb<T: Float, V: VecN<T> + VecFloatOps<T>>(p: V, aabb_min: V, aabb_max: V) -> bool {
     for i in 0..V::len() {
         if p[i] < aabb_min[i] || p[i] > aabb_max[i] {
             return false;
@@ -952,7 +961,7 @@ pub fn exp_sustained_impulse<T: SignedNumber + Float, X: Base<T> + FloatOps<T> +
 }
 
 /// returns a cubic pulse (y position on a graph for x); equivalent to: smoothstep(c-w,c,x)-smoothstep(c,c+w,x)
-pub fn cubic_pulse<X: Float + SignedNumberOps<X>>(c: X, w: X, x: X) -> X{
+pub fn cubic_pulse<X: Float + SignedNumberOps<X>>(c: X, w: X, x: X) -> X {
     // inigo quilez: https://iquilezles.org/articles/functions/
     let mut x = abs(x - c);
     if x > w {
@@ -1093,8 +1102,7 @@ pub fn rgba8_to_vec4<T: Float + FloatOps<T> + From<u32> + From<f64>>(rgba: u32) 
 }
 
 /// returns a packed u32 containing rgba8 (4 bytes, R8G8B8A8) converted from a Vec4 of rgba in 0-1 range
-pub fn vec4f_to_rgba8<T: Float + From<f64>>(v: Vec4<T>) -> u32 where u32: From<T>
-{
+pub fn vec4f_to_rgba8<T: Float + From<f64>>(v: Vec4<T>) -> u32 where u32: From<T> {
     let mut rgba : u32 = 0;
     let x = T::from(255.0);
     rgba |= u32::from(v[0] * x);
@@ -1194,6 +1202,8 @@ pub fn map_to_range<T: Float, X: Base<T>>(v: X, in_start: X, in_end: X, out_star
 }
 
 // quat
+// slerp
+// nlerp
 
 // TODO: tests
 // missing fail cases
@@ -1207,7 +1217,7 @@ pub fn map_to_range<T: Float, X: Base<T>>(v: X, in_start: X, in_end: X, out_star
 // quat tests
 
 // TODO c++
-// point inside cone test is whack
+// point inside cone test has no passes
 // point plane distance
 // point sphere distance
 // fix point inside triangle, closest point on triangle + tests

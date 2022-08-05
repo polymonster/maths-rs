@@ -77,7 +77,7 @@ pub trait IntegerOps<T: Integer> {
 }
 
 /// operations applicable to floating point types
-pub trait FloatOps<T: Float> where Self: Sized {
+pub trait FloatOps<T: Float>: where Self: Sized {
     /// returns 0.5
     fn point_five() -> Self;
     /// returns pi

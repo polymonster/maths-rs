@@ -28,6 +28,7 @@ use crate::num::*;
 /// generic vec trait to allow sized vectors to be treated generically
 pub trait VecN<T: Number>: 
     Base<T> +
+    Dot<T> +
     Index<usize, Output=T> + IndexMut<usize> + 
     Add<T, Output=Self> + Sub<T, Output=Self> +
     Mul<T, Output=Self> + Div<T, Output=Self> {
@@ -37,8 +38,6 @@ pub trait VecN<T: Number>:
     fn all(a: Self) -> bool;
     /// returns true if any element of the vector is non-zero
     fn any(a: Self) -> bool;
-    /// returns scalar value which is the vector dot product a . b
-    fn dot(a: Self, b: Self) -> T;
     /// returns a vector initialised as a unit vector in the x-axis [1, 0, 0, 0]
     fn unit_x() -> Self;
     /// returns a vector initialised as a unit vector in the y-axis [0, 1, 0, 0]
@@ -77,8 +76,8 @@ pub trait SignedVecN<T: SignedNumber>: Neg<Output=Self> {
     fn minus_one() -> Self;
 }
 
-/// operations to apply to n-dimensional vectors
-pub trait VecFloatOps<T: Float> {
+/// trait for operations whcih perform across horizon
+pub trait Normalization<T: Float> {
     /// returns scalar magnitude or length of vector
     fn length(a: Self) -> T;
     /// returns scalar magnitude or length of vector
@@ -93,21 +92,66 @@ pub trait VecFloatOps<T: Float> {
     fn dist(a: Self, b: Self) -> T;
     /// returns scalar squared distance between 2 points to avoid using sqrt
     fn dist2(a: Self, b: Self) -> T;
+}
+
+/// operations to apply to n-dimensional vectors
+pub trait VecFloatOps<T: Float>: SignedVecN<T> + Normalization<T> {
     /// returns a reflection vector using an incident ray and a surface normal
     fn reflect(i: Self, n: Self) -> Self;
     /// returns a refraction vector using an entering ray, a surface normal, and a refraction index
     fn refract(i: Self, n: Self, eta: T) -> Self;
-    /// performs linear interpolation between e0 and e1, t specifies the ratio to interpolate between the values
-    fn lerpn(e0: Self, e1: Self, t: Self) -> Self;
-    /// returns vector with component wise hermite interpolation between 0-1
-    fn smoothstepn(e0: Self, e1: Self, t: Self) -> Self;
+    /// returns lerp and performs normalization on the value after the lerp is performed
+    fn nlerp(e0: Self, e1: Self, t: T) -> Self;
+    /// returns linear interpolation between e0 and e1, t specifies the ratio to interpolate between the values, with component-wise t
+    fn vlerp(e0: Self, e1: Self, t: Self) -> Self;
+    /// returns vector with component wise hermite interpolation between 0-1, with component-wise t
+    fn vsmoothstep(e0: Self, e1: Self, t: Self) -> Self;
     /// returns vector with component wise pow 
     fn powfn(a: Self, exp: Self) -> Self;
 }
 
+/// trait for dot product
+pub trait Dot<T> {
+    fn dot(a: Self, b: Self) -> T;
+}
+
+impl<T> Dot<T> for Vec2<T> where T: Number {
+    fn dot(a: Self, b: Self) -> T {
+        a.x * b.x + a.y * b.y
+    }
+}
+
+impl<T> Dot<T> for Vec3<T> where T: Number {
+    fn dot(a: Self, b: Self) -> T {
+        a.x * b.x + a.y * b.y + a.z * b.z
+    }
+}
+
+impl<T> Dot<T> for Vec4<T> where T: Number {
+    fn dot(a: Self, b: Self) -> T {
+        a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w
+    }
+}
+
 /// trait for cross product, this is only applicable to 3D or 7D vectors
-pub trait VecCross<T> {
+pub trait Cross<T> {
     fn cross(a: Self, b: Self) -> Self;
+}
+
+impl<T> Cross<T> for Vec3<T> where T: Number {
+    fn cross(a: Self, b: Self) -> Self {
+        Vec3 {
+            x: (a.y * b.z) - (a.z * b.y), 
+            y: (a.z * b.x) - (a.x * b.z),
+            z: (a.x * b.y) - (a.y * b.x),
+        }
+    }
+}
+
+/// trait for spherical interpolation, is applicable with vec and quat
+pub trait Slerp<T: Float + FloatOps<T>> {
+    // spherically interpolate between edges e0 and e1 by percentage t
+    fn slerp(e0: Self, e1: Self, t: T) -> Self;
 }
 
 // 
@@ -145,13 +189,6 @@ macro_rules! vec_impl {
             fn any(a: Self) -> bool {
                 $(a.$field != T::zero() ||)+
                 false
-            }
-
-            fn dot(a: Self, b: Self) -> T {
-                T::zero()
-                $( 
-                    +(a.$field * b.$field)
-                )+
             }
 
             fn unit_x() -> $VecN<T> {
@@ -310,7 +347,7 @@ macro_rules! vec_impl {
             }
         }
 
-        impl<T> VecFloatOps<T> for $VecN<T> where T: Float + FloatOps<T> {
+        impl<T> Normalization<T> for $VecN<T> where T: Float + FloatOps<T> {
             fn length(a: Self) -> T {
                 T::sqrt(Self::dot(a, a))
             }
@@ -341,7 +378,9 @@ macro_rules! vec_impl {
                 let c = a-b;
                 Self::dot(c, c)
             }
+        }
 
+        impl<T> VecFloatOps<T> for $VecN<T> where T: Float + FloatOps<T> {
             fn reflect(i: Self, n: Self) -> Self {
                 // https://docs.microsoft.com/en-us/windows/win32/direct3dhlsl/dx-graphics-hlsl-reflect
                 (i - T::two()) * n * Self::dot(i, n)
@@ -359,13 +398,19 @@ macro_rules! vec_impl {
                 }
             }
 
-            fn lerpn(e0: Self, e1: Self, t: Self) -> Self {
+            fn nlerp(e0: Self, e1: Self, t: T) -> Self {
+                Self::normalize( Self {
+                    $($field: T::lerp(e0.$field, e1.$field, t),)+
+                })
+            }
+
+            fn vlerp(e0: Self, e1: Self, t: Self) -> Self {
                 Self {
                     $($field: T::lerp(e0.$field, e1.$field, t.$field),)+
                 }
             }
 
-            fn smoothstepn(e0: Self, e1: Self, t: Self) -> Self {
+            fn vsmoothstep(e0: Self, e1: Self, t: Self) -> Self {
                 Self {
                     $($field: T::smoothstep(e0.$field, e1.$field, t.$field),)+
                 }
@@ -375,6 +420,17 @@ macro_rules! vec_impl {
                 Self {
                     $($field: T::powf(a.$field, exp.$field),)+
                 }
+            }
+        }
+
+        impl<T> Slerp<T> for $VecN<T> where T: Float + FloatOps<T> + NumberOps<T> {
+            fn slerp(e0: Self, e1: Self, t: T) -> Self {
+                // https://blog.demofox.org/2016/02/19/normalized-vector-interpolation-tldr/
+                let dot = Self::dot(e0, e1);     
+                let dot = T::clamp(dot, T::minus_one(), T::one());
+                let theta = T::acos(dot) * t;
+                let v = Self::normalize(e1 - e0 * dot);
+                ((e0 * T::cos(theta)) + (v * T::sin(theta)))
             }
         }
 
@@ -956,8 +1012,6 @@ macro_rules! vec_scalar_lhs {
     }
 }
 
-
-
 //
 // From
 //
@@ -1179,16 +1233,6 @@ vec_ctor!(Vec4 { x, y, z, w }, vec4i, splat4i, i32);
 vec_ctor!(Vec2 { x, y }, vec2u, splat2u, u32);
 vec_ctor!(Vec3 { x, y, z }, vec3u, splat3u, u32);
 vec_ctor!(Vec4 { x, y, z, w }, vec4u, splat4u, u32);
-
-impl<T> VecCross<T> for Vec3<T> where T: Number {
-    fn cross(a: Self, b: Self) -> Self {
-        Vec3 {
-            x: (a.y * b.z) - (a.z * b.y), 
-            y: (a.z * b.x) - (a.x * b.z),
-            z: (a.x * b.y) - (a.y * b.x),
-        }
-    }
-}
 
 // TODO: swizzles
 // TODO: refactor functions to follow dott
