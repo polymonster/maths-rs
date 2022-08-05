@@ -27,8 +27,7 @@ use crate::num::*;
 
 /// generic vec trait to allow sized vectors to be treated generically
 pub trait VecN<T: Number>: 
-    Base<T> +
-    Dot<T> +
+    Base<T> + Dot<T> + 
     Index<usize, Output=T> + IndexMut<usize> + 
     Add<T, Output=Self> + Sub<T, Output=Self> +
     Mul<T, Output=Self> + Div<T, Output=Self> {
@@ -76,8 +75,8 @@ pub trait SignedVecN<T: SignedNumber>: Neg<Output=Self> {
     fn minus_one() -> Self;
 }
 
-/// trait for operations whcih perform across horizon
-pub trait Normalization<T: Float> {
+/// trait for operations involve vector magnitude or dot product
+pub trait Magnitude<T: Float> {
     /// returns scalar magnitude or length of vector
     fn length(a: Self) -> T;
     /// returns scalar magnitude or length of vector
@@ -86,16 +85,16 @@ pub trait Normalization<T: Float> {
     fn mag2(a: Self) -> T;
     /// returns a normalized unit vector of a
     fn normalize(a: Self) -> Self;
+}
+
+/// operations to apply to n-dimensional vectors
+pub trait VecFloatOps<T: Float>: SignedVecN<T> + Magnitude<T> {
     /// returns scalar distance between 2 points (magnitude of the vector between the 2 points)
     fn distance(a: Self, b: Self) -> T;
     /// returns scalar distance between 2 points (magnitude of the vector between the 2 points)
     fn dist(a: Self, b: Self) -> T;
     /// returns scalar squared distance between 2 points to avoid using sqrt
     fn dist2(a: Self, b: Self) -> T;
-}
-
-/// operations to apply to n-dimensional vectors
-pub trait VecFloatOps<T: Float>: SignedVecN<T> + Normalization<T> {
     /// returns a reflection vector using an incident ray and a surface normal
     fn reflect(i: Self, n: Self) -> Self;
     /// returns a refraction vector using an entering ray, a surface normal, and a refraction index
@@ -133,7 +132,7 @@ impl<T> Dot<T> for Vec4<T> where T: Number {
     }
 }
 
-/// trait for cross product, this is only applicable to 3D or 7D vectors
+/// trait for cross product, this is only implemented for Vec3
 pub trait Cross<T> {
     fn cross(a: Self, b: Self) -> Self;
 }
@@ -347,7 +346,7 @@ macro_rules! vec_impl {
             }
         }
 
-        impl<T> Normalization<T> for $VecN<T> where T: Float + FloatOps<T> {
+        impl<T> Magnitude<T> for $VecN<T> where T: Float + FloatOps<T> {
             fn length(a: Self) -> T {
                 T::sqrt(Self::dot(a, a))
             }
@@ -364,7 +363,9 @@ macro_rules! vec_impl {
                 let m = Self::mag(a);
                 a / m
             }
+        }
 
+        impl<T> VecFloatOps<T> for $VecN<T> where T: Float + FloatOps<T> {
             fn distance(a: Self, b: Self) -> T {
                 let c = a-b;
                 T::sqrt(Self::dot(c, c))
@@ -378,9 +379,7 @@ macro_rules! vec_impl {
                 let c = a-b;
                 Self::dot(c, c)
             }
-        }
 
-        impl<T> VecFloatOps<T> for $VecN<T> where T: Float + FloatOps<T> {
             fn reflect(i: Self, n: Self) -> Self {
                 // https://docs.microsoft.com/en-us/windows/win32/direct3dhlsl/dx-graphics-hlsl-reflect
                 (i - T::two()) * n * Self::dot(i, n)
