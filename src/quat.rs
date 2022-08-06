@@ -36,7 +36,6 @@ impl<T> DivAssign<T> for Quat<T> where T: Number {
     }
 }
 
-
 impl<T> Mul<T> for Quat<T> where T: Number {
     type Output = Self;
     fn mul(self, other: T) -> Self {
@@ -55,6 +54,27 @@ impl<T> MulAssign<T> for Quat<T> where T: Number {
         self.y *= other;
         self.z *= other;
         self.w *= other;
+    }
+}
+
+impl<T> Mul<Self> for Quat<T> where T: Number {
+    type Output = Self;
+    fn mul(self, other: Self) -> Self {
+        Quat {
+            w: self.w * other.w - self.x * other.x - self.y * other.y - self.z * other.z,
+            x: self.w * other.x + self.x * other.w + self.y * other.z - self.z * other.y,
+            y: self.w * other.y - self.x * other.z + self.y * other.w + self.z * other.z,
+            z: self.w * other.z + self.x * other.y - self.y * other.x + self.z * other.w
+        }
+    }
+}
+
+impl<T> MulAssign<Self> for Quat<T> where T: Number {
+    fn mul_assign(&mut self, other: Self) {
+        self.x *= self.w * other.w - self.x * other.x - self.y * other.y - self.z * other.z;
+        self.y *= self.w * other.x + self.x * other.w + self.y * other.z - self.z * other.y;
+        self.z *= self.w * other.y - self.x * other.z + self.y * other.w + self.z * other.z;
+        self.w *= self.w * other.z + self.x * other.y - self.y * other.x + self.z * other.w;
     }
 }
 
