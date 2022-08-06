@@ -56,7 +56,7 @@ pub trait NumberOps<T: Number> {
     fn min(a: Self, b: Self) -> Self;
     /// returns the maximum value of a and b
     fn max(a: Self, b: Self) -> Self;
-    /// returns a vector with elements of x clamped component wise to min and max
+    /// returns value x clamped to the range min - max
     fn clamp(x: Self, min: Self, max: Self) -> Self;
     /// returns a vector stepped component wise; 1 if a is >= b, 0 otherwise
     fn step(a: Self, b: Self) -> Self;
@@ -72,12 +72,17 @@ pub trait SignedNumberOps<T: SignedNumber>: Neg<Output=Self> {
 
 /// operations applicable to integer types
 pub trait IntegerOps<T: Integer> {
-    /// returns vector with component-wise values raised to unsigned integer power
+    /// returns value a raised to unsigned integer power
     fn pow(a: Self, exp: u32) -> Self;
 }
 
+pub trait Lerp<T: Float> {
+    /// returns linear interpolation of t between e0 and e1, t specifies the ratio to interpolate between the values
+    fn lerp(e0: Self, e1: Self, t: T) -> Self;
+}
+
 /// operations applicable to floating point types
-pub trait FloatOps<T: Float>: where Self: Sized {
+pub trait FloatOps<T: Float>: Lerp<T> where Self: Sized {
     /// returns 0.5
     fn point_five() -> Self;
     /// returns pi
@@ -100,8 +105,6 @@ pub trait FloatOps<T: Float>: where Self: Sized {
     fn floor(a: Self) -> Self;
     /// returns the smallest integer which is greater than or equal to a
     fn ceil(a: Self) -> Self;
-    /// returns linear interpolation of t between e0 and e1, t specifies the ratio to interpolate between the values
-    fn lerp(e0: Self, e1: Self, t: T) -> Self;
     /// returns hermite interpolation between 0-1 of t between edges e0 and e1
     fn smoothstep(e0: Self, e1: Self, t: T) -> Self;
     /// returns a rounded component wise
@@ -271,6 +274,12 @@ macro_rules! float_impl {
             }
         }
 
+        impl Lerp<$t> for $t {
+            fn lerp(e0: Self, e1: Self, t: Self) -> Self {
+                e0 + t * (e1 - e0)
+            }
+        }
+
         impl FloatOps<$t> for $t {
             $(
                 fn $func(v: Self) -> Self {
@@ -309,10 +318,6 @@ macro_rules! float_impl {
 
             fn is_finite(v: Self) -> $t {
                 if v.is_finite() { $t::one() } else { $t::zero() }
-            }
-
-            fn lerp(e0: Self, e1: Self, t: Self) -> Self {
-                e0 + t * (e1 - e0)
             }
 
             fn smoothstep(e0: Self, e1: Self, t: Self) -> Self {

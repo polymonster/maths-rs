@@ -99,8 +99,6 @@ pub trait VecFloatOps<T: Float>: SignedVecN<T> + Magnitude<T> {
     fn reflect(i: Self, n: Self) -> Self;
     /// returns a refraction vector using an entering ray, a surface normal, and a refraction index
     fn refract(i: Self, n: Self, eta: T) -> Self;
-    /// returns lerp and performs normalization on the value after the lerp is performed
-    fn nlerp(e0: Self, e1: Self, t: T) -> Self;
     /// returns linear interpolation between e0 and e1, t specifies the ratio to interpolate between the values, with component-wise t
     fn vlerp(e0: Self, e1: Self, t: Self) -> Self;
     /// returns vector with component wise hermite interpolation between 0-1, with component-wise t
@@ -147,10 +145,16 @@ impl<T> Cross<T> for Vec3<T> where T: Number {
     }
 }
 
-/// trait for spherical interpolation, is applicable with vec and quat
+/// trait for spherical interpolation, which is applicable with vec and quat
 pub trait Slerp<T: Float + FloatOps<T>> {
     // spherically interpolate between edges e0 and e1 by percentage t
     fn slerp(e0: Self, e1: Self, t: T) -> Self;
+}
+
+/// trait for normalized interpolation, which is applicable with vec and quat
+pub trait Nlerp<T: Float> {
+    // linearly interpolate between edges e0 and e1 by percentage t and return the normalized value
+    fn nlerp(e0: Self, e1: Self, t: T) -> Self;
 }
 
 // 
@@ -397,12 +401,6 @@ macro_rules! vec_impl {
                 }
             }
 
-            fn nlerp(e0: Self, e1: Self, t: T) -> Self {
-                Self::normalize( Self {
-                    $($field: T::lerp(e0.$field, e1.$field, t),)+
-                })
-            }
-
             fn vlerp(e0: Self, e1: Self, t: Self) -> Self {
                 Self {
                     $($field: T::lerp(e0.$field, e1.$field, t.$field),)+
@@ -430,6 +428,14 @@ macro_rules! vec_impl {
                 let theta = T::acos(dot) * t;
                 let v = Self::normalize(e1 - e0 * dot);
                 ((e0 * T::cos(theta)) + (v * T::sin(theta)))
+            }
+        }
+
+        impl<T> Nlerp<T> for $VecN<T> where T: Float + FloatOps<T> + NumberOps<T> {
+            fn nlerp(e0: Self, e1: Self, t: T) -> Self {
+                Self::normalize( Self {
+                    $($field: T::lerp(e0.$field, e1.$field, t),)+
+                })
             }
         }
 
@@ -473,6 +479,14 @@ macro_rules! vec_impl {
             fn max_value() -> Self {
                 $VecN {
                     $($field: T::max_value(),)+
+                }
+            }
+        }
+
+        impl<T> Lerp<T> for $VecN<T> where T: Float + Lerp<T> {
+            fn lerp(e0: Self, e1: Self, t: T) -> Self {
+                Self {
+                    $($field: T::lerp(e0.$field, e1.$field, t),)+
                 }
             }
         }
@@ -540,12 +554,6 @@ macro_rules! vec_impl {
             fn ceil(a: Self) -> Self {
                 Self {
                     $($field: T::ceil(a.$field),)+
-                }
-            }
-
-            fn lerp(e0: Self, e1: Self, t: T) -> Self {
-                Self {
-                    $($field: T::lerp(e0.$field, e1.$field, t),)+
                 }
             }
 

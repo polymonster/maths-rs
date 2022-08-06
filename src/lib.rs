@@ -106,7 +106,7 @@ pub fn lerp<T: Float, V: FloatOps<T>>(e0: V, e1: V, t: T) -> V {
 }
 
 /// returns a value interpolated between edges e0 and e1 by percentage t with the result being normalised
-pub fn nlerp<T: Float, V: VecFloatOps<T>>(e0: V, e1: V, t: T) -> V {
+pub fn nlerp<T: Float, V: VecFloatOps<T> + Nlerp<T>>(e0: V, e1: V, t: T) -> V {
     V::nlerp(e0, e1, t)
 }
 
