@@ -6,8 +6,9 @@ use std::ops::Neg;
 use std::ops::Add;
 use std::ops::AddAssign;
 
-use crate::vec::*;
 use crate::num::*;
+use crate::vec::*;
+use crate::mat::*;
 
 #[derive(Debug, Copy, Clone)]
 pub struct Quat<T> {
@@ -15,6 +16,149 @@ pub struct Quat<T> {
     y: T,
     z: T,
     w: T
+}
+
+impl<T> Quat<T> where T: Float + FloatOps<T> + SignedNumberOps<T> {
+    pub fn from_euler_angles(x: T, y: T, z: T) -> Self {
+        let half_z = T::point_five() * z;
+        let half_x = T::point_five() * x;
+        let half_y = T::point_five() * y;
+
+        let cos_z_2 = T::cos(half_z);
+        let cos_y_2 = T::cos(half_y);
+        let cos_x_2 = T::cos(half_x);
+
+        let sin_z_2 = T::sin(half_z);
+        let sin_y_2 = T::sin(half_y);
+        let sin_x_2 = T::sin(half_x);
+
+        Self::normalize( Quat {
+            w: cos_z_2 * cos_y_2 * cos_x_2 + sin_z_2 * sin_y_2 * sin_x_2,
+            x: cos_z_2 * cos_y_2 * sin_x_2 - sin_z_2 * sin_y_2 * cos_x_2,
+            y: cos_z_2 * sin_y_2 * cos_x_2 + sin_z_2 * cos_y_2 * sin_x_2,
+            z: sin_z_2 * cos_y_2 * cos_x_2 - cos_z_2 * sin_y_2 * sin_x_2,
+        })
+    }
+
+    pub fn from_axis_angle(axis: Vec3<T>, angle: T) -> Self {
+        let half_angle = angle * T::point_five();
+        Self::normalize( Quat {
+            w: T::cos(half_angle),
+            x: axis.x * T::sin(half_angle),
+            y: axis.y * T::sin(half_angle),
+            z: axis.z * T::sin(half_angle)
+        })
+    }
+
+    pub fn from_matrix(m: Mat3<T>) -> Self {
+        // https://math.stackexchange.com/questions/893984/conversion-of-rotation-matrix-to-quaternion
+        let m00 = m.m[0];
+        let m01 = m.m[4];
+        let m02 = m.m[8];
+        let m10 = m.m[1];
+        let m11 = m.m[5];
+        let m12 = m.m[9];
+        let m20 = m.m[2];
+        let m21 = m.m[6];
+        let m22 = m.m[10];
+
+        let t = T::zero();
+        let t0 = T::zero();
+        let t1 = T::one();
+
+        let (x, y, z, w) = if m22 < t0 {
+            if m00 > m11 {
+                let x = t1 + m00 -m11 -m22;
+                let y = m01 + m10;
+                let z = m20 + m02;
+                let w = m12 - m21;
+                (x, y, z, w)
+            }
+            else {
+                let x = m01 + m10;
+                let y = t1 -m00 + m11 -m22;
+                let z = m12 + m21;
+                let w = m20 - m02;
+                (x, y, z, w)
+
+            }
+        }
+        else {
+            if m00 < -m11 {
+                let x = m20+m02;
+                let y = m12+m21;
+                let z = t1 -m00 -m11 + m22;
+                let w = m01-m10;
+                (x, y, z, w)
+            }
+            else {
+                let x = m12-m21;
+                let y = m20-m02;
+                let z = m01-m10;
+                let w = t1 + m00 + m11 + m22;
+                (x, y, z, w)
+            }
+        };
+        
+        let sq = T::point_five() / T::sqrt(t);
+
+        Quat {
+            x: x * sq,
+            y: y * sq,
+            z: z * sq,
+            w: w * sq
+        }
+    }
+
+    pub fn get_euler_angles(&self) -> (T, T, T) {
+        let t2 = T::two();
+        let t1 = T::one();
+
+        // roll (x-axis rotation)
+        let sinr = t2 * (self.w * self.x + self.y * self.z);
+        let cosr = t1 - t2 * (self.x * self.x + self.y * self.y);
+        let x = T::atan2(sinr, cosr);
+
+        // pitch (y-axis rotation)
+        let sinp = t2 * (self.w * self.y - self.z * self.x);
+        let y = if T::abs(sinp) >= T::one() {
+            // use 90 degrees if out of range
+            (T::pi() / t2) * sinp
+        }
+        else {
+            T::asin(sinp)
+        };
+
+        // yaw (z-axis rotation)
+        let siny = t2 * (self.w * self.z + self.x * self.y);
+        let cosy = t1 - t2 * (self.y * self.y + self.z * self.z);
+        let z = T::atan2(siny, cosy);
+
+        (x, y, z)
+    }
+
+    pub fn get_matrix(&self) -> Mat3<T> {    
+        let t1 = T::one();
+        let t2 = T::two();
+        Mat3::new(
+            // row 1
+            t1 - t2 * self.y * self.y - t2 * self.z * self.z, 
+            t2 * self.x * self.y - t2 * self.z * self.w, 
+            t2 * self.x * self.z + t2 * self.y * self.w,
+            // row 2
+            t2 * self.x * self.y + t2 * self.z * self.w,
+            t1 - t2 * self.x * self.x - t2 * self.z * self.z,
+            t2 * self.y * self.z - t2 * self.x * self.w,
+            // row 3
+            t2 * self.x * self.z - t2 * self.y * self.w,
+            t2 * self.y * self.z + t2 * self.x * self.w,
+            t1 - t2 * self.x * self.x - t2 * self.y * self.y
+        )
+    }
+
+    // reverse
+
+    // inverse
 }
 
 impl<T> Add<Self> for Quat<T> where T: Float {
@@ -176,5 +320,11 @@ impl<T> Slerp<T> for Quat<T> where T: Float + FloatOps<T> + NumberOps<T> + From<
 impl<T> Lerp<T> for Quat<T> where T: Float + FloatOps<T> + NumberOps<T> {
     fn lerp(e0: Self, e1: Self, t: T) -> Self {
         e0 * (T::one() - t) + e1 * t
+    }
+}
+
+impl<T> Nlerp<T> for Quat<T> where T: Float + FloatOps<T> + NumberOps<T> {
+    fn nlerp(e0: Self, e1: Self, t: T) -> Self {
+        Self::normalize(e0 * (T::one() - t) + e1 * t)
     }
 }

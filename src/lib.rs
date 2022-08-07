@@ -115,7 +115,7 @@ pub fn slerp<T: Float + NumberOps<T> + FloatOps<T>, V: Slerp<T>>(e0: V, e1: V, t
     V::slerp(e0, e1, t)
 }
 
-/// returns the hermite interpolated value t between edge e0 and e1
+/// returns the hermite interpolated value between edge e0 and e1 by percentage t
 pub fn smoothstep<T: Float, V: FloatOps<T>>(e0: V, e1: V, t: T) -> V {
     V::smoothstep(e0, e1, t)
 }
@@ -1202,8 +1202,6 @@ pub fn map_to_range<T: Float, X: Base<T>>(v: X, in_start: X, in_end: X, out_star
 }
 
 // quat
-// slerp
-// nlerp
 
 // TODO: tests
 // missing fail cases
