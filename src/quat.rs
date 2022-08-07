@@ -137,13 +137,13 @@ impl<T> Quat<T> where T: Float + FloatOps<T> + SignedNumberOps<T> {
         (x, y, z)
     }
 
-    pub fn get_matrix(&self) -> Mat3<T> {    
+    pub fn get_matrix(&self) -> Mat3<T> {
         let t1 = T::one();
         let t2 = T::two();
         Mat3::new(
             // row 1
-            t1 - t2 * self.y * self.y - t2 * self.z * self.z, 
-            t2 * self.x * self.y - t2 * self.z * self.w, 
+            t1 - t2 * self.y * self.y - t2 * self.z * self.z,
+            t2 * self.x * self.y - t2 * self.z * self.w,
             t2 * self.x * self.z + t2 * self.y * self.w,
             // row 2
             t2 * self.x * self.y + t2 * self.z * self.w,
