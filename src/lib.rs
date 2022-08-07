@@ -433,7 +433,7 @@ pub fn closest_point_on_ray<T: Float, V: VecFloatOps<T> + VecN<T>>(p: V, r0: V, 
 
 /// returns the closest point to point p on the obb defined by mat which will transform an aabb centred at 0 with extents -1 to 1 into an obb
 pub fn closest_point_on_obb<T: Float, V: VecFloatOps<T> + NumberOps<T> + SignedNumberOps<T> + VecN<T> + SignedVecN<T>, M: MatTranslate<V> + MatInverse<T> + MatN<T, V>>(p: V, mat: M) -> V {
-    let invm = M::inverse(&mat);
+    let invm = mat.inverse();
     let tp = invm * p;
     let cp = closest_point_on_aabb(tp, V::minus_one(), V::one());
     mat * cp
@@ -1201,7 +1201,7 @@ pub fn map_to_range<T: Float, X: Base<T>>(v: X, in_start: X, in_end: X, out_star
     out_start + slope * (v - in_start)
 }
 
-// quat
+// swizzles
 
 // TODO: tests
 // missing fail cases

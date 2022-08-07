@@ -5,6 +5,8 @@ use std::ops::MulAssign;
 use std::ops::Neg;
 use std::ops::Add;
 use std::ops::AddAssign;
+use std::ops::Sub;
+use std::ops::SubAssign;
 
 use crate::num::*;
 use crate::vec::*;
@@ -110,7 +112,7 @@ impl<T> Quat<T> where T: Float + FloatOps<T> + SignedNumberOps<T> {
         }
     }
 
-    pub fn get_euler_angles(&self) -> (T, T, T) {
+    pub fn get_euler_angles(self) -> (T, T, T) {
         let t2 = T::two();
         let t1 = T::one();
 
@@ -137,7 +139,7 @@ impl<T> Quat<T> where T: Float + FloatOps<T> + SignedNumberOps<T> {
         (x, y, z)
     }
 
-    pub fn get_matrix(&self) -> Mat3<T> {
+    pub fn get_matrix(self) -> Mat3<T> {
         let t1 = T::one();
         let t2 = T::two();
         Mat3::new(
@@ -156,9 +158,18 @@ impl<T> Quat<T> where T: Float + FloatOps<T> + SignedNumberOps<T> {
         )
     }
 
-    // reverse
+    pub fn reverse(self) -> Self {
+        Quat { 
+            x: -self.x, 
+            y: -self.y, 
+            z: -self.z, 
+            w: self.w 
+        }
+    }
 
-    // inverse
+    pub fn inverse(self) -> Self {
+        self.reverse() / Self::mag2(self)
+    }
 }
 
 impl<T> Add<Self> for Quat<T> where T: Float {
@@ -179,6 +190,27 @@ impl<T> AddAssign<Self> for Quat<T> where T: Float {
         self.y += other.y;
         self.z += other.z;
         self.w += other.w;
+    }
+}
+
+impl<T> Sub<Self> for Quat<T> where T: Float {
+    type Output = Self;
+    fn sub(self, other: Self) -> Self {
+        Quat {
+            x: self.x - other.x,
+            y: self.y - other.y,
+            z: self.z - other.z,
+            w: self.w - other.w,
+        }
+    }
+}
+
+impl<T> SubAssign<Self> for Quat<T> where T: Float {
+    fn sub_assign(&mut self, other: Self) {
+        self.x -= other.x;
+        self.y -= other.y;
+        self.z -= other.z;
+        self.w -= other.w;
     }
 }
 
