@@ -557,6 +557,13 @@ macro_rules! vec_impl {
                 }
             }
 
+
+            fn copysign(a: Self, sign: T) -> Self {
+                Self {
+                    $($field: T::copysign(a.$field, sign),)+
+                }
+            }
+
             fn smoothstep(e0: Self, e1: Self, t: T) -> Self {
                 Self {
                     $($field: T::smoothstep(e0.$field, e1.$field, t),)+

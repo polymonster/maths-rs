@@ -50,6 +50,11 @@ pub fn signum<T: SignedNumber, V: SignedNumberOps<T>>(a: V) -> V {
     V::signum(a)
 }
 
+/// returns the value a with the same sign as second paremeter sign
+pub fn copysign<T: Float, V: FloatOps<T>>(a: V, sign: T) -> V {
+    V::copysign(a, sign)
+}
+
 /// returns the absolute (positive) value of a 
 pub fn abs<T: SignedNumber, V: SignedNumberOps<T>>(a: V) -> V {
     V::abs(a)
@@ -1202,6 +1207,7 @@ pub fn map_to_range<T: Float, X: Base<T>>(v: X, in_start: X, in_end: X, out_star
 }
 
 // swizzles
+// quat from (+ mat from quat etc)
 
 // TODO: tests
 // missing fail cases

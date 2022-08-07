@@ -125,7 +125,7 @@ impl<T> Quat<T> where T: Float + FloatOps<T> + SignedNumberOps<T> {
         let sinp = t2 * (self.w * self.y - self.z * self.x);
         let y = if T::abs(sinp) >= T::one() {
             // use 90 degrees if out of range
-            (T::pi() / t2) * sinp
+            T::copysign(T::pi() / t2, sinp)
         }
         else {
             T::asin(sinp)

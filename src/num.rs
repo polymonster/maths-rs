@@ -105,6 +105,8 @@ pub trait FloatOps<T: Float>: Lerp<T> where Self: Sized {
     fn floor(a: Self) -> Self;
     /// returns the smallest integer which is greater than or equal to a
     fn ceil(a: Self) -> Self;
+    /// returns value a with the same sign as the second parameter sign
+    fn copysign(a: Self, sign: T) -> Self;
     /// returns hermite interpolation between 0-1 of t between edges e0 and e1
     fn smoothstep(e0: Self, e1: Self, t: T) -> Self;
     /// returns a rounded component wise
@@ -318,6 +320,10 @@ macro_rules! float_impl {
 
             fn is_finite(v: Self) -> $t {
                 if v.is_finite() { $t::one() } else { $t::zero() }
+            }
+
+            fn copysign(a: Self, sign: $t) -> Self {
+                a.copysign(sign)
             }
 
             fn smoothstep(e0: Self, e1: Self, t: Self) -> Self {

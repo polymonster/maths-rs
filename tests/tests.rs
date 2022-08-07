@@ -722,16 +722,20 @@ fn abs_sign() {
     assert_eq!(Vec3f::signum(vec3f(123.0, -123.0, 999.0)), vec3f(1.0, -1.0, 1.0));
     assert_eq!(Vec3f::signum(vec3f(0.0, -0.0, 0.0)), vec3f(1.0, -1.0, 1.0));
     assert_eq!(Vec3i::signum(vec3i(-1, 0, 1)), vec3i(-1, 0, 1));
+
+    assert_eq!(f32::copysign(10.0, -1.0), -10.0);
+    assert_eq!(f32::copysign(-10.0, -1.0), -10.0);
+    assert_eq!(f32::copysign(-10.0, 1.0), 10.0);
+
+    assert_eq!(copysign(vec3f(-10.0, 10.0, -10.0), -1.0), vec3f(-10.0, -10.0, -10.0));
+    assert_eq!(copysign(vec3f(10.0, 10.0, -10.0), 1.0), vec3f(10.0, 10.0, 10.0));
+    assert_eq!(copysign(vec3f(-10.0, -10.0, -10.0), 1.0), vec3f(10.0, 10.0, 10.0));
 }
 
 #[test]
 fn interpolate() {
     assert_eq!(Vec3f::lerp(vec3f(10.0, 4.0, 60.0), vec3f(20.0, 0.0, -60.0), 0.5), vec3f(15.0, 2.0, 0.0));
     assert_eq!(Vec3f::vlerp(vec3f(10.0, 4.0, 60.0), vec3f(20.0, 0.0, -60.0), splat3f(0.5)), vec3f(15.0, 2.0, 0.0));
-
-    // TODO: smoothstep
-    //assert_eq!(Vec3f::smoothstep(vec3f(10.0, 4.0, 60.0), vec3f(20.0, 0.0, -60.0), 0.75), vec3f(15.0, 2.0, 0.0));
-    //assert_eq!(Vec3f::smoothstepn(vec3f(10.0, 4.0, 60.0), vec3f(20.0, 0.0, -60.0), splat3f(0.75)), vec3f(15.0, 2.0, 0.0));
 }
 
 #[test]
