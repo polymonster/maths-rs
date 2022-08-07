@@ -3,6 +3,8 @@ use std::ops::DivAssign;
 use std::ops::Mul;
 use std::ops::MulAssign;
 use std::ops::Neg;
+use std::ops::Add;
+use std::ops::AddAssign;
 
 use crate::vec::*;
 use crate::num::*;
@@ -13,6 +15,27 @@ pub struct Quat<T> {
     y: T,
     z: T,
     w: T
+}
+
+impl<T> Add<Self> for Quat<T> where T: Float {
+    type Output = Self;
+    fn add(self, other: Self) -> Self {
+        Quat {
+            x: self.x + other.x,
+            y: self.y + other.y,
+            z: self.z + other.z,
+            w: self.w + other.w,
+        }
+    }
+}
+
+impl<T> AddAssign<Self> for Quat<T> where T: Float {
+    fn add_assign(&mut self, other: Self) {
+        self.x += other.x;
+        self.y += other.y;
+        self.z += other.z;
+        self.w += other.w;
+    }
 }
 
 impl<T> Div<T> for Quat<T> where T: Number {
@@ -147,5 +170,11 @@ impl<T> Slerp<T> for Quat<T> where T: Float + FloatOps<T> + NumberOps<T> + From<
             y: m1 * q1.y + m2 * q2.y, 
             z: m1 * q1.z + m2 * q2.z 
         }
+    }
+}
+
+impl<T> Lerp<T> for Quat<T> where T: Float + FloatOps<T> + NumberOps<T> {
+    fn lerp(e0: Self, e1: Self, t: T) -> Self {
+        e0 * (T::one() - t) + e1 * t
     }
 }
