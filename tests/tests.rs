@@ -2,6 +2,7 @@ use maths::*;
 use maths::vec::*;
 use maths::num::*;
 use maths::mat::*;
+use maths::swizz::*;
 
 pub type Vec2f = Vec2<f32>;
 pub type Vec3f = Vec3<f32>;
@@ -2581,4 +2582,22 @@ fn morton() {
     assert_eq!(morton_d2xy(39), (3, 5));
     assert_eq!(morton_d2xy(26), (4, 3));
     assert_eq!(morton_d2xy(40), (0, 6));
+}
+
+#[test]
+fn swizzle() {
+    // v2
+    let v2 = vec2f(1.0, 0.0);
+    assert_eq!(v2.yx(), vec2f(0.0, 1.0));
+    let v2 = vec2f(1.0, 0.0);
+    assert_eq!(v2.xx(), vec2f(1.0, 1.0));
+    let v2 = vec2f(1.0, 0.0);
+    assert_eq!(v2.xy(), vec2f(1.0, 0.0));
+    let v2 = vec2f(0.0, 0.0);
+    assert_eq!(v2.yy(), vec2f(0.0, 0.0));
+
+    // v3
+    let v3 = vec3f(1.0, 2.0, 3.0);
+    assert_eq!(v3.xy(), vec2f(1.0, 2.0));
+    let v3 = vec3f(1.0, 2.0, 3.0);
 }

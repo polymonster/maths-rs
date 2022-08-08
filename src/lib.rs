@@ -10,6 +10,9 @@ pub mod mat;
 /// generic quaternion for varying floating point precision
 pub mod quat;
 
+/// module containing vector swizzling traits
+pub mod swizz;
+
 use mat::*;
 use vec::*;
 use num::*;
