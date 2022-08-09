@@ -2607,11 +2607,26 @@ fn swizzle() {
     assert_eq!(v4.ww(), vec2f(2.0, 2.0));
     assert_eq!(v4.yz(), vec2f(4.0, 3.0));
 
-    // TODO:
     // v3-v3
+    let v3 = vec3f(7.0, 8.0, 9.0);
+    assert_eq!(v3.zyx(), vec3f(9.0, 8.0, 7.0));
+    assert_eq!(v3.xxx(), vec3f(7.0, 7.0, 7.0));
+    assert_eq!(v3.yyx(), vec3f(8.0, 8.0, 7.0));
+    assert_eq!(v3.zyz(), vec3f(9.0, 8.0, 9.0));
+
     // v4-v3
+    let v4 = vec4f(7.0, 8.0, 9.0, 10.0);
+    assert_eq!(v4.wyy(), vec3f(10.0, 8.0, 8.0));
+    assert_eq!(v4.www(), vec3f(10.0, 10.0, 10.0));
+    assert_eq!(v4.wxy(), vec3f(10.0, 7.0, 8.0));
+    assert_eq!(v4.zwx(), vec3f(9.0, 10.0, 7.0));
 
     // v4-v4
+    let v4 = vec4f(1.0, 2.0, 3.0, 4.0);
+    assert_eq!(v4.wzyx(), vec4f(4.0, 3.0, 2.0, 1.0));
+    assert_eq!(v4.xxxx(), vec4f(1.0, 1.0, 1.0, 1.0));
+    assert_eq!(v4.zzyy(), vec4f(3.0, 3.0, 2.0, 2.0));
+    assert_eq!(v4.xyxy(), vec4f(1.0, 2.0, 1.0, 2.0));
 
     // set v2-v2
     // set v3-v2
