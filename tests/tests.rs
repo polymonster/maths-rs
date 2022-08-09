@@ -2586,18 +2586,40 @@ fn morton() {
 
 #[test]
 fn swizzle() {
-    // v2
+    // v2-v2
     let v2 = vec2f(1.0, 0.0);
     assert_eq!(v2.yx(), vec2f(0.0, 1.0));
-    let v2 = vec2f(1.0, 0.0);
     assert_eq!(v2.xx(), vec2f(1.0, 1.0));
-    let v2 = vec2f(1.0, 0.0);
     assert_eq!(v2.xy(), vec2f(1.0, 0.0));
-    let v2 = vec2f(0.0, 0.0);
     assert_eq!(v2.yy(), vec2f(0.0, 0.0));
 
-    // v3
+    // v3-v2
     let v3 = vec3f(1.0, 2.0, 3.0);
     assert_eq!(v3.xy(), vec2f(1.0, 2.0));
-    let v3 = vec3f(1.0, 2.0, 3.0);
+    assert_eq!(v3.xz(), vec2f(1.0, 3.0));
+    assert_eq!(v3.zz(), vec2f(3.0, 3.0));
+    assert_eq!(v3.zx(), vec2f(3.0, 1.0));
+
+    // v4-v2
+    let v4 = vec4f(5.0, 4.0, 3.0, 2.0);
+    assert_eq!(v4.xy(), vec2f(5.0, 4.0));
+    assert_eq!(v4.xw(), vec2f(5.0, 2.0));
+    assert_eq!(v4.ww(), vec2f(2.0, 2.0));
+    assert_eq!(v4.yz(), vec2f(4.0, 3.0));
+
+    // TODO:
+    // v3-v3
+    // v4-v3
+
+    // v4-v4
+
+    // set v2-v2
+    // set v3-v2
+    // set v4-v2
+
+    // set v3-v3
+    // set v4-v3
+
+    // set v4-v4
+
 }

@@ -12,6 +12,11 @@ pub trait Vec2Swizzle<T: Number>: VecN<T> {
 }
 
 pub trait Vec3Swizzle<T: Number>: VecN<T> {
+    fn xz(self) -> Vec2<T>;
+    fn yz(self) -> Vec2<T>;
+    fn zx(self) -> Vec2<T>;
+    fn zy(self) -> Vec2<T>;
+    fn zz(self) -> Vec2<T>;
     fn xxx(self) -> Vec3<T>;
     fn xxy(self) -> Vec3<T>;
     fn xxz(self) -> Vec3<T>;
@@ -39,6 +44,10 @@ pub trait Vec3Swizzle<T: Number>: VecN<T> {
     fn zzx(self) -> Vec3<T>;
     fn zzy(self) -> Vec3<T>;
     fn zzz(self) -> Vec3<T>;
+    fn set_xz(&mut self, other: Vec2<T>);
+    fn set_yz(&mut self, other: Vec2<T>);
+    fn set_zx(&mut self, other: Vec2<T>);
+    fn set_zy(&mut self, other: Vec2<T>);
     fn set_xyz(&mut self, other: Vec3<T>);
     fn set_xzy(&mut self, other: Vec3<T>);
     fn set_yxz(&mut self, other: Vec3<T>);
@@ -48,6 +57,13 @@ pub trait Vec3Swizzle<T: Number>: VecN<T> {
 }
 
 pub trait Vec4Swizzle<T: Number>: VecN<T> {
+    fn xw(self) -> Vec2<T>;
+    fn yw(self) -> Vec2<T>;
+    fn zw(self) -> Vec2<T>;
+    fn wx(self) -> Vec2<T>;
+    fn wy(self) -> Vec2<T>;
+    fn wz(self) -> Vec2<T>;
+    fn ww(self) -> Vec2<T>;
     fn xxxx(self) -> Vec4<T>;
     fn xxxy(self) -> Vec4<T>;
     fn xxxz(self) -> Vec4<T>;
@@ -304,6 +320,12 @@ pub trait Vec4Swizzle<T: Number>: VecN<T> {
     fn wwwy(self) -> Vec4<T>;
     fn wwwz(self) -> Vec4<T>;
     fn wwww(self) -> Vec4<T>;
+    fn set_xw(&mut self, other: Vec2<T>);
+    fn set_yw(&mut self, other: Vec2<T>);
+    fn set_zw(&mut self, other: Vec2<T>);
+    fn set_wx(&mut self, other: Vec2<T>);
+    fn set_wy(&mut self, other: Vec2<T>);
+    fn set_wz(&mut self, other: Vec2<T>);
     fn set_xyzw(&mut self, other: Vec4<T>);
     fn set_xywz(&mut self, other: Vec4<T>);
     fn set_xzyw(&mut self, other: Vec4<T>);
@@ -377,6 +399,26 @@ macro_rules! v2_swizzle_impl {
 macro_rules! v3_swizzle_impl {
     ($VecN:ident) => {
         impl<T> Vec3Swizzle<T> for $VecN<T> where T: Number {
+            fn xz(self) -> Vec2<T> {
+                Vec2::new(self.x, self.z)
+            }
+            
+            fn yz(self) -> Vec2<T> {
+                Vec2::new(self.y, self.z)
+            }
+            
+            fn zx(self) -> Vec2<T> {
+                Vec2::new(self.z, self.x)
+            }
+            
+            fn zy(self) -> Vec2<T> {
+                Vec2::new(self.z, self.y)
+            }
+            
+            fn zz(self) -> Vec2<T> {
+                Vec2::new(self.z, self.z)
+            }
+            
             fn xxx(self) -> Vec3<T> {
                 Vec3 {
                     x: self.x,
@@ -593,6 +635,22 @@ macro_rules! v3_swizzle_impl {
                 }
             }
 
+            fn set_xz(&mut self, other: Vec2<T>) {
+                self.x = other.x; self.z = other.y;
+            }
+            
+            fn set_yz(&mut self, other: Vec2<T>) {
+                self.y = other.x; self.z = other.y;
+            }
+            
+            fn set_zx(&mut self, other: Vec2<T>) {
+                self.z = other.x; self.x = other.y;
+            }
+            
+            fn set_zy(&mut self, other: Vec2<T>) {
+                self.z = other.x; self.y = other.y;
+            }
+
             fn set_xyz(&mut self, other: Vec3<T>) {
                 self.x = other.x;
                 self.y = other.y;
@@ -635,6 +693,34 @@ macro_rules! v3_swizzle_impl {
 macro_rules! v4_swizzle_impl {
     ($VecN:ident) => {
         impl<T> Vec4Swizzle<T> for $VecN<T> where T: Number {
+            fn xw(self) -> Vec2<T> {
+                Vec2::new(self.x, self.w)
+            }
+
+            fn yw(self) -> Vec2<T> {
+                Vec2::new(self.y, self.w)
+            }
+
+            fn zw(self) -> Vec2<T> {
+                Vec2::new(self.z, self.w)
+            }
+
+            fn wx(self) -> Vec2<T> {
+                Vec2::new(self.w, self.x)
+            }
+
+            fn wy(self) -> Vec2<T> {
+                Vec2::new(self.w, self.y)
+            }
+
+            fn wz(self) -> Vec2<T> {
+                Vec2::new(self.w, self.z)
+            }
+
+            fn ww(self) -> Vec2<T> {
+                Vec2::new(self.w, self.w)
+            }
+
             fn xxxx(self) -> Vec4<T> {
                 Vec4 {
                     x: self.x,
@@ -2937,6 +3023,30 @@ macro_rules! v4_swizzle_impl {
                     z: self.w,
                     w: self.w,
                 }
+            }
+
+            fn set_xw(&mut self, other: Vec2<T>) {
+                self.x = other.x; self.w = other.y;
+            }
+
+            fn set_yw(&mut self, other: Vec2<T>) {
+                self.y = other.x; self.w = other.y;
+            }
+
+            fn set_zw(&mut self, other: Vec2<T>) {
+                self.z = other.x; self.w = other.y;
+            }
+
+            fn set_wx(&mut self, other: Vec2<T>) {
+                self.w = other.x; self.x = other.y;
+            }
+
+            fn set_wy(&mut self, other: Vec2<T>) {
+                self.w = other.x; self.y = other.y;
+            }
+
+            fn set_wz(&mut self, other: Vec2<T>) {
+                self.w = other.x; self.z = other.y;
             }
 
             fn set_xyzw(&mut self, other: Vec4<T>) {
