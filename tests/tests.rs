@@ -2621,5 +2621,4 @@ fn swizzle() {
     // set v4-v3
 
     // set v4-v4
-
 }
