@@ -2629,8 +2629,39 @@ fn swizzle() {
     assert_eq!(v4.xyxy(), vec4f(1.0, 2.0, 1.0, 2.0));
 
     // set v2-v2
+    let v2 = vec2f(6.0, 4.0);
+    let mut v2x = vec2f(7.0, 7.0);
+    v2x.set_xy(v2);
+    assert_eq!(v2x, vec2f(6.0, 4.0));
+    v2x.set_yx(v2);
+    assert_eq!(v2x, vec2f(4.0, 6.0));
+
     // set v3-v2
+    let v2 = vec2f(8.0, 7.0);
+    let mut v3x = vec3f(4.0, 4.0, 4.0);
+    v3x.set_xz(v2);
+    assert_eq!(v3x, vec3f(8.0, 4.0, 7.0));
+    let mut v3x = vec3f(4.0, 4.0, 4.0);
+    v3x.set_zy(v2);
+    assert_eq!(v3x, vec3f(4.0, 7.0, 8.0));
+    let mut v3x = vec3f(4.0, 4.0, 4.0);
+    v3x.set_xz(v2);
+    assert_eq!(v3x, vec3f(8.0, 4.0, 7.0));
+
     // set v4-v2
+    let v2 = vec2f(9.0, 1.0);
+    let mut v4x = vec4f(3.0, 3.0, 3.0, 3.0);
+    v4x.set_xw(v2);
+    assert_eq!(v4x, vec4f(9.0, 3.0, 3.0, 1.0));
+    let mut v4x = vec4f(3.0, 3.0, 3.0, 3.0);
+    v4x.set_wy(v2);
+    assert_eq!(v4x, vec4f(3.0, 1.0, 3.0, 9.0));
+    let mut v4x = vec4f(3.0, 3.0, 3.0, 3.0);
+    v4x.set_yw(v2);
+    assert_eq!(v4x, vec4f(3.0, 9.0, 3.0, 1.0));
+    let mut v4x = vec4f(3.0, 3.0, 3.0, 3.0);
+    v4x.set_zw(v2);
+    assert_eq!(v4x, vec4f(3.0, 3.0, 9.0, 1.0));
 
     // set v3-v3
     // set v4-v3
