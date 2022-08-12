@@ -108,6 +108,21 @@ pub fn powf<T: Float, V: FloatOps<T>>(a: V, b: T) -> V {
     V::powf(a, b)
 }
 
+/// returns fused multiply add m * a + b
+pub fn mad<T: Float, V: FloatOps<T>>(m: V, a: V, b: V) -> V {
+    V::mad(m, a, b)
+}
+
+pub fn fmod<T: Float, V: FloatOps<T>>(a: V, b: V) -> V {
+    V::fmod(a, b)
+}
+
+// frac 
+// trunc
+// modf
+// rsqrt
+// recip
+
 /// returns a value interpolated between edges e0 and e1 by percentage t
 pub fn lerp<T: Float, V: FloatOps<T>>(e0: V, e1: V, t: T) -> V {
     V::lerp(e0, e1, t)
