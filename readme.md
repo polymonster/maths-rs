@@ -1,8 +1,8 @@
-## Maths
+# Maths
 
-Maths is a linear algebra crate which aims to be ergonmic and fun to use for gamedev and graphics. If you like writing shaders you should feel right at home. In addition to the usual implementation of vectors, matrics and quaternions it includes a comprehensive array of utility functions, intersection tests, point tests, distance functions, graphs and signal processing functions.
+Maths is a linear algebra crate which aims to be ergonmic and fun to use for gamedev and graphics. If you like writing shaders you should feel right at home. In addition to the usual implementation of vectors, matrics and quaternions it includes a comprehensive collection of utility functions, intersection tests, point tests, distance functions, trig functions, graphs and signal processing functions.
 
-### Vector
+## Vector
 
 This is a narrow vector library with `Vec2`, `Vec3` and `Vec4` column-vector implementations. There are macros to create vectors of larger dimensions but the library is focused on games and graphics where 4-Dimensions are sufficient.
 
@@ -45,7 +45,7 @@ let v2 = Vec2f::from(v4); // vec2 from vec4 (truncate)
 // .. and so on
 ```
 
-### Matrix
+## Matrix
 
 Column-major matrices with `Mat2`, `Mat3`, `Mat34` and `Mat4` implementations. Again wider matrices can be created using a macros which will do most of the work.
 
@@ -100,13 +100,14 @@ let m4rot = Mat4f::from(m3v); // mat4 from mat3
 let m4r = Mat3f::from(quat); // from quaternions
 ```
 
-### Quaternion
+## Quaternion
 
 Generic floating-point quaternion.
 
 ```rust
-// abbreviations
+// abbrivated types
 pub type Quatf = Quat<f32>;
+pub type Quatd = Quat<f64>;
 
 // construct from euler angles
 let q = Quatf::from_euler_angles(x, y, z);
@@ -125,7 +126,7 @@ let rev = q.reverse();
 let inv = q.inverse();
 ```
 
-### Generic Functions
+## Generic Functions
 
 You can use generic functions on different sized vectors or scalars:
 
@@ -160,9 +161,9 @@ let vn = nlerp(vec2, vec2, 0.3);
 let f = smoothstep(5.0, 1.0, f);
 ```
 
-The full set of functions consists of: min, max, clamp, step, signum, copysign, abs, deg_to_rad, rad_to_deg, ceil, round, approx, sqrt, powi, powf, sqrt, frac, trunc, modf, rsqrt, recip lerp, nlerp, slerp, smoothstep.
+generic functions: min, max, clamp, step, signum, copysign, abs, deg_to_rad, rad_to_deg, ceil, round, approx, sqrt, powi, powf, sqrt, frac, trunc, modf, rsqrt, recip lerp, nlerp, slerp, smoothstep.
 
-### Trigenometry and Logarithmic Functions
+## Trigenometry and Logarithmic Functions
 
 These functions are availble for all floating point scalar or vector types, they do not have generic implementations as they are not as commonly used, you can access them like so:
 
@@ -174,10 +175,10 @@ let f = f32::acos(x);
 let d = f64::atan2(y, x);
 ```
 
-The full list consists of: cos, sin, tan, acos, asin, atan, cosh, sinh, tanh, sin_cos, atan2, exp, exp2, log2, log10.
+trig functions: cos, sin, tan, acos, asin, atan, cosh, sinh, tanh, sin_cos, atan2, exp, exp2, log2, log10.
 
-### Point / Distance Tests
+## Point / Distance Tests
 
-### Intersection Tests
+## Intersection Tests
 
-### Graphs / Signal Processing Functions
+## Graphs / Signal Processing Functions
