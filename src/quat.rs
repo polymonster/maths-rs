@@ -7,6 +7,8 @@ use std::ops::Add;
 use std::ops::AddAssign;
 use std::ops::Sub;
 use std::ops::SubAssign;
+use std::ops::Deref;
+use std::ops::DerefMut;
 
 use crate::num::*;
 use crate::vec::*;
@@ -22,6 +24,7 @@ pub struct Quat<T> {
 }
 
 impl<T> Quat<T> where T: Float + FloatOps<T> + SignedNumberOps<T> {
+    /// construct a quaternion from 3 radian euler angles
     pub fn from_euler_angles(x: T, y: T, z: T) -> Self {
         let half_z = T::point_five() * z;
         let half_x = T::point_five() * x;
@@ -43,6 +46,7 @@ impl<T> Quat<T> where T: Float + FloatOps<T> + SignedNumberOps<T> {
         })
     }
 
+    /// constructs quaternion from axis / angle representation where angle is in radians
     pub fn from_axis_angle(axis: Vec3<T>, angle: T) -> Self {
         let half_angle = angle * T::point_five();
         Self::normalize( Quat {
@@ -53,6 +57,7 @@ impl<T> Quat<T> where T: Float + FloatOps<T> + SignedNumberOps<T> {
         })
     }
 
+    /// constructs quaternion from matrix m
     pub fn from_matrix(m: Mat3<T>) -> Self {
         // https://math.stackexchange.com/questions/893984/conversion-of-rotation-matrix-to-quaternion
         let m00 = m.m[0];
@@ -86,21 +91,19 @@ impl<T> Quat<T> where T: Float + FloatOps<T> + SignedNumberOps<T> {
 
             }
         }
+        else if m00 < -m11 {
+            let x = m20+m02;
+            let y = m12+m21;
+            let z = t1 -m00 -m11 + m22;
+            let w = m01-m10;
+            (x, y, z, w)
+        }
         else {
-            if m00 < -m11 {
-                let x = m20+m02;
-                let y = m12+m21;
-                let z = t1 -m00 -m11 + m22;
-                let w = m01-m10;
-                (x, y, z, w)
-            }
-            else {
-                let x = m12-m21;
-                let y = m20-m02;
-                let z = m01-m10;
-                let w = t1 + m00 + m11 + m22;
-                (x, y, z, w)
-            }
+            let x = m12-m21;
+            let y = m20-m02;
+            let z = m01-m10;
+            let w = t1 + m00 + m11 + m22;
+            (x, y, z, w)
         };
         
         let sq = T::point_five() / T::sqrt(t);
@@ -113,6 +116,7 @@ impl<T> Quat<T> where T: Float + FloatOps<T> + SignedNumberOps<T> {
         }
     }
 
+    /// get euler angles as tuple (x, y, z) from quaternion
     pub fn get_euler_angles(self) -> (T, T, T) {
         let t2 = T::two();
         let t1 = T::one();
@@ -140,6 +144,7 @@ impl<T> Quat<T> where T: Float + FloatOps<T> + SignedNumberOps<T> {
         (x, y, z)
     }
 
+    /// returns a 3x3 rotation matrix
     pub fn get_matrix(self) -> Mat3<T> {
         let t1 = T::one();
         let t2 = T::two();
@@ -157,6 +162,27 @@ impl<T> Quat<T> where T: Float + FloatOps<T> + SignedNumberOps<T> {
             t2 * self.y * self.z + t2 * self.x * self.w,
             t1 - t2 * self.x * self.x - t2 * self.y * self.y
         )
+    }
+
+    /// returns a slice T of the quaternion
+    pub fn as_slice(&self) -> &[T] {
+        unsafe {
+            std::slice::from_raw_parts(&self.x, 4)
+        }
+    }
+
+    /// returns a mutable slice T of the quaternion
+    pub fn as_mut_slice(&mut self) -> &mut [T] {
+        unsafe {
+            std::slice::from_raw_parts_mut(&mut self.x, 4)
+        }
+    }
+
+    /// returns a slice of bytes for the quaternion
+    pub fn as_u8_slice(&self) -> &[u8] {
+        unsafe {
+            std::slice::from_raw_parts((&self.x as *const T) as *const u8, std::mem::size_of::<Quat<T>>())
+        }
     }
 
     pub fn reverse(self) -> Self {
@@ -315,6 +341,7 @@ impl<T> Magnitude<T> for Quat<T> where T: Float + FloatOps<T> {
     }
 }
 
+/// returns a quaternion spherically interpolated between e0 and e1 by percentage t
 impl<T> Slerp<T> for Quat<T> where T: Float + FloatOps<T> + NumberOps<T> + From<f64> {
     fn slerp(e0: Self, e1: Self, t: T) -> Self {
         let q1 = e0;
@@ -350,12 +377,14 @@ impl<T> Slerp<T> for Quat<T> where T: Float + FloatOps<T> + NumberOps<T> + From<
     }
 }
 
+/// returns a quaternion lineraly interpolated between e0 and e1 by percentage t
 impl<T> Lerp<T> for Quat<T> where T: Float + FloatOps<T> + NumberOps<T> {
     fn lerp(e0: Self, e1: Self, t: T) -> Self {
         e0 * (T::one() - t) + e1 * t
     }
 }
 
+/// returns a quaternion lineraly interpolated between e0 and e1 by percentage t normalising the return value
 impl<T> Nlerp<T> for Quat<T> where T: Float + FloatOps<T> + NumberOps<T> {
     fn nlerp(e0: Self, e1: Self, t: T) -> Self {
         Self::normalize(e0 * (T::one() - t) + e1 * t)
@@ -383,3 +412,15 @@ impl<T> From<Mat3<T>> for Quat<T> where T: Float + FloatOps<T> + SignedNumberOps
     }
 }
 
+impl<T> Deref for Quat<T> where T: Float + FloatOps<T> + SignedNumberOps<T> {
+    type Target = [T];
+    fn deref(&self) -> &[T] {
+        self.as_slice()
+    }
+}
+
+impl<T> DerefMut for Quat<T> where T: Float + FloatOps<T> + SignedNumberOps<T> {
+    fn deref_mut(&mut self) -> &mut [T] {
+        self.as_mut_slice()
+    }
+}

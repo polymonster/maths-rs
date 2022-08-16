@@ -1315,8 +1315,15 @@ pub trait MatNew2<T> {
     fn new(
         m00: T, m01: T, 
         m10: T, m11: T
-    ) -> Mat2<T> {
-        Mat2 {  
+    ) -> Self;
+}
+
+impl<T> MatNew2<T> for Mat2<T> where T: Number {
+    fn new(
+        m00: T, m01: T, 
+        m10: T, m11: T
+    ) -> Self {
+        Self {  
             m: [
                 m00, m01,
                 m10, m11
@@ -1325,16 +1332,23 @@ pub trait MatNew2<T> {
     }
 }
 
-impl<T> MatNew2<T> for Mat2<T> where T: Number {}
-
+#[allow(clippy::too_many_arguments)] 
 /// trait to construct matrix from 9 scalars
 pub trait MatNew3<T> {
     fn new(
         m00: T, m01: T, m02: T,
         m10: T, m11: T, m12: T,
         m20: T, m21: T, m22: T,
-    ) -> Mat3<T> {
-        Mat3 {
+    ) -> Self;
+}
+
+impl<T> MatNew3<T> for Mat3<T> where T: Number {
+    fn new(
+        m00: T, m01: T, m02: T,
+        m10: T, m11: T, m12: T,
+        m20: T, m21: T, m22: T,
+    ) -> Self {
+        Self {
             m: [
                 m00, m01, m02,
                 m10, m11, m12,
@@ -1344,16 +1358,23 @@ pub trait MatNew3<T> {
     }
 }
 
-impl<T> MatNew3<T> for Mat3<T> where T: Number {}
-
+#[allow(clippy::too_many_arguments)] 
 /// trait to construct matrix from 12 scalars
 pub trait MatNew34<T> {
     fn new(
         m00: T, m01: T, m02: T, m03: T,
         m10: T, m11: T, m12: T, m13: T,
         m20: T, m21: T, m22: T, m23: T,
-    ) -> Mat34<T> {
-        Mat34 {
+    ) -> Self;
+}
+
+impl<T> MatNew34<T> for Mat34<T> where T: Number {
+    fn new(
+        m00: T, m01: T, m02: T, m03: T,
+        m10: T, m11: T, m12: T, m13: T,
+        m20: T, m21: T, m22: T, m23: T,
+    ) -> Self {
+        Self {
             m: [
                 m00, m01, m02, m03,
                 m10, m11, m12, m13,
@@ -1363,8 +1384,7 @@ pub trait MatNew34<T> {
     }
 }
 
-impl<T> MatNew34<T> for Mat34<T> where T: Number {}
-
+#[allow(clippy::too_many_arguments)] 
 /// trait to construct matrix from 16 scalars
 pub trait MatNew4<T> {
     fn new(
@@ -1372,8 +1392,17 @@ pub trait MatNew4<T> {
         m10: T, m11: T, m12: T, m13: T,
         m20: T, m21: T, m22: T, m23: T,
         m30: T, m31: T, m32: T, m33: T,
-    ) -> Mat4<T> {
-        Mat4 {
+    ) -> Self;
+}
+
+impl<T> MatNew4<T> for Mat4<T> where T: Number {
+    fn new(
+        m00: T, m01: T, m02: T, m03: T,
+        m10: T, m11: T, m12: T, m13: T,
+        m20: T, m21: T, m22: T, m23: T,
+        m30: T, m31: T, m32: T, m33: T,
+    ) -> Self {
+        Self {
             m: [
                 m00, m01, m02, m03,
                 m10, m11, m12, m13,
@@ -1383,8 +1412,6 @@ pub trait MatNew4<T> {
         }
     }
 }
-
-impl<T> MatNew4<T> for Mat4<T> where T: Number {}
 
 mat_impl!(Mat2, 2, 2, 4, Vec2 {x, 0, y, 1}, Vec2 {x, 0, y, 1});
 mat_impl!(Mat3, 3, 3, 9, Vec3 {x, 0, y, 1, z, 2}, Vec3 {x, 0, y, 1, z, 2});
