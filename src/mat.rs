@@ -1,6 +1,7 @@
 
 use crate::vec::*;
 use crate::num::*;
+use crate::quat::*;
 
 use std::ops::Index;
 use std::ops::IndexMut;
@@ -366,6 +367,13 @@ impl<T> From<(Vec3<T>, Vec3<T>, Vec3<T>)> for Mat3<T> where T: Number {
     }
 }
 
+/// constucts a mat3 rotation matrix from quaternion
+impl<T> From<Quat<T>> for Mat3<T> where T: Float + SignedNumber + FloatOps<T> + NumberOps<T> + SignedNumberOps<T> {
+    fn from(other: Quat<T>) -> Mat3<T> {
+        other.get_matrix()
+    }
+}
+
 /// construct a Mat34 from a Mat2 initialising the 2x2 part and setting the 3rd row to identity
 impl<T> From<Mat2<T>> for Mat34<T> where T: Number {
     fn from(other: Mat2<T>) -> Mat34<T> {
@@ -389,6 +397,13 @@ impl<T> From<Mat3<T>> for Mat34<T> where T: Number {
                 other.m[6], other.m[7], other.m[8], T::zero(),
             ]
         }
+    }
+}
+
+/// constucts a mat34 rotation matrix from quaternion
+impl<T> From<Quat<T>> for Mat34<T> where T: Float + SignedNumber + FloatOps<T> + NumberOps<T> + SignedNumberOps<T> {
+    fn from(other: Quat<T>) -> Mat34<T> {
+        Mat34::from(other.get_matrix())
     }
 }
 
@@ -498,6 +513,13 @@ impl<T> From<(Vec4<T>, Vec4<T>, Vec4<T>, Vec4<T>)> for Mat4<T> where T: Number {
                 other.3.x, other.3.y, other.3.z, other.3.w,
             ]
         }
+    }
+}
+
+/// constucts a mat4 rotation matrix from quaternion
+impl<T> From<Quat<T>> for Mat4<T> where T: Float + SignedNumber + FloatOps<T> + NumberOps<T> + SignedNumberOps<T> {
+    fn from(other: Quat<T>) -> Mat4<T> {
+        Mat4::from(other.get_matrix())
     }
 }
 

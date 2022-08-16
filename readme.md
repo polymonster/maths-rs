@@ -1,6 +1,6 @@
 # Maths
 
-Maths is a linear algebra crate which aims to be ergonmic and fun to use for gamedev and graphics. If you like writing shaders you should feel right at home. In addition to the usual implementation of vectors, matrics and quaternions it includes a comprehensive collection of utility functions, intersection tests, point tests, distance functions, trig functions, graphs and signal processing functions.
+Maths is a linear algebra crate which aims to be ergonmic and fun to use for gamedev and graphics. If you like writing shaders you should feel right at home. In addition to the usual implementation of vectors, matrics and quaternions it includes a comprehensive collection of utility functions, vector swizzling, intersection tests, point tests, distance functions, trig functions, graphs and signal processing functions.
 
 ## Vector
 
@@ -21,19 +21,20 @@ let v2_short = vec2f(5.0, 6.0);
 // splat a scalar
 let v3_splat = splat3f(9.0);
 
+// quick common constructors
+let y = Vec3f::unit_y();
+let b = Vec3f::blue();
+let z = Vec3f::zero();
+let o = Vec3f::one();
+let m = Vec3f::max_value();
+// + more
+
 // arithmentic / operators
 let result = v2 * v2_short;
 let result = v2 + v2_short;
 let result = v2 / v2_short;
 let result = v2 - v2_short;
 let result = -v2;
-
-// quick constructors
-let y = Vec3f::unit_y();
-let b = Vec3f::blue();
-let z = Vec3f::zero();
-let o = Vec3f::one();
-// + more
 
 // construct from tuples and vectors of various sizes
 let v4 = Vec4f::from((v2, v2)); // vec4 from 2x v2's
@@ -43,6 +44,18 @@ let v4 = Vec4f::from((v2, 0.0, 1.0)); // vec4 from 1x v2 and 2x scalars
 let v4 = Vec4f::from(v2); // vec4 from vec2 (splat 0's)
 let v2 = Vec2f::from(v4); // vec2 from vec4 (truncate)
 // .. and so on
+
+// swizzling
+let wxyz = v4.wxyz(); // swizzle
+let xyz = v4.xyz(); // truncate
+let xxx = v4.xxx(); // and so on..
+let xy = v3.yx(); // ..
+
+// mutable swizzles
+let mut v = Vec4f::zero();
+x.set_xwyz(v); // set swizzle
+x.set_xy(v.yx()); // assign truncated
+x.set_yzx(v.zzz()); // etc.. 
 ```
 
 ## Matrix
@@ -96,7 +109,7 @@ let m4v = Mat4f::from((
     vec4f(13.0, 14.0, 15.0, 16.0),
 ));
 
-let m4rot = Mat4f::from(m3v); // mat4 from mat3
+let m4_rot = Mat4f::from(m3v); // mat4 from mat3
 let m4r = Mat3f::from(quat); // from quaternions
 ```
 
@@ -128,7 +141,7 @@ let inv = q.inverse();
 
 ## Generic Functions
 
-You can use generic functions on different sized vectors or scalars:
+You can use generic functions on different sized vectors or scalars: `min, max, clamp, step, signum, copysign, abs, deg_to_rad, rad_to_deg, ceil, round, approx, sqrt, powi, powf, sqrt, frac, trunc, modf, rsqrt, recip lerp, nlerp, slerp, smoothstep, dot, perp, cross, mag, mag2, length, distance, dist, dist2, normalize`
 
 ```rust
 // numeric ops
@@ -136,12 +149,12 @@ let int_abs = abs(-1);
 let float_abs = abs(-1.0);
 let int_max = max(5, 6);
 let float_max = max(1.0, 2.0);
-let vec_mac = max(vec3f(1.0, 1.0, 1.0), vec3f(2.0, 2.0, 2.0));
+let vec_max = max(vec3f(1.0, 1.0, 1.0), vec3f(2.0, 2.0, 2.0));
 let vec_min = min(vec4f(8.0, 7.0, 6.0, 5.0), vec4f(-8.0, -7.0, -6.0, -5.0));
 
 // float ops
 let fsat = saturate(22.0);
-let vsar = saturate(vec3f(22.0, 22.0, 22.0));
+let vsat = saturate(vec3f(22.0, 22.0, 22.0));
 let f = floor(5.5);
 let vc = ceil(vec3f(5.0, 5.0, 5.0));
 
@@ -152,8 +165,10 @@ let cp = cross(vec3, Vec3::unit_y());
 let n = normalize(vec3);
 let qn = normalize(quat);
 let m = mag(vec4);
+let d = dist(vec31, vec32);
 
 // interpolation
+let fi : f32 = lerp(10.0, 2.0, 0.2);
 let vi = lerp(vec2, vec2, 0.5);
 let qi = lerp(quat1, quat2, 0.75);
 let qs = slerp(quat1, quat2, 0.1);
@@ -161,24 +176,23 @@ let vn = nlerp(vec2, vec2, 0.3);
 let f = smoothstep(5.0, 1.0, f);
 ```
 
-generic functions: min, max, clamp, step, signum, copysign, abs, deg_to_rad, rad_to_deg, ceil, round, approx, sqrt, powi, powf, sqrt, frac, trunc, modf, rsqrt, recip lerp, nlerp, slerp, smoothstep.
-
 ## Trigenometry and Logarithmic Functions
 
-These functions are availble for all floating point scalar or vector types, they do not have generic implementations as they are not as commonly used, you can access them like so:
+These functions are availble for all floating point scalar or vector types: `cos, sin, tan, acos, asin, atan, cosh, sinh, tanh, sin_cos, atan2, exp, exp2, log2, log10`.
+
+They do not have generic implementations as they are not as commonly used, you can access them like so:
 
 ```rust
-// trig
 let s = Vec3f::sin(x);
 let x = Vec3f::cos(y);
 let f = f32::acos(x);
 let d = f64::atan2(y, x);
+let l - f32::log2(x);
 ```
-
-trig functions: cos, sin, tan, acos, asin, atan, cosh, sinh, tanh, sin_cos, atan2, exp, exp2, log2, log10.
 
 ## Point / Distance Tests
 
 ## Intersection Tests
 
 ## Graphs / Signal Processing Functions
+

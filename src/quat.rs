@@ -11,6 +11,7 @@ use std::ops::SubAssign;
 use crate::num::*;
 use crate::vec::*;
 use crate::mat::*;
+use crate::swizz::*;
 
 #[derive(Debug, Copy, Clone)]
 pub struct Quat<T> {
@@ -360,3 +361,25 @@ impl<T> Nlerp<T> for Quat<T> where T: Float + FloatOps<T> + NumberOps<T> {
         Self::normalize(e0 * (T::one() - t) + e1 * t)
     }
 }
+
+/// constructs from a vec3, assuming the vec3 is poulated with euler angles (x, y, z) where the angles are in radians
+impl<T> From<Vec3<T>> for Quat<T> where T: Float + FloatOps<T> + SignedNumberOps<T> {
+    fn from(v: Vec3<T>) -> Self {
+        Quat::from_euler_angles(v.x, v.y, v.z)
+    }
+}
+
+/// constructs from a vec4, assuming the vec4 is an axis / angle representation. xyz = axis, w = radian angle
+impl<T> From<Vec4<T>> for Quat<T> where T: Float + FloatOps<T> + SignedNumberOps<T> {
+    fn from(v: Vec4<T>) -> Self {
+        Quat::from_axis_angle(v.xyz(), v.w)
+    }
+}
+
+/// constructs a quaternion from a 3x3 rotation matrix
+impl<T> From<Mat3<T>> for Quat<T> where T: Float + FloatOps<T> + SignedNumberOps<T> {
+    fn from(m: Mat3<T>) -> Self {
+        Quat::from_matrix(m)
+    }
+}
+

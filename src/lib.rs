@@ -113,15 +113,35 @@ pub fn mad<T: Float, V: FloatOps<T>>(m: V, a: V, b: V) -> V {
     V::mad(m, a, b)
 }
 
+/// returns the floating point remainder of a / b
 pub fn fmod<T: Float, V: FloatOps<T>>(a: V, b: V) -> V {
     V::fmod(a, b)
 }
 
-// frac 
-// trunc
-// modf
-// rsqrt
-// recip
+/// returns the fractional part of a
+pub fn frac<T: Float, V: FloatOps<T>>(a: V) -> V {
+    V::frac(a)
+}
+
+/// truncates value a - removing the fractional part, truncating to an integer
+pub fn trunc<T: Float, V: FloatOps<T>>(a: V) -> V {
+    V::trunc(a)
+}
+
+/// returns the reciprocal square root of a
+pub fn rsqrt<T: Float, V: FloatOps<T>>(a: V) -> V {
+    V::rsqrt(a)
+}
+
+/// returns the reciprocal of a
+pub fn recip<T: Float, V: FloatOps<T>>(a: V) -> V {
+    V::recip(a)
+}
+
+/// returns the value v broken down into a tuple (fractional, integer) parts
+pub fn modf<T: Float, V: FloatOps<T>>(v: V) -> (V, V) {
+    V::modf(v)
+}
 
 /// returns a value interpolated between edges e0 and e1 by percentage t
 pub fn lerp<T: Float, V: FloatOps<T>>(e0: V, e1: V, t: T) -> V {
@@ -1224,8 +1244,7 @@ pub fn map_to_range<T: Float, X: Base<T>>(v: X, in_start: X, in_end: X, out_star
     out_start + slope * (v - in_start)
 }
 
-// swizzles
-// quat from (+ mat from quat etc)
+// type conversions?
 
 // TODO: tests
 // missing fail cases
@@ -1237,6 +1256,8 @@ pub fn map_to_range<T: Float, X: Base<T>>(v: X, in_start: X, in_end: X, out_star
 // unprojection sc
 // quilez functions
 // quat tests
+// mat from quat
+// quat from mat
 
 // TODO c++
 // point inside cone test has no passes
