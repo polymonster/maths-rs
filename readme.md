@@ -187,7 +187,7 @@ let s = Vec3f::sin(x);
 let x = Vec3f::cos(y);
 let f = f32::acos(x);
 let d = f64::atan2(y, x);
-let l - f32::log2(x);
+let l = f32::log2(x);
 ```
 
 ## Point / Distance Tests
