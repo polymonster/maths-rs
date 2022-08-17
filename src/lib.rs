@@ -1245,7 +1245,6 @@ pub fn map_to_range<T: Float, X: Base<T>>(v: X, in_start: X, in_end: X, out_star
 }
 
 // type conversions?
-// quat asref, mutref, u8_slice
 
 // TODO: tests
 // missing fail cases

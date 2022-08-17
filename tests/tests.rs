@@ -8,6 +8,7 @@ pub type Vec2f = Vec2<f32>;
 pub type Vec3f = Vec3<f32>;
 pub type Vec4f = Vec4<f32>;
 pub type Vec2i = Vec2<i32>;
+pub type Vec2u = Vec2<u32>;
 pub type Vec3i = Vec3<i32>;
 pub type Vec4i = Vec4<i32>;
 pub type Vec3u = Vec3<u32>;
@@ -653,6 +654,19 @@ fn from() {
     assert_eq!(Vec4f::from((vec2f(3.0, 4.0), 8.0, 9.0)), vec4f(3.0, 4.0, 8.0, 9.0));
     assert_eq!(Vec4f::from((vec2f(8.0, 9.0), vec2f(1.0, 2.0))), vec4f(8.0, 9.0, 1.0, 2.0));
     assert_eq!(Vec4f::from((vec3f(10.0, 11.0, 12.0), 13.0)), vec4f(10.0, 11.0, 12.0, 13.0));
+
+    // type conversions
+    let vf = vec2f(6.6, 7.7);
+    let vi = vec2i(8, 9);
+    let vu = vec2u(u32::max_value(), u32::max_value());
+    let vs = vec2i(-1, -1);
+
+    assert_eq!(Vec2i::from(vf), vec2i(6, 7));
+    assert_eq!(Vec2f::from(vi), vec2f(8.0, 9.0));
+    assert_eq!(Vec2u::from(vs), vec2u(u32::max_value(), u32::max_value()));
+    assert_eq!(Vec2f::from(vs), vec2f(-1.0, -1.0));
+    assert_eq!(Vec2i::from(vu), vec2i(-1, -1));
+    assert_eq!(Vec2f::from(vu), vec2f(4294967295.0, 4294967295.0));
 }
 
 #[test]

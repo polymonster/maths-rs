@@ -1208,6 +1208,26 @@ impl<T> From<(T, T, T, T)> for Vec4<T> where T: Number {
     }
 }
 
+macro_rules! vec_cast {
+    ($VecN:ident { $($field:ident),+ }, $t:ident, $u:ident) => {
+        impl From<$VecN<$u>> for $VecN<$t> {
+            fn from(other: $VecN<$u>) -> $VecN<$t> {
+                $VecN {
+                    $($field: other.$field as $t,)+
+                }
+            }
+        }
+
+        impl From<$VecN<$t>> for $VecN<$u> {
+            fn from(other: $VecN<$t>) -> $VecN<$u> {
+                $VecN {
+                    $($field: other.$field as $u,)+
+                }
+            }
+        }
+    }
+}
+
 //
 // Macro Decl
 //
@@ -1246,6 +1266,26 @@ vec_ctor!(Vec4 { x, y, z, w }, vec4i, splat4i, i32);
 vec_ctor!(Vec2 { x, y }, vec2u, splat2u, u32);
 vec_ctor!(Vec3 { x, y, z }, vec3u, splat3u, u32);
 vec_ctor!(Vec4 { x, y, z, w }, vec4u, splat4u, u32);
+
+// type conversions
+vec_cast!(Vec2 { x, y }, f64, i32);
+vec_cast!(Vec2 { x, y }, f64, u32);
+vec_cast!(Vec2 { x, y }, f32, f64);
+vec_cast!(Vec2 { x, y }, f32, i32);
+vec_cast!(Vec2 { x, y }, f32, u32);
+vec_cast!(Vec2 { x, y }, i32, u32);
+vec_cast!(Vec3 {x, y, z}, f64, i32);
+vec_cast!(Vec3 {x, y, z}, f64, u32);
+vec_cast!(Vec3 {x, y, z}, f32, f64);
+vec_cast!(Vec3 {x, y, z}, f32, i32);
+vec_cast!(Vec3 {x, y, z}, f32, u32);
+vec_cast!(Vec3 {x, y, z}, i32, u32);
+vec_cast!(Vec4 {x, y, z, w}, f64, i32);
+vec_cast!(Vec4 {x, y, z, w}, f64, u32);
+vec_cast!(Vec4 {x, y, z, w}, f32, f64);
+vec_cast!(Vec4 {x, y, z, w}, f32, i32);
+vec_cast!(Vec4 {x, y, z, w}, f32, u32);
+vec_cast!(Vec4 {x, y, z, w}, i32, u32);
 
 // experims
 // v3 / v2 mod, with use... didnt correctly deduce the function by type

@@ -195,4 +195,3 @@ let l = f32::log2(x);
 ## Intersection Tests
 
 ## Graphs / Signal Processing Functions
-
