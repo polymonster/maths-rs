@@ -78,10 +78,10 @@ let m4 = Mat4f::new(
 );
 
 // construct from common matrices
-let m34 = Mat34f::create_translation(vec3f(50.0, -10.0, 20.0));
-let m4 = Mat4f::create_z_rotation(f32::deg_to_rad(90.0));
-let x4 = Mat4f::create_scale(vec3f(10.0, 2.0, 30.0));
-let m3 = Mat34f::create_scale(vec3f(10.0, 2.0, 30.0));
+let m34 = Mat34f::from_translation(vec3f(50.0, -10.0, 20.0));
+let m4 = Mat4f::from_z_rotation(f32::deg_to_rad(90.0));
+let m4 = Mat4f::from_scale(vec3f(10.0, 2.0, 30.0));
+let m3 = Mat34f::from_scale(vec3f(10.0, 2.0, 30.0));
 
 // arithmetic
 // matrix multiplication

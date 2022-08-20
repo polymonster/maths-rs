@@ -857,14 +857,14 @@ fn matrix_identity() {
 #[test]
 fn matrix_mul_translate() {
     // 4x4
-    let t1 = Mat4f::create_translation(vec3f(10.0, 10.0, 10.0));
-    let t2 = Mat4f::create_translation(vec3f(50.0, 44.0, -10.0));
+    let t1 = Mat4f::from_translation(vec3f(10.0, 10.0, 10.0));
+    let t2 = Mat4f::from_translation(vec3f(50.0, 44.0, -10.0));
     let result = t1 * t2;
     let colt = result.get_column(3);
     assert_eq!(colt, vec4f(60.0, 54.0, 0.0, 1.0));
     // 3x4
-    let t1 = Mat34f::create_translation(vec3f(22.0, 801.0, 554.0));
-    let t2 = Mat34f::create_translation(vec3f(13.0, 14.0, 15.0));
+    let t1 = Mat34f::from_translation(vec3f(22.0, 801.0, 554.0));
+    let t2 = Mat34f::from_translation(vec3f(13.0, 14.0, 15.0));
     let result = t1 * t2;
     let colt = result.get_column(3);
     assert_eq!(colt, vec3f(35.0, 815.0, 569.0));
@@ -880,7 +880,7 @@ fn matrix_index() {
     assert_eq!(m4[(3, 3)], 1.0);
 
     // at
-    let m4 = Mat4f::create_translation(vec3f(500.0, 600.0, 700.0));
+    let m4 = Mat4f::from_translation(vec3f(500.0, 600.0, 700.0));
     assert_eq!(m4.at(0, 0), 1.0);
     assert_eq!(m4.at(1, 1), 1.0);
     assert_eq!(m4.at(2, 2), 1.0);
@@ -1307,7 +1307,6 @@ fn matrix_from_get_row_get_column() {
     );
     assert_eq!(Mat4d::from(m4f), m4d);
     assert_eq!(Mat4f::from(m4d), m4f);
-
 }
 
 #[test]
@@ -1352,7 +1351,7 @@ fn matrix_deref() {
 #[test]
 fn matrix_rotate() {
     // 2x2 z rotation
-    let m2 = Mat2f::create_z_rotation(f32::deg_to_rad(90.0));
+    let m2 = Mat2f::from_z_rotation(f32::deg_to_rad(90.0));
     let mi = Mat2f::identity();
     let rotated = m2 * mi;
     let expected = Mat2f::new(
@@ -1362,7 +1361,7 @@ fn matrix_rotate() {
     assert_eq!(Mat2f::approx(rotated, expected, 0.001), true);
 
     // 3x3 z rotation
-    let m3 = Mat3f::create_z_rotation(f32::deg_to_rad(-90.0));
+    let m3 = Mat3f::from_z_rotation(f32::deg_to_rad(-90.0));
     let mi = Mat3f::identity();
     let rotated = m3 * mi;
     let expected = Mat3f::new(
@@ -1373,12 +1372,12 @@ fn matrix_rotate() {
     assert_eq!(Mat3f::approx(rotated, expected, 0.001), true);
 
     // 3x3 z-axis
-    let axis_z = Mat3f::create_rotation(Vec3f::unit_z(), f32::deg_to_rad(-90.0));
+    let axis_z = Mat3f::from_rotation(Vec3f::unit_z(), f32::deg_to_rad(-90.0));
     let rotated = axis_z * mi;
     assert_eq!(Mat3f::approx(rotated, expected, 0.001), true);
 
     // 3x4 z rotation
-    let m34 = Mat34f::create_z_rotation(f32::deg_to_rad(270.0));
+    let m34 = Mat34f::from_z_rotation(f32::deg_to_rad(270.0));
     let mi = Mat34f::identity();
     let rotated = m34 * mi;
     let expected = Mat34f::new(
@@ -1389,12 +1388,12 @@ fn matrix_rotate() {
     assert_eq!(Mat34f::approx(rotated, expected, 0.001), true);
     
     // 3x4 z-axis
-    let axis_z = Mat34f::create_rotation(Vec3f::unit_z(), f32::deg_to_rad(270.0));
+    let axis_z = Mat34f::from_rotation(Vec3f::unit_z(), f32::deg_to_rad(270.0));
     let rotated = axis_z * mi;
     assert_eq!(Mat34f::approx(rotated, expected, 0.001), true);
 
     // 4x4 z rotation
-    let m4 = Mat4f::create_z_rotation(f32::deg_to_rad(180.0));
+    let m4 = Mat4f::from_z_rotation(f32::deg_to_rad(180.0));
     let mi = Mat4f::identity();
     let rotated = m4 * mi;
     let expected = Mat4f::new(
@@ -1406,12 +1405,12 @@ fn matrix_rotate() {
     assert_eq!(Mat4f::approx(rotated, expected, 0.001), true);
 
     // 4x4 z-axis
-    let axis_z = Mat4f::create_rotation(Vec3f::unit_z(), f32::deg_to_rad(180.0));
+    let axis_z = Mat4f::from_rotation(Vec3f::unit_z(), f32::deg_to_rad(180.0));
     let rotated = axis_z * mi;
     assert_eq!(Mat4f::approx(rotated, expected, 0.001), true);
 
     // 3x3 x-rotation
-    let m3 = Mat3f::create_x_rotation(f32::deg_to_rad(90.0));
+    let m3 = Mat3f::from_x_rotation(f32::deg_to_rad(90.0));
     let mi = Mat3f::identity();
     let rotated = m3 * mi;
     let expected = Mat3f::new(
@@ -1422,12 +1421,12 @@ fn matrix_rotate() {
     assert_eq!(Mat3f::approx(rotated, expected, 0.001), true);
 
     // 3x3 x-axis
-    let axis_x = Mat3f::create_rotation(Vec3f::unit_x(), f32::deg_to_rad(90.0));
+    let axis_x = Mat3f::from_rotation(Vec3f::unit_x(), f32::deg_to_rad(90.0));
     let rotated = axis_x * mi;
     assert_eq!(Mat3f::approx(rotated, expected, 0.001), true);
 
     // 3x4 x-rotation
-    let m34 = Mat34f::create_x_rotation(f32::deg_to_rad(180.0));
+    let m34 = Mat34f::from_x_rotation(f32::deg_to_rad(180.0));
     let mi = Mat34f::identity();
     let rotated = m34 * mi;
     let expected = Mat34f::new(
@@ -1438,12 +1437,12 @@ fn matrix_rotate() {
     assert_eq!(Mat34f::approx(rotated, expected, 0.001), true);
 
     // 3x4 x-axis
-    let axis_x = Mat34f::create_rotation(Vec3f::unit_x(), f32::deg_to_rad(180.0));
+    let axis_x = Mat34f::from_rotation(Vec3f::unit_x(), f32::deg_to_rad(180.0));
     let rotated = axis_x * mi;
     assert_eq!(Mat34f::approx(rotated, expected, 0.001), true);
 
     // 4x4 x-rotation
-    let m4 = Mat4f::create_x_rotation(f32::deg_to_rad(-90.0));
+    let m4 = Mat4f::from_x_rotation(f32::deg_to_rad(-90.0));
     let mi = Mat4f::identity();
     let rotated = m4 * mi;
     let expected = Mat4f::new(
@@ -1455,12 +1454,12 @@ fn matrix_rotate() {
     assert_eq!(Mat4f::approx(rotated, expected, 0.001), true);
 
     // 4x4 x-axis
-    let axis_x = Mat4f::create_rotation(Vec3f::unit_x(), f32::deg_to_rad(-90.0));
+    let axis_x = Mat4f::from_rotation(Vec3f::unit_x(), f32::deg_to_rad(-90.0));
     let rotated = axis_x * mi;
     assert_eq!(Mat4f::approx(rotated, expected, 0.001), true);
 
     // 3x3 y-rotation
-    let m3 = Mat3f::create_y_rotation(f32::deg_to_rad(90.0));
+    let m3 = Mat3f::from_y_rotation(f32::deg_to_rad(90.0));
     let mi = Mat3f::identity();
     let rotated = m3 * mi;
     let expected = Mat3f::new(
@@ -1471,12 +1470,12 @@ fn matrix_rotate() {
     assert_eq!(Mat3f::approx(rotated, expected, 0.001), true);
 
     // 3x3 y-axis
-    let axis_y = Mat3f::create_rotation(Vec3f::unit_y(), f32::deg_to_rad(90.0));
+    let axis_y = Mat3f::from_rotation(Vec3f::unit_y(), f32::deg_to_rad(90.0));
     let rotated = axis_y * mi;
     assert_eq!(Mat3f::approx(rotated, expected, 0.001), true);
 
     // 3x4 y-rotation
-    let m34 = Mat34f::create_y_rotation(f32::deg_to_rad(180.0));
+    let m34 = Mat34f::from_y_rotation(f32::deg_to_rad(180.0));
     let mi = Mat34f::identity();
     let rotated = m34 * mi;
     let expected = Mat34f::new(
@@ -1487,12 +1486,12 @@ fn matrix_rotate() {
     assert_eq!(Mat34f::approx(rotated, expected, 0.001), true);
 
     // 3x4 y-axis
-    let axis_y = Mat34f::create_rotation(Vec3f::unit_y(), f32::deg_to_rad(180.0));
+    let axis_y = Mat34f::from_rotation(Vec3f::unit_y(), f32::deg_to_rad(180.0));
     let rotated = axis_y * mi;
     assert_eq!(Mat34f::approx(rotated, expected, 0.001), true);
 
     // 4x4 y-rotation
-    let m4 = Mat4f::create_y_rotation(f32::deg_to_rad(-90.0));
+    let m4 = Mat4f::from_y_rotation(f32::deg_to_rad(-90.0));
     let mi = Mat4f::identity();
     let rotated = m4 * mi;
     let expected = Mat4f::new(
@@ -1504,7 +1503,7 @@ fn matrix_rotate() {
     assert_eq!(Mat4f::approx(rotated, expected, 0.001), true);
 
     // 4x4 y-axis
-    let axis_y = Mat4f::create_rotation(Vec3f::unit_y(), f32::deg_to_rad(-90.0));
+    let axis_y = Mat4f::from_rotation(Vec3f::unit_y(), f32::deg_to_rad(-90.0));
     let rotated = axis_y * mi;
     assert_eq!(Mat4f::approx(rotated, expected, 0.001), true);
 }
@@ -1512,70 +1511,70 @@ fn matrix_rotate() {
 #[test]
 fn matrix_mul_vec() {
     // 2x2 * v2 rot
-    let m2 = Mat2f::create_scale(vec2f(10.0, 20.0));
+    let m2 = Mat2f::from_scale(vec2f(10.0, 20.0));
     let v2 = vec2f(60.0, 70.0);
     let transformed = m2 * v2;
     let expected = vec2f(600.0, 1400.0);
     assert_eq!(transformed, expected);
 
     // 2x2 * v2 scale
-    let m2 = Mat2f::create_z_rotation(f32::deg_to_rad(90.0));
+    let m2 = Mat2f::from_z_rotation(f32::deg_to_rad(90.0));
     let v2 = Vec2f::unit_x();
     let transformed = m2 * v2;
     let expected = vec2f(0.0, 1.0);
     assert_eq!(Vec2f::approx(transformed, expected, 0.001), true);
 
     // 3x3 * v3 rot
-    let m3 = Mat3f::create_z_rotation(f32::deg_to_rad(-90.0));
+    let m3 = Mat3f::from_z_rotation(f32::deg_to_rad(-90.0));
     let v3 = Vec3f::unit_x();
     let transformed = m3 * v3;
     let expected = vec3f(0.0, -1.0, 0.0);
     assert_eq!(Vec3f::approx(transformed, expected, 0.001), true);
 
     // 3x3 * v3 scale
-    let m3 = Mat3f::create_scale(vec3f(10.0, 11.0, 12.0));
+    let m3 = Mat3f::from_scale(vec3f(10.0, 11.0, 12.0));
     let v3 = Vec3f::one();
     let transformed = m3 * v3;
     let expected = vec3f(10.0, 11.0, 12.0);
     assert_eq!(Vec3f::approx(transformed, expected, 0.001), true);
 
     // 3x4 * v3 rot
-    let m3 = Mat34f::create_x_rotation(f32::deg_to_rad(-90.0));
+    let m3 = Mat34f::from_x_rotation(f32::deg_to_rad(-90.0));
     let v3 = vec3f(0.0, 0.0, 5.0);
     let transformed = m3 * v3;
     let expected = vec3f(0.0, 5.0, 0.0);
     assert_eq!(Vec3f::approx(transformed, expected, 0.001), true);
 
     // 3x4 * v3 scale
-    let m3 = Mat34f::create_scale(vec3f(10.0, 2.0, 30.0));
+    let m3 = Mat34f::from_scale(vec3f(10.0, 2.0, 30.0));
     let v3 = vec3f(1.0, 2.0, 3.0);
     let transformed = m3 * v3;
     let expected = vec3f(10.0, 4.0, 90.0);
     assert_eq!(Vec3f::approx(transformed, expected, 0.001), true);
 
     // 3x4 * v3 translate
-    let m34 = Mat34f::create_translation(vec3f(50.0, -10.0, 20.0));
+    let m34 = Mat34f::from_translation(vec3f(50.0, -10.0, 20.0));
     let v3 = vec3f(3.0, 4.0, 5.0);
     let transformed = m34 * v3;
     let expected = vec3f(53.0, -6.0, 25.0);
     assert_eq!(Vec3f::approx(transformed, expected, 0.001), true);
 
     // 4x4 rot
-    let m4 = Mat4f::create_z_rotation(f32::deg_to_rad(90.0));
+    let m4 = Mat4f::from_z_rotation(f32::deg_to_rad(90.0));
     let v3 = vec3f(10.0, 0.0, 0.0);
     let transformed = m4 * v3;
     let expected = vec3f(0.0, 10.0, 0.0);
     assert_eq!(Vec3f::approx(transformed, expected, 0.001), true);
     
     // 4x4 scale
-    let m4 = Mat4f::create_scale(vec3f(50.0, -10.0, 20.0));
+    let m4 = Mat4f::from_scale(vec3f(50.0, -10.0, 20.0));
     let v3 = vec3f(3.0, 4.0, 5.0);
     let transformed = m4 * v3;
     let expected = vec3f(150.0, -40.0, 100.0);
     assert_eq!(transformed, expected);
 
     // 4x4 translate
-    let m4 = Mat4f::create_translation(vec3f(50.0, 90.0, -20.0));
+    let m4 = Mat4f::from_translation(vec3f(50.0, 90.0, -20.0));
     let v3 = vec3f(3.0, 4.0, 5.0);
     let transformed = m4 * v3;
     let expected = vec3f(53.0, 94.0, -15.0);

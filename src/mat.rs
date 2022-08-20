@@ -869,11 +869,11 @@ impl<T> MatN<T, Vec3<T>> for Mat4<T> where T: Number {}
 
 /// trait for minimum of 4 column matrices to create translation
 pub trait MatTranslate<V> {
-    fn create_translation(t: V) -> Self;
+    fn from_translation(t: V) -> Self;
 }
 
 impl<T> MatTranslate<Vec3<T>> for Mat4<T> where T: Number {
-    fn create_translation(t: Vec3<T>) -> Self {
+    fn from_translation(t: Vec3<T>) -> Self {
         let mut m = Mat4::identity();
         m.set_column(3, Vec4::from(t));
         m.m[15] = T::one();
@@ -882,7 +882,7 @@ impl<T> MatTranslate<Vec3<T>> for Mat4<T> where T: Number {
 }
 
 impl<T> MatTranslate<Vec3<T>> for Mat34<T> where T: Number {
-    fn create_translation(t: Vec3<T>) -> Self {
+    fn from_translation(t: Vec3<T>) -> Self {
         let mut m = Mat34::identity();
         m.set_column(3, t);
         m
@@ -891,11 +891,11 @@ impl<T> MatTranslate<Vec3<T>> for Mat34<T> where T: Number {
 
 /// trait for all matrices to cerate a scaling matrix
 pub trait MatScale<V> {
-    fn create_scale(t: V) -> Self;
+    fn from_scale(t: V) -> Self;
 }
 
 impl<T> MatScale<Vec3<T>> for Mat4<T> where T: Number {
-    fn create_scale(t: Vec3<T>) -> Self {
+    fn from_scale(t: Vec3<T>) -> Self {
         let mut m = Mat4::identity();
         m.set(0, 0, t.x);
         m.set(1, 1, t.y);
@@ -905,7 +905,7 @@ impl<T> MatScale<Vec3<T>> for Mat4<T> where T: Number {
 }
 
 impl<T> MatScale<Vec3<T>> for Mat34<T> where T: Number {
-    fn create_scale(t: Vec3<T>) -> Self {
+    fn from_scale(t: Vec3<T>) -> Self {
         let mut m = Mat34::identity();
         m.set(0, 0, t.x);
         m.set(1, 1, t.y);
@@ -915,7 +915,7 @@ impl<T> MatScale<Vec3<T>> for Mat34<T> where T: Number {
 }
 
 impl<T> MatScale<Vec3<T>> for Mat3<T> where T: Number {
-    fn create_scale(t: Vec3<T>) -> Self {
+    fn from_scale(t: Vec3<T>) -> Self {
         let mut m = Mat3::identity();
         m.set(0, 0, t.x);
         m.set(1, 1, t.y);
@@ -925,7 +925,7 @@ impl<T> MatScale<Vec3<T>> for Mat3<T> where T: Number {
 }
 
 impl<T> MatScale<Vec2<T>> for Mat2<T> where T: Number {
-    fn create_scale(t: Vec2<T>) -> Self {
+    fn from_scale(t: Vec2<T>) -> Self {
         let mut m = Mat2::identity();
         m.set(0, 0, t.x);
         m.set(1, 1, t.y);
@@ -936,11 +936,11 @@ impl<T> MatScale<Vec2<T>> for Mat2<T> where T: Number {
 /// trait for minimum of 2x2 matrices applying rotation in z-axis
 pub trait MatRotate2D<T> {
     /// create rotation about the z axis by theta radians
-    fn create_z_rotation(theta: T) -> Self;
+    fn from_z_rotation(theta: T) -> Self;
 }
 
 impl<T> MatRotate2D<T> for Mat2<T> where T: Float + FloatOps<T>  {
-    fn create_z_rotation(theta: T) -> Self {
+    fn from_z_rotation(theta: T) -> Self {
         let mut m = Mat2::identity();
         let cos_theta = T::cos(theta);
         let sin_theta = T::sin(theta);
@@ -953,7 +953,7 @@ impl<T> MatRotate2D<T> for Mat2<T> where T: Float + FloatOps<T>  {
 }
 
 impl<T> MatRotate2D<T> for Mat3<T> where T: Float + FloatOps<T>  {
-    fn create_z_rotation(theta: T) -> Self {
+    fn from_z_rotation(theta: T) -> Self {
         let mut m = Mat3::identity();
         let cos_theta = T::cos(theta);
         let sin_theta = T::sin(theta);
@@ -966,7 +966,7 @@ impl<T> MatRotate2D<T> for Mat3<T> where T: Float + FloatOps<T>  {
 }
 
 impl<T> MatRotate2D<T> for Mat4<T> where T: Float + FloatOps<T>  {
-    fn create_z_rotation(theta: T) -> Self {
+    fn from_z_rotation(theta: T) -> Self {
         let mut m = Mat4::identity();
         let cos_theta = T::cos(theta);
         let sin_theta = T::sin(theta);
@@ -979,7 +979,7 @@ impl<T> MatRotate2D<T> for Mat4<T> where T: Float + FloatOps<T>  {
 }
 
 impl<T> MatRotate2D<T> for Mat34<T> where T: Float + FloatOps<T> {
-    fn create_z_rotation(theta: T) -> Self {
+    fn from_z_rotation(theta: T) -> Self {
         let mut m = Mat34::identity();
         let cos_theta = T::cos(theta);
         let sin_theta = T::sin(theta);
@@ -1027,17 +1027,17 @@ pub fn get_orthonormal_basis_frisvad<T: Float + SignedNumberOps<T> + FloatOps<T>
 /// trait for minimum of 3x3 matrices applying rotation to x, y or aribtrary 3D axes
 pub trait MatRotate3D<T, V> {
     /// create rotation about the x axis by theta radians
-    fn create_x_rotation(theta: T) -> Self;
+    fn from_x_rotation(theta: T) -> Self;
     /// create rotation about the y axis by theta radians
-    fn create_y_rotation(theta: T) -> Self;
+    fn from_y_rotation(theta: T) -> Self;
     /// create rotation about the abitrary axis by theta radians
-    fn create_rotation(axis: V, theta: T) -> Self;
+    fn from_rotation(axis: V, theta: T) -> Self;
     /// create an othonormal basis from the normal vector
-    fn create_orthonormal_basis(normal: Vec3<T>) -> Self;
+    fn from_orthonormal_basis(normal: Vec3<T>) -> Self;
 }
 
 impl<T> MatRotate3D<T, Vec3<T>> for Mat3<T> where T: Float + FloatOps<T> + SignedNumberOps<T> {
-    fn create_x_rotation(theta: T) -> Self {
+    fn from_x_rotation(theta: T) -> Self {
         let mut m = Mat3::identity();
         let cos_theta = T::cos(theta);
         let sin_theta = T::sin(theta);
@@ -1048,7 +1048,7 @@ impl<T> MatRotate3D<T, Vec3<T>> for Mat3<T> where T: Float + FloatOps<T> + Signe
         m
     }
 
-    fn create_y_rotation(theta: T) -> Self {
+    fn from_y_rotation(theta: T) -> Self {
         let mut m = Mat3::identity();
         let cos_theta = T::cos(theta);
         let sin_theta = T::sin(theta);
@@ -1059,7 +1059,7 @@ impl<T> MatRotate3D<T, Vec3<T>> for Mat3<T> where T: Float + FloatOps<T> + Signe
         m
     }
 
-    fn create_rotation(axis: Vec3<T>, theta: T) -> Self {
+    fn from_rotation(axis: Vec3<T>, theta: T) -> Self {
         let cos_theta = T::cos(theta);
         let sin_theta = T::sin(theta);
         let inv_cos_theta = T::one() - cos_theta;
@@ -1082,7 +1082,7 @@ impl<T> MatRotate3D<T, Vec3<T>> for Mat3<T> where T: Float + FloatOps<T> + Signe
         ))
     }
 
-    fn create_orthonormal_basis(normal: Vec3<T>) -> Self {
+    fn from_orthonormal_basis(normal: Vec3<T>) -> Self {
         let (b1, b2) = get_orthonormal_basis_hughes_moeller(normal);
         Mat3::from((
             b1,
@@ -1093,38 +1093,38 @@ impl<T> MatRotate3D<T, Vec3<T>> for Mat3<T> where T: Float + FloatOps<T> + Signe
 }
 
 impl<T> MatRotate3D<T, Vec3<T>> for Mat34<T> where T: Float + FloatOps<T> + SignedNumberOps<T> {
-    fn create_x_rotation(theta: T) -> Self {
-        Mat34::from(Mat3::create_x_rotation(theta))
+    fn from_x_rotation(theta: T) -> Self {
+        Mat34::from(Mat3::from_x_rotation(theta))
     }
 
-    fn create_y_rotation(theta: T) -> Self {
-        Mat34::from(Mat3::create_y_rotation(theta))
+    fn from_y_rotation(theta: T) -> Self {
+        Mat34::from(Mat3::from_y_rotation(theta))
     }
 
-    fn create_rotation(axis: Vec3<T>, theta: T) -> Self {
-        Mat34::from(Mat3::create_rotation(axis, theta))
+    fn from_rotation(axis: Vec3<T>, theta: T) -> Self {
+        Mat34::from(Mat3::from_rotation(axis, theta))
     }
 
-    fn create_orthonormal_basis(normal: Vec3<T>) -> Self {
-        Mat34::from(Mat3::create_orthonormal_basis(normal))
+    fn from_orthonormal_basis(normal: Vec3<T>) -> Self {
+        Mat34::from(Mat3::from_orthonormal_basis(normal))
     }
 }
 
 impl<T> MatRotate3D<T, Vec3<T>> for Mat4<T> where T: Float + FloatOps<T> + SignedNumberOps<T> {
-    fn create_x_rotation(theta: T) -> Self {
-        Mat4::from(Mat3::create_x_rotation(theta))
+    fn from_x_rotation(theta: T) -> Self {
+        Mat4::from(Mat3::from_x_rotation(theta))
     }
 
-    fn create_y_rotation(theta: T) -> Self {
-        Mat4::from(Mat3::create_y_rotation(theta))
+    fn from_y_rotation(theta: T) -> Self {
+        Mat4::from(Mat3::from_y_rotation(theta))
     }
 
-    fn create_rotation(axis: Vec3<T>, theta: T) -> Self {
-        Mat4::from(Mat3::create_rotation(axis, theta))
+    fn from_rotation(axis: Vec3<T>, theta: T) -> Self {
+        Mat4::from(Mat3::from_rotation(axis, theta))
     }
 
-    fn create_orthonormal_basis(normal: Vec3<T>) -> Self {
-        Mat4::from(Mat3::create_orthonormal_basis(normal))
+    fn from_orthonormal_basis(normal: Vec3<T>) -> Self {
+        Mat4::from(Mat3::from_orthonormal_basis(normal))
     }
 }
 
