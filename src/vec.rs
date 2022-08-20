@@ -1251,9 +1251,6 @@ vec_scalar_lhs!(Vec3 { x, y, z }, u32);
 vec_scalar_lhs!(Vec4 { x, y, z, w }, u32);
 
 #[cfg(feature = "short_hand_constructors")]
-vec_ctor!(Vec2 { x, y }, vec2b, splat2b, bool);
-vec_ctor!(Vec3 { x, y, z }, vec3b, splat3b, bool);
-vec_ctor!(Vec4 { x, y, z, w }, vec4b, splat4b, bool);
 vec_ctor!(Vec2 { x, y }, vec2f, splat2f, f32);
 vec_ctor!(Vec3 { x, y, z }, vec3f, splat3f, f32);
 vec_ctor!(Vec4 { x, y, z, w }, vec4f, splat4f, f32);
@@ -1267,7 +1264,7 @@ vec_ctor!(Vec2 { x, y }, vec2u, splat2u, u32);
 vec_ctor!(Vec3 { x, y, z }, vec3u, splat3u, u32);
 vec_ctor!(Vec4 { x, y, z, w }, vec4u, splat4u, u32);
 
-// type conversions
+#[cfg(feature = "casts")]
 vec_cast!(Vec2 { x, y }, f64, i32);
 vec_cast!(Vec2 { x, y }, f64, u32);
 vec_cast!(Vec2 { x, y }, f32, f64);

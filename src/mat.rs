@@ -150,15 +150,17 @@ macro_rules! mat_impl {
 
             /// initialise matrix to identity
             pub fn identity() -> $MatN<T> {
-                let mut mat = Self::zero();
-                for r in 0..$rows {
-                    for c in 0..$cols {
-                        if c == r {
-                            mat.set(r, c, T::one());
+                unsafe {
+                    let mut mat : $MatN<T> = std::mem::zeroed();
+                    for r in 0..$rows {
+                        for c in 0..$cols {
+                            if c == r {
+                                mat.set(r, c, T::one());
+                            }
                         }
                     }
+                    mat
                 }
-                mat
             }
 
             /// get single element from the matrix at row, column index
@@ -237,6 +239,40 @@ macro_rules! mat_impl {
         }
     }
 }
+
+macro_rules! mat_cast {
+    ($MatN:ident, $count:expr, $t:ident, $u:ident) => {
+        impl From<$MatN<$u>> for $MatN<$t> {
+            fn from(other: $MatN<$u>) -> $MatN<$t> {
+                unsafe {
+                    let mut mm : $MatN<$t> = std::mem::zeroed();
+                    for i in 0..$count {
+                        mm.m[i] = other.m[i] as $t;
+                    }
+                    mm
+                }
+            }
+        }
+
+        impl From<$MatN<$t>> for $MatN<$u> {
+            fn from(other: $MatN<$t>) -> $MatN<$u> {
+                unsafe {
+                    let mut mm : $MatN<$u> = std::mem::zeroed();
+                    for i in 0..$count {
+                        mm.m[i] = other.m[i] as $u;
+                    }
+                    mm
+                }
+            }
+        }
+    }
+}
+
+#[cfg(feature = "casts")]
+mat_cast!(Mat2, 4, f32, f64);
+mat_cast!(Mat3, 9, f32, f64);
+mat_cast!(Mat34, 12, f32, f64);
+mat_cast!(Mat4, 16, f32, f64);
 
 //
 // From
@@ -1417,5 +1453,3 @@ mat_impl!(Mat2, 2, 2, 4, Vec2 {x, 0, y, 1}, Vec2 {x, 0, y, 1});
 mat_impl!(Mat3, 3, 3, 9, Vec3 {x, 0, y, 1, z, 2}, Vec3 {x, 0, y, 1, z, 2});
 mat_impl!(Mat4, 4, 4, 16, Vec4 {x, 0, y, 1, z, 2, w, 3}, Vec4 {x, 0, y, 1, z, 2, w, 3});
 mat_impl!(Mat34, 3, 4, 12, Vec4 {x, 0, y, 1, z, 2, w, 3}, Vec3 {x, 0, y, 1, z, 2});
-
-// create perspective, create ortho

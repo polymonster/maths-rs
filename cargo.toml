@@ -6,4 +6,5 @@ edition = "2021"
 [features]
 short_hand_constructors = []
 lhs_scalar_vec_ops = []
-default = ["short_hand_constructors", "lhs_scalar_vec_ops"]
+casts = []
+default = ["short_hand_constructors", "lhs_scalar_vec_ops", "casts"]

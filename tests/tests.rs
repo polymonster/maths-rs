@@ -14,9 +14,13 @@ pub type Vec4i = Vec4<i32>;
 pub type Vec3u = Vec3<u32>;
 
 pub type Mat2f = Mat2<f32>;
+pub type Mat2d = Mat2<f64>;
 pub type Mat3f = Mat3<f32>;
+pub type Mat3d = Mat3<f64>;
 pub type Mat34f = Mat34<f32>;
+pub type Mat34d = Mat34<f64>;
 pub type Mat4f = Mat4<f32>;
+pub type Mat4d = Mat4<f64>;
 
 #[test]
 fn v2_construct() {
@@ -1250,6 +1254,60 @@ fn matrix_from_get_row_get_column() {
         0.0, 0.0, 0.0, 1.0
     ));
     assert_eq!(m4_from_m34, expected);
+
+    // casts
+    let m2f = Mat2f::new(
+        1.0, 2.0,
+        3.0, 4.0,
+    );
+    let m2d = Mat2d::new(
+        1.0, 2.0,
+        3.0, 4.0,
+    );
+    assert_eq!(Mat2d::from(m2f), m2d);
+    assert_eq!(Mat2f::from(m2d), m2f);
+
+    let m3f = Mat3f::new(
+        1.0, 2.0, 3.0,
+        4.0, 5.0, 6.0,
+        7.0, 8.0, 9.0
+    );
+    let m3d = Mat3d::new(
+        1.0, 2.0, 3.0,
+        4.0, 5.0, 6.0,
+        7.0, 8.0, 9.0
+    );
+    assert_eq!(Mat3d::from(m3f), m3d);
+    assert_eq!(Mat3f::from(m3d), m3f);
+
+    let m34f = Mat34f::new(
+        1.0, 2.0, 3.0, 4.0,
+        5.0, 6.0, 7.0, 8.0,
+        9.0, 10.0, 11.0, 12.0
+    );
+    let m34d = Mat34d::new(
+        1.0, 2.0, 3.0, 4.0,
+        5.0, 6.0, 7.0, 8.0,
+        9.0, 10.0, 11.0, 12.0
+    );
+    assert_eq!(Mat34d::from(m34f), m34d);
+    assert_eq!(Mat34f::from(m34d), m34f);
+
+    let m4f = Mat4f::new(
+        1.0, 2.0, 3.0, 4.0,
+        5.0, 6.0, 7.0, 8.0,
+        9.0, 10.0, 11.0, 12.0,
+        13.0, 14.0, 15.0, 16.0
+    );
+    let m4d = Mat4d::new(
+        1.0, 2.0, 3.0, 4.0,
+        5.0, 6.0, 7.0, 8.0,
+        9.0, 10.0, 11.0, 12.0,
+        13.0, 14.0, 15.0, 16.0
+    );
+    assert_eq!(Mat4d::from(m4f), m4d);
+    assert_eq!(Mat4f::from(m4d), m4f);
+
 }
 
 #[test]
