@@ -2785,3 +2785,10 @@ fn swizzle() {
     v4x.set_yxzw(v4);
     assert_eq!(v4x, vec4f(7.0, 8.0, 5.0, 3.0));
 }
+
+#[test]
+fn f16_f32_conversion_tests() {
+    let f = 66.0;
+    //let h = f32_to_f16(f);
+    // assert_eq!(f16_to_f32(h), 66.0);
+}

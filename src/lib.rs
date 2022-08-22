@@ -1244,7 +1244,32 @@ pub fn map_to_range<T: Float, X: Base<T>>(v: X, in_start: X, in_end: X, out_star
     out_start + slope * (v - in_start)
 }
 
-// type conversions?
+/// returns a 16-bit half precision (IEEE-754 FP16) converted from 32-bit float (IEEE 754-2008) input f
+pub fn f32_to_f16(f: f32) -> u16 {
+    // https://www.researchgate.net/publication/362275548_Accuracy_and_performance_of_the_lattice_Boltzmann_method_with_64-bit_32-bit_and_customized_16-bit_number_formats
+    let x : u32 = unsafe { std::mem::transmute(f) };
+    let b = x + 0x00001000; // round-to-nearest-even: add last bit after truncated mantissa
+    let e = (b & 0x7F800000) >> 23; // exponent
+    let m = b & 0x007FFFFF; // mantissa; in line below: 0x007FF000 = 0x00800000-0x00001000 = decimal indicator flag - initial rounding
+    let eb1 = if e>112 { 1 } else { 0 };
+    let eb2 = if (e<113) & (e>101) { 1 } else { 0 };
+    let eb3 = if e>143 { 1 } else { 0 };
+    let r : u32 = (b&0x80000000)>>16 | eb1 * ((((e-112)<<10)&0x7C00)|m>>13) | eb2 * ((((0x007FF000+m)>>(125-e))+1)>>1) | eb3 * 0x7FFF;
+    r as u16
+}
+
+/// returns a 32-bit precision (IEEE 754-2008) converted from 16-bit float (IEEE-754 FP16) input h
+pub fn f16_to_f32(h: u16) -> f32 {
+    // https://www.researchgate.net/publication/362275548_Accuracy_and_performance_of_the_lattice_Boltzmann_method_with_64-bit_32-bit_and_customized_16-bit_number_formats
+    let e = ((h&0x7C00)>>10) as u32; // exponent
+    let m = ((h&0x03FF)<<13) as u32; // mantissa
+    let f = m as f32;
+    let v = (f as u32) >> 23; // evil log2 bit hack to count leading zeros in denormalized format
+    let eb1 = if e!=0 { 1 } else { 0 };
+    let eb2 = if (e==0) & (m!=0) { 1 } else { 0 };
+    let r = ( ((h&0x8000) as u32) << 16) | eb1 * ((e+112)<<23|m) |  eb2 * ((v-37)<<23|((m<<(150-v))&0x007FE000));
+    unsafe { std::mem::transmute(r) }
+}
 
 // TODO: tests
 // missing fail cases

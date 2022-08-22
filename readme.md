@@ -110,7 +110,7 @@ let m4v = Mat4f::from((
 ));
 
 let m4_rot = Mat4f::from(m3v); // mat4 from mat3
-let m4r = Mat3f::from(quat); // from quaternions
+let m4r = Mat3f::from(quat); // from quaternion
 ```
 
 ## Quaternion
