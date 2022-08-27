@@ -1,5 +1,7 @@
 # Maths
 
+[![build](https://github.com/polymonster/maths-rs/actions/workflows/build.yaml/badge.svg)]
+
 Maths is a linear algebra crate which aims to be ergonmic and fun to use for gamedev and graphics. If you like writing shaders you should feel right at home. In addition to the usual implementation of vectors, matrics and quaternions it includes a comprehensive collection of utility functions, vector swizzling, intersection tests, point tests, distance functions, trig functions, graphs and signal processing functions.
 
 ## Vector
