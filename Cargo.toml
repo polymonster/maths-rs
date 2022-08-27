@@ -9,6 +9,7 @@ homepage = "https://github.com/polymonster/maths-rs"
 repository = "https://github.com/polymonster/maths-rs"
 keywords = ["linear-algebra", "maths", "math", "vector", "matrix", "quaternion", "gamedev", "graphics", "swizzle", "distance-functions", "intersection-tests"]
 categories = ["mathematics", "game-development", "graphics"]
+license-file = "license.md"
 
 [features]
 short_hand_constructors = []
