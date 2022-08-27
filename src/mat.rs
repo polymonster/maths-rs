@@ -243,6 +243,7 @@ macro_rules! mat_impl {
 macro_rules! mat_cast {
     ($MatN:ident, $count:expr, $t:ident, $u:ident) => {
         impl From<$MatN<$u>> for $MatN<$t> {
+            /// cast matrix from type u to type t
             fn from(other: $MatN<$u>) -> $MatN<$t> {
                 unsafe {
                     let mut mm : $MatN<$t> = std::mem::zeroed();
@@ -255,6 +256,7 @@ macro_rules! mat_cast {
         }
 
         impl From<$MatN<$t>> for $MatN<$u> {
+            /// cast matrix from type t to type u
             fn from(other: $MatN<$t>) -> $MatN<$u> {
                 unsafe {
                     let mut mm : $MatN<$u> = std::mem::zeroed();
@@ -563,6 +565,7 @@ impl<T> From<Quat<T>> for Mat4<T> where T: Float + SignedNumber + FloatOps<T> + 
 // Mat2 Mul
 //
 
+/// multiply 2x2 * 2x2 matrix
 fn mul2x2<T: Number>(lhs: Mat2<T>, rhs: Mat2<T>) -> Mat2<T> {
     Mat2 {
         m: [
@@ -601,6 +604,7 @@ impl<T> Mul<Vec2<T>> for Mat2<T> where T: Number {
 // Mat3 Mul
 //
 
+/// multiply 3x3 * 3x3 matrix
 fn mul3x3<T: Number>(lhs: Mat3<T>, rhs: Mat3<T>) -> Mat3<T> {
     Mat3 {
         m: [
@@ -647,6 +651,7 @@ impl<T> Mul<Vec3<T>> for Mat3<T> where T: Number {
 // Mat34 Mul
 //
 
+/// multiply 3x4 * 3x4 matrix
 fn mul3x4<T: Number>(lhs: Mat34<T>, rhs: Mat34<T>) -> Mat34<T> {
     Mat34 {
         m: [
@@ -709,6 +714,7 @@ impl<T> Mul<Vec4<T>> for Mat34<T> where T: Number {
 // Mat4 Mul
 //
 
+/// multiply 4x4 * 4x4 matrix
 fn mul4x4<T: Number>(lhs: Mat4<T>, rhs: Mat4<T>) -> Mat4<T> {
     Mat4 {
         m: [
@@ -777,6 +783,7 @@ impl<T> Mul<Vec3<T>> for Mat4<T> where T: Number {
 // 12 13 14 15
 // 00 00 00 01
 
+/// multiply 3x4 * 4x4 matrix
 fn mul3x4_4x4<T: Number>(lhs: Mat34<T>, rhs: Mat4<T>) -> Mat4<T> {
     Mat4 {
         m: [
@@ -814,6 +821,7 @@ impl<T> Mul<Mat4<T>> for Mat34<T> where T: Number {
 // 12 13 14 15
 // 00 00 00 01
 
+/// multiply 4x4 * 3x4 matrix
 fn mul4x4_3x4<T: Number>(lhs: Mat4<T>, rhs: Mat34<T>) -> Mat4<T> {
     Mat4 {
         m: [
@@ -869,6 +877,7 @@ impl<T> MatN<T, Vec3<T>> for Mat4<T> where T: Number {}
 
 /// trait for minimum of 4 column matrices to create translation
 pub trait MatTranslate<V> {
+    /// create a translation matrix from 3-dimensional vector t
     fn from_translation(t: V) -> Self;
 }
 

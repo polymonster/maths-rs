@@ -185,6 +185,7 @@ impl<T> Quat<T> where T: Float + FloatOps<T> + SignedNumberOps<T> {
         }
     }
 
+    /// returns a quationion which reverses the axis of rotation of self
     pub fn reverse(self) -> Self {
         Quat { 
             x: -self.x, 
@@ -194,6 +195,7 @@ impl<T> Quat<T> where T: Float + FloatOps<T> + SignedNumberOps<T> {
         }
     }
 
+    /// returns a quaternion which is the inverse of self
     pub fn inverse(self) -> Self {
         self.reverse() / Self::mag2(self)
     }

@@ -109,6 +109,7 @@ pub trait VecFloatOps<T: Float>: SignedVecN<T> + Magnitude<T> {
 
 /// trait for dot product
 pub trait Dot<T> {
+    /// vector dot-product
     fn dot(a: Self, b: Self) -> T;
 }
 
@@ -132,6 +133,7 @@ impl<T> Dot<T> for Vec4<T> where T: Number {
 
 /// trait for cross product, this is only implemented for Vec3
 pub trait Cross<T> {
+    /// vector cross-product
     fn cross(a: Self, b: Self) -> Self;
 }
 
@@ -170,6 +172,7 @@ macro_rules! vec_impl {
         }
 
         impl<T> $VecN<T> where T: Number {
+            /// construct a new vector from scalar values
             pub fn new($($field: T,)+) -> $VecN<T> {
                 $VecN {
                     $($field,)+
