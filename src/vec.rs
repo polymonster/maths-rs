@@ -169,7 +169,6 @@ macro_rules! vec_impl {
             $(pub $field: T,)+
         }
 
-        /// Vec4::<f32>::new(1.0, 2.0, 3.0, 4.0) or with abbreviated type Vec4f::new(1.0, 2.0, 3.0, 4.0)
         impl<T> $VecN<T> where T: Number {
             pub fn new($($field: T,)+) -> $VecN<T> {
                 $VecN {
@@ -178,7 +177,6 @@ macro_rules! vec_impl {
             }
         }
 
-        /// for n-dimensional functionality Self::len()
         impl<T> VecN<T> for $VecN<T> where T: Number {
             fn len() -> usize {
                 $len
@@ -738,7 +736,6 @@ macro_rules! vec_impl {
             }
         }
 
-        /// for n-dimensional functionality
         impl<T> Index<usize> for $VecN<T> {
             type Output = T;
             fn index(&self, i: usize) -> &Self::Output {

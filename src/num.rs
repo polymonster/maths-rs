@@ -123,25 +123,45 @@ pub trait FloatOps<T: Float>: Lerp<T> where Self: Sized {
     fn deg_to_rad(theta: Self) -> Self;
     /// returns theta converted from radians to degrees
     fn rad_to_deg(theta: Self) -> Self;
+    /// returns the floating-point remainder
     fn fmod(x: Self, y: Self) -> Self;
+    /// returns the fractional part of floating point number removing the integer
     fn frac(v: Self) -> Self;
+    /// returns the integer part of a float truncating the decimal part
     fn trunc(v: Self) -> Self;
+    /// returns a tuple containing (frac(v), trunc(v)) breaking the float into 2 parts 
     fn modf(v: Self) -> (Self, Self);
+    /// returns the cosine of v where the value v is in radians
     fn cos(v: Self) -> Self;
+    /// returns the sine of v where the value v is in radians
     fn sin(v: Self) -> Self;
+    /// returns the tangent of v where the value v is in radians
     fn tan(v: Self) -> Self;
+    /// returns the arc cosine of v where the value v is in radians
     fn acos(v: Self) -> Self;
+    /// returns the arc sine of v where the value v is in radians
     fn asin(v: Self) -> Self;
+    /// returns the arc tangent of v where the value v is in radians
     fn atan(v: Self) -> Self;
+    /// returns the hyperbolic cosine of v where the value v is in radians
     fn cosh(v: Self) -> Self;
+    /// returns the hyperbolic sine of v where the value v is in radians
     fn sinh(v: Self) -> Self;
+    /// returns the hyperbolic tangent of v where the value v is in radians
     fn tanh(v: Self) -> Self;
+    /// returns a tuple of (sin(v), cos(v)) of v where the value v is in radians
     fn sin_cos(v: Self) -> (Self, Self);
+    // returns the value of the arc tangent of y/x, expressed in radians
     fn atan2(y: Self, x: Self) -> Self;
+    // returns the base-e exponential function of v, which is e raised to the power v
     fn exp(v: Self) -> Self;
+    /// returns 2 raised to the given power n
     fn exp2(v: Self) -> Self;
+    /// returns the binary (base-2) logarithm of v
     fn log2(v: Self) -> Self;
+    /// returns the common (base-10) logarithm of v
     fn log10(v: Self) -> Self;
+    /// returns the logarithm of v in base
     fn log(v: Self, base: T) -> Self;
 }
 
