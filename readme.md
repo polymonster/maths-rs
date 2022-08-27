@@ -4,23 +4,27 @@
 
 Maths is a linear algebra crate which aims to be ergonmic and fun to use for gamedev and graphics. If you like writing shaders you should feel right at home. In addition to the usual implementation of vectors, matrics and quaternions it includes a comprehensive collection of utility functions, vector swizzling, intersection tests, point tests, distance functions, trig functions, graphs and signal processing functions.
 
+All features of the crate are enabled by default, you can choose to opt out if you wish.
+
 ## Vector
 
 This is a narrow vector library with `Vec2`, `Vec3` and `Vec4` column-vector implementations. There are macros to create vectors of larger dimensions but the library is focused on games and graphics where 4-Dimensions are sufficient.
 
 ```rust
-/// abbrivated tupes are not included them, but you define them for convenience 
+/// abbrivated types #[cfg(feature = "short_types")]
 pub type Vec2f = Vec2<f32>;
 pub type Vec3f = Vec3<f32>;
 pub type Vec4f = Vec4<f32>;
+pub type Vec4d = Vec4<f64>;
+/// ... etc
 
 // construct a vector
 let v2 = Vec2f::new(2.0, 3.0);
 
-// the short way 
+// the short way #[cfg(feature = "short_hand_constructors")]
 let v2_short = vec2f(5.0, 6.0);
 
-// splat a scalar
+// splat a scalar #[cfg(feature = "short_hand_constructors")]
 let v3_splat = splat3f(9.0);
 
 // quick common constructors
@@ -58,6 +62,9 @@ let mut v = Vec4f::zero();
 x.set_xwyz(v); // set swizzle
 x.set_xy(v.yx()); // assign truncated
 x.set_yzx(v.zzz()); // etc.. 
+
+// type casts #[cfg(feature = "casts")]
+let veci = Vec3i::from(vec3f(1.0, 2.0, 3.0));
 ```
 
 ## Matrix
@@ -65,7 +72,7 @@ x.set_yzx(v.zzz()); // etc..
 Column-major matrices with `Mat2`, `Mat3`, `Mat34` and `Mat4` implementations. Again wider matrices can be created using a macros which will do most of the work.
 
 ```rust
-// abbrivated types
+/// abbrivated types #[cfg(feature = "short_types")]
 pub type Mat2f = Mat2<f32>;
 pub type Mat3f = Mat3<f32>;
 pub type Mat34f = Mat34<f32>;
@@ -113,6 +120,9 @@ let m4v = Mat4f::from((
 
 let m4_rot = Mat4f::from(m3v); // mat4 from mat3
 let m4r = Mat3f::from(quat); // from quaternion
+
+// type casts #[cfg(feature = "casts")]
+let matd = Mat4d::from(m4v);
 ```
 
 ## Quaternion
@@ -120,7 +130,7 @@ let m4r = Mat3f::from(quat); // from quaternion
 Generic floating-point quaternion.
 
 ```rust
-// abbrivated types
+// abbrivated types #[cfg(feature = "short_types")]
 pub type Quatf = Quat<f32>;
 pub type Quatd = Quat<f64>;
 
@@ -139,6 +149,9 @@ let q6 = -q;
 // functions
 let rev = q.reverse();
 let inv = q.inverse();
+
+// type casts #[cfg(feature = "casts")]
+let quatd = Quatd::from(q2);
 ```
 
 ## Generic Functions
