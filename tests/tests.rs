@@ -1,8 +1,8 @@
-use maths::*;
-use maths::vec::*;
-use maths::num::*;
-use maths::mat::*;
-use maths::swizz::*;
+use maths_rs::*;
+use maths_rs::vec::*;
+use maths_rs::num::*;
+use maths_rs::mat::*;
+use maths_rs::swizz::*;
 
 #[test]
 fn v2_construct() {

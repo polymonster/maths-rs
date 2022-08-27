@@ -1,5 +1,5 @@
 [package]
-name = "maths"
+name = "maths-rs"
 version = "0.1.0"
 edition = "2021"
 authors = ["polymonster <alexandercdixon@gmail.com>"]
