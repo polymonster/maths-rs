@@ -205,8 +205,18 @@ let d = f64::atan2(y, x);
 let l = f32::log2(x);
 ```
 
-## Point / Distance Tests
+## Distance Tests
+
+`plane_distance, distance_on_ray, distance_on_line, point_aabb_distance, point_cone_distance, point_plane_distance, point_polygon_distance, point_triangle_distance, point_convex_hull_distance, point_line_segment_distance`
+
+## Closest Point Tests
+
+`closest_point_on_obb, closest_point_on_ray, closest_point_on_aabb, closest_point_on_cone, closest_point_on_plane, closest_point_on_sphere, closest_point_on_polygon, closest_point_on_triangle, closest_point_on_convex_hull, closest_point_on_line_segment`
 
 ## Intersection Tests
 
-## Graphs / Signal Processing Functions
+`ray_vs_aabb, line_vs_line, ray_vs_plane, aabb_vs_plane, line_vs_plane, aabb_vs_frustum, sphere_vs_plane, ray_vs_line_segment, line_segment_vs_plane, line_segment_vs_line_segment`
+
+## + More
+
+There are more functions included and more to come, I intend to build an interactive demo showcasing all of the features.
