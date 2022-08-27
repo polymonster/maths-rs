@@ -76,6 +76,7 @@ pub trait IntegerOps<T: Integer> {
     fn pow(a: Self, exp: u32) -> Self;
 }
 
+/// trait for performing linear interpolation on scalars, vectors or quaternions
 pub trait Lerp<T: Float> {
     /// returns linear interpolation of t between e0 and e1, t specifies the ratio to interpolate between the values
     fn lerp(e0: Self, e1: Self, t: T) -> Self;
