@@ -16,6 +16,7 @@ use crate::mat::*;
 use crate::swizz::*;
 
 #[derive(Debug, Copy, Clone)]
+#[repr(C)]
 pub struct Quat<T> {
     x: T,
     y: T,

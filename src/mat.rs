@@ -42,6 +42,7 @@ macro_rules! mat_impl {
         $RowVecN:ident { $($row_field:ident, $row_field_index:expr),* },
         $ColVecN:ident { $($col_field:ident, $col_field_index:expr),* } ) => {
         #[derive(Debug, Copy, Clone)]
+        #[repr(C)]
         pub struct $MatN<T> {
             pub m: [T; $elems]
         }

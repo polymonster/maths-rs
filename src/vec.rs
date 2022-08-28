@@ -167,6 +167,7 @@ pub trait Nlerp<T: Float> {
 macro_rules! vec_impl {
     ($VecN:ident { $($field:ident, $field_index:expr),* }, $len:expr, $module:ident) => {
         #[derive(Debug, Copy, Clone)]
+        #[repr(C)]
         pub struct $VecN<T> {
             $(pub $field: T,)+
         }

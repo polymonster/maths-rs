@@ -69,7 +69,7 @@ let veci = Vec3i::from(vec3f(1.0, 2.0, 3.0));
 
 ## Matrix
 
-Column-major matrices with `Mat2`, `Mat3`, `Mat34` and `Mat4` implementations. Again wider matrices can be created using a macros which will do most of the work.
+Row-major matrices with `Mat2`, `Mat3`, `Mat34` and `Mat4` implementations. Again wider matrices can be created using a macros which will do most of the work.
 
 ```rust
 /// abbrivated types #[cfg(feature = "short_types")]
@@ -156,7 +156,7 @@ let quatd = Quatd::from(q2);
 
 ## Generic Functions
 
-You can use generic functions on different sized vectors or scalars: `min, max, clamp, step, signum, copysign, abs, deg_to_rad, rad_to_deg, ceil, round, approx, sqrt, powi, powf, sqrt, frac, trunc, modf, rsqrt, recip lerp, nlerp, slerp, smoothstep, dot, perp, cross, mag, mag2, length, distance, dist, dist2, normalize`
+You can use generic functions on different sized vectors or scalars: `min, max, clamp, step, signum, copysign, abs, deg_to_rad, rad_to_deg, floor, ceil, round, approx, sqrt, powi, powf, sqrt, frac, trunc, modf, rsqrt, recip lerp, nlerp, slerp, smoothstep, dot, perp, cross, mag, mag2, length, distance, dist, dist2, normalize`
 
 ```rust
 // numeric ops
@@ -205,7 +205,7 @@ let d = f64::atan2(y, x);
 let l = f32::log2(x);
 ```
 
-## Distance Tests
+## Distance Functions
 
 `plane_distance, distance_on_ray, distance_on_line, point_aabb_distance, point_cone_distance, point_plane_distance, point_polygon_distance, point_triangle_distance, point_convex_hull_distance, point_line_segment_distance`
 
@@ -213,9 +213,13 @@ let l = f32::log2(x);
 
 `closest_point_on_obb, closest_point_on_ray, closest_point_on_aabb, closest_point_on_cone, closest_point_on_plane, closest_point_on_sphere, closest_point_on_polygon, closest_point_on_triangle, closest_point_on_convex_hull, closest_point_on_line_segment`
 
+## Point Inside Tests
+
+`point_inside_obb, point_inside_aabb, point_inside_cone, point_inside_sphere, point_inside_polygon, point_inside_triangle point_inside_convex_hull`
+
 ## Intersection Tests
 
-`ray_vs_aabb, line_vs_line, ray_vs_plane, aabb_vs_plane, line_vs_plane, aabb_vs_frustum, sphere_vs_plane, ray_vs_line_segment, line_segment_vs_plane, line_segment_vs_line_segment`
+`ray_vs_aabb, line_vs_line, ray_vs_plane, aabb_vs_plane, line_vs_plane, aabb_vs_frustum, sphere_vs_frustum, sphere_vs_plane, ray_vs_line_segment, line_segment_vs_plane, line_segment_vs_line_segment`
 
 ## + More
 
