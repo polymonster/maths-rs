@@ -1,6 +1,6 @@
 # Maths
 
-![build](https://github.com/polymonster/maths-rs/actions/workflows/build.yml/badge.svg) [![crates](https://img.shields.io/crates/v/maths-rs?style=plastic)](https://crates.io/crates/maths-rs)
+![build](https://github.com/polymonster/maths-rs/actions/workflows/build.yml/badge.svg) [![docs](https://img.shields.io/docsrs/maths-rs/latest)](https://docs.rs/maths-rs/0.1.1/maths_rs/) [![crates](https://img.shields.io/crates/v/maths-rs)(https://crates.io/crates/maths-rs)]
 
 Maths is a linear algebra crate which aims to be ergonmic and fun to use for gamedev and graphics. If you like writing shaders you should feel right at home. In addition to the usual implementation of vectors, matrics and quaternions it includes a comprehensive collection of utility functions, vector swizzling, intersection tests, point tests, distance functions, trig functions, graphs and signal processing functions.
 
