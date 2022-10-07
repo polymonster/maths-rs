@@ -14,9 +14,19 @@ jobs:
       run: cargo build --verbose
     - name: test
       run: cargo test --verbose
+    - name: create_release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: Release ${{ github.ref }}
+        draft: false
+        prerelease: false
     - name: bump_version
       run: |
-        export VERSION=${{ github.event.release.tag_name }}
+        export VERSION=${{ github.ref }}
         sed -i .bak "s/0.0.0/$VERSION/g" Cargo.toml
         rm Cargo.toml.bak
     - name: publish
