@@ -712,6 +712,42 @@ pub fn sphere_vs_plane<T: SignedNumber + SignedNumberOps<T>>(s: Vec3<T>, r: T,  
     }
 }
 
+/// returns the classification of a capsule defined by line c1-c2 with radius r vs a plane defined by point on plane x and normal n
+pub fn capsule_vs_plane<T: Float + FloatOps<T> + SignedNumber + SignedNumberOps<T>>(c1: Vec3<T>, c2: Vec3<T>, r: T, x: Vec3<T>, n: Vec3<T>) -> Classification {
+    let pd = plane_distance(x, n);
+    // classify both spheres at the ends of the capsule
+    // sphere 1
+    let d1 = dot(n, c1) + pd;
+    let r1 = if d1 > r {
+        Classification::Infront
+    }
+    else if d1 < -r {
+        Classification::Behind
+    }
+    else {
+        Classification::Intersects
+    };
+    // sphere 2
+    let d2 = dot(n, c2) + pd;
+    let r2 = if d2 > r {
+        Classification::Infront
+    }
+    else if d2 < -r {
+        Classification::Behind
+    }
+    else {
+        Classification::Intersects
+    };
+    if r1 == r2 {
+        // if both speheres are the same, we return their classification this could give us infront, behind or intersects
+        r1
+    }
+    else {
+        // the else case means r1 != r2 and this means we are on opposite side of the plane or one of them intersects
+        Classification::Intersects
+    }
+}
+
 /// returns the intersection point of the ray defined as origin of ray r0 and direction rv with the plane defined by point on plane x and normal n
 pub fn ray_vs_plane<T: Float + SignedNumberOps<T>>(r0: Vec3<T>, rv: Vec3<T>, x: Vec3<T>, n: Vec3<T>) -> Option<Vec3<T>> {
     let t = -(dot(r0, n) - dot(x, n))  / dot(rv, n);
