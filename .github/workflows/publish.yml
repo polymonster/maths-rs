@@ -34,7 +34,7 @@ jobs:
         git config user.email github-actions@github.com
         git add .
         git commit -m "-  bump Cargo.toml version to $VERSION for publish"
-        git push
+        git push origin HEAD:master
     - name: publish
       run: |
         cargo login ${{ secrets.CARGO_REGISTRY_TOKEN }}
