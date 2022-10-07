@@ -748,6 +748,27 @@ pub fn capsule_vs_plane<T: Float + FloatOps<T> + SignedNumber + SignedNumberOps<
     }
 }
 
+/// return the classification of cone defined by position cp, direction cv with height h and radius at the base of r. vs the plane defined by point x and normal n
+pub fn cone_vs_plane<T: Float, V: VecN<T> + Cross<T> + SignedVecN<T> + VecFloatOps<T>>(cp: V, cv: V, h: T, r: T, x: V, n: V) -> Classification {
+    let tip = cp + cv * h;
+    let pd = plane_distance(x, n);
+    // check if the tip and cones extent are on different sides of the plane
+    let d1 = dot(n, tip) + pd;
+    // extent from the tip is at the base centre point perp of cv at the radius edge... we need to choose the side toward the plane
+    let perp = normalize(cross(cross(n, cv), cv));
+    let extent = cp + perp * r;
+    let d2 = dot(n, extent);
+    if d1 < T::zero() && d2 < T::zero() {
+        Classification::Behind
+    }
+    else if d1 > T::zero() && d2 > T::zero() {
+        Classification::Infront
+    }
+    else {
+        Classification::Intersects
+    }
+}
+
 /// returns the intersection point of the ray defined as origin of ray r0 and direction rv with the plane defined by point on plane x and normal n
 pub fn ray_vs_plane<T: Float + SignedNumberOps<T>>(r0: Vec3<T>, rv: Vec3<T>, x: Vec3<T>, n: Vec3<T>) -> Option<Vec3<T>> {
     let t = -(dot(r0, n) - dot(x, n))  / dot(rv, n);
@@ -1313,10 +1334,26 @@ pub fn map_to_range<T: Float, X: Base<T>>(v: X, in_start: X, in_end: X, out_star
 // projection, sc
 // unprojection, ndc,
 // unprojection sc
+// projection matrices
 // quilez functions
 // quat tests
 // mat from quat
 // quat from mat
+// capsule_vs_plane
+// cone_vs_plane
+
+// TODO: new?
+// line_vs_cone
+// ray_vs_cone
+// cone_vs_sphere
+// cone_vs_aabb
+// capsule_vs_sphere
+// obb_vs_aabb
+// obb_vs_sphere
+// line_vs_sphere
+// line_vs_aabb
+// obb_vs_aabb
+// obb_vs_sphere
 
 // TODO c++
 // point inside cone test has no passes
@@ -1338,17 +1375,5 @@ pub fn map_to_range<T: Float, X: Base<T>>(v: X, in_start: X, in_end: X, out_star
 // map to range
 // point hull distance
 // point poly distance
-
-// TODO: new?
-// line_vs_cone
-// ray_vs_cone
-// cone_vs_sphere
+// capsule_vs_plane
 // cone_vs_plane
-// cone_vs_aabb
-// capsules?
-// obb_vs_aabb
-// obb_vs_sphere
-// line_vs_sphere
-// line_vs_aabb
-// obb_vs_aabb
-// obb_vs_sphere
