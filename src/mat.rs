@@ -1272,20 +1272,92 @@ impl<T> MatInverse<T> for Mat4<T> where T: SignedNumber {
     }
 }
 
+/*
+pub fn create_ortho_matrix(left: f32, right: f32, bottom: f32, top: f32, near: f32, far: f32) -> Mat4f {
+    Mat4f::from((
+        Vec4f::new(2.0 / (right - left), 0.0, 0.0, 0.0),
+        Vec4f::new(0.0, 2.0 / (top - bottom), 0.0, 0.0),
+        Vec4f::new(0.0, 0.0, 1.0 / (near - far), 0.0),
+        Vec4f::new((right + left) / (left - right), (top + bottom) / (bottom - top), near / (near - far), 1.0),
+    ))
+}
+
+fn create_perspective_matrix_internal_lh(left: f32, right: f32, bottom: f32, top: f32, near: f32, far: f32) -> Mat4f {
+    Mat4f::from((
+        Vec4f::new((2.0 * near) / (right - left), 0.0, (right + left) / (right - left), 0.0),
+        Vec4f::new(0.0, (2.0 * near) / (top - bottom), (top + bottom) / (top - bottom), 0.0),
+        Vec4f::new(0.0, 0.0, (-far - near) / (far - near), ((2.0 * near) * far) / (far - near)),
+        Vec4f::new(0.0, 0.0, -1.0, 0.0)
+    ))
+}
+
+fn create_perspective_matrix_internal_rh(left: f32, right: f32, bottom: f32, top: f32, near: f32, far: f32) -> Mat4f {
+    Mat4f::from((
+        Vec4f::new((2.0 * near) / (right - left), 0.0, (right + left) / (right - left), 0.0),
+        Vec4f::new(0.0, (2.0 * near) / (top - bottom), (top + bottom) / (top - bottom), 0.0),
+        Vec4f::new(0.0, 0.0, (-far - near) / (far - near), (-(2.0 * near) * far) / (far - near)),
+        Vec4f::new(0.0, 0.0, 1.0, 0.0)
+    ))
+}
+
+pub fn create_perspective_projection_lh_yup(fov: f32, aspect: f32, near: f32, far: f32) -> Mat4f {
+    let tfov = f32::tan(fov * 0.5);
+    let right = tfov * aspect * near;
+    let left = -right;
+    let top = tfov * near;
+    let bottom = -top;
+    create_perspective_matrix_internal_lh(left, right, bottom, top, near, far)
+}
+
+pub fn create_perspective_projection_rh_yup(fov: f32, aspect: f32, near: f32, far: f32) -> Mat4f {
+    let tfov = f32::tan(fov * 0.5);
+    let right = tfov * aspect * near;
+    let left = -right;
+    let top = tfov * near;
+    let bottom = -top;
+    create_perspective_matrix_internal_rh(left, right, bottom, top, near, far)
+}
+*/
+
 /// trait for 4x4 projection matrices
 pub trait MatProjection<T> {
     /// returns 6 frustum planes as Vec4's in the form .xyz = normal, .w = plane distance 
     fn get_frustum_planes(&self) -> [Vec4<T>; 6];
     /// returns 8 points which are the corners of the frustum first 4 near, second 4 far
     fn get_frustum_corners(&self) -> [Vec3<T>; 8];
+    /// returns an orthogrpahic projection matrix define by left, right, top, bottom edges and near - far depth range
+    fn create_ortho_matrix(left: T, right: T, bottom: T, top: T, near: T, far: T) -> Self;
+    /// returns a perespective projection matrix (left hand coordinate system with y-up) from fov (radians), aspect ratio and near - far depth
+    fn create_perspective_projection_lh_yup(fov: T, aspect: T, near: T, far: T) -> Self; 
+    /// returns a perespective projection matrix (right hand coordinate system with y-up) from fov (radians), aspect ratio and near - far depth
+    fn create_perspective_projection_rh_yup(fov: T, aspect: T, near: T, far: T) -> Self;
 }
 
+/// internal utility function to extract a plane in the form xyz=normal, w=constant from plane corners (of a frustum)
 fn plane_from_vectors<T: Float + FloatOps<T>>(plane_vectors: &[Vec3<T>; 18], offset: usize) -> Vec4<T> {
     let v1 = super::normalize(plane_vectors[offset + 1] - plane_vectors[offset]);
     let v2 = super::normalize(plane_vectors[offset + 2] - plane_vectors[offset]);
     let pn = super::cross(v1, v2);
     let pd = super::plane_distance(plane_vectors[offset], pn);
     Vec4::from((pn, pd))
+}
+
+fn create_perspective_matrix_internal_lh<T: Float + FloatOps<T>>(left: T, right: T, bottom: T, top: T, near: T, far: T) -> Mat4<T> {
+    Mat4::from((
+        Vec4::new((T::two() * near) / (right - left), T::zero(), (right + left) / (right - left), T::zero()),
+        Vec4::new(T::zero(), (T::two() * near) / (top - bottom), (top + bottom) / (top - bottom), T::zero()),
+        Vec4::new(T::zero(), T::zero(), (-far - near) / (far - near), ((T::two() * near) * far) / (far - near)),
+        Vec4::new(T::zero(), T::zero(), T::minus_one(), T::zero())
+    ))
+}
+
+fn create_perspective_matrix_internal_rh<T: Float + FloatOps<T>>(left: T, right: T, bottom: T, top: T, near: T, far: T) -> Mat4<T> {
+    Mat4::from((
+        Vec4::new((T::two() * near) / (right - left), T::zero(), (right + left) / (right - left), T::zero()),
+        Vec4::new(T::zero(), (T::two() * near) / (top - bottom), (top + bottom) / (top - bottom), T::zero()),
+        Vec4::new(T::zero(), T::zero(), (-far - near) / (far - near), (-(T::two() * near) * far) / (far - near)),
+        Vec4::new(T::zero(), T::zero(), T::one(), T::zero())
+    ))
 }
 
 impl<T> MatProjection<T> for Mat4<T> where T: Float + FloatOps<T>, Vec3<T>: FloatOps<T> {
@@ -1353,6 +1425,33 @@ impl<T> MatProjection<T> for Mat4<T> where T: Float + FloatOps<T>, Vec3<T>: Floa
             super::unproject_sc(Vec3::from((ndc_coords[2], T::one())), *self, Vec2::one()),
             super::unproject_sc(Vec3::from((ndc_coords[3], T::one())), *self, Vec2::one()),
         ]
+    }
+
+    fn create_ortho_matrix(left: T, right: T, bottom: T, top: T, near: T, far: T) -> Mat4<T> {
+        Mat4::from((
+            Vec4::new(T::two() / (right - left), T::zero(), T::zero(), T::zero()),
+            Vec4::new(T::zero(), T::two() / (top - bottom), T::zero(), T::zero()),
+            Vec4::new(T::zero(), T::zero(), T::one() / (near - far), T::zero()),
+            Vec4::new((right + left) / (left - right), (top + bottom) / (bottom - top), near / (near - far), T::one()),
+        ))
+    }
+
+    fn create_perspective_projection_lh_yup(fov: T, aspect: T, near: T, far: T) -> Mat4<T> {
+        let tfov = T::tan(fov * T::point_five());
+        let right = tfov * aspect * near;
+        let left = -right;
+        let top = tfov * near;
+        let bottom = -top;
+        create_perspective_matrix_internal_lh(left, right, bottom, top, near, far)
+    }
+    
+    fn create_perspective_projection_rh_yup(fov: T, aspect: T, near: T, far: T) -> Mat4<T> {
+        let tfov = T::tan(fov * T::point_five());
+        let right = tfov * aspect * near;
+        let left = -right;
+        let top = tfov * near;
+        let bottom = -top;
+        create_perspective_matrix_internal_rh(left, right, bottom, top, near, far)
     }
 }
 

@@ -1,0 +1,26 @@
+name: publish
+on:
+  push:
+    tags:
+    - '*'
+env:
+  CARGO_TERM_COLOR: always
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: build
+      run: cargo build --verbose
+    - name: test
+      run: cargo test --verbose
+    - name: bump_version
+      run: |
+        export VERSION=${{ github.event.release.tag_name }}
+        sed -i .bak "s/0.0.0/$VERSION/g" Cargo.toml
+        rm Cargo.toml.bak
+    - name: publish
+      run: |
+        cargo login ${{ secrets.CRATES_TOKEN }}
+        cargo publish --dry-run
+        cargo publish
