@@ -2767,3 +2767,126 @@ fn swizzle() {
     v4x.set_yxzw(v4);
     assert_eq!(v4x, vec4f(7.0, 8.0, 5.0, 3.0));
 }
+
+#[test]
+fn cone_vs_plane_test() {
+    // use a simple plane at 0,0,0 +z
+    let x = Vec3f::zero();
+    let n = Vec3f::unit_z();
+
+    // behind
+    /*    
+        +z
+        ^         
+        |         
+        --------------------- +x (0, 0, 0)
+            cp2 (5,-1)
+        cp1 (0,-5)
+    */
+
+    let cp1 = Vec3f::new(0.0, 0.0, -5.0);
+    let cp2 = Vec3f::new(5.0, 0.0, -1.0);
+    let r = 4.0;
+    let cv = normalize(cp2-cp1);
+    let h = dist(cp1, cp2);
+    assert_eq!(cone_vs_plane(cp1, cv, h, r, x, n), Classification::Behind);
+
+    // infront
+    /*    
+        +z
+        ^           cp2 (2,2)
+        |   cp1 (1,1)         
+        --------------------- +x (0, 0, 0)
+    */
+
+    let cp1 = Vec3f::new(1.0, 0.0, 1.0);
+    let cp2 = Vec3f::new(2.0, 0.0, 2.0);
+    let r = 0.5;
+    let cv = normalize(cp2-cp1);
+    let h = dist(cp1, cp2);
+    assert_eq!(cone_vs_plane(cp1, cv, h, r, x, n), Classification::Infront);
+
+
+    // intersect fully through the line seg
+    /*    
+        +z
+        ^         cp2 (5,5)
+        |         
+        --------------------- +x (0, 0, 0)
+
+        cp1 (0,-1)
+    */
+    
+    let cp1 = Vec3f::new(0.0, 0.0, -1.0);
+    let cp2 = Vec3f::new(5.0, 0.0, 5.0);
+    let r = 4.0;
+    let cv = normalize(cp2-cp1);
+    let h = dist(cp1, cp2);
+    assert_eq!(cone_vs_plane(cp1, cv, h, r, x, n), Classification::Intersects);
+
+    // intersect the base on the right side
+    /*    
+        +z
+        ^
+        |         
+        --------------------- +x (0, 0, 0)
+                cp1 (5, -1)
+        
+        cp2 (0,-5)
+    */
+
+    let cp1 = Vec3f::new(5.0, 0.0, -1.0);
+    let cp2 = Vec3f::new(0.0, 0.0, -5.0);
+    let r = 10.0;
+    let cv = normalize(cp2-cp1);
+    let h = dist(cp1, cp2);
+    assert_eq!(cone_vs_plane(cp1, cv, h, r, x, n), Classification::Intersects);
+
+    // intersect the base on the left side
+    /*    
+        +z
+        ^
+        |         
+        --------------------- +x (0, 0, 0)
+                cp1 (5, -1)
+        
+                        cp1 (10,-5)
+    */
+    
+    let cp1 = Vec3f::new(5.0, 0.0, -1.0);
+    let cp2 = Vec3f::new(10.0, 0.0, -5.0);
+    let r = 100.0;
+    let cv = normalize(cp2-cp1);
+    let h = dist(cp1, cp2);
+    assert_eq!(cone_vs_plane(cp1, cv, h, r, x, n), Classification::Intersects);
+
+    // intersect the base on the right side
+    /*            
+        cp2 (0,5)
+
+                cp1 (5, 1)
+        --------------------- +x (0, 0, 0)
+    */
+    
+    let cp1 = Vec3f::new(5.0, 0.0, 1.0);
+    let cp2 = Vec3f::new(0.0, 0.0, 5.0);
+    let r = 10.0;
+    let cv = normalize(cp2-cp1);
+    let h = dist(cp1, cp2);
+    assert_eq!(cone_vs_plane(cp1, cv, h, r, x, n), Classification::Intersects);
+
+    // intersect the base on the left side
+    /*
+                        cp1 (10,5)
+
+                cp1 (5, 1)
+        --------------------- +x (0, 0, 0)
+    */
+    
+    let cp1 = Vec3f::new(5.0, 0.0, 1.0);
+    let cp2 = Vec3f::new(10.0, 0.0, 5.0);
+    let r = 100.0;
+    let cv = normalize(cp2-cp1);
+    let h = dist(cp1, cp2);
+    assert_eq!(cone_vs_plane(cp1, cv, h, r, x, n), Classification::Intersects);
+}

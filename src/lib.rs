@@ -749,14 +749,14 @@ pub fn capsule_vs_plane<T: Float + FloatOps<T> + SignedNumber + SignedNumberOps<
 }
 
 /// return the classification of cone defined by position cp, direction cv with height h and radius at the base of r. vs the plane defined by point x and normal n
-pub fn cone_vs_plane<T: Float, V: VecN<T> + Cross<T> + SignedVecN<T> + VecFloatOps<T>>(cp: V, cv: V, h: T, r: T, x: V, n: V) -> Classification {
+pub fn cone_vs_plane<T: Float + SignedNumberOps<T>, V: VecN<T> + Cross<T> + Dot<T> + SignedVecN<T> + VecFloatOps<T>>(cp: V, cv: V, h: T, r: T, x: V, n: V) -> Classification {
     let tip = cp + cv * h;
     let pd = plane_distance(x, n);
     // check if the tip and cones extent are on different sides of the plane
     let d1 = dot(n, tip) + pd;
     // extent from the tip is at the base centre point perp of cv at the radius edge... we need to choose the side toward the plane
-    let perp = normalize(cross(cross(n, cv), cv));
-    let extent = cp + perp * r;
+    let perp = normalize(cross(cross(n, -cv), -cv));
+    let extent = cp + perp * r * signum(dot(cv, n));
     let d2 = dot(n, extent);
     if d1 < T::zero() && d2 < T::zero() {
         Classification::Behind
@@ -1350,10 +1350,9 @@ pub fn map_to_range<T: Float, X: Base<T>>(v: X, in_start: X, in_end: X, out_star
 // capsule_vs_sphere
 // obb_vs_aabb
 // obb_vs_sphere
+// obb_vs_obb
 // line_vs_sphere
 // line_vs_aabb
-// obb_vs_aabb
-// obb_vs_sphere
 
 // TODO c++
 // point inside cone test has no passes
