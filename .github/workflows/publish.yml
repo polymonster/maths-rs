@@ -28,6 +28,7 @@ jobs:
       run: |
         export REFS_VERSION=${{ github.ref }}
         export VERSION=$(echo $REFS_VERSION| cut -d'/' -f 3)
+        echo $VERSION
         sed -i .bak "s/0.0.0/$VERSION/g" Cargo.toml
         rm Cargo.toml.bak
     - name: publish
