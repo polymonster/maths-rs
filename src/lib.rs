@@ -1339,8 +1339,6 @@ pub fn map_to_range<T: Float, X: Base<T>>(v: X, in_start: X, in_end: X, out_star
 // quat tests
 // mat from quat
 // quat from mat
-// capsule_vs_plane
-// cone_vs_plane
 
 // TODO: new?
 // line_vs_cone
