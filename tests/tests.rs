@@ -2444,6 +2444,75 @@ fn ray_vs_obb_test() {
 }
 
 #[test]
+fn ray_vs_sphere_test() {
+    let sp = Vec3f::zero();
+    let r = 100.0;
+
+    // hit w/ intersection point
+    let rp = Vec3f::new(0.0, 0.0, -1000.0);
+    let rv = Vec3f::unit_z();
+    let result = ray_vs_sphere(rp, rv, sp, r);
+    assert_eq!(result.is_some(), true);
+    if let Some(ip) = result {
+        assert_eq!(ip, Vec3f::new(0.0, 0.0, -100.0));
+    }
+
+    let rp = Vec3f::new(0.0, 0.0, 1000.0);
+    let rv = -Vec3f::unit_z();
+    let result = ray_vs_sphere(rp, rv, sp, r);
+    assert_eq!(result.is_some(), true);
+    if let Some(ip) = result {
+        assert_eq!(ip, Vec3f::new(0.0, 0.0, 100.0));
+    }
+
+    let rp = Vec3f::new(-500.0, 0.0, 0.0);
+    let rv = Vec3f::unit_x();
+    let result = ray_vs_sphere(rp, rv, sp, r);
+    assert_eq!(result.is_some(), true);
+    if let Some(ip) = result {
+        assert_eq!(ip, Vec3f::new(-100.0, 0.0, 0.0));
+    }
+
+    let rp = Vec3f::new(500.0, 0.0, 0.0);
+    let rv = -Vec3f::unit_x();
+    let result = ray_vs_sphere(rp, rv, sp, r);
+    assert_eq!(result.is_some(), true);
+    if let Some(ip) = result {
+        assert_eq!(ip, Vec3f::new(100.0, 0.0, 0.0));
+    }
+
+    // misses around axis
+    //   +
+    // - 0 +
+    //   -
+    let rp = Vec3f::new(101.0, 0.0, -1000.0);
+    let rv = Vec3f::unit_z();
+    let result = ray_vs_sphere(rp, rv, sp, r);
+    assert_eq!(result.is_none(), true);
+
+    let rp = Vec3f::new(-101.0, 0.0, -1000.0);
+    let rv = Vec3f::unit_z();
+    let result = ray_vs_sphere(rp, rv, sp, r);
+    assert_eq!(result.is_none(), true);
+
+    let rp = Vec3f::new(0.0, -101.0, -1000.0);
+    let rv = Vec3f::unit_z();
+    let result = ray_vs_sphere(rp, rv, sp, r);
+    assert_eq!(result.is_none(), true);
+
+    let rp = Vec3f::new(0.0, 101.0, -1000.0);
+    let rv = Vec3f::unit_z();
+    let result = ray_vs_sphere(rp, rv, sp, r);
+    assert_eq!(result.is_none(), true);
+
+    // hits, not testing intersection points
+    let rp = Vec3f::new(10.0, 1000.0, -1000.0);
+    let rv = normalize(Vec3f::unit_z() + (-Vec3f::unit_y()));
+    let result = ray_vs_sphere(rp, rv, sp, r);
+    assert_eq!(result.is_some(), true);
+}
+
+#[test]
 fn sphere_vs_frustum_test() {
     let planes = Mat4f::new(
 		0.85501, 1.45179e-08, 0.467094, 0.0, 

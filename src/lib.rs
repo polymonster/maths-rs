@@ -1328,7 +1328,6 @@ pub fn map_to_range<T: Float, X: Base<T>>(v: X, in_start: X, in_end: X, out_star
 
 // TODO: tests
 // missing fail cases
-// ray sphere (test)
 // ray triangle (test)
 // projection, ndc
 // projection, sc
