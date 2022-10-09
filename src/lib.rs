@@ -1072,8 +1072,8 @@ pub fn shortest_line_segment_between_line_segments<T: Float + SignedNumberOps<T>
     }
 
     let numer = d1343 * d4321 - d1321 * d4343;
-    let mua = numer / denom;
-    let mub = (d1343 + d4321 * mua) / d4343;
+    let mua = saturate(numer / denom);
+    let mub = saturate((d1343 + d4321 * mua) / d4343);
 
     Some((
         p1 + (p21 * mua),
@@ -1377,6 +1377,7 @@ pub fn map_to_range<T: Float, X: Base<T>>(v: X, in_start: X, in_end: X, out_star
 // https://web.archive.org/web/20120414063459/http://local.wasp.uwa.edu.au/~pbourke//geometry/lineline3d/
 
 // TODO:
+// line_segment_between_line_segment_test
 // missing fail cases
 // closest point on line seg to line seg
 // projection, ndc

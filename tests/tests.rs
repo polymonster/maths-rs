@@ -2678,19 +2678,16 @@ fn ray_vs_line_segment_test() {
 
 #[test]
 fn line_segment_between_line_segment_test() {
-    let l1 = Vec2f::new(-100.0, 0.0);
-    let l2 = Vec2f::new(100.0, 0.0);
-    let l3 = Vec2f::new(-100.0, 10.0);
-    let l4 = Vec2f::new(100.0, 10.0);
+    let l1 = Vec2f::new(-10.0, 0.0);
+    let l2 = Vec2f::new(10.0, 0.0);
+    let l3 = Vec2f::new(-10.0, 10.0);
+    let l4 = Vec2f::new(10.0, 11.0);
     let result = shortest_line_segment_between_line_segments(l1, l2, l3, l4);
-
-    /*
     assert_eq!(result.is_some(), true);
     if let Some((p1, p2)) = result {
-        assert_eq!(p1, Vec2f::new(0.0, 0.0));
-        assert_eq!(p2, Vec2f::new(0.0, 10.0));
+        assert_eq!(p1, Vec2f::new(-10.0, 0.0));
+        assert_eq!(p2, Vec2f::new(-10.0, 10.0));
     }
-    */
 }
 
 #[test]
