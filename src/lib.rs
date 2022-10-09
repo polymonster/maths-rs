@@ -679,6 +679,17 @@ pub fn point_inside_polygon<T: Float>(p: Vec2<T>, poly: &Vec<Vec2<T>>) -> bool {
     c
 }
 
+/// returns true if the point p is inside the frustum defined by 6 planes packed as vec4's .xyz = normal, .w = plane distance
+pub fn point_inside_frustum<T: Number>(p: Vec3<T>, planes: &[Vec4<T>; 6]) -> bool {
+    for plane in planes.iter().take(6) {
+        let d = dot(p, Vec3::from(*plane)) + plane.w;
+        if d > T::zero() {
+            return false;
+        }
+    }
+    true
+}
+
 /// returns the classification of the 3D aabb defined as aabb_min to aabb_max vs the plane defined by point on plane x and normal n
 pub fn aabb_vs_plane<T: SignedNumber + SignedNumberOps<T>>(aabb_min: Vec3<T>, aabb_max: Vec3<T>, x: Vec3<T>, n: Vec3<T>) -> Classification {
     let e = (aabb_max - aabb_min) / T::two();
@@ -936,7 +947,7 @@ pub fn ray_vs_triangle<T: Float>(r0: Vec3<T>, rv: Vec3<T>, t0: Vec3<T>, t1: Vec3
     }
 }
 
-/// returns true if the sphere with centre s and radius r is inside the furstum defined by 6 planes packed as vec4's .xyz = normal, .w = plane distance
+/// returns true if the sphere with centre s and radius r is inside the frustum defined by 6 planes packed as vec4's .xyz = normal, .w = plane distance
 pub fn sphere_vs_frustum<T: Number>(s: Vec3<T>, r: T, planes: &[Vec4<T>; 6]) -> bool {
     for p in planes.iter().take(6) {
         let d = dot(s, Vec3::from(*p)) + p.w;
@@ -947,7 +958,7 @@ pub fn sphere_vs_frustum<T: Number>(s: Vec3<T>, r: T, planes: &[Vec4<T>; 6]) -> 
     true
 }
 
-/// returns true if the aabb defined by aabb_pos (centre) and aabb_extent is inside the furstum defined by 6 planes packed as vec4's .xyz = normal, .w = plane distance
+/// returns true if the aabb defined by aabb_pos (centre) and aabb_extent is inside the frustum defined by 6 planes packed as vec4's .xyz = normal, .w = plane distance
 pub fn aabb_vs_frustum<T: SignedNumber + SignedNumberOps<T>>(aabb_pos: Vec3<T>, aabb_extent: Vec3<T>, planes: &[Vec4<T>; 6]) -> bool {
     let mut inside = true;
     for p in planes.iter().take(6) {
@@ -990,7 +1001,7 @@ pub fn line_segment_vs_line_segment<T: Float + SignedNumberOps<T> + FloatOps<T>>
 }
 
 /// returns the intersection point if the infinite line l1-l2 intersects with s1-s2
-pub fn line_vs_line<T: Float + SignedNumberOps<T> + FloatOps<T>>(l1: Vec3<T>, l2: Vec3<T>,  s1: Vec3<T>, s2: Vec3<T>) -> Option<Vec3<T>> {
+pub fn line_vs_line<T: Float + SignedNumberOps<T> + FloatOps<T>>(l1: Vec3<T>, l2: Vec3<T>, s1: Vec3<T>, s2: Vec3<T>) -> Option<Vec3<T>> {
     let da = l2 - l1;
     let db = s2 - s1;
     let dc = s1 - l1;
@@ -1031,6 +1042,43 @@ pub fn ray_vs_line_segment<T: Float + SignedNumberOps<T> + FloatOps<T>>(r0: Vec3
             None
         }
     }
+}
+
+/// returns the shortest line segment between 2 line segments (p1-p2) and (p3-p4) as an option tuple where .0 is the point on line segment 1 and .1 is the point on line segment 2
+pub fn shortest_line_segment_between_line_segments<T: Float + SignedNumberOps<T> + FloatOps<T>, V: VecN<T> + SignedNumberOps<T> + FloatOps<T> + Dot<T>>(p1: V, p2: V, p3: V, p4: V) -> Option<(V, V)> {
+    // https://web.archive.org/web/20120404121511/http://local.wasp.uwa.edu.au/~pbourke/geometry/lineline3d/lineline.c
+    
+    let p13 = p1 - p3;
+    let p43 = p4 - p3;
+
+    if approx(abs(p43), V::zero(), T::small_epsilon()) {
+        return None;
+    }
+
+    let p21 = p2 - p1;
+    if approx(abs(p21), V::zero(), T::small_epsilon()) {
+        return None;
+    }
+
+    let d1343 = dot(p13, p43);
+    let d4321 = dot(p43, p21);
+    let d1321 = dot(p13, p21);
+    let d4343 = dot(p43, p43);
+    let d2121 = dot(p21, p21);
+
+    let denom = d2121 * d4343 - d4321 * d4321;
+    if abs(denom) < T::small_epsilon() {
+        return None;
+    }
+
+    let numer = d1343 * d4321 - d1321 * d4343;
+    let mua = numer / denom;
+    let mub = (d1343 + d4321 * mua) / d4343;
+
+    Some((
+        p1 + (p21 * mua),
+        p3 + (p43 * mub)
+    ))
 }
 
 /// returns soft clipping (in a cubic fashion) of x; let m be the threshold (anything above m stays unchanged), and n the value things will take when the signal is zero
@@ -1326,9 +1374,11 @@ pub fn map_to_range<T: Float, X: Base<T>>(v: X, in_start: X, in_end: X, out_star
     out_start + slope * (v - in_start)
 }
 
-// TODO: tests
+// https://web.archive.org/web/20120414063459/http://local.wasp.uwa.edu.au/~pbourke//geometry/lineline3d/
+
+// TODO:
 // missing fail cases
-// ray triangle (test)
+// closest point on line seg to line seg
 // projection, ndc
 // projection, sc
 // unprojection, ndc,
@@ -1340,11 +1390,12 @@ pub fn map_to_range<T: Float, X: Base<T>>(v: X, in_start: X, in_end: X, out_star
 // quat from mat
 
 // TODO: new?
+// ray_vs_capsule
+// capsule_vs_sphere
 // line_vs_cone
 // ray_vs_cone
 // cone_vs_sphere
 // cone_vs_aabb
-// capsule_vs_sphere
 // obb_vs_aabb
 // obb_vs_sphere
 // obb_vs_obb
@@ -1352,6 +1403,7 @@ pub fn map_to_range<T: Float, X: Base<T>>(v: X, in_start: X, in_end: X, out_star
 // line_vs_aabb
 
 // TODO c++
+// point inside frustum
 // point inside cone test has no passes
 // point plane distance
 // point sphere distance

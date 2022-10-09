@@ -1758,6 +1758,34 @@ fn point_inside_obb_test() {
 }
 
 #[test]
+fn point_inside_frustum_test() {
+    let planes = Mat4f::new(
+		0.85501, 1.45179e-08, 0.467094, 0.0, 
+		0.39811, 1.52002, -0.728735, 0.0, 
+		0.420904, -0.479617, -0.770459, 60.004, 
+		0.420736, -0.479426, -0.770151, 60.0
+    ).get_frustum_planes();
+
+    // inside
+    let pos = vec3f(-5.0, 5.0, 50.0);
+    let result = point_inside_frustum(pos, &planes);
+    assert_eq!(result, false);
+
+    let pos = vec3f(-8.76, -8.04, 5.3);
+    let result = point_inside_frustum(pos, &planes);
+    assert_eq!(result, false);
+
+    // outside
+    let pos = vec3f(4.85, 7.45, 2.28);
+    let result = point_inside_frustum(pos, &planes);
+    assert_eq!(result, false);
+
+    let pos = vec3f(0.0100002, 1.53, -2.92);
+    let result = point_inside_frustum(pos, &planes);
+    assert_eq!(result, false);
+}
+
+#[test]
 fn plane_distance_test() {
     let x = vec3f(-1.22, 9.23, 7.09);
     let n = vec3f(-0.675523, 0.731817, -0.0900697);
@@ -2646,6 +2674,20 @@ fn ray_vs_line_segment_test() {
     let ip = vec3f(5.0, 0.0, 0.0);
     let t = distance_on_ray(ip, r0, rv);
     assert_eq!(t, -10.0);
+}
+
+#[test]
+fn line_segment_between_line_segment_test() {
+    let l1 = Vec2f::new(-100.0, 0.0);
+    let l2 = Vec2f::new(100.0, 0.0);
+    let l3 = Vec2f::new(-100.0, 10.0);
+    let l4 = Vec2f::new(100.0, 10.0);
+    let result = shortest_line_segment_between_line_segments(l1, l2, l3, l4);
+    assert_eq!(result.is_some(), true);
+    if let Some((p1, p2)) = result {
+        assert_eq!(p1, Vec2f::new(0.0, 0.0));
+        assert_eq!(p2, Vec2f::new(0.0, 10.0));
+    }
 }
 
 #[test]
