@@ -128,6 +128,16 @@ pub fn powi<T: Float, V: FloatOps<T>>(a: V, b: i32) -> V {
     V::powi(a, b)
 }
 
+/// returns a squared (raised to the power 2)
+pub fn sqr<T: Float, V: FloatOps<T> + Base<T>>(a: V) -> V {
+    a * a
+}
+
+/// returns a cubed (raised to the power 3)
+pub fn cube<T: Float, V: FloatOps<T> + Base<T>>(a: V) -> V {
+    a * a * a
+}
+
 /// returns a raised to the floating point power b
 pub fn powf<T: Float, V: FloatOps<T>>(a: V, b: T) -> V {
     V::powf(a, b)
@@ -824,6 +834,13 @@ pub fn sphere_vs_sphere<T: Float, V: VecN<T> + VecFloatOps<T>>(s1: V, r1: T, s2:
     d2 < r22 * r22
 }
 
+/// returns true if the sphere or circle at centre s1 with radius r1 intsercts capsule c0-c1 with radius cr
+pub fn sphere_vs_capsule<T: Float + FloatOps<T>, V: VecN<T> + VecFloatOps<T> + FloatOps<T>>(s1: V, r1: T, c0: V, c1: V, cr: T) -> bool {
+    let cp = closest_point_on_line_segment(s1, c0, c1);
+    let r2 = sqr(r1 + cr);
+    dist2(s1, cp) < r2
+}
+
 /// returns ture if the aabb defined by aabb_min to aabb_max intersects the sphere (or circle) centred at s with radius r
 pub fn aabb_vs_sphere<T: Float, V: VecN<T> + VecFloatOps<T> + NumberOps<T>>(aabb_min: V, aabb_max: V, s: V, r: T) -> bool {
     let cp = closest_point_on_aabb(s, aabb_min, aabb_max);
@@ -869,6 +886,7 @@ pub fn ray_vs_sphere<T: Float + FloatOps<T> + NumberOps<T>, V: VecN<T> + VecFloa
 
 /// returns the intersection point of the ray with origin r0 and direction rv with the aabb defined by aabb_min and aabb_max
 pub fn ray_vs_aabb<T: Number + NumberOps<T>, V: VecN<T>>(r0: V, rv: V, aabb_min: V, aabb_max: V) -> Option<V> {
+    // http://gamedev.stackexchange.com/a/18459
     // min / max's from aabb axes
     let dirfrac = V::one() / rv;
     let tx = (aabb_min[0] - r0[0]) * dirfrac[0];
@@ -944,6 +962,22 @@ pub fn ray_vs_triangle<T: Float>(r0: Vec3<T>, rv: Vec3<T>, t0: Vec3<T>, t1: Vec3
                 }
             }
         }
+    }
+}
+
+/// returns the intersection point of ray wih origin r0 and direction rv against the capsule with line c0 - c1 and radius cr
+pub fn ray_vs_capsule<T: Float + FloatOps<T> + NumberOps<T> + SignedNumberOps<T>, V: VecN<T> + VecFloatOps<T> + SignedNumberOps<T> + FloatOps<T>>(r0: V, rv: V, c0: V, c1: V, cr: T) -> Option<V> {
+    let sl = shortest_line_segment_between_lines(r0, rv, c0, c1);
+    if let Some(line) = sl {
+        if dist2(line.0, line.1) < sqr(cr) {
+            Some(line.0)
+        }
+        else {
+            None
+        }
+    }
+    else {
+        None
     }
 }
 
@@ -1074,6 +1108,43 @@ pub fn shortest_line_segment_between_line_segments<T: Float + SignedNumberOps<T>
     let numer = d1343 * d4321 - d1321 * d4343;
     let mua = saturate(numer / denom);
     let mub = saturate((d1343 + d4321 * mua) / d4343);
+
+    Some((
+        p1 + (p21 * mua),
+        p3 + (p43 * mub)
+    ))
+}
+
+/// returns the shortest line segment between 2 lines (p1-p2) and (p3-p4) as an option tuple where .0 is the point on line segment 1 and .1 is the point on line segment 2
+pub fn shortest_line_segment_between_lines<T: Float + SignedNumberOps<T> + FloatOps<T>, V: VecN<T> + SignedNumberOps<T> + FloatOps<T> + Dot<T>>(p1: V, p2: V, p3: V, p4: V) -> Option<(V, V)> {
+    // https://web.archive.org/web/20120404121511/http://local.wasp.uwa.edu.au/~pbourke/geometry/lineline3d/lineline.c
+    
+    let p13 = p1 - p3;
+    let p43 = p4 - p3;
+
+    if approx(abs(p43), V::zero(), T::small_epsilon()) {
+        return None;
+    }
+
+    let p21 = p2 - p1;
+    if approx(abs(p21), V::zero(), T::small_epsilon()) {
+        return None;
+    }
+
+    let d1343 = dot(p13, p43);
+    let d4321 = dot(p43, p21);
+    let d1321 = dot(p13, p21);
+    let d4343 = dot(p43, p43);
+    let d2121 = dot(p21, p21);
+
+    let denom = d2121 * d4343 - d4321 * d4321;
+    if abs(denom) < T::small_epsilon() {
+        return None;
+    }
+
+    let numer = d1343 * d4321 - d1321 * d4343;
+    let mua = numer / denom;
+    let mub = (d1343 + d4321 * mua) / d4343;
 
     Some((
         p1 + (p21 * mua),
@@ -1374,12 +1445,11 @@ pub fn map_to_range<T: Float, X: Base<T>>(v: X, in_start: X, in_end: X, out_star
     out_start + slope * (v - in_start)
 }
 
-// https://web.archive.org/web/20120414063459/http://local.wasp.uwa.edu.au/~pbourke//geometry/lineline3d/
-
 // TODO:
-// line_segment_between_line_segment_test
+// line_segment_between_line_segment (test)
+// sphere_vs_capsule (test)
+// ray_vs_capsule (test)
 // missing fail cases
-// closest point on line seg to line seg
 // projection, ndc
 // projection, sc
 // unprojection, ndc,
@@ -1390,18 +1460,13 @@ pub fn map_to_range<T: Float, X: Base<T>>(v: X, in_start: X, in_end: X, out_star
 // mat from quat
 // quat from mat
 
-// TODO: new?
-// ray_vs_capsule
-// capsule_vs_sphere
-// line_vs_cone
+// ADDITIONS?
+// obb_vs_sphere - easy
+// obb_vs_aabb
+// obb_vs_obb
 // ray_vs_cone
 // cone_vs_sphere
 // cone_vs_aabb
-// obb_vs_aabb
-// obb_vs_sphere
-// obb_vs_obb
-// line_vs_sphere
-// line_vs_aabb
 
 // TODO c++
 // point inside frustum
@@ -1426,3 +1491,6 @@ pub fn map_to_range<T: Float, X: Base<T>>(v: X, in_start: X, in_end: X, out_star
 // point poly distance
 // capsule_vs_plane
 // cone_vs_plane
+// line_segment_between_line_segment
+// sphere_vs_capsule
+// ray_vs_capsule
