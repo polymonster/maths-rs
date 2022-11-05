@@ -293,7 +293,13 @@ pub fn convex_hull_from_points<T: Float + SignedNumberOps<T> + NumberOps<T> + Fl
     let mut cur = points[0];
     let mut curi = 0;
     for (i, item) in points.iter().enumerate().skip(1) {
-        if item.x > cur.x && item.y > cur.y {
+        if item.x > cur.x {
+            // pritorites by xmost
+            cur = *item;
+            curi = i;
+        }
+        else if item.x == cur.x && item.y > cur.y {
+            // if x poisitons are co-linear sort by y
             cur = *item;
             curi = i;
         }
@@ -1461,36 +1467,10 @@ pub fn map_to_range<T: Float, X: Base<T>>(v: X, in_start: X, in_end: X, out_star
 // quat from mat
 
 // ADDITIONS?
+// caspule_vs_capsule
 // obb_vs_sphere - easy
 // obb_vs_aabb
 // obb_vs_obb
 // ray_vs_cone
 // cone_vs_sphere
 // cone_vs_aabb
-
-// TODO c++
-// point inside frustum
-// point inside cone test has no passes
-// point plane distance
-// point sphere distance
-// fix point inside triangle, closest point on triangle + tests
-// closest point on cone
-// point cone distance
-// convex hull from points test
-// point inside hull (test)
-// point inside poly (test)
-// ray sphere (test)
-// ray triangle (test)
-// ray vs line segment
-// quat tests
-// closest point on hull (test)
-// closest point on poly (test)
-// morton tests
-// map to range
-// point hull distance
-// point poly distance
-// capsule_vs_plane
-// cone_vs_plane
-// line_segment_between_line_segment
-// sphere_vs_capsule
-// ray_vs_capsule
