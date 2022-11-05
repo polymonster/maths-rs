@@ -783,12 +783,14 @@ pub fn cone_vs_plane<T: Float + SignedNumberOps<T>, V: VecN<T> + Cross<T> + Dot<
     let d1 = dot(n, tip) + pd;
     // extent from the tip is at the base centre point perp of cv at the radius edge... we need to choose the side toward the plane
     let perp = normalize(cross(cross(n, -cv), -cv));
-    let extent = cp + perp * r * signum(dot(cv, n));
+    let extent = cp + perp * r;
+    let extent2 = cp + perp * -r;
     let d2 = dot(n, extent);
-    if d1 < T::zero() && d2 < T::zero() {
+    let d3 = dot(n, extent2);
+    if d1 < T::zero() && d2 < T::zero() && d3 < T::zero() {
         Classification::Behind
     }
-    else if d1 > T::zero() && d2 > T::zero() {
+    else if d1 > T::zero() && d2 > T::zero() && d3 > T::zero() {
         Classification::Infront
     }
     else {
