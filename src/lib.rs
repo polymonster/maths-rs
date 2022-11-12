@@ -1454,6 +1454,7 @@ pub fn map_to_range<T: Float, X: Base<T>>(v: X, in_start: X, in_end: X, out_star
 }
 
 // TODO:
+// fix ray vs capsule intersection based the c++ lib
 // line_segment_between_line_segment (test)
 // sphere_vs_capsule (test)
 // ray_vs_capsule (test)
