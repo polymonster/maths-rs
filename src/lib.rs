@@ -293,13 +293,8 @@ pub fn convex_hull_from_points<T: Float + SignedNumberOps<T> + NumberOps<T> + Fl
     let mut cur = points[0];
     let mut curi = 0;
     for (i, item) in points.iter().enumerate().skip(1) {
-        if item.x > cur.x {
-            // pritorites by xmost
-            cur = *item;
-            curi = i;
-        }
-        else if item.x == cur.x && item.y > cur.y {
-            // if x poisitons are co-linear sort by y
+        if item.x > cur.x || (item.x == cur.x && item.y > cur.y) {
+            // pritorites by xmost then y most if == x
             cur = *item;
             curi = i;
         }
