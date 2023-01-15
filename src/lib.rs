@@ -490,7 +490,7 @@ pub fn closest_point_on_line_segment<T: Float, V: VecFloatOps<T> + VecN<T>>(p: V
 
 /// returns the closest point on the plane to point p wher the plane is defined by point on plane x and normal n
 pub fn closest_point_on_plane<T: SignedNumber, V: VecN<T> + SignedVecN<T>>(p: V, x: V, n: V) -> V {
-    p - n * (V::dot(p, n) - V::dot(x, n))
+    p + n * -(V::dot(p, n) - V::dot(x, n))
 }
 
 /// returns the closest point on the aabb defined by aabb_min and aabb_max to point p, if the point is inside the aabb it will return p
@@ -569,36 +569,22 @@ pub fn closest_point_on_triangle<T: Float + FloatOps<T> + NumberOps<T>, V: VecN<
 
 /// returns the closest point to p on the cone defined by cp position, with direction cv height h an radius r
 pub fn closest_point_on_cone<T: Float, V: VecN<T> + VecFloatOps<T>>(p: V, cp: V, cv: V, h: T, r: T) -> V {
+    // centre point of the cones base (where radius is largest)
     let l2 = cp + cv * h;
-    let dh = distance_on_line(p, cp, l2) / h;
-    let x0 = closest_point_on_line_segment(p, cp, l2);
-    let d = dist(x0, p);
-    if dh >= T::one() {
-        // clamp to the tip
-        l2
-    }
-    else if dh <= T::zero() {
-        // clamp to the base
-        // base plane
-        let pp = closest_point_on_plane(p, cp, cv);
-        let vv = pp - x0;
-        let m = mag(pp - x0);
-        if m < r {
-            pp
-        }
-        else {
-            let v = vv / m;
-            x0 + v * r
-        }
-    }
-    else if d < dh * r {
-        // inside the code
-        p
+
+    // find point onbase plane and clamp to the extent
+    let cplane = closest_point_on_plane(p, l2, cv);
+    let extent = l2 + normalize(cplane - l2) * r;
+    
+    // test closest point on line with the axis along the side and bottom of the cone
+    let e1 = closest_point_on_line_segment(p, cp, extent);
+    let e2 = closest_point_on_line_segment(p, l2, extent);
+    
+    if dist2(p, e1) < dist2(p, e2) {
+        e1
     }
     else {
-        let v = normalize(p - x0);
-        // clamp to the radius
-        x0 + (v * dh * r)
+        e2
     }
 }
 
@@ -705,6 +691,21 @@ pub fn point_inside_frustum<T: Number>(p: Vec3<T>, planes: &[Vec4<T>; 6]) -> boo
     }
     true
 }
+    
+/// returns the classification of point p vs the plane defined by point on plane x and normal n
+pub fn point_vs_plane<T: SignedNumber + SignedNumberOps<T>>(p: Vec3<T>,  x: Vec3<T>, n: Vec3<T>) -> Classification {
+    let pd = plane_distance(x, n);
+    let d = dot(n, p) + pd;
+    if d < T::zero() {
+        Classification::Behind
+    }
+    else if d > T::zero() {
+        Classification::Infront
+    }
+    else {
+        Classification::Intersects
+    }
+}
 
 /// returns the classification of the 3D aabb defined as aabb_min to aabb_max vs the plane defined by point on plane x and normal n
 pub fn aabb_vs_plane<T: SignedNumber + SignedNumberOps<T>>(aabb_min: Vec3<T>, aabb_max: Vec3<T>, x: Vec3<T>, n: Vec3<T>) -> Classification {
@@ -777,16 +778,16 @@ pub fn capsule_vs_plane<T: Float + FloatOps<T> + SignedNumber + SignedNumberOps<
 
 /// return the classification of cone defined by position cp, direction cv with height h and radius at the base of r. vs the plane defined by point x and normal n
 pub fn cone_vs_plane<T: Float + SignedNumberOps<T>, V: VecN<T> + Cross<T> + Dot<T> + SignedVecN<T> + VecFloatOps<T>>(cp: V, cv: V, h: T, r: T, x: V, n: V) -> Classification {
-    let tip = cp + cv * h;
+    let l2 = cp + cv * h;
     let pd = plane_distance(x, n);
     // check if the tip and cones extent are on different sides of the plane
-    let d1 = dot(n, tip) + pd;
+    let d1 = dot(n, cp) + pd;
     // extent from the tip is at the base centre point perp of cv at the radius edge... we need to choose the side toward the plane
-    let perp = normalize(cross(cross(n, -cv), -cv));
-    let extent = cp + perp * r;
-    let extent2 = cp + perp * -r;
-    let d2 = dot(n, extent);
-    let d3 = dot(n, extent2);
+    let perp = normalize(cross(cross(n, cv), cv));
+    let extent = l2 + perp * r;
+    let extent2 = l2 + perp * -r;
+    let d2 = dot(n, extent) + pd;
+    let d3 = dot(n, extent2) + pd;
     if d1 < T::zero() && d2 < T::zero() && d3 < T::zero() {
         Classification::Behind
     }
@@ -974,11 +975,85 @@ pub fn ray_vs_triangle<T: Float>(r0: Vec3<T>, rv: Vec3<T>, t0: Vec3<T>, t1: Vec3
 }
 
 /// returns the intersection point of ray wih origin r0 and direction rv against the capsule with line c0 - c1 and radius cr
-pub fn ray_vs_capsule<T: Float + FloatOps<T> + NumberOps<T> + SignedNumberOps<T>, V: VecN<T> + VecFloatOps<T> + SignedNumberOps<T> + FloatOps<T>>(r0: V, rv: V, c0: V, c1: V, cr: T) -> Option<V> {
-    let sl = shortest_line_segment_between_lines(r0, rv, c0, c1);
-    if let Some(line) = sl {
-        if dist2(line.0, line.1) < sqr(cr) {
-            Some(line.0)
+pub fn ray_vs_capsule<T: Float + FloatOps<T> + NumberOps<T> + SignedNumberOps<T>, V: VecN<T> + Cross<T> + VecFloatOps<T> + SignedNumberOps<T> + FloatOps<T>>(r0: V, rv: V, c0: V, c1: V, cr: T) -> Option<V> {
+    // shortest line seg within radius will indicate we intersect an infinite cylinder about an axis
+    let seg = shortest_line_segment_between_line_and_line_segment(r0, r0 + rv, c0, c1);
+    if let Some((l0, l1)) = seg {
+        // check we intesect the cylinder
+        let mut ipc = V::max_value();
+        let mut bc = false;
+        if dist2(l0, l1) < sqr(cr) {
+            // intesection of ray and infinite cylinder about axis
+            // https://stackoverflow.com/questions/4078401/trying-to-optimize-line-vs-cylinder-intersection
+            let a = c0;
+            let b = c1;
+            let v = rv;
+            let r = cr;
+            
+            let ab = b - a;
+            let ao = r0 - a;
+            let aoxab = cross(ao, ab);
+            let vxab = cross(v, ab);
+            let ab2 = dot(ab, ab);
+            
+            let aa = dot(vxab, vxab);
+            let bb = T::two() * dot(vxab, aoxab);
+            let cc = dot(aoxab, aoxab) - (r*r * ab2);
+            let dd = bb * bb - T::four() * aa * cc;
+            
+            if dd >= T::zero() {
+                let t = (-bb - sqrt(dd)) / (T::two() * aa);
+                if t >= T::zero() {
+                    // intersection point
+                    ipc = r0 + rv * t;
+                    // clamps to finite cylinder extents
+                    let ipd = distance_on_line(ipc, a, b);
+                    if ipd >= T::zero() && ipd <= dist(a, b) {
+                        bc = true;
+                    }
+                }
+            }
+        }
+
+        // if our line doesnt intersect the cylinder, we might still intersect the top / bottom sphere
+        // test intersections with the end spheres
+        let bs1 = ray_vs_sphere(r0, rv, c0, cr);
+        let bs2 = ray_vs_sphere(r0, rv, c1, cr);
+
+        // get optional intersection points
+        let ips1 = if let Some(ip) = bs1 {
+            ip
+        }
+        else {
+            V::max_value()
+        };
+
+        let ips2 = if let Some(ip) = bs2 {
+            ip
+        }
+        else {
+            V::max_value()
+        };
+
+        // we need to choose the closes intersection if we have multiple
+        let ips : [V; 3] = [ips1, ips2, ipc];
+        let bips : [bool; 3] = [bs1.is_some(), bs2.is_some(), bc];
+
+        let mut iclosest = -1;
+        let mut dclosest = T::max_value();
+        for i in 0..3 {
+            if bips[i] {
+                let dd = distance_on_line(ips[i], r0, r0 + rv);
+                if dd < dclosest {
+                    iclosest = i as i32;
+                    dclosest = dd;
+                }
+            }
+        }
+
+        // if we have a valid closest point
+        if iclosest != -1 {
+            Some(ips[iclosest as usize])
         }
         else {
             None
@@ -1153,6 +1228,43 @@ pub fn shortest_line_segment_between_lines<T: Float + SignedNumberOps<T> + Float
     let numer = d1343 * d4321 - d1321 * d4343;
     let mua = numer / denom;
     let mub = (d1343 + d4321 * mua) / d4343;
+
+    Some((
+        p1 + (p21 * mua),
+        p3 + (p43 * mub)
+    ))
+}
+
+/// returns the shortest line segment between 2 line segments (p1-p2) and (p3-p4) as an option tuple where .0 is the point on line segment 1 and .1 is the point on line segment 2
+pub fn shortest_line_segment_between_line_and_line_segment<T: Float + SignedNumberOps<T> + FloatOps<T>, V: VecN<T> + SignedNumberOps<T> + FloatOps<T> + Dot<T>>(p1: V, p2: V, p3: V, p4: V) -> Option<(V, V)> {
+    // https://web.archive.org/web/20120404121511/http://local.wasp.uwa.edu.au/~pbourke/geometry/lineline3d/lineline.c
+    
+    let p13 = p1 - p3;
+    let p43 = p4 - p3;
+
+    if approx(abs(p43), V::zero(), T::small_epsilon()) {
+        return None;
+    }
+
+    let p21 = p2 - p1;
+    if approx(abs(p21), V::zero(), T::small_epsilon()) {
+        return None;
+    }
+
+    let d1343 = dot(p13, p43);
+    let d4321 = dot(p43, p21);
+    let d1321 = dot(p13, p21);
+    let d4343 = dot(p43, p43);
+    let d2121 = dot(p21, p21);
+
+    let denom = d2121 * d4343 - d4321 * d4321;
+    if abs(denom) < T::small_epsilon() {
+        return None;
+    }
+
+    let numer = d1343 * d4321 - d1321 * d4343;
+    let mua = numer / denom;
+    let mub = saturate((d1343 + d4321 * mua) / d4343);
 
     Some((
         p1 + (p21 * mua),

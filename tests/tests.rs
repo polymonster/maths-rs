@@ -1961,67 +1961,246 @@ fn distance_on_line_test() {
 }
 
 #[test]
-fn point_inside_cone_test() {
-    let cp = vec3f(1.54, 0.25, 4.01);
-    let cv = vec3f(0.263491, 0.958387, -0.109847);
-    let p = cp + cv * 0.1;
-    let h = 1.08;
-    let r = 0.0599999;
-    assert_eq!(point_inside_cone(p, cp, cv, h, r), true);
-
-    let cp = vec3f(-3.79, 0.65, 0.89);
-    let cv = vec3f(0.520281, 0.414765, -0.74651);
-    let p = cp + cv * 0.5;
-    let h = 3.65;
-    let r = 4.71;
-    assert_eq!(point_inside_cone(p, cp, cv, h, r), true);
+fn point_cone_tests() {
+    {
+        let cp = vec3f(13.270000, 2.290000, 3.400000);
+        let cv = vec3f(0.526860, -0.833470, 0.166570);
+        let h = 3.030000;
+        let r = 8.880000;
+        let p = vec3f(-4.580000, 9.870000, -9.970000);
+        let overlap = point_inside_cone(p, cp, cv, h, r);
+        let cpp = closest_point_on_cone(p, cp, cv, h, r);
+        let dd = point_cone_distance(p, cp, cv, h, r);
+        // point_cone_distance
+        assert_eq!(approx(dd, 21.913309, 0.001), true);
+        // point_inside_cone
+        assert_eq!(overlap, false);
+        // closest_point_on_cone
+        assert_eq!(approx(cpp, vec3f(10.240630, -3.991611, -1.699705), 0.001), true);
+    }
+    {
+        let cp = vec3f(-0.670000, 0.990000, -7.220000);
+        let cv = vec3f(0.825527, 0.544982, -0.146629);
+        let h = 8.350000;
+        let r = 8.160000;
+        let p = vec3f(-7.910000, 11.570000, 10.600000);
+        let overlap = point_inside_cone(p, cp, cv, h, r);
+        let cpp = closest_point_on_cone(p, cp, cv, h, r);
+        let dd = point_cone_distance(p, cp, cv, h, r);
+        // point_cone_distance
+        assert_eq!(approx(dd, 17.609268, 0.001), true);
+        // point_inside_cone
+        assert_eq!(overlap, false);
+        // closest_point_on_cone
+        assert_eq!(approx(cpp, vec3f(4.383177, 10.083116, -1.920115), 0.001), true);
+    }
+    {
+        let cp = vec3f(3.100000, 6.330000, -0.210000);
+        let cv = vec3f(-0.236535, 0.969756, 0.060208);
+        let h = 5.790000;
+        let r = 6.490000;
+        let p = vec3f(-6.740000, 5.120000, 7.670000);
+        let overlap = point_inside_cone(p, cp, cv, h, r);
+        let cpp = closest_point_on_cone(p, cp, cv, h, r);
+        let dd = point_cone_distance(p, cp, cv, h, r);
+        // point_cone_distance
+        assert_eq!(approx(dd, 7.358819, 0.001), true);
+        // point_inside_cone
+        assert_eq!(overlap, false);
+        // closest_point_on_cone
+        assert_eq!(approx(cpp, vec3f(-3.155349, 10.503510, 4.159968), 0.001), true);
+    }
+    {
+        let cp = vec3f(8.360001, 4.850000, 7.450001);
+        let cv = vec3f(0.305963, -0.738557, 0.600767);
+        let h = 0.910000;
+        let r = 7.720000;
+        let p = vec3f(9.670000, 11.720000, 3.930000);
+        let overlap = point_inside_cone(p, cp, cv, h, r);
+        let cpp = closest_point_on_cone(p, cp, cv, h, r);
+        let dd = point_cone_distance(p, cp, cv, h, r);
+        // point_cone_distance
+        assert_eq!(approx(dd, 7.197949, 0.001), true);
+        // point_inside_cone
+        assert_eq!(overlap, false);
+        // closest_point_on_cone
+        assert_eq!(approx(cpp, vec3f(11.125882, 6.039529, 8.104102), 0.001), true);
+    }
+    {
+        let cp = vec3f(7.080000, 14.440000, -3.320000);
+        let cv = vec3f(-0.811891, -0.129089, 0.569358);
+        let h = 6.240000;
+        let r = 4.900000;
+        let p = vec3f(3.570000, 10.010000, 1.530000);
+        let overlap = point_inside_cone(p, cp, cv, h, r);
+        let cpp = closest_point_on_cone(p, cp, cv, h, r);
+        let dd = point_cone_distance(p, cp, cv, h, r);
+        // point_cone_distance
+        assert_eq!(approx(dd, 0.057009, 0.001), true);
+        // point_inside_cone
+        assert_eq!(overlap, true);
+        // closest_point_on_cone
+        assert_eq!(approx(cpp, vec3f(3.523714, 10.002641, 1.562458), 0.001), true);
+    }
+    {
+        let cp = vec3f(11.660000, 5.490000, -4.760000);
+        let cv = vec3f(-0.497079, -0.855900, -0.142643);
+        let h = 8.530000;
+        let r = 6.990000;
+        let p = vec3f(10.299999, 4.030000, -7.780000);
+        let overlap = point_inside_cone(p, cp, cv, h, r);
+        let cpp = closest_point_on_cone(p, cp, cv, h, r);
+        let dd = point_cone_distance(p, cp, cv, h, r);
+        // point_cone_distance
+        assert_eq!(approx(dd, 0.631556, 0.001), true);
+        // point_inside_cone
+        assert_eq!(overlap, false);
+        // closest_point_on_cone
+        assert_eq!(approx(cpp, vec3f(10.134563, 3.588377, -7.359925), 0.001), true);
+    }
+    {
+        let cp = vec3f(-7.020000, 4.810000, 1.350000);
+        let cv = vec3f(0.754257, -0.605441, -0.254044);
+        let h = 13.650000;
+        let r = 4.870000;
+        let p = vec3f(14.080000, 2.280000, 14.330000);
+        let overlap = point_inside_cone(p, cp, cv, h, r);
+        let cpp = closest_point_on_cone(p, cp, cv, h, r);
+        let dd = point_cone_distance(p, cp, cv, h, r);
+        // point_cone_distance
+        assert_eq!(approx(dd, 15.629295, 0.001), true);
+        // point_inside_cone
+        assert_eq!(overlap, false);
+        // closest_point_on_cone
+        assert_eq!(approx(cpp, vec3f(5.753925, -2.019639, 1.821424), 0.001), true);
+    }
+    {
+        let cp = vec3f(1.160000, 5.800000, 3.670000);
+        let cv = vec3f(-0.850492, 0.438373, 0.290675);
+        let h = 4.390000;
+        let r = 8.520000;
+        let p = vec3f(-1.020000, 5.920000, 7.200001);
+        let overlap = point_inside_cone(p, cp, cv, h, r);
+        let cpp = closest_point_on_cone(p, cp, cv, h, r);
+        let dd = point_cone_distance(p, cp, cv, h, r);
+        // point_cone_distance
+        assert_eq!(approx(dd, 1.261747, 0.001), true);
+        // point_inside_cone
+        assert_eq!(overlap, true);
+        // closest_point_on_cone
+        assert_eq!(approx(cpp, vec3f(-0.004237, 5.198958, 7.400818), 0.001), true);
+    }
+    {
+        let cp = vec3f(11.510000, 10.490000, 7.660000);
+        let cv = vec3f(0.001249, -0.209566, 0.977794);
+        let h = 6.100000;
+        let r = 14.670000;
+        let p = vec3f(8.340000, 14.390000, 11.840000);
+        let overlap = point_inside_cone(p, cp, cv, h, r);
+        let cpp = closest_point_on_cone(p, cp, cv, h, r);
+        let dd = point_cone_distance(p, cp, cv, h, r);
+        // point_cone_distance
+        assert_eq!(approx(dd, 0.841472, 0.001), true);
+        // point_inside_cone
+        assert_eq!(overlap, true);
+        // closest_point_on_cone
+        assert_eq!(approx(cpp, vec3f(8.157934, 14.814392, 11.136566), 0.001), true);
+    }
+    {
+        let cp = vec3f(7.950001, 4.360000, -6.260000);
+        let cv = vec3f(-0.625592, 0.727616, 0.281442);
+        let h = 12.310000;
+        let r = 5.650000;
+        let p = vec3f(3.270000, 12.730000, -4.190000);
+        let overlap = point_inside_cone(p, cp, cv, h, r);
+        let cpp = closest_point_on_cone(p, cp, cv, h, r);
+        let dd = point_cone_distance(p, cp, cv, h, r);
+        // point_cone_distance
+        assert_eq!(approx(dd, 2.170182, 0.001), true);
+        // point_inside_cone
+        assert_eq!(overlap, true);
+        // closest_point_on_cone
+        assert_eq!(approx(cpp, vec3f(5.131972, 13.424145, -5.062304), 0.001), true);
+    }
+    {
+        let cp = vec3f(1.840000, 0.550000, 6.559999);
+        let cv = vec3f(0.081153, 0.994310, -0.069000);
+        let h = 1.640000;
+        let r = 13.990000;
+        let p = vec3f(10.340000, 0.830000, 1.750000);
+        let overlap = point_inside_cone(p, cp, cv, h, r);
+        let cpp = closest_point_on_cone(p, cp, cv, h, r);
+        let dd = point_cone_distance(p, cp, cv, h, r);
+        // point_cone_distance
+        assert_eq!(approx(dd, 0.163782, 0.001), true);
+        // point_inside_cone
+        assert_eq!(overlap, true);
+        // closest_point_on_cone
+        assert_eq!(approx(cpp, vec3f(10.343329, 0.666263, 1.751929), 0.001), true);
+    }
 }
 
 #[test]
-fn closest_point_on_cone_test() {
-    let cp = vec3f(0.0, 0.0, 0.0);
-    let cv = Vec3f::unit_y();
-    let h = 10.0;
-    let r = 5.0;
-    // inside
-    let p = cp + cv * r * 0.5;
-    assert_eq!(closest_point_on_cone(p, cp, cv, h, r), p);
-    // clamp to tip
-    let p = vec3f(0.0, 12.0, 0.0);
-    assert_eq!(closest_point_on_cone(p, cp, cv, h, r), vec3f(0.0, 10.0, 0.0));
-    // clamp to base bottom within base radius
-    let p = vec3f(2.0, -5.0, 2.0);
-    assert_eq!(closest_point_on_cone(p, cp, cv, h, r), vec3f(2.0, 0.0, 2.0));
-    // clamp to base side
-    let p = vec3f(0.0, 0.0, 100.0);
-    assert_eq!(closest_point_on_cone(p, cp, cv, h, r), vec3f(0.0, 0.0, r));
-    // clamp to side in the middle
-    let p = cp + (cv * h * 0.5) + Vec3f::unit_x() * 20.0;
-    let c = cp + (cv * h * 0.5);
-    assert_eq!(closest_point_on_cone(p, cp, cv, h, r), c + Vec3f::unit_x() * r * 0.5);
-}
+fn point_vs_plane_test() {
+    let x = vec3f(6.580000, -0.700000, 2.720000);
+    let n = vec3f(0.810243, -0.405122, 0.423536);
+    let p = vec3f(-1.930000, 2.490000, -9.270000);
+    let c = point_vs_plane(p, x, n);
+    assert_eq!(c, Classification::Behind);
 
-#[test]
-fn point_cone_distance_test() {
-    let cp = vec3f(0.0, 0.0, 0.0);
-    let cv = Vec3f::unit_y();
-    let h = 10.0;
-    let r = 5.0;
-    // inside
-    let p = cp + cv * r * 0.5;
-    assert_eq!(point_cone_distance(p, cp, cv, h, r), 0.0);
-    // clamp to tip
-    let p = vec3f(0.0, 12.0, 0.0);
-    assert_eq!(point_cone_distance(p, cp, cv, h, r), 2.0);
-    // clamp to base bottom within base radius
-    let p = vec3f(2.0, -5.0, 2.0);
-    assert_eq!(point_cone_distance(p, cp, cv, h, r), 5.0);
-    // clamp to base side
-    let p = vec3f(0.0, 0.0, 100.0);
-    assert_eq!(point_cone_distance(p, cp, cv, h, r), 95.0);
-    // clamp to side in the middle
-    let p = cp + (cv * h * 0.5) + Vec3f::unit_x() * 20.0;
-    assert_eq!(point_cone_distance(p, cp, cv, h, r), 17.5);
+    let x = vec3f(-5.080000, 0.420000, 9.870001);
+    let n = vec3f(0.075497, 0.679474, 0.729805);
+    let p = vec3f(7.090000, -5.600000, -8.350000);
+    let c = point_vs_plane(p, x, n);
+    assert_eq!(c, Classification::Behind);
+
+    let x = vec3f(1.690000, 7.090000, 1.570000);
+    let n = vec3f(0.876123, 0.481867, -0.014602);
+    let p = vec3f(-1.600000, -3.880000, -6.970000);
+    let c = point_vs_plane(p, x, n);
+    assert_eq!(c, Classification::Behind);
+
+    let x = vec3f(0.970000, 8.260000, 5.120000);
+    let n = vec3f(-0.282165, -0.769540, -0.572880);
+    let p = vec3f(-7.220000, 8.160000, 3.350000);
+    let c = point_vs_plane(p, x, n);
+    assert_eq!(c, Classification::Infront);
+
+    let x = vec3f(-8.059999, -6.430000, 0.010000);
+    let n = vec3f(0.764273, 0.115362, 0.634491);
+    let p = vec3f(7.450001, 2.280000, -9.090000);
+    let c = point_vs_plane(p, x, n);
+    assert_eq!(c, Classification::Infront);
+
+    let x = vec3f(-0.230000, 4.080000, -7.720000);
+    let n = vec3f(0.377198, -0.022860, 0.925850);
+    let p = vec3f(-9.760000, 8.010000, -1.470000);
+    let c = point_vs_plane(p, x, n);
+    assert_eq!(c, Classification::Infront);
+
+    let x = vec3f(-1.180000, -2.480000, 5.660000);
+    let n = vec3f(0.216354, 0.500320, -0.838374);
+    let p = vec3f(-8.120000, 1.230000, 5.050000);
+    let c = point_vs_plane(p, x, n);
+    assert_eq!(c, Classification::Infront);
+
+    let x = vec3f(8.709999, 8.280001, 1.370000);
+    let n = vec3f(0.424115, 0.563050, 0.709296);
+    let p = vec3f(1.440000, 5.010000, -1.030000);
+    let c = point_vs_plane(p, x, n);
+    assert_eq!(c, Classification::Behind);
+
+    let x = vec3f(-7.690000, 7.450001, -8.250000);
+    let n = vec3f(-0.839636, -0.025835, 0.542534);
+    let p = vec3f(-7.060000, 9.040001, 6.090000);
+    let c = point_vs_plane(p, x, n);
+    assert_eq!(c, Classification::Infront);
+
+    let x = vec3f(6.580000, -0.700000, 2.720000);
+    let n = vec3f(0.810243, -0.405122, 0.423536);
+    let p = vec3f(6.580000, -0.700000, 2.720000);
+    let c = point_vs_plane(p, x, n);
+    assert_eq!(c, Classification::Intersects);
 }
 
 #[test]
@@ -2881,232 +3060,350 @@ fn swizzle() {
 
 #[test]
 fn cone_vs_plane_test() {
-    // use a simple plane at 0,0,0 +z
-    let x = Vec3f::zero();
-    let n = Vec3f::unit_z();
-
-    // behind
-    /*    
-        +z
-        ^         
-        |         
-        --------------------- +x (0, 0, 0)
-            cp2 (5,-1)
-        cp1 (0,-5)
-    */
-
-    let cp1 = Vec3f::new(0.0, 0.0, -5.0);
-    let cp2 = Vec3f::new(5.0, 0.0, -1.0);
-    let r = 4.0;
-    let cv = normalize(cp2-cp1);
-    let h = dist(cp1, cp2);
-    assert_eq!(cone_vs_plane(cp1, cv, h, r, x, n), Classification::Behind);
-
-    // infront
-    /*    
-        +z
-        ^           cp2 (2,2)
-        |   cp1 (1,1)         
-        --------------------- +x (0, 0, 0)
-    */
-
-    let cp1 = Vec3f::new(1.0, 0.0, 1.0);
-    let cp2 = Vec3f::new(2.0, 0.0, 2.0);
-    let r = 0.5;
-    let cv = normalize(cp2-cp1);
-    let h = dist(cp1, cp2);
-    assert_eq!(cone_vs_plane(cp1, cv, h, r, x, n), Classification::Infront);
-
-
-    // intersect fully through the line seg
-    /*    
-        +z
-        ^         cp2 (5,5)
-        |         
-        --------------------- +x (0, 0, 0)
-
-        cp1 (0,-1)
-    */
-    
-    let cp1 = Vec3f::new(0.0, 0.0, -1.0);
-    let cp2 = Vec3f::new(5.0, 0.0, 5.0);
-    let r = 4.0;
-    let cv = normalize(cp2-cp1);
-    let h = dist(cp1, cp2);
-    assert_eq!(cone_vs_plane(cp1, cv, h, r, x, n), Classification::Intersects);
-
-    // intersect the base on the right side
-    /*    
-        +z
-        ^
-        |         
-        --------------------- +x (0, 0, 0)
-                cp1 (5, -1)
-        
-        cp2 (0,-5)
-    */
-
-    let cp1 = Vec3f::new(5.0, 0.0, -1.0);
-    let cp2 = Vec3f::new(0.0, 0.0, -5.0);
-    let r = 10.0;
-    let cv = normalize(cp2-cp1);
-    let h = dist(cp1, cp2);
-    assert_eq!(cone_vs_plane(cp1, cv, h, r, x, n), Classification::Intersects);
-
-    // intersect the base on the left side
-    /*    
-        +z
-        ^
-        |         
-        --------------------- +x (0, 0, 0)
-                cp1 (5, -1)
-        
-                        cp1 (10,-5)
-    */
-    
-    let cp1 = Vec3f::new(5.0, 0.0, -1.0);
-    let cp2 = Vec3f::new(10.0, 0.0, -5.0);
-    let r = 100.0;
-    let cv = normalize(cp2-cp1);
-    let h = dist(cp1, cp2);
-    assert_eq!(cone_vs_plane(cp1, cv, h, r, x, n), Classification::Intersects);
-
-    // intersect the base on the right side
-    /*            
-        cp2 (0,5)
-
-                cp1 (5, 1)
-        --------------------- +x (0, 0, 0)
-    */
-    
-    let cp1 = Vec3f::new(5.0, 0.0, 1.0);
-    let cp2 = Vec3f::new(0.0, 0.0, 5.0);
-    let r = 10.0;
-    let cv = normalize(cp2-cp1);
-    let h = dist(cp1, cp2);
-    assert_eq!(cone_vs_plane(cp1, cv, h, r, x, n), Classification::Intersects);
-
-    // intersect the base on the left side
-    /*
-                        cp1 (10,5)
-
-                cp1 (5, 1)
-        --------------------- +x (0, 0, 0)
-    */
-    
-    let cp1 = Vec3f::new(5.0, 0.0, 1.0);
-    let cp2 = Vec3f::new(10.0, 0.0, 5.0);
-    let r = 100.0;
-    let cv = normalize(cp2-cp1);
-    let h = dist(cp1, cp2);
-    assert_eq!(cone_vs_plane(cp1, cv, h, r, x, n), Classification::Intersects);
+    {
+        let x = vec3f(7.620001, -5.160000, -8.520000);
+        let n = vec3f(0.447068, -0.894135, -0.025547);
+        let cp = vec3f(-4.060000, 6.260000, 0.500000);
+        let cv = vec3f(-0.104409, 0.977473, 0.183428);
+        let h = 8.150000;
+        let r = 8.660000;
+        let c = cone_vs_plane(cp, cv, h, r, x, n);
+        assert_eq!(c, Classification::Behind);
+    }
+    {
+        let x = vec3f(-4.090000, -4.010000, -6.290000);
+        let n = vec3f(0.447467, -0.642018, 0.622563);
+        let cp = vec3f(-5.900000, -1.270000, 5.920000);
+        let cv = vec3f(0.860584, -0.448540, 0.241263);
+        let h = 1.280000;
+        let r = 0.110000;
+        let c = cone_vs_plane(cp, cv, h, r, x, n);
+        assert_eq!(c, Classification::Infront);
+    }
+    {
+        let x = vec3f(5.120000, -6.210000, -4.610000);
+        let n = vec3f(-0.298879, -0.472422, -0.829149);
+        let cp = vec3f(8.639999, -1.160000, 6.110001);
+        let cv = vec3f(0.041942, 0.305601, -0.951235);
+        let h = 0.090000;
+        let r = 3.560000;
+        let c = cone_vs_plane(cp, cv, h, r, x, n);
+        assert_eq!(c, Classification::Behind);
+    }
+    {
+        let x = vec3f(-5.590000, 3.990000, 3.970000);
+        let n = vec3f(-0.052875, -0.994055, -0.095175);
+        let cp = vec3f(-0.890000, 5.380000, 8.820000);
+        let cv = vec3f(-0.416117, -0.413371, -0.809920);
+        let h = 6.820000;
+        let r = 4.530000;
+        let c = cone_vs_plane(cp, cv, h, r, x, n);
+        assert_eq!(c, Classification::Intersects);
+    }
+    {
+        let x = vec3f(0.750000, 7.750000, -7.190000);
+        let n = vec3f(0.855013, 0.337505, 0.393756);
+        let cp = vec3f(-8.720000, 4.480000, -8.030000);
+        let cv = vec3f(0.777299, -0.220305, -0.589298);
+        let h = 6.610001;
+        let r = 8.380000;
+        let c = cone_vs_plane(cp, cv, h, r, x, n);
+        assert_eq!(c, Classification::Intersects);
+    }
+    {
+        let x = vec3f(-6.630000, -1.860000, 1.950000);
+        let n = vec3f(-0.562526, -0.747356, -0.353588);
+        let cp = vec3f(3.250000, -6.570000, 6.660000);
+        let cv = vec3f(-0.836382, 0.543668, -0.069934);
+        let h = 1.500000;
+        let r = 9.850000;
+        let c = cone_vs_plane(cp, cv, h, r, x, n);
+        assert_eq!(c, Classification::Intersects);
+    }
+    {
+        let x = vec3f(0.750000, -4.770000, 8.650000);
+        let n = vec3f(-0.635334, -0.512599, 0.577576);
+        let cp = vec3f(-0.270000, -8.430000, -4.440000);
+        let cv = vec3f(-0.802155, -0.385470, 0.456026);
+        let h = 3.530000;
+        let r = 2.230000;
+        let c = cone_vs_plane(cp, cv, h, r, x, n);
+        assert_eq!(c, Classification::Behind);
+    }
+    {
+        let x = vec3f(-0.480000, 3.760000, 3.620000);
+        let n = vec3f(0.370472, -0.867684, -0.331475);
+        let cp = vec3f(-7.060000, -6.910000, 6.820000);
+        let cv = vec3f(0.775616, -0.610655, 0.159750);
+        let h = 9.910000;
+        let r = 3.960000;
+        let c = cone_vs_plane(cp, cv, h, r, x, n);
+        assert_eq!(c, Classification::Infront);
+    }
+    {
+        let x = vec3f(6.440001, -2.650000, -2.350000);
+        let n = vec3f(-0.397182, -0.917301, 0.028370);
+        let cp = vec3f(4.040000, 8.459999, -0.450000);
+        let cv = vec3f(-0.063015, 0.998000, -0.005086);
+        let h = 8.250000;
+        let r = 9.500000;
+        let c = cone_vs_plane(cp, cv, h, r, x, n);
+        assert_eq!(c, Classification::Behind);
+    }
+    {
+        let x = vec3f(9.629999, -8.480000, 7.110001);
+        let n = vec3f(0.688594, 0.713187, 0.131161);
+        let cp = vec3f(2.770000, 2.510000, 2.900000);
+        let cv = vec3f(-0.456845, -0.831829, -0.315203);
+        let h = 2.200000;
+        let r = 3.170000;
+        let c = cone_vs_plane(cp, cv, h, r, x, n);
+        assert_eq!(c, Classification::Intersects);
+    }
+    {
+        let x = vec3f(-1.500000, -9.810000, 2.980000);
+        let n = vec3f(-0.487893, 0.582048, 0.650524);
+        let cp = vec3f(-4.990000, -9.540000, 4.880000);
+        let cv = vec3f(-0.958712, 0.056250, -0.278762);
+        let h = 5.190000;
+        let r = 7.200001;
+        let c = cone_vs_plane(cp, cv, h, r, x, n);
+        assert_eq!(c, Classification::Intersects);
+    }
+    {
+        let x = vec3f(7.110001, -6.530000, -1.560000);
+        let n = vec3f(-0.236755, 0.947020, -0.217025);
+        let cp = vec3f(-7.440000, -7.640000, 6.620001);
+        let cv = vec3f(-0.343565, -0.516901, 0.784077);
+        let h = 3.610000;
+        let r = 6.389999;
+        let c = cone_vs_plane(cp, cv, h, r, x, n);
+        assert_eq!(c, Classification::Intersects);
+    }
+    {
+        let x = vec3f(-5.130000, -7.340000, 1.000000);
+        let n = vec3f(-0.856210, -0.081978, 0.510082);
+        let cp = vec3f(-1.020000, 3.460000, -1.300000);
+        let cv = vec3f(0.047138, -0.926287, 0.373858);
+        let h = 0.010000;
+        let r = 6.330000;
+        let c = cone_vs_plane(cp, cv, h, r, x, n);
+        assert_eq!(c, Classification::Intersects);
+    }
 }
 
 #[test]
 fn capsule_vs_plane_test() {
-    // use a simple plane at 0,0,0 +z
-    let x = Vec3f::zero();
-    let n = Vec3f::unit_z();
-
-    // behind
-    /*    
-        +z
-        ^         
-        |         
-        --------------------- +x (0, 0, 0)
-            cp2 (5,-1)
-        cp1 (0,-5)
-    */
-
-    let cp1 = Vec3f::new(0.0, 0.0, -5.0);
-    let cp2 = Vec3f::new(5.0, 0.0, -1.0);
-    let r = 0.5;
-    assert_eq!(capsule_vs_plane(cp1, cp2, r, x, n), Classification::Behind);
-
-    // infront
-    /*    
-        +z
-        ^           cp2 (2,2)
-        |   cp1 (1,1)         
-        --------------------- +x (0, 0, 0)
-    */
-
-    let cp1 = Vec3f::new(1.0, 0.0, 1.0);
-    let cp2 = Vec3f::new(2.0, 0.0, 2.0);
-    let r = 0.5;
-    assert_eq!(capsule_vs_plane(cp1, cp2, r, x, n), Classification::Infront);
-
-
-    // intersect fully through the line seg
-    /*    
-        +z
-        ^         cp2 (5,5)
-        |         
-        --------------------- +x (0, 0, 0)
-
-        cp1 (0,-1)
-    */
-    
-    let cp1 = Vec3f::new(0.0, 0.0, -1.0);
-    let cp2 = Vec3f::new(5.0, 0.0, 5.0);
-    let r = 4.0;
-    assert_eq!(capsule_vs_plane(cp1, cp2, r, x, n), Classification::Intersects);
-
-    // intersect cp1 sphere
-    /*    
-        +z
-        ^
-        |         
-        --------------------- +x (0, 0, 0)
-                cp1 (5, -1)
-        
-        cp2 (0,-5)
-    */
-
-    let cp1 = Vec3f::new(5.0, 0.0, -1.0);
-    let cp2 = Vec3f::new(0.0, 0.0, -5.0);
-    let r = 10.0;
-    assert_eq!(capsule_vs_plane(cp1, cp2, r, x, n), Classification::Intersects);
-
-    // intersect cp1 sphere
-    /*    
-        +z
-        ^
-        |         
-        --------------------- +x (0, 0, 0)
-                cp1 (5, -1)
-        
-                        cp1 (10,-5)
-    */
-    
-    let cp1 = Vec3f::new(5.0, 0.0, -1.0);
-    let cp2 = Vec3f::new(10.0, 0.0, -5.0);
-    let r = 100.0;
-    assert_eq!(capsule_vs_plane(cp1, cp2, r, x, n), Classification::Intersects);
-
-    // intersect cp2 sphere
-    /*            
-        cp1 (0,5)
-
-                cp2 (5, 1)
-        --------------------- +x (0, 0, 0)
-    */
-    
-    let cp2 = Vec3f::new(5.0, 0.0, 1.0);
-    let cp1 = Vec3f::new(0.0, 0.0, 5.0);
-    let r = 10.0;
-    assert_eq!(capsule_vs_plane(cp1, cp2, r, x, n), Classification::Intersects);
-
-    // intersect cp2 sphere
-    /*
-                        cp1 (10,5)
-
-                cp2 (5, 1)
-        --------------------- +x (0, 0, 0)
-    */
-    
-    let cp2 = Vec3f::new(5.0, 0.0, 1.0);
-    let cp1 = Vec3f::new(10.0, 0.0, 5.0);
-    let r = 100.0;
-    assert_eq!(capsule_vs_plane(cp1, cp2, r, x, n), Classification::Intersects);
+    {
+        let x = vec3f(-5.600000, -8.350000, -5.080000);
+        let n = vec3f(-0.554472, 0.831708, 0.028680);
+        let cp0 = vec3f(-3.880000, -14.260001, 1.690000);
+        let cp1 = vec3f(-3.880000, 0.320001, 1.690000);
+        let cr = 6.730000;
+        let c = capsule_vs_plane(cp0, cp1, cr, x, n);
+        assert_eq!(c, Classification::Intersects);
+    }
+    {
+        let x = vec3f(7.090000, 1.570000, 5.600000);
+        let n = vec3f(0.831786, -0.025206, -0.554524);
+        let cp0 = vec3f(8.260000, -3.040000, 2.670000);
+        let cp1 = vec3f(8.260000, 13.280000, 2.670000);
+        let cr = 8.160000;
+        let c = capsule_vs_plane(cp0, cp1, cr, x, n);
+        assert_eq!(c, Classification::Intersects);
+    }
+    {
+        let x = vec3f(-7.020000, -0.190000, -3.650000);
+        let n = vec3f(-0.683748, -0.275071, -0.675888);
+        let cp0 = vec3f(6.690001, -13.490000, -9.060000);
+        let cp1 = vec3f(6.690001, -4.210001, -9.060000);
+        let cr = 0.630000;
+        let c = capsule_vs_plane(cp0, cp1, cr, x, n);
+        assert_eq!(c, Classification::Behind);
+    }
+    {
+        let x = vec3f(6.290001, -4.990000, -4.830000);
+        let n = vec3f(0.702914, 0.036995, -0.710313);
+        let cp0 = vec3f(1.230000, -1.970000, -1.180000);
+        let cp1 = vec3f(1.230000, 12.070000, -1.180000);
+        let cr = 4.510000;
+        let c = capsule_vs_plane(cp0, cp1, cr, x, n);
+        assert_eq!(c, Classification::Behind);
+    }
+    {
+        let x = vec3f(-2.480000, 5.660000, -2.840000);
+        let n = vec3f(0.437602, -0.733279, 0.520391);
+        let cp0 = vec3f(8.280001, -3.640000, 3.580000);
+        let cp1 = vec3f(8.280001, 6.380000, 3.580000);
+        let cr = 5.010000;
+        let c = capsule_vs_plane(cp0, cp1, cr, x, n);
+        assert_eq!(c, Classification::Infront);
+    }
+    {
+        let x = vec3f(1.770000, -6.030000, -7.060000);
+        let n = vec3f(0.035004, -0.796348, -0.603825);
+        let cp0 = vec3f(-7.020000, -16.830000, -6.010000);
+        let cp1 = vec3f(-7.020000, -0.330000, -6.010000);
+        let cr = 7.450001;
+        let c = capsule_vs_plane(cp0, cp1, cr, x, n);
+        assert_eq!(c, Classification::Intersects);
+    }
+    {
+        let x = vec3f(-7.800000, 8.440001, -6.340000);
+        let n = vec3f(0.273377, -0.594997, 0.755807);
+        let cp0 = vec3f(5.900000, -8.130000, 1.590000);
+        let cp1 = vec3f(5.900000, -0.870000, 1.590000);
+        let cr = 3.630000;
+        let c = capsule_vs_plane(cp0, cp1, cr, x, n);
+        assert_eq!(c, Classification::Infront);
+    }
+    {
+        let x = vec3f(-3.770000, -0.530000, 3.850000);
+        let n = vec3f(-0.865617, -0.292015, 0.406736);
+        let cp0 = vec3f(-1.150000, -9.920000, -5.800000);
+        let cp1 = vec3f(-1.150000, 2.380000, -5.800000);
+        let cr = 2.470000;
+        let c = capsule_vs_plane(cp0, cp1, cr, x, n);
+        assert_eq!(c, Classification::Behind);
+    }
+    {
+        let x = vec3f(-8.559999, 9.680000, 7.350000);
+        let n = vec3f(0.179207, -0.896038, 0.406204);
+        let cp0 = vec3f(-8.480000, -7.450001, 2.950000);
+        let cp1 = vec3f(-8.480000, 12.330000, 2.950000);
+        let cr = 9.580000;
+        let c = capsule_vs_plane(cp0, cp1, cr, x, n);
+        assert_eq!(c, Classification::Intersects);
+    }
 }
+
+#[test]
+fn ray_vs_capsule_test() {
+    {
+        let r0 = vec3f(5.768664, -15.179691, 6.019536);
+        let rv = vec3f(0.076287, 0.553084, -0.829626);
+        let cp0 = vec3f(-1.600000, -10.610001, -6.970000);
+        let cp1 = vec3f(-1.600000, 2.850000, -6.970000);
+        let cr = 4.970000;
+        let i = ray_vs_capsule(r0, rv, cp0, cp1, cr);
+        assert_eq!(i.is_some(), false);
+    }
+    {
+        let r0 = vec3f(16.864887, 15.436190, 1.317085);
+        let rv = vec3f(-0.876123, -0.481867, 0.014602);
+        let cp0 = vec3f(0.970000, 0.100000, 5.120000);
+        let cp1 = vec3f(0.970000, 16.420000, 5.120000);
+        let cr = 7.220000;
+        let i = ray_vs_capsule(r0, rv, cp0, cp1, cr);
+        assert_eq!(i.is_some(), true);
+        assert_eq!(approx(i.unwrap(), vec3f(7.204176, 10.122798, 1.478097), 0.001), true);
+    }
+    {
+        let r0 = vec3f(18.455387, 8.953480, -20.680779);
+        let rv = vec3f(-0.635396, -0.385294, 0.669194);
+        let cp0 = vec3f(6.680000, 1.980000, -8.760000);
+        let cp1 = vec3f(6.680000, 7.820000, -8.760000);
+        let cr = 1.530000;
+        let i = ray_vs_capsule(r0, rv, cp0, cp1, cr);
+        assert_eq!(i.is_some(), true);
+        assert_eq!(approx(i.unwrap(), vec3f(7.948673, 2.582387, -9.615197), 0.001), true);
+    }
+    {
+        let r0 = vec3f(-0.230000, -15.680000, -7.720000);
+        let rv = vec3f(0.000000, 1.000000, 0.000000);
+        let cp0 = vec3f(-0.230000, -5.680000, -7.720000);
+        let cp1 = vec3f(-0.230000, 13.840000, -7.720000);
+        let cr = 9.760000;
+        let i = ray_vs_capsule(r0, rv, cp0, cp1, cr);
+        
+        // TODO; this is working in the C++ lib but not here
+        assert_eq!(i.is_some(), true);
+        assert_eq!(approx(i.unwrap(), vec3f(-0.230000, -15.440001, -7.720000), 0.001), true);
+    }
+    {
+        let r0 = vec3f(-10.537001, -20.226603, -5.503001);
+        let rv = vec3f(0.569672, 0.762483, 0.306746);
+        let cp0 = vec3f(4.250000, -1.449999, -8.850000);
+        let cp1 = vec3f(4.250000, 14.830000, -8.850000);
+        let cr = 8.139999;
+        let i = ray_vs_capsule(r0, rv, cp0, cp1, cr);
+        assert_eq!(i.is_some(), false);
+    }
+    {
+        let r0 = vec3f(2.441557, 2.528962, -23.296383);
+        let rv = vec3f(0.065728, -0.043819, 0.996875);
+        let cp0 = vec3f(6.350000, -14.710000, -8.580000);
+        let cp1 = vec3f(6.350000, 0.670000, -8.580000);
+        let cr = 7.690000;
+        let i = ray_vs_capsule(r0, rv, cp0, cp1, cr);
+        assert_eq!(i.is_some(), true);
+        assert_eq!(approx(i.unwrap(), vec3f(2.967510, 2.178326, -15.319421), 0.001), true);
+    }
+    {
+        let r0 = vec3f(-11.932406, 18.119431, 8.037656);
+        let rv = vec3f(0.341930, -0.487251, -0.803536);
+        let cp0 = vec3f(1.130000, -14.620000, 0.060000);
+        let cp1 = vec3f(1.130000, 5.220000, 0.060000);
+        let cr = 9.920000;
+        let i = ray_vs_capsule(r0, rv, cp0, cp1, cr);
+        assert_eq!(i.is_some(), false);
+    }
+    {
+        let r0 = vec3f(-4.075598, -0.434928, 17.405834);
+        let rv = vec3f(0.213365, 0.568974, -0.794193);
+        let cp0 = vec3f(6.709999, 0.800001, -4.100000);
+        let cp1 = vec3f(6.709999, 17.219999, -4.100000);
+        let cr = 8.209999;
+        let i = ray_vs_capsule(r0, rv, cp0, cp1, cr);
+        assert_eq!(i.is_some(), true);
+        assert_eq!(approx(i.unwrap(), vec3f(0.317913, 11.281100, 1.052214), 0.001), true);
+    }
+    {
+        let r0 = vec3f(0.077069, 21.519623, 3.644967);
+        let rv = vec3f(0.179725, -0.980319, -0.081693);
+        let cp0 = vec3f(8.129999, -11.070001, 2.380000);
+        let cp1 = vec3f(8.129999, 6.470000, 2.380000);
+        let cr = 8.740000;
+        let i = ray_vs_capsule(r0, rv, cp0, cp1, cr);
+        assert_eq!(i.is_some(), true);
+        assert_eq!(approx(i.unwrap(), vec3f(1.745788, 12.417515, 2.886458), 0.001), true);
+    }
+    {
+        let r0 = vec3f(11.845491, -2.182019, -3.787370);
+        let rv = vec3f(-0.629629, -0.324354, 0.705948);
+        let cp0 = vec3f(8.440001, 1.960000, -4.500000);
+        let cp1 = vec3f(8.440001, 9.839999, -4.500000);
+        let cr = 3.940000;
+        let i = ray_vs_capsule(r0, rv, cp0, cp1, cr);
+        assert_eq!(i.is_some(), false);
+    }
+    {
+        let r0 = vec3f(13.651896, -15.548086, -4.503330);
+        let rv = vec3f(-0.696394, 0.680008, 0.229400);
+        let cp0 = vec3f(4.960000, -6.540000, -3.770000);
+        let cp1 = vec3f(4.960000, 4.240001, -3.770000);
+        let cr = 5.390000;
+        let i = ray_vs_capsule(r0, rv, cp0, cp1, cr);
+        assert_eq!(i.is_some(), true);
+        assert_eq!(approx(i.unwrap(), vec3f(8.483912, -10.501701, -2.800935), 0.001), true);
+    }
+    {
+        let r0 = vec3f(1.407182, -5.471208, -5.763961);
+        let rv = vec3f(-0.416107, -0.178331, 0.891657);
+        let cp0 = vec3f(-3.210000, -18.059999, 2.440000);
+        let cp1 = vec3f(-3.210000, 1.100000, 2.440000);
+        let cr = 5.340000;
+        let i = ray_vs_capsule(r0, rv, cp0, cp1, cr);
+        assert_eq!(i.is_some(), true);
+        assert_eq!(approx(i.unwrap(), vec3f(-0.324479, -6.213347, -2.053260), 0.001), true);
+    }
+}
+
+// TODO: 
+// edge case ray vs capsule!
+// sphere_vs_capsule
+// ray_vs_cylinder
+// point_sphere_distance
+// ray_vs_line_segment
+// shortest_line_segment_between_line_segments
+// shortest_line_segment_between_lines
