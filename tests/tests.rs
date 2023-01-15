@@ -3397,10 +3397,186 @@ fn ray_vs_capsule_test() {
     }
 }
 
-// TODO: 
-// ray_vs_cylinder
-// sphere_vs_capsule
-// point_sphere_distance
-// ray_vs_line_segment
-// shortest_line_segment_between_line_segments
-// shortest_line_segment_between_lines
+#[test]
+fn ray_vs_cylinder_test() {
+    {
+        let r0 = vec3f(-15.203737, 6.055606, -4.583255);
+        let rv = vec3f(0.554472, -0.831708, -0.028680);
+        let cy0 = vec3f(-3.880000, -14.260001, 1.690000);
+        let cy1 = vec3f(-3.880000, 0.320001, 1.690000);
+        let cyr = 6.730000;
+        let i = ray_vs_cylinder(r0, rv, cy0, cy1, cyr);
+        assert_eq!(i.is_some(), false);
+    }
+    {
+        let r0 = vec3f(21.496956, 1.133426, -4.004637);
+        let rv = vec3f(-0.831786, 0.025206, 0.554524);
+        let cy0 = vec3f(8.260000, -3.040000, 2.670000);
+        let cy1 = vec3f(8.260000, 13.280000, 2.670000);
+        let cyr = 8.160000;
+        let i = ray_vs_cylinder(r0, rv, cy0, cy1, cyr);
+        assert_eq!(i.is_some(), true);
+        assert_eq!(approx(i.unwrap(), vec3f(15.876670, 1.303737, -0.257780), 0.001), true);
+    }
+    {
+        let r0 = vec3f(15.056831, 17.546116, -11.426116);
+        let rv = vec3f(-0.401653, -0.647563, 0.647563);
+        let cy0 = vec3f(3.360000, -4.820000, 7.450001);
+        let cy1 = vec3f(3.360000, 14.520000, 7.450001);
+        let cyr = 9.670000;
+        let i = ray_vs_cylinder(r0, rv, cy0, cy1, cyr);
+        assert_eq!(i.is_some(), true);
+        assert_eq!(approx(i.unwrap(), vec3f(8.448961, 6.892612, -0.772611), 0.001), true);
+    }
+    {
+        let r0 = vec3f(10.119667, -22.706263, -0.770485);
+        let rv = vec3f(-0.452623, 0.786135, -0.420860);
+        let cy0 = vec3f(4.900000, -18.200001, -8.040000);
+        let cy1 = vec3f(4.900000, 0.680000, -8.040000);
+        let cyr = 2.920000;
+        let i = ray_vs_cylinder(r0, rv, cy0, cy1, cyr);
+        assert_eq!(i.is_some(), true);
+        assert_eq!(approx(i.unwrap(), vec3f(5.396209, -14.502363, -5.162472), 0.001), true);
+    }
+    {
+        let r0 = vec3f(-0.795774, 7.815088, -6.405851);
+        let rv = vec3f(0.351940, -0.507207, 0.786689);
+        let cy0 = vec3f(4.080000, -15.730000, -0.670000);
+        let cy1 = vec3f(4.080000, 0.290000, -0.670000);
+        let cyr = 8.010000;
+        let i = ray_vs_cylinder(r0, rv, cy0, cy1, cyr);
+        assert_eq!(i.is_some(), true);
+        assert_eq!(approx(i.unwrap(), vec3f(4.425715, 0.290000, 5.265714), 0.001), true);
+    }
+    {
+        let r0 = vec3f(6.690001, -23.490000, -9.060000);
+        let rv = vec3f(0.000000, 1.000000, 0.000000);
+        let cy0 = vec3f(6.690001, -13.490000, -9.060000);
+        let cy1 = vec3f(6.690001, -4.210001, -9.060000);
+        let cyr = 0.630000;
+        let i = ray_vs_cylinder(r0, rv, cy0, cy1, cyr);
+        assert_eq!(i.is_some(), true);
+        assert_eq!(approx(i.unwrap(), vec3f(6.690001, -13.490000, -9.060000), 0.001), true);
+    }
+    {
+        let r0 = vec3f(18.464821, -4.349220, -17.132975);
+        let rv = vec3f(-0.702914, -0.036995, 0.710313);
+        let cy0 = vec3f(1.230000, -1.970000, -1.180000);
+        let cy1 = vec3f(1.230000, 12.070000, -1.180000);
+        let cyr = 4.510000;
+        let i = ray_vs_cylinder(r0, rv, cy0, cy1, cyr);
+        assert_eq!(i.is_some(), false);
+    }
+    {
+        let r0 = vec3f(5.099485, -7.040759, 6.173443);
+        let rv = vec3f(-0.437602, 0.733279, -0.520391);
+        let cy0 = vec3f(8.280001, -3.640000, 3.580000);
+        let cy1 = vec3f(8.280001, 6.380000, 3.580000);
+        let cyr = 5.010000;
+        let i = ray_vs_cylinder(r0, rv, cy0, cy1, cyr);
+        assert_eq!(i.is_some(), false);
+    }
+    {
+        let r0 = vec3f(2.376292, -19.823158, -17.518549);
+        let rv = vec3f(-0.035004, 0.796348, 0.603825);
+        let cy0 = vec3f(-7.020000, -16.830000, -6.010000);
+        let cy1 = vec3f(-7.020000, -0.330000, -6.010000);
+        let cyr = 7.450001;
+        let i = ray_vs_cylinder(r0, rv, cy0, cy1, cyr);
+        assert_eq!(i.is_some(), false);
+    }
+    {
+        let r0 = vec3f(2.137793, 13.814747, -21.165298);
+        let rv = vec3f(0.420438, -0.586862, 0.691972);
+        let cy0 = vec3f(9.010000, -11.050001, -1.690000);
+        let cy1 = vec3f(9.010000, 2.850001, -1.690000);
+        let cyr = 6.950001;
+        let i = ray_vs_cylinder(r0, rv, cy0, cy1, cyr);
+        assert_eq!(i.is_some(), true);
+        assert_eq!(approx(i.unwrap(), vec3f(9.993134, 2.850000, -8.236716), 0.001), true);
+    }
+    {
+        let r0 = vec3f(-2.701339, -15.851871, 9.038837);
+        let rv = vec3f(0.010470, 0.952736, -0.303619);
+        let cy0 = vec3f(-3.930000, -7.100000, 3.220000);
+        let cy1 = vec3f(-3.930000, 2.560000, 3.220000);
+        let cyr = 4.470000;
+        let i = ray_vs_cylinder(r0, rv, cy0, cy1, cyr);
+        assert_eq!(i.is_some(), true);
+        assert_eq!(approx(i.unwrap(), vec3f(-2.605165, -7.100000, 6.249780), 0.001), true);
+    }
+}
+
+#[test]
+fn point_sphere_distance_test() {
+    {
+        let sp = vec3f(-1.600000, -3.880000, -6.970000);
+        let sr = 4.970000;
+        let p = vec3f(-5.080000, 0.420000, 9.870001);
+        let dd = point_sphere_distance(p, sp, sr);
+        assert_eq!(approx(dd, 12.755294, 0.001), true);
+    }
+    {
+        let sp = vec3f(-7.220000, 8.160000, 3.350000);
+        let sr = 5.600000;
+        let p = vec3f(1.690000, 7.090000, 1.570000);
+        let dd = point_sphere_distance(p, sp, sr);
+        assert_eq!(approx(dd, 3.548846, 0.001), true);
+    }
+    {
+        let sp = vec3f(-0.210000, 1.490000, -4.210000);
+        let sr = 2.670000;
+        let p = vec3f(0.970000, 8.260000, 5.120000);
+        let dd = point_sphere_distance(p, sp, sr);
+        assert_eq!(approx(dd, 8.917675, 0.001), true);
+    }
+    {
+        let sp = vec3f(7.450001, 2.280000, -9.090000);
+        let sr = 3.930000;
+        let p = vec3f(-1.790000, 9.670000, -3.280000);
+        let dd = point_sphere_distance(p, sp, sr);
+        assert_eq!(approx(dd, 9.251267, 0.001), true);
+    }
+    {
+        let sp = vec3f(6.680000, 4.900000, -8.760000);
+        let sr = 1.530000;
+        let p = vec3f(-8.059999, -6.430000, 0.010000);
+        let dd = point_sphere_distance(p, sp, sr);
+        assert_eq!(approx(dd, 19.026007, 0.001), true);
+    }
+    {
+        let sp = vec3f(-9.760000, 8.010000, -1.470000);
+        let sr = 7.219999;
+        let p = vec3f(-8.040000, 5.300000, -0.970000);
+        let dd = point_sphere_distance(p, sp, sr);
+        assert_eq!(approx(dd, 3.971538, 0.001), true);
+    }
+    {
+        let sp = vec3f(-6.010000, 9.680000, -5.880000);
+        let sr = 6.350000;
+        let p = vec3f(-7.690000, 7.450001, -8.250000);
+        let dd = point_sphere_distance(p, sp, sr);
+        assert_eq!(approx(dd, 2.687733, 0.001), true);
+    }
+    {
+        let sp = vec3f(3.190000, 4.540000, 2.230000);
+        let sr = 9.719999;
+        let p = vec3f(-3.210000, 3.350000, 0.060000);
+        let dd = point_sphere_distance(p, sp, sr);
+        assert_eq!(approx(dd, 2.858149, 0.001), true);
+    }
+    {
+        let sp = vec3f(3.170000, 5.250000, -8.000000);
+        let sr = 7.400000;
+        let p = vec3f(9.290001, 2.230000, -9.460000);
+        let dd = point_sphere_distance(p, sp, sr);
+        assert_eq!(approx(dd, 0.421002, 0.001), true);
+    }
+    {
+        let sp = vec3f(3.220000, -6.950000, 1.760000);
+        let sr = 5.530000;
+        let p = vec3f(1.290000, -4.470000, 4.830000);
+        let dd = point_sphere_distance(p, sp, sr);
+        assert_eq!(approx(dd, 1.136801, 0.001), true);
+    }
+}

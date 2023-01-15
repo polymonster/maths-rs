@@ -433,6 +433,11 @@ pub fn point_aabb_distance<T: Float, V: VecN<T> + NumberOps<T> + VecFloatOps<T>>
     dist(closest_point_on_aabb(p, aabb_min, aabb_max), p)
 }
 
+// returns the unsigned distance from point p0 to the sphere (or 2d circle) centred at s0 with radius r
+pub fn point_sphere_distance<T: Float, V: VecN<T> + NumberOps<T> + VecFloatOps<T>>(p0: V, s0: V, r: T) -> T {
+    dist(p0, closest_point_on_sphere(p0, s0, r))
+}
+
 /// returns the distance point p is from a triangle defined by t1-t2-t3
 pub fn point_triangle_distance<T: Float + FloatOps<T> + NumberOps<T>, V: VecN<T> + NumberOps<T> + VecFloatOps<T>>(p: V, t1: V, t2: V, t3: V) -> T {
     let (w23, w31, w12) = barycentric(p, t1, t2, t3);
@@ -1061,6 +1066,79 @@ pub fn ray_vs_capsule<T: Float + FloatOps<T> + NumberOps<T> + SignedNumberOps<T>
     }
 }
 
+// returns true if there is an intersection between ray wih origin r0 and direction rv against the cylinder with line c0 - c1 and radius cr
+// the intersection point is stored in ip if one exists
+pub fn ray_vs_cylinder<T: Float + FloatOps<T> + NumberOps<T> + SignedNumberOps<T>>(r0: Vec3<T>, rv: Vec3<T>, c0: Vec3<T>, c1: Vec3<T>, cr: T) -> Option<Vec3<T>> {
+    // intesection of ray and infinite cylinder about axis
+    // https://stackoverflow.com/questions/4078401/trying-to-optimize-line-vs-cylinder-intersection
+    let a = c0;
+    let b = c1;
+    let v = rv;
+    let r = cr;
+    
+    let ab = b - a;
+    let ao = r0 - a;
+    let aoxab = cross(ao, ab);
+    let vxab = cross(v, ab);
+    let ab2 = dot(ab, ab);
+    
+    let aa = dot(vxab, vxab);
+    let bb = T::two() * dot(vxab, aoxab);
+    let cc = dot(aoxab, aoxab) - (r*r * ab2);
+    let dd = bb * bb - T::four() * aa * cc;
+    
+    if dd >= T::zero() {
+        let t = (-bb - sqrt(dd)) / (T::two() * aa);
+        if t >= T::zero() {
+            // intersection point
+            let ipc = r0 + rv * t;
+            // clamps to finite cylinder extents
+            let ipd = distance_on_line(ipc, a, b);
+            if ipd >= T::zero() && ipd <= dist(a, b) {
+                return Some(ipc);
+            }
+        }
+    }
+    
+    // intersect with the top and bottom circles
+    let ip_top = ray_vs_plane(r0, rv, c0, normalize(c0 - c1));
+    let ip_bottom = ray_vs_plane(r0, rv, c1, normalize(c1 - c0));
+    let r2 = r*r;
+
+    let mut btop = false;
+    if let Some(ip_top) = ip_top {
+        if dist2(ip_top, c0) < r2 {
+            btop = true;
+        }
+    }
+
+    if let Some(ip_bottom) = ip_bottom {
+        if dist2(ip_bottom, c1) < r2 {
+            if btop {
+                if let Some(ip_top) = ip_top {
+                    let d1 = distance_on_line(ip_top, r0, r0 + rv);
+                    let d2 = distance_on_line(ip_bottom, r0, r0 + rv);
+                    if d2 < d1 {
+                        return Some(ip_bottom);
+                    }
+                }
+            }
+            else {
+                return Some(ip_bottom);
+            }
+        }
+    }
+    
+    if btop {
+        if let Some(ip_top) = ip_top {
+            return Some(ip_top);
+        }
+    }
+
+
+    None
+}
+
 /// returns true if the sphere with centre s and radius r is inside the frustum defined by 6 planes packed as vec4's .xyz = normal, .w = plane distance
 pub fn sphere_vs_frustum<T: Number>(s: Vec3<T>, r: T, planes: &[Vec4<T>; 6]) -> bool {
     for p in planes.iter().take(6) {
@@ -1562,17 +1640,18 @@ pub fn map_to_range<T: Float, X: Base<T>>(v: X, in_start: X, in_end: X, out_star
     out_start + slope * (v - in_start)
 }
 
-// TODO:
-// fix ray vs capsule intersection based the c++ lib
+// TODO: tests
 // line_segment_between_line_segment (test)
 // sphere_vs_capsule (test)
-// ray_vs_capsule (test)
-// missing fail cases
+// ray_vs_line_segment (test)
+// shortest_line_segment_between_line_segments (test)
+// shortest_line_segment_between_lines (test)
+
 // projection, ndc
 // projection, sc
 // unprojection, ndc,
 // unprojection sc
-// projection matrices
+// projection matrices ;D
 // quilez functions
 // quat tests
 // mat from quat
