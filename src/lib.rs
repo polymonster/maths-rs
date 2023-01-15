@@ -978,10 +978,10 @@ pub fn ray_vs_triangle<T: Float>(r0: Vec3<T>, rv: Vec3<T>, t0: Vec3<T>, t1: Vec3
 pub fn ray_vs_capsule<T: Float + FloatOps<T> + NumberOps<T> + SignedNumberOps<T>, V: VecN<T> + Cross<T> + VecFloatOps<T> + SignedNumberOps<T> + FloatOps<T>>(r0: V, rv: V, c0: V, c1: V, cr: T) -> Option<V> {
     // shortest line seg within radius will indicate we intersect an infinite cylinder about an axis
     let seg = shortest_line_segment_between_line_and_line_segment(r0, r0 + rv, c0, c1);
+    let mut ipc = V::max_value();
+    let mut bc = false;
     if let Some((l0, l1)) = seg {
         // check we intesect the cylinder
-        let mut ipc = V::max_value();
-        let mut bc = false;
         if dist2(l0, l1) < sqr(cr) {
             // intesection of ray and infinite cylinder about axis
             // https://stackoverflow.com/questions/4078401/trying-to-optimize-line-vs-cylinder-intersection
@@ -1014,50 +1014,47 @@ pub fn ray_vs_capsule<T: Float + FloatOps<T> + NumberOps<T> + SignedNumberOps<T>
                 }
             }
         }
+    }
 
-        // if our line doesnt intersect the cylinder, we might still intersect the top / bottom sphere
-        // test intersections with the end spheres
-        let bs1 = ray_vs_sphere(r0, rv, c0, cr);
-        let bs2 = ray_vs_sphere(r0, rv, c1, cr);
+    // if our line doesnt intersect the cylinder, we might still intersect the top / bottom sphere
+    // test intersections with the end spheres
+    let bs1 = ray_vs_sphere(r0, rv, c0, cr);
+    let bs2 = ray_vs_sphere(r0, rv, c1, cr);
 
-        // get optional intersection points
-        let ips1 = if let Some(ip) = bs1 {
-            ip
-        }
-        else {
-            V::max_value()
-        };
+    // get optional intersection points
+    let ips1 = if let Some(ip) = bs1 {
+        ip
+    }
+    else {
+        V::max_value()
+    };
 
-        let ips2 = if let Some(ip) = bs2 {
-            ip
-        }
-        else {
-            V::max_value()
-        };
+    let ips2 = if let Some(ip) = bs2 {
+        ip
+    }
+    else {
+        V::max_value()
+    };
 
-        // we need to choose the closes intersection if we have multiple
-        let ips : [V; 3] = [ips1, ips2, ipc];
-        let bips : [bool; 3] = [bs1.is_some(), bs2.is_some(), bc];
+    // we need to choose the closes intersection if we have multiple
+    let ips : [V; 3] = [ips1, ips2, ipc];
+    let bips : [bool; 3] = [bs1.is_some(), bs2.is_some(), bc];
 
-        let mut iclosest = -1;
-        let mut dclosest = T::max_value();
-        for i in 0..3 {
-            if bips[i] {
-                let dd = distance_on_line(ips[i], r0, r0 + rv);
-                if dd < dclosest {
-                    iclosest = i as i32;
-                    dclosest = dd;
-                }
+    let mut iclosest = -1;
+    let mut dclosest = T::max_value();
+    for i in 0..3 {
+        if bips[i] {
+            let dd = distance_on_line(ips[i], r0, r0 + rv);
+            if dd < dclosest {
+                iclosest = i as i32;
+                dclosest = dd;
             }
         }
+    }
 
-        // if we have a valid closest point
-        if iclosest != -1 {
-            Some(ips[iclosest as usize])
-        }
-        else {
-            None
-        }
+    // if we have a valid closest point
+    if iclosest != -1 {
+        Some(ips[iclosest as usize])
     }
     else {
         None
