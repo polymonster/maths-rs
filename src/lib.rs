@@ -1637,7 +1637,6 @@ pub fn map_to_range<T: Float, X: Base<T>>(v: X, in_start: X, in_end: X, out_star
 
 // TODO: tests
 // line_segment_between_line_segment (test)
-// sphere_vs_capsule (test)
 // ray_vs_line_segment (test)
 // shortest_line_segment_between_line_segments (test)
 // shortest_line_segment_between_lines (test)

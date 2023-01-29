@@ -3580,3 +3580,115 @@ fn point_sphere_distance_test() {
         assert_eq!(approx(dd, 1.136801, 0.001), true);
     }
 }
+
+#[test]
+fn sphere_vs_capsule_test() {
+    {
+        let sp = vec3f(-5.080000, 0.420000, 9.870001);
+        let sr = 7.090000;
+        let cp0 = vec3f(-1.600000, -10.610001, -6.970000);
+        let cp1 = vec3f(-1.600000, 2.850000, -6.970000);
+        let cr = 4.970000;
+        let overlap = sphere_vs_capsule(sp, sr, cp0, cp1, cr);
+        assert_eq!(overlap, false);
+    }
+    {
+        let sp = vec3f(5.600000, -0.670000, 0.990000);
+        let sr = 1.690000;
+        let cp0 = vec3f(0.970000, 0.100000, 5.120000);
+        let cp1 = vec3f(0.970000, 16.420000, 5.120000);
+        let cr = 7.220000;
+        let overlap = sphere_vs_capsule(sp, sr, cp0, cp1, cr);
+        assert_eq!(overlap, true);
+    }
+    {
+        let sp = vec3f(-0.210000, 1.490000, -4.210000);
+        let sr = 2.670000;
+        let cp0 = vec3f(3.930000, -6.310000, 4.850000);
+        let cp1 = vec3f(3.930000, 13.030000, 4.850000);
+        let cr = 1.790000;
+        let overlap = sphere_vs_capsule(sp, sr, cp0, cp1, cr);
+        assert_eq!(overlap, false);
+    }
+    {
+        let sp = vec3f(7.219999, -3.340000, -4.510000);
+        let sr = 8.040000;
+        let cp0 = vec3f(-0.230000, -5.680000, -7.720000);
+        let cp1 = vec3f(-0.230000, 13.840000, -7.720000);
+        let cr = 9.760000;
+        let overlap = sphere_vs_capsule(sp, sr, cp0, cp1, cr);
+        assert_eq!(overlap, true);
+    }
+    {
+        let sp = vec3f(-3.650000, -9.870000, 8.650000);
+        let sr = 0.670000;
+        let cp0 = vec3f(4.250000, -1.449999, -8.850000);
+        let cp1 = vec3f(4.250000, 14.830000, -8.850000);
+        let cr = 8.139999;
+        let overlap = sphere_vs_capsule(sp, sr, cp0, cp1, cr);
+        assert_eq!(overlap, false);
+    }
+    {
+        let sp = vec3f(-4.830000, -8.050000, -8.950000);
+        let sr = 9.060000;
+        let cp0 = vec3f(-8.120000, -4.730000, 5.050000);
+        let cp1 = vec3f(-8.120000, 7.190000, 5.050000);
+        let cr = 5.960000;
+        let overlap = sphere_vs_capsule(sp, sr, cp0, cp1, cr);
+        assert_eq!(overlap, true);
+    }
+    {
+        let sp = vec3f(-7.400000, 5.570000, 5.940000);
+        let sr = 6.010000;
+        let cp0 = vec3f(1.130000, -14.620000, 0.060000);
+        let cp1 = vec3f(1.130000, 5.220000, 0.060000);
+        let cr = 9.920000;
+        let overlap = sphere_vs_capsule(sp, sr, cp0, cp1, cr);
+        assert_eq!(overlap, true);
+    }
+    {
+        let sp = vec3f(-6.340000, -4.660000, 2.260000);
+        let sr = 0.940000;
+        let cp0 = vec3f(8.440001, 1.960000, -4.500000);
+        let cp1 = vec3f(8.440001, 9.839999, -4.500000);
+        let cr = 3.940000;
+        let overlap = sphere_vs_capsule(sp, sr, cp0, cp1, cr);
+        assert_eq!(overlap, false);
+    }
+    {
+        let sp = vec3f(3.850000, 2.170000, 2.720000);
+        let sr = 1.590000;
+        let cp0 = vec3f(4.960000, -6.540000, -3.770000);
+        let cp1 = vec3f(4.960000, 4.240001, -3.770000);
+        let cr = 5.390000;
+        let overlap = sphere_vs_capsule(sp, sr, cp0, cp1, cr);
+        assert_eq!(overlap, true);
+    }
+    {
+        let sp = vec3f(7.350000, 9.150000, 6.250000);
+        let sr = 5.800000;
+        let cp0 = vec3f(-3.210000, -18.059999, 2.440000);
+        let cp1 = vec3f(-3.210000, 1.100000, 2.440000);
+        let cr = 5.340000;
+        let overlap = sphere_vs_capsule(sp, sr, cp0, cp1, cr);
+        assert_eq!(overlap, false);
+    }
+    {
+        let sp = vec3f(6.920000, 8.150000, -0.090000);
+        let sr = 2.950000;
+        let cp0 = vec3f(5.530000, -14.200001, 8.250000);
+        let cp1 = vec3f(5.530000, 5.140000, 8.250000);
+        let cr = 9.670000;
+        let overlap = sphere_vs_capsule(sp, sr, cp0, cp1, cr);
+        assert_eq!(overlap, true);
+    }
+    {
+        let sp = vec3f(2.390000, 0.540000, 3.050000);
+        let sr = 3.730000;
+        let cp0 = vec3f(1.660000, -13.910000, 3.040000);
+        let cp1 = vec3f(1.660000, 1.030000, 3.040000);
+        let cr = 0.710000;
+        let overlap = sphere_vs_capsule(sp, sr, cp0, cp1, cr);
+        assert_eq!(overlap, true);
+    }
+}
