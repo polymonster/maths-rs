@@ -2853,6 +2853,113 @@ fn ray_vs_line_segment_test() {
     let ip = vec3f(5.0, 0.0, 0.0);
     let t = distance_on_ray(ip, r0, rv);
     assert_eq!(t, -10.0);
+
+    {
+        let r0 = vec3f(0.000000, 0.000000, 0.000000);
+        let rv = vec3f(-0.316227, 0.000000, -0.948683);
+        let l00 = vec3f(9.870001, 0.000000, -4.970000);
+        let l01 = vec3f(-6.730000, 0.000000, 7.290001);
+        let i = ray_vs_line_segment(r0, rv, l00, l01);
+        assert_eq!(i.is_none(), true);
+    }
+    {
+        let r0 = vec3f(0.000000, 0.000000, 0.000000);
+        let rv = vec3f(0.913302, 0.000000, 0.407283);
+        let l00 = vec3f(-0.670000, 0.000000, 0.990000);
+        let l01 = vec3f(-7.220000, 0.000000, 8.160000);
+        let i = ray_vs_line_segment(r0, rv, l00, l01);
+        assert_eq!(i.is_none(), true);
+    }
+    {
+        let r0 = vec3f(0.000000, 0.000000, 0.000000);
+        let rv = vec3f(-0.987241, 0.000000, 0.159232);
+        let l00 = vec3f(-0.210000, 0.000000, 1.490000);
+        let l01 = vec3f(-4.210000, 0.000000, -1.790000);
+        let i = ray_vs_line_segment(r0, rv, l00, l01);
+        assert_eq!(i.is_some(), true);
+        if let Some(ip) = i {
+            assert_eq!(approx(ip, vec3f(-1.693892, 0.000000, 0.273208), 0.001), true);
+        }
+    }
+    {
+        let r0 = vec3f(0.000000, 0.000000, 0.000000);
+        let rv = vec3f(-0.975133, 0.000000, 0.221621);
+        let l00 = vec3f(-9.090000, 0.000000, -8.059999);
+        let l01 = vec3f(-6.430000, 0.000000, 0.010000);
+        let i = ray_vs_line_segment(r0, rv, l00, l01);
+        assert_eq!(i.is_none(), true);
+    }
+    {
+        let r0 = vec3f(0.000000, 0.000000, 0.000000);
+        let rv = vec3f(-0.643600, 0.000000, -0.765362);
+        let l00 = vec3f(1.230000, 0.000000, 5.050000);
+        let l01 = vec3f(-1.180000, 0.000000, -2.480000);
+        let i = ray_vs_line_segment(r0, rv, l00, l01);
+        assert_eq!(i.is_some(), true);
+        if let Some(ip) = i {
+            assert_eq!(approx(ip, vec3f(-0.623621, 0.000000, -0.741603), 0.001), true);
+        }
+    }
+    {
+        let r0 = vec3f(0.000000, 0.000000, 0.000000);
+        let rv = vec3f(-0.919145, 0.000000, 0.393919);
+        let l00 = vec3f(-6.050000, 0.000000, 9.680000);
+        let l01 = vec3f(1.130000, 0.000000, -4.700000);
+        let i = ray_vs_line_segment(r0, rv, l00, l01);
+        assert_eq!(i.is_some(), true);
+        if let Some(ip) = i {
+            assert_eq!(approx(ip, vec3f(-1.547980, 0.000000, 0.663420), 0.001), true);
+        }
+    }
+    {
+        let r0 = vec3f(0.000000, 0.000000, 0.000000);
+        let rv = vec3f(0.848689, 0.000000, 0.528893);
+        let l00 = vec3f(8.209999, 0.000000, 6.950001);
+        let l01 = vec3f(-2.880000, 0.000000, 6.709999);
+        let i = ray_vs_line_segment(r0, rv, l00, l01);
+        assert_eq!(i.is_none(), true);
+    }
+    {
+        let r0 = vec3f(0.000000, 0.000000, 0.000000);
+        let rv = vec3f(-0.126873, 0.000000, 0.991919);
+        let l00 = vec3f(1.330000, 0.000000, 5.570000);
+        let l01 = vec3f(-4.240000, 0.000000, 1.780000);
+        let i = ray_vs_line_segment(r0, rv, l00, l01);
+        assert_eq!(i.is_some(), true);
+        if let Some(ip) = i {
+            assert_eq!(approx(ip, vec3f(-0.548916, 0.000000, 4.291527), 0.001), true);
+        }
+    }
+    {
+        let r0 = vec3f(0.000000, 0.000000, 0.000000);
+        let rv = vec3f(-0.842922, 0.000000, -0.538035);
+        let l00 = vec3f(3.040000, 0.000000, 3.580000);
+        let l01 = vec3f(2.000000, 0.000000, 2.540000);
+        let i = ray_vs_line_segment(r0, rv, l00, l01);
+        assert_eq!(i.is_none(), true);
+    }
+    {
+        let r0 = vec3f(0.000000, 0.000000, 0.000000);
+        let rv = vec3f(0.677476, 0.000000, -0.735545);
+        let l00 = vec3f(6.500000, 0.000000, -0.290000);
+        let l01 = vec3f(2.290000, 0.000000, -6.820000);
+        let i = ray_vs_line_segment(r0, rv, l00, l01);
+        assert_eq!(i.is_some(), true);
+        if let Some(ip) = i {
+            assert_eq!(approx(ip, vec3f(3.933561, 0.000000, -4.270723), 0.001), true);
+        }
+    }
+    {
+        let r0 = vec3f(0.000000, 0.000000, 0.000000);
+        let rv = vec3f(-0.221621, 0.000000, 0.975133);
+        let l00 = vec3f(2.050000, 0.000000, 0.800000);
+        let l01 = vec3f(-5.820000, 0.000000, 2.740000);
+        let i = ray_vs_line_segment(r0, rv, l00, l01);
+        assert_eq!(i.is_some(), true);
+        if let Some(ip) = i {
+            assert_eq!(approx(ip, vec3f(-0.314275, 0.000000, 1.382807), 0.001), true);
+        }
+    }
 }
 
 #[test]
