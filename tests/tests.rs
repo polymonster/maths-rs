@@ -3799,3 +3799,107 @@ fn sphere_vs_capsule_test() {
         assert_eq!(overlap, true);
     }
 }
+
+#[test]
+fn caspule_vs_capsule_test() {
+    {
+        let cp0 = vec3f(-8.959845, -8.782539, 4.907854);
+        let cp1 = vec3f(-0.980155, -4.677461, 9.672148);
+        let cr = 5.080000;
+        let cp2 = vec3f(12.017217, 2.311968, 0.548064);
+        let cp3 = vec3f(-0.817216, -3.651968, 1.431936);
+        let cr1 = 1.690000;
+        let overlap = capsule_vs_capsule(cp0, cp1, cr, cp2, cp3, cr1);
+        assert_eq!(overlap, false);
+    }
+    {
+        let cp0 = vec3f(-5.426985, 1.042825, 10.367354);
+        let cp1 = vec3f(8.486984, -6.882825, 8.512647);
+        let cr = 8.059999;
+        let cp2 = vec3f(0.023970, 0.023601, -5.752966);
+        let cp3 = vec3f(14.416029, -6.703602, -3.267035);
+        let cr1 = 8.040000;
+        let overlap = capsule_vs_capsule(cp0, cp1, cr, cp2, cp3, cr1);
+        assert_eq!(overlap, true);
+    }
+    {
+        let cp0 = vec3f(-1.964608, -4.765986, -7.579928);
+        let cp1 = vec3f(9.124608, 8.305986, -4.480071);
+        let cr = 8.709999;
+        let cp2 = vec3f(8.991868, -13.625567, -5.660562);
+        let cp3 = vec3f(3.708133, -0.414433, -11.499437);
+        let cr1 = 7.690000;
+        let overlap = capsule_vs_capsule(cp0, cp1, cr, cp2, cp3, cr1);
+        assert_eq!(overlap, true);
+    }
+    {
+        let cp0 = vec3f(-3.830595, -11.371892, 0.618306);
+        let cp1 = vec3f(0.450596, 6.131892, 0.521693);
+        let cr = 6.709999;
+        let cp2 = vec3f(7.213480, -11.195667, 1.404247);
+        let cp3 = vec3f(12.226519, -6.844334, 0.495753);
+        let cr1 = 3.210000;
+        let overlap = capsule_vs_capsule(cp0, cp1, cr, cp2, cp3, cr1);
+        assert_eq!(overlap, false);
+    }
+    {
+        let cp0 = vec3f(-14.688107, -6.652096, 8.329040);
+        let cp1 = vec3f(-2.791893, -10.887905, 1.790961);
+        let cr = 7.110000;
+        let cp2 = vec3f(-0.223576, -8.073273, -1.172043);
+        let cp3 = vec3f(-12.456425, -1.246727, 5.692044);
+        let cr1 = 0.940000;
+        let overlap = capsule_vs_capsule(cp0, cp1, cr, cp2, cp3, cr1);
+        assert_eq!(overlap, true);
+    }
+    {
+        let cp0 = vec3f(8.766312, -7.762488, 1.417873);
+        let cp1 = vec3f(-5.586311, 0.222488, -2.477873);
+        let cr = 8.440001;
+        let cp2 = vec3f(1.619980, 2.987260, -4.652875);
+        let cp3 = vec3f(8.300020, -5.287259, -2.887125);
+        let cr1 = 5.390000;
+        let overlap = capsule_vs_capsule(cp0, cp1, cr, cp2, cp3, cr1);
+        assert_eq!(overlap, true);
+    }
+    {
+        let cp0 = vec3f(5.340000, -18.730000, -9.890000);
+        let cp1 = vec3f(5.340000, -0.430000, -9.890000);
+        let cr = 7.350000;
+        let cp2 = vec3f(6.920000, 5.200000, -0.090000);
+        let cp3 = vec3f(6.920000, 11.099999, -0.090000);
+        let cr1 = 2.950000;
+        let overlap = capsule_vs_capsule(cp0, cp1, cr, cp2, cp3, cr1);
+        assert_eq!(overlap, false);
+    }
+    {
+        let cp0 = vec3f(-4.400000, -16.049999, -0.160000);
+        let cp1 = vec3f(-4.400000, -2.070001, -0.160000);
+        let cr = 4.440000;
+        let cp2 = vec3f(6.799999, -5.300000, -1.450000);
+        let cp3 = vec3f(6.799999, 14.400001, -1.450000);
+        let cr1 = 9.850000;
+        let overlap = capsule_vs_capsule(cp0, cp1, cr, cp2, cp3, cr1);
+        assert_eq!(overlap, true);
+    }
+    {
+        let cp0 = vec3f(-6.690000, 5.200001, 6.379999);
+        let cp1 = vec3f(-6.690000, 11.680000, 6.379999);
+        let cr = 3.240000;
+        let cp2 = vec3f(-4.690000, -11.889999, 4.190000);
+        let cp3 = vec3f(-4.690000, -7.830000, 4.190000);
+        let cr1 = 1.510000;
+        let overlap = capsule_vs_capsule(cp0, cp1, cr, cp2, cp3, cr1);
+        assert_eq!(overlap, false);
+    }
+    {
+        let cp0 = vec3f(-7.400000, -11.920001, 5.450000);
+        let cp1 = vec3f(-7.400000, 6.660001, 5.450000);
+        let cr = 9.290001;
+        let cp2 = vec3f(-3.520000, -0.399999, 5.500000);
+        let cp3 = vec3f(-3.520000, 14.480001, 5.500000);
+        let cr1 = 7.440000;
+        let overlap = capsule_vs_capsule(cp0, cp1, cr, cp2, cp3, cr1);
+        assert_eq!(overlap, true);
+    }
+}

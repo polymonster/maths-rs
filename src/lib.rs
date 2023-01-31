@@ -866,6 +866,51 @@ pub fn aabb_vs_aabb<T: Number, V: VecN<T> + NumberOps<T>>(aabb_min1: V, aabb_max
     true
 }
 
+/// returns true if the capsule cp0-cp1 with radius cr0 overlaps the capsule cp2-cp3 with radius cr1
+pub fn capsule_vs_capsule<T: Float + FloatOps<T> + SignedNumberOps<T>, V: VecN<T> + VecFloatOps<T> + FloatOps<T> + SignedNumberOps<T>>(cp0: V, cp1: V, cr0: T, cp2: V, cp3: V, cr1: T) -> bool {
+    // min sqr distance between capsule to save on sqrts
+    let r2 = (cr0 + cr1) * (cr0 + cr1);
+
+    // check shortest distance between the 2 capsule line segments, if less than the sq radius we overlap
+    if let Some((start, end)) = shortest_line_segment_between_line_segments(cp0, cp1, cp2, cp3) {
+        let d = dist2(start, end);
+        if d < r2 {
+            true
+        }
+        else {
+            false
+        }
+    }
+    else {
+        // we must be orthogonal, which means there is no one single closest point between the 2 lines
+        // find the distance between the 2 axes
+        let l0 = normalize(cp1 - cp0);
+        let t0 = dot(cp2 - cp0, l0);
+        let ip0 = cp0 + l0 * t0;
+        let d = dist2(cp2, ip0);
+
+        // check axes are within distance
+        if d < r2 {
+            let l1 = normalize(cp3 - cp2);
+            let t1 = dot(cp0 - cp2, l1);
+            
+            // now check if the capsule axes overlap
+            if t0 >= T::zero() && t0*t0 < dist2(cp1, cp0) {
+                true
+            }
+            else if t1 > T::zero() && t1*t1 < dist2(cp2, cp3) {
+                true
+            }
+            else {
+                false
+            }
+        }
+        else {
+            false
+        }
+    }
+}
+
 /// returns the intersection point of ray wih origin r0 and direction rv against the sphere (or circle) centred at s0 with radius r
 pub fn ray_vs_sphere<T: Float + FloatOps<T> + NumberOps<T>, V: VecN<T> + VecFloatOps<T>>(r0: V, rv: V, s0: V, r: T) -> Option<V> {
     let oc = r0 - s0;

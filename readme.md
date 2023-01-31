@@ -2,13 +2,13 @@
 
 ![build](https://github.com/polymonster/maths-rs/actions/workflows/build.yml/badge.svg) [![docs](https://img.shields.io/docsrs/maths-rs/latest)](https://docs.rs/maths-rs/latest/maths_rs/index.html) [![crates](https://img.shields.io/crates/v/maths-rs)](https://crates.io/crates/maths-rs)
 
-Maths is a linear algebra crate which aims to be ergonmic and fun to use for gamedev and graphics. If you like writing shaders you should feel right at home. In addition to the usual implementation of vectors, matrices and quaternions it includes a comprehensive collection of utility functions, vector swizzling, intersection tests, point tests, distance functions, trig functions, graphs and signal processing functions.
+Maths is a linear algebra library which aims to be ergonmic and fun to use for gamedev and graphics. If you like writing shaders you should feel right at home. In addition to the usual implementation of vectors, matrices and quaternions it includes a comprehensive collection of utility functions, vector swizzling, intersection tests, point tests, distance functions, trig functions, graphs and signal processing functions.
 
 All features of the crate are enabled by default, you can choose to opt out if you wish.
 
 ## Vector
 
-This is a narrow vector library with `Vec2`, `Vec3` and `Vec4` column-vector implementations. There are macros to create vectors of larger dimensions but the library is focused on games and graphics where 4-Dimensions are sufficient.
+This is a narrow vector library with `Vec2`, `Vec3` and `Vec4` column-vector implementations.  
 
 ```rust
 /// abbrivated types #[cfg(feature = "short_types")]
@@ -69,7 +69,7 @@ let veci = Vec3i::from(vec3f(1.0, 2.0, 3.0));
 
 ## Matrix
 
-Row-major matrices with `Mat2`, `Mat3`, `Mat34` and `Mat4` implementations. Again wider matrices can be created using a macros which will do most of the work.
+Row-major matrices with `Mat2`, `Mat3`, `Mat34` and `Mat4` implementations.  
 
 ```rust
 /// abbrivated types #[cfg(feature = "short_types")]
