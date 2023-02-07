@@ -355,10 +355,10 @@ pub fn project_to_ndc<T: Float>(p: Vec3<T>, view_projection: Mat4<T>) -> Vec3<T>
 
 /// returns the 2D screen coordinate of 3D point p projected with view_projection, performing homogenous divide and viewport correction
 /// assumes screen coordinates are vup in the y-axis y.0 = bottom y.height = top
-pub fn project_to_sc<T: Float + FloatOps<T>>(p: Vec3<T>, view_projection: Mat4<T>, viewport: Vec2<T>) -> Vec2<T> {
+pub fn project_to_sc<T: Float + FloatOps<T>>(p: Vec3<T>, view_projection: Mat4<T>, viewport: Vec2<T>) -> Vec3<T> {
     let ndc = project_to_ndc(p, view_projection);
     let sc  = ndc * T::point_five() + T::point_five();
-    Vec2::<T>::from(sc) * viewport
+    Vec3::from((Vec2::<T>::from(sc) * viewport, sc.z))
 }
 
 /// returns the 2D screen coordinate of 3D point p projected with view_projection, performing homogenous divide and viewport correction
@@ -1682,8 +1682,6 @@ pub fn map_to_range<T: Float, X: Base<T>>(v: X, in_start: X, in_end: X, out_star
 
 // quilez functions
 // quat tests
-// mat from quat
-// quat from mat
 
 // TODO: from maths::
 // obb_vs_sphere
@@ -1694,9 +1692,3 @@ pub fn map_to_range<T: Float, X: Base<T>>(v: X, in_start: X, in_end: X, out_star
 // obb_vs_aabb
 // obb_vs_obb
 // hull vs hull
-// tests::
-// projection, ndc
-// projection, sc
-// unprojection, ndc,
-// unprojection sc
-// projection matrices

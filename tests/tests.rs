@@ -4181,3 +4181,199 @@ fn shortest_line_segment_between_lines_test() {
         assert_eq!(has.is_some(), false);
     }
 }
+
+#[test]
+fn projection_tests() {
+    {
+        let view_proj = Mat4f::new(0.855010, 0.000000, 0.467094, 0.000000,
+        0.398110, 1.520018, -0.728735, 0.000000,
+        0.420820, -0.479521, -0.770305, 59.811974,
+        0.420736, -0.479426, -0.770151, 60.000000);
+        let p = vec3f(-5.080000, 0.420000, 9.870001);
+        let vp = vec2f(1280.0, 720.0);
+        let screen_point = project_to_sc(p, view_proj, vp);
+        let unproj_point = unproject_sc(screen_point * vec3f(1.0, 1.0, 2.0) - vec3f(0.0, 0.0, 1.0), view_proj, vp);
+        assert_eq!(approx(screen_point, vec3f(643.410583, 298.322327, 0.998102), 0.01), true);
+        assert_eq!(approx(unproj_point, vec3f(-5.080000, 0.420000, 9.870001), 0.01), true);
+    }
+    {
+        let view_proj = Mat4f::new(0.867752, 0.000000, -0.442972, 0.000000,
+        -0.170388, 1.691024, -0.333778, 0.000000,
+        -0.443986, -0.216407, -0.869738, 59.811977,
+        -0.443897, -0.216364, -0.869564, 60.000004);
+        let p = vec3f(-4.970000, -6.730000, 7.290001);
+        let vp = vec2f(1280.0, 720.0);
+        let screen_point = project_to_sc(p, view_proj, vp);
+        let unproj_point = unproject_sc(screen_point * vec3f(1.0, 1.0, 2.0) - vec3f(0.0, 0.0, 1.0), view_proj, vp);
+        assert_eq!(approx(screen_point, vec3f(555.795349, 278.564850, 0.998355), 0.01), true);
+        assert_eq!(approx(unproj_point, vec3f(-4.970000, -6.730000, 7.290001), 0.01), true);
+    }
+    {
+        let view_proj = Mat4f::new(-0.289494, 0.000000, -0.930275, -0.000002,
+        -0.540549, 1.636921, 0.168214, 0.000000,
+        -0.902573, -0.326913, 0.280873, 59.811981,
+        -0.902393, -0.326848, 0.280817, 60.000008);
+        let p = vec3f(-1.600000, -3.880000, -6.970000);
+        let vp = vec2f(1280.0, 720.0);
+        let screen_point = project_to_sc(p, view_proj, vp);
+        let unproj_point = unproject_sc(screen_point * vec3f(1.0, 1.0, 2.0) - vec3f(0.0, 0.0, 1.0), view_proj, vp);
+        assert_eq!(approx(screen_point, vec3f(713.182983, 320.543335, 0.998454), 0.01), true);
+        assert_eq!(approx(unproj_point, vec3f(-1.600000, -3.880000, -6.970000), 0.01), true);
+    }
+    {
+        let view_proj = Mat4f::new(-0.717769, -0.000000, 0.658807, -0.000004,
+        0.365405, 1.645597, 0.398108, 0.000002,
+        0.642576, -0.312051, 0.700085, 59.811974,
+        0.642448, -0.311989, 0.699945, 60.000000);
+        let p = vec3f(1.690000, 7.090000, 1.570000);
+        let vp = vec2f(1280.0, 720.0);
+        let screen_point = project_to_sc(p, view_proj, vp);
+        let unproj_point = unproject_sc(screen_point * vec3f(1.0, 1.0, 2.0) - vec3f(0.0, 0.0, 1.0), view_proj, vp);
+        assert_eq!(approx(screen_point, vec3f(638.092896, 437.494415, 0.998432), 0.01), true);
+        assert_eq!(approx(unproj_point, vec3f(1.690000, 7.090000, 1.570000), 0.01), true);
+    }
+    {
+        let view_proj = Mat4f::new(0.783699, 0.000000, 0.578822, 0.000002,
+        0.329029, 1.641121, -0.445491, -0.000002,
+        0.563026, -0.319815, -0.762312, 59.811974,
+        0.562913, -0.319751, -0.762160, 60.000000);
+        let p = vec3f(5.600000, -0.670000, 0.990000);
+        let vp = vec2f(1280.0, 720.0);
+        let screen_point = project_to_sc(p, view_proj, vp);
+        let unproj_point = unproject_sc(screen_point * vec3f(1.0, 1.0, 2.0) - vec3f(0.0, 0.0, 1.0), view_proj, vp);
+        assert_eq!(approx(screen_point, vec3f(690.717468, 361.736267, 0.998503), 0.01), true);
+        assert_eq!(approx(unproj_point, vec3f(5.600000, -0.670000, 0.990000), 0.01), true);
+    }
+    {
+        let view_proj = Mat4f::new(0.786060, -0.000000, 0.575611, 0.000000,
+        0.990553, 0.434716, -1.352711, -0.000002,
+        0.148312, -0.968185, -0.202537, 59.811974,
+        0.148283, -0.967991, -0.202496, 60.000000);
+        let p = vec3f(-7.220000, 8.160000, 3.350000);
+        let vp = vec2f(1280.0, 720.0);
+        let screen_point = project_to_sc(p, view_proj, vp);
+        let unproj_point = unproject_sc(screen_point * vec3f(1.0, 1.0, 2.0) - vec3f(0.0, 0.0, 1.0), view_proj, vp);
+        assert_eq!(approx(screen_point, vec3f(592.373108, 301.829865, 0.998114), 0.01), true);
+        assert_eq!(approx(unproj_point, vec3f(-7.220000, 8.160000, 3.350000), 0.01), true);
+    }
+    {
+        let view_proj = Mat4f::new(0.786060, -0.000000, 0.575611, 0.000000,
+        0.990553, 0.434716, -1.352711, -0.000002,
+        0.148312, -0.968185, -0.202537, 59.811974,
+        0.148283, -0.967991, -0.202496, 60.000000);
+        let p = vec3f(0.970000, 8.260000, 5.120000);
+        let vp = vec2f(1280.0, 720.0);
+        let screen_point = project_to_sc(p, view_proj, vp);
+        let unproj_point = unproject_sc(screen_point * vec3f(1.0, 1.0, 2.0) - vec3f(0.0, 0.0, 1.0), view_proj, vp);
+        assert_eq!(approx(screen_point, vec3f(686.450439, 343.276825, 0.998143), 0.01), true);
+        assert_eq!(approx(unproj_point, vec3f(0.970000, 8.260000, 5.120000), 0.01), true);
+    }
+    {
+        let view_proj = Mat4f::new(0.787158, 0.000000, 0.574109, 0.000000,
+        0.562798, 1.444928, -0.771649, -0.000002,
+        0.491681, -0.551528, -0.674141, 29.505840,
+        0.491583, -0.551417, -0.674007, 29.699923);
+        let p = vec3f(0.970000, 8.260000, 5.120000);
+        let vp = vec2f(1280.0, 720.0);
+        let screen_point = project_to_sc(p, view_proj, vp);
+        let unproj_point = unproject_sc(screen_point * vec3f(1.0, 1.0, 2.0) - vec3f(0.0, 0.0, 1.0), view_proj, vp);
+        assert_eq!(approx(screen_point, vec3f(746.891602, 498.507294, 0.995589), 0.01), true);
+        assert_eq!(approx(unproj_point, vec3f(0.970000, 8.260000, 5.120000), 0.01), true);
+    }
+    {
+        let view_proj = Mat4f::new(0.787158, 0.000000, 0.574109, 0.000000,
+        0.562798, 1.444928, -0.771649, -0.000002,
+        0.491681, -0.551528, -0.674141, 29.505840,
+        0.491583, -0.551417, -0.674007, 29.699923);
+        let p = vec3f(2.670000, 8.100000, 6.330000);
+        let vp = vec2f(1280.0, 720.0);
+        let screen_point = project_to_sc(p, view_proj, vp);
+        let unproj_point = unproject_sc(screen_point * vec3f(1.0, 1.0, 2.0) - vec3f(0.0, 0.0, 1.0), view_proj, vp);
+        assert_eq!(approx(screen_point, vec3f(804.766968, 494.470581, 0.995611), 0.01), true);
+        assert_eq!(approx(unproj_point, vec3f(2.670000, 8.100000, 6.330000), 0.01), true);
+    }
+    {
+        let view_proj = Mat4f::new(0.787158, 0.000000, 0.574109, 0.000000,
+        0.562798, 1.444928, -0.771649, -0.000002,
+        0.491681, -0.551528, -0.674141, 29.505840,
+        0.491583, -0.551417, -0.674007, 29.699923);
+        let p = vec3f(-0.210000, 1.490000, -4.210000);
+        let vp = vec2f(1280.0, 720.0);
+        let screen_point = project_to_sc(p, view_proj, vp);
+        let unproj_point = unproject_sc(screen_point * vec3f(1.0, 1.0, 2.0) - vec3f(0.0, 0.0, 1.0), view_proj, vp);
+        assert_eq!(approx(screen_point, vec3f(587.721069, 420.166504, 0.996936), 0.01), true);
+        assert_eq!(approx(unproj_point, vec3f(-0.210000, 1.490000, -4.210000), 0.01), true);
+    }
+    {
+        let view_proj = Mat4f::new(-0.780440, 0.000000, 0.583208, 0.000000,
+        0.568056, 1.448952, 0.760165, -0.000003,
+        0.500865, -0.547996, 0.670250, 29.505835,
+        0.500765, -0.547886, 0.670116, 29.699917);
+        let p = vec3f(-1.790000, 9.670000, -3.280000);
+        let vp = vec2f(1280.0, 720.0);
+        let screen_point = project_to_sc(p, view_proj, vp);
+        let unproj_point = unproject_sc(screen_point * vec3f(1.0, 1.0, 2.0) - vec3f(0.0, 0.0, 1.0), view_proj, vp);
+        assert_eq!(approx(screen_point, vec3f(624.503235, 537.422607, 0.995406), 0.01), true);
+        assert_eq!(approx(unproj_point, vec3f(-1.790000, 9.670000, -3.280000), 0.01), true);
+    }
+    {
+        let view_proj = Mat4f::new(-0.778339, 0.000000, -0.586010, 0.000001,
+        -0.574464, 1.444928, 0.763003, 0.000000,
+        -0.501874, -0.551528, 0.666588, 29.505838,
+        -0.501773, -0.551417, 0.666455, 29.699921);
+        let p = vec3f(3.930000, 3.360000, 4.850000);
+        let vp = vec2f(1280.0, 720.0);
+        let screen_point = project_to_sc(p, view_proj, vp);
+        let unproj_point = unproject_sc(screen_point * vec3f(1.0, 1.0, 2.0) - vec3f(0.0, 0.0, 1.0), view_proj, vp);
+        assert_eq!(approx(screen_point, vec3f(510.251587, 437.891876, 0.996664), 0.01), true);
+        assert_eq!(approx(unproj_point, vec3f(3.930000, 3.360000, 4.850000), 0.01), true);
+    }
+    {
+        let view_proj = Mat4f::new(-0.354547, 0.000000, -0.907477, 0.000001,
+        -0.590134, 1.612012, 0.230563, -0.000001,
+        -0.867056, -0.365868, 0.338755, 29.505838,
+        -0.866883, -0.365795, 0.338687, 29.699921);
+        let p = vec3f(7.450001, 2.280000, -9.090000);
+        let vp = vec2f(1280.0, 720.0);
+        let screen_point = project_to_sc(p, view_proj, vp);
+        let unproj_point = unproject_sc(screen_point * vec3f(1.0, 1.0, 2.0) - vec3f(0.0, 0.0, 1.0), view_proj, vp);
+        assert_eq!(approx(screen_point, vec3f(825.672546, 307.535034, 0.994926), 0.01), true);
+        assert_eq!(approx(unproj_point, vec3f(7.450001, 2.280000, -9.090000), 0.01), true);
+    }
+    {
+        let view_proj = Mat4f::new(-0.354547, 0.000000, -0.907477, 0.000001,
+        -0.590134, 1.612012, 0.230563, -0.000001,
+        -0.867056, -0.365868, 0.338755, 29.505838,
+        -0.866883, -0.365795, 0.338687, 29.699921);
+        let p = vec3f(-8.059999, -6.430000, 0.010000);
+        let vp = vec2f(1280.0, 720.0);
+        let screen_point = project_to_sc(p, view_proj, vp);
+        let unproj_point = unproject_sc(screen_point * vec3f(1.0, 1.0, 2.0) - vec3f(0.0, 0.0, 1.0), view_proj, vp);
+        assert_eq!(approx(screen_point, vec3f(686.695068, 308.304352, 0.997538), 0.01), true);
+        assert_eq!(approx(unproj_point, vec3f(-8.059999, -6.430000, 0.010000), 0.01), true);
+    }
+    {
+        let view_proj = Mat4f::new(-0.475640, 0.000000, 0.850286, 0.000000,
+        0.552942, 1.612012, 0.309309, -0.000001,
+        0.812412, -0.365868, 0.454454, 29.505840,
+        0.812249, -0.365795, 0.454363, 29.699923);
+        let p = vec3f(1.530000, -2.920000, 9.440001);
+        let vp = vec2f(1280.0, 720.0);
+        let screen_point = project_to_sc(p, view_proj, vp);
+        let unproj_point = unproject_sc(screen_point * vec3f(1.0, 1.0, 2.0) - vec3f(0.0, 0.0, 1.0), view_proj, vp);
+        assert_eq!(approx(screen_point, vec3f(768.687134, 350.665802, 0.997345), 0.01), true);
+        assert_eq!(approx(unproj_point, vec3f(1.530000, -2.920000, 9.440001), 0.01), true);
+    }
+    {
+        let view_proj = Mat4f::new(-0.475640, 0.000000, 0.850286, 0.000000,
+        0.552942, 1.612012, 0.309309, -0.000001,
+        0.812412, -0.365868, 0.454454, 29.505840,
+        0.812249, -0.365795, 0.454363, 29.699923);
+        let p = vec3f(6.680000, 4.900000, -8.760000);
+        let vp = vec2f(1280.0, 720.0);
+        let screen_point = project_to_sc(p, view_proj, vp);
+        let unproj_point = unproject_sc(screen_point * vec3f(1.0, 1.0, 2.0) - vec3f(0.0, 0.0, 1.0), view_proj, vp);
+        assert_eq!(approx(screen_point, vec3f(408.321289, 468.944641, 0.996693), 0.01), true);
+        assert_eq!(approx(unproj_point, vec3f(6.680000, 4.900000, -8.760000), 0.01), true);
+    }
+}
