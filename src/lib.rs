@@ -1680,26 +1680,23 @@ pub fn map_to_range<T: Float, X: Base<T>>(v: X, in_start: X, in_end: X, out_star
     out_start + slope * (v - in_start)
 }
 
-// TODO: tests
-// line_segment_between_line_segment (test)
-// shortest_line_segment_between_line_segments (test)
-// shortest_line_segment_between_lines (test)
-
-// projection, ndc
-// projection, sc
-// unprojection, ndc,
-// unprojection sc
-// projection matrices ;D
 // quilez functions
 // quat tests
 // mat from quat
 // quat from mat
 
-// ADDITIONS?
-// caspule_vs_capsule
-// obb_vs_sphere - easy
+// TODO: from maths::
+// obb_vs_sphere
+// point_obb_distance
+// gjk
+// vector triple
+// scalar triple
 // obb_vs_aabb
 // obb_vs_obb
-// ray_vs_cone
-// cone_vs_sphere
-// cone_vs_aabb
+// hull vs hull
+// tests::
+// projection, ndc
+// projection, sc
+// unprojection, ndc,
+// unprojection sc
+// projection matrices

@@ -4050,3 +4050,134 @@ fn shortest_line_segment_between_line_segments_test() {
         }
     }
 }
+
+#[test]
+fn shortest_line_segment_between_lines_test() {
+    {
+        let l00 = vec3f(-4.970000, -1.730000, 7.290001);
+        let l01 = vec3f(-1.600000, 1.120000, -6.970000);
+        let l10 = vec3f(5.600000, 4.330000, 0.990000);
+        let l11 = vec3f(-7.220000, 3.160000, 3.350000);
+
+        let has = shortest_line_segment_between_lines(l00, l01, l10, l11);
+        assert_eq!(has.is_some(), true);
+        if let Some((r0, r1)) = has {
+            assert_eq!(approx(r0, vec3f(-3.714814, -0.668493, 1.978739), 0.01), true);
+            assert_eq!(approx(r1, vec3f(-3.949841, 3.458447, 2.748005), 0.01), true);
+        }
+    }
+    {
+        let l00 = vec3f(2.670000, 3.100000, 6.330000);
+        let l01 = vec3f(-0.210000, -3.510000, -4.210000);
+        let l10 = vec3f(3.930000, -1.640000, 4.850000);
+        let l11 = vec3f(7.450001, -2.720000, -9.090000);
+
+        let has = shortest_line_segment_between_lines(l00, l01, l10, l11);
+        assert_eq!(has.is_some(), true);
+        if let Some((r0, r1)) = has {
+            assert_eq!(approx(r0, vec3f(1.652786, 0.765352, 2.607278), 0.01), true);
+            assert_eq!(approx(r1, vec3f(4.279663, -1.747283, 3.465259), 0.01), true);
+        }
+    }
+    {
+        let l00 = vec3f(1.530000, 2.080000, 9.440001);
+        let l01 = vec3f(6.680000, -0.100000, -8.760000);
+        let l10 = vec3f(7.219999, 1.660000, -4.510000);
+        let l11 = vec3f(-9.760000, 3.010000, -1.470000);
+
+        let has = shortest_line_segment_between_lines(l00, l01, l10, l11);
+        assert_eq!(has.is_some(), true);
+        if let Some((r0, r1)) = has {
+            assert_eq!(approx(r0, vec3f(5.347884, 0.463886, -4.052328), 0.01), true);
+            assert_eq!(approx(r1, vec3f(5.429743, 1.802335, -4.189483), 0.01), true);
+        }
+    }
+    {
+        let l00 = vec3f(-0.670000, -2.020000, -0.190000);
+        let l01 = vec3f(-3.650000, -4.870000, 8.650000);
+        let l10 = vec3f(4.250000, 1.690000, -8.850000);
+        let l11 = vec3f(-9.060000, 1.290000, -4.990000);
+
+        let has = shortest_line_segment_between_lines(l00, l01, l10, l11);
+        assert_eq!(has.is_some(), true);
+        if let Some((r0, r1)) = has {
+            assert_eq!(approx(r0, vec3f(2.161434, 0.687915, -8.589286), 0.01), true);
+            assert_eq!(approx(r1, vec3f(2.227627, 1.629223, -8.263496), 0.01), true);
+        }
+    }
+    {
+        let l00 = vec3f(-5.960000, -0.490000, -7.020000);
+        let l01 = vec3f(-8.120000, -3.770000, 5.050000);
+        let l10 = vec3f(-2.840000, -1.630000, -5.620000);
+        let l11 = vec3f(1.440000, 0.010000, -1.030000);
+
+        let has = shortest_line_segment_between_lines(l00, l01, l10, l11);
+        assert_eq!(has.is_some(), true);
+        if let Some((r0, r1)) = has {
+            assert_eq!(approx(r0, vec3f(-5.898550, -0.396686, -7.363382), 0.01), true);
+            assert_eq!(approx(r1, vec3f(-4.779817, -2.373295, -7.700318), 0.01), true);
+        }
+    }
+    {
+        let l00 = vec3f(3.580000, -3.230000, -6.030000);
+        let l01 = vec3f(-7.060000, 4.040000, 6.090000);
+        let l10 = vec3f(6.350000, -2.020000, -8.580000);
+        let l11 = vec3f(-6.010000, 4.680000, -5.880000);
+
+        let has = shortest_line_segment_between_lines(l00, l01, l10, l11);
+        assert_eq!(has.is_some(), true);
+        if let Some((r0, r1)) = has {
+            assert_eq!(approx(r0, vec3f(5.584741, -4.599781, -8.313595), 0.01), true);
+            assert_eq!(approx(r1, vec3f(6.778583, -2.252322, -8.673622), 0.01), true);
+        }
+    }
+    {
+        let l00 = vec3f(-9.920000, -1.050000, 9.680000);
+        let l01 = vec3f(1.130000, 0.300000, 0.060000);
+        let l10 = vec3f(-9.180000, 3.520000, -2.330000);
+        let l11 = vec3f(8.209999, 1.950000, -2.880000);
+
+        let has = shortest_line_segment_between_lines(l00, l01, l10, l11);
+        assert_eq!(has.is_some(), true);
+        if let Some((r0, r1)) = has {
+            assert_eq!(approx(r0, vec3f(4.823111, 0.751195, -3.155178), 0.01), true);
+            assert_eq!(approx(r1, vec3f(4.969697, 2.242540, -2.777518), 0.01), true);
+        }
+    }
+    {
+        let l00 = vec3f(-9.920000, -1.050000, 9.680000);
+        let l01 = vec3f(1.130000, 0.300000, 0.060000);
+        let l10 = vec3f(-9.180000, 3.520000, -2.330000);
+        let l11 = vec3f(1.870000, 4.870001, -11.950000);
+
+        let has = shortest_line_segment_between_lines(l00, l01, l10, l11);
+        assert_eq!(has.is_some(), false);
+    }
+    {
+        let l00 = vec3f(-1.690000, 2.380000, 0.570000);
+        let l01 = vec3f(6.160000, 2.900000, 6.400000);
+        let l10 = vec3f(9.719999, -4.020000, 0.950000);
+        let l11 = vec3f(17.570000, -3.500000, 6.780000);
+
+        let has = shortest_line_segment_between_lines(l00, l01, l10, l11);
+        assert_eq!(has.is_some(), false);
+    }
+    {
+        let l00 = vec3f(-8.740000, -3.770000, 5.060000);
+        let l01 = vec3f(8.129999, 2.700000, 2.380000);
+        let l10 = vec3f(-6.340000, 0.340000, 2.260000);
+        let l11 = vec3f(10.529999, 6.810000, -0.420000);
+
+        let has = shortest_line_segment_between_lines(l00, l01, l10, l11);
+        assert_eq!(has.is_some(), false);
+    }
+    {
+        let l00 = vec3f(1.590000, 1.230000, -0.530000);
+        let l01 = vec3f(3.850000, -2.830000, 2.720000);
+        let l10 = vec3f(4.960000, 3.850000, -3.770000);
+        let l11 = vec3f(7.220000, -0.210000, -0.520000);
+
+        let has = shortest_line_segment_between_lines(l00, l01, l10, l11);
+        assert_eq!(has.is_some(), false);
+    }
+}
