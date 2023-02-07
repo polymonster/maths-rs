@@ -3021,17 +3021,52 @@ fn morton() {
     // 6|  40   41 |  44   45 |  56   57 |  60   61
     // 7|  42   43 |  46   47 |  58   59 |  62   63
 
-    assert_eq!(morton_xy2d(0, 0), 0);
-    assert_eq!(morton_xy2d(1, 1), 3);
-    assert_eq!(morton_xy2d(5, 5), 51);
-    assert_eq!(morton_xy2d(4, 7), 58);
-    assert_eq!(morton_xy2d(7, 7), 63);
+    assert_eq!(morton_xy(0, 0), 0);
+    assert_eq!(morton_xy(1, 1), 3);
+    assert_eq!(morton_xy(5, 5), 51);
+    assert_eq!(morton_xy(4, 7), 58);
+    assert_eq!(morton_xy(7, 7), 63);
 
-    assert_eq!(morton_d2xy(0), (0, 0));
-    assert_eq!(morton_d2xy(62), (6, 7));
-    assert_eq!(morton_d2xy(39), (3, 5));
-    assert_eq!(morton_d2xy(26), (4, 3));
-    assert_eq!(morton_d2xy(40), (0, 6));
+    assert_eq!(morton_to_xy(0), (0, 0));
+    assert_eq!(morton_to_xy(62), (6, 7));
+    assert_eq!(morton_to_xy(39), (3, 5));
+    assert_eq!(morton_to_xy(26), (4, 3));
+    assert_eq!(morton_to_xy(40), (0, 6));
+
+    //     0    1  |  2    3 
+    // -----------------------------
+    //      4    5  |  12   13
+    //      6    7  |  14   15
+    //     \         \
+    //   z  \          \
+    //       |  0    1  |  8    9  |  
+    //       |  2    3  |  10   11 | 
+
+    assert_eq!(morton_xyz(0, 0, 0), 0);
+    assert_eq!(morton_xyz(1, 0, 0), 1);
+    assert_eq!(morton_xyz(0, 1, 0), 2);
+    assert_eq!(morton_xyz(1, 1, 0), 3);
+    assert_eq!(morton_xyz(0, 0, 1), 4);
+    assert_eq!(morton_xyz(1, 0, 1), 5);
+    assert_eq!(morton_xyz(0, 1, 1), 6);
+    assert_eq!(morton_xyz(1, 1, 1), 7);
+    assert_eq!(morton_xyz(2, 0, 0), 8);
+    assert_eq!(morton_xyz(3, 0, 0), 9);
+    assert_eq!(morton_xyz(2, 1, 0), 10); 
+    assert_eq!(morton_xyz(3, 1, 0), 11);
+    assert_eq!(morton_xyz(2, 0, 1), 12);
+    assert_eq!(morton_xyz(3, 0, 1), 13);
+    assert_eq!(morton_xyz(2, 1, 1), 14); 
+    assert_eq!(morton_xyz(3, 1, 1), 15);
+    assert_eq!(morton_xyz(0, 2, 0), 16);
+    assert_eq!(morton_xyz(1, 2, 0), 17);
+    assert_eq!(morton_xyz(0, 3, 0), 18);
+    assert_eq!(morton_xyz(1, 3, 0), 19);
+    assert_eq!(morton_xyz(4, 0, 0), 64);
+
+    assert_eq!(morton_to_xyz(16), (0, 2, 0));
+    assert_eq!(morton_to_xyz(8), (2, 0, 0));
+    assert_eq!(morton_to_xyz(64), (4, 0, 0));
 }
 
 #[test]

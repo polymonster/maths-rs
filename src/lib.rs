@@ -1640,7 +1640,7 @@ pub fn smooth_stop5<T: Float, X: Base<T> + SignedNumberOps<T>>(t: X, b: X, c: X,
 }
 
 /// returns the morten order index from x,y position
-pub fn morton_xy2d(x: u64, y: u64) -> u64 {
+pub fn morton_xy(x: u64, y: u64) -> u64 {
     let mut x = x;
     x = (x | (x << 16)) & 0x0000FFFF0000FFFF;
     x = (x | (x << 8)) & 0x00FF00FF00FF00FF;
@@ -1658,6 +1658,29 @@ pub fn morton_xy2d(x: u64, y: u64) -> u64 {
     x | (y << 1)
 }
 
+/// returns the morten order index from x,y,z position
+pub fn morton_xyz(x: u64, y: u64, z: u64) -> u64 {
+    let mut x = x;
+    x = (x | (x << 16)) & 0xFFFF00000000FFFF;
+    x = (x | (x <<  8)) & 0xF00F00F00F00F;
+    x = (x | (x <<  4)) & 0x30C30C30C30C30C3;
+    x = (x | (x <<  2)) & 0x9249249249249249;
+
+    let mut y = y;
+    y = (y | (y << 16)) & 0xFFFF00000000FFFF;
+    y = (y | (y <<  8)) & 0xF00F00F00F00F;
+    y = (y | (y <<  4)) & 0x30C30C30C30C30C3;
+    y = (y | (y <<  2)) & 0x9249249249249249;
+
+    let mut z = z;
+    z = (z | (z << 16)) & 0xFFFF00000000FFFF;
+    z = (z | (z <<  8)) & 0xF00F00F00F00F;
+    z = (z | (z <<  4)) & 0x30C30C30C30C30C3;
+    z = (z | (z <<  2)) & 0x9249249249249249;
+
+    (x << 0) | (y << 1) | (z << 2)
+}
+
 /// returns the number even bits extracted from x as set bits in the return; value 0b010101 returns 0b111
 pub fn morton_1(x: u64) -> u64 {
     let mut x = x & 0x5555555555555555;
@@ -1669,9 +1692,25 @@ pub fn morton_1(x: u64) -> u64 {
     x
 }
 
-/// returns the x,t grid position for morten order index d
-pub fn morton_d2xy(d: u64) -> (u64, u64) {
+/// returns the number of bits divisible by 3. value 0b001001001 returns 0b111
+pub fn morton_2(x: u64) -> u64 {
+    let mut x = x & 0x9249249249249249;
+    x = (x | (x >> 2)) & 0x30C30C30C30C30C3;
+    x = (x | (x >> 4)) & 0xF00F00F00F00F;
+    x = (x | (x >> 8)) & 0xFF0000FF0000FF;
+    x = (x | (x >> 16)) &  0xFFFF00000000FFFF;
+    x = (x | (x >> 32)) & 0x00000000FFFFFFFF;
+    x
+}
+
+/// returns the x,y grid position for morten order index d
+pub fn morton_to_xy(d: u64) -> (u64, u64) {
     (morton_1(d), morton_1(d >> 1))
+}
+
+/// returns the x,y,z grid position for morten order index d
+pub fn morton_to_xyz(d: u64) -> (u64, u64, u64) {
+    (morton_2(d >> 0), morton_2(d >> 1), morton_2(d >> 2))
 }
 
 /// remap v within in_start -> in_end range to the new range out_start -> out_end
