@@ -1719,15 +1719,17 @@ pub fn map_to_range<T: Float, X: Base<T>>(v: X, in_start: X, in_end: X, out_star
     out_start + slope * (v - in_start)
 }
 
+// tests;;
 // quilez functions
 // quat tests
+
+// vector triple
+// scalar triple
 
 // TODO: from maths::
 // obb_vs_sphere
 // point_obb_distance
 // gjk
-// vector triple
-// scalar triple
 // obb_vs_aabb
 // obb_vs_obb
 // hull vs hull
