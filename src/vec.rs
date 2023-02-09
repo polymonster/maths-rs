@@ -135,6 +135,10 @@ impl<T> Dot<T> for Vec4<T> where T: Number {
 pub trait Cross<T> {
     /// vector cross-product
     fn cross(a: Self, b: Self) -> Self;
+    /// scalar triple product
+    fn scalar_triple(a: Self, b: Self, c: Self) -> T;
+    /// vector triple product
+    fn vector_triple(a: Self, b: Self, c: Self) -> Self;
 }
 
 impl<T> Cross<T> for Vec3<T> where T: Number {
@@ -144,6 +148,14 @@ impl<T> Cross<T> for Vec3<T> where T: Number {
             y: (a.z * b.x) - (a.x * b.z),
             z: (a.x * b.y) - (a.y * b.x),
         }
+    }
+
+    fn scalar_triple(a: Self, b: Self, c: Self) -> T {
+        a.x * (b.y * c.z - b.z * c.y) + a.y * (b.z * c.x - b.x * c.z) + a.z * (b.x * c.y - b.y * c.x)
+    }
+
+    fn vector_triple(a: Self, b: Self, c: Self) -> Self {
+        Self::cross(Self::cross(a, b), c)
     }
 }
 

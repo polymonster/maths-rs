@@ -540,6 +540,23 @@ fn cross_product() {
 }
 
 #[test]
+fn scalar_triple_product() {
+    let a = vec3f(1.0, 2.0, 3.0);
+    let b = vec3f(15.0, -6.0, 1.0);
+    let c = vec3f(-3.0, 0.0, -4.0);
+    let stp = scalar_triple(a, b, c);
+    assert_eq!(stp, 84.0);
+}
+
+#[test]
+fn vector_triple_product() {
+    let a = normalize(vec3f(0.5, 0.0, 0.5));
+    let b = normalize(vec3f(-0.3, 0.0, 0.3));
+    let stp = vector_triple(a, b, a);
+    assert_eq!(approx(stp, normalize(vec3f(-0.5, 0.0, 0.5)), 0.001), true);
+}
+
+#[test]
 fn perp_product() {
     let pp = perp(vec2f(1.0, 0.0));
     assert_eq!(pp, vec2f(0.0, 1.0));
@@ -780,11 +797,10 @@ fn exp_log() {
 
 #[test]
 fn reflect_refract() {
-    // TODO:
     let v3 = vec3f(0.5, -0.5, 0.0);
     let normal = vec3f(0.0, 1.0, 0.0);
-    let _refl = Vec3f::reflect(v3, normal);
-    //assert_eq!(refl, vec3f(-0.5, 0.5, 0.0));
+    let refl = Vec3f::reflect(v3, normal);
+    assert_eq!(refl, vec3f(0.0, 1.25, 0.0));
 }
 
 // TODO: atan2

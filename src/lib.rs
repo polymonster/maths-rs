@@ -208,6 +208,16 @@ pub fn cross<T: Number, V: Cross<T>>(a: V, b: V) -> V {
     V::cross(a, b)
 }
 
+/// returns the scalar triple product of a x b x c, makes sense only for 3 dimensional vectors 
+pub fn scalar_triple<T: Number, V: Cross<T>>(a: V, b: V, c: V) -> T {
+    V::scalar_triple(a, b, c)
+}
+
+/// returns the vector triple product of a x b x c, makes sense only for 3 dimensional vectors 
+pub fn vector_triple<T: Number, V: Cross<T>>(a: V, b: V, c: V) -> V {
+    V::vector_triple(a, b, c)
+}
+
 /// returns the perpedicular vector of a performing anti-clockwise rotation by 90 degrees
 pub fn perp<T: SignedNumber>(a: Vec2<T>) -> Vec2<T> {
     Vec2 {
