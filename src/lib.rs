@@ -876,6 +876,19 @@ pub fn aabb_vs_aabb<T: Number, V: VecN<T> + NumberOps<T>>(aabb_min1: V, aabb_max
     true
 }
 
+// returns true if the sphere with centre s0 and radius r0 overlaps obb defined by matrix obb, where the matrix
+// transforms a unit cube with extents -1 to 1 into an obb
+pub fn sphere_vs_obb<T: Float, V: VecN<T> + VecFloatOps<T> + NumberOps<T> + SignedNumberOps<T>, M: MatTranslate<V> + MatInverse<T> + MatRotate3D<T, V> + MatN<T, V>>(s: V, r: T, obb: M) -> bool {
+    // test the distance to the closest point on the obb
+    let cp = closest_point_on_obb(s, obb);
+    if dist2(s, cp) < r * r {
+        true
+    }
+    else {
+        false
+    }
+}
+
 /// returns true if the capsule cp0-cp1 with radius cr0 overlaps the capsule cp2-cp3 with radius cr1
 pub fn capsule_vs_capsule<T: Float + FloatOps<T> + SignedNumberOps<T>, V: VecN<T> + VecFloatOps<T> + FloatOps<T> + SignedNumberOps<T>>(cp0: V, cp1: V, cr0: T, cp2: V, cp3: V, cr1: T) -> bool {
     // min sqr distance between capsule to save on sqrts

@@ -207,19 +207,23 @@ let l = f32::log2(x);
 
 ## Distance Functions
 
-`plane_distance, distance_on_ray, distance_on_line, point_aabb_distance, point_cone_distance, point_plane_distance, point_polygon_distance, point_triangle_distance, point_convex_hull_distance, point_line_segment_distance`
+`plane_distance, distance_on_ray, distance_on_line, point_aabb_distance, point_cone_distance, point_plane_distance, point_polygon_distance, point_triangle_distance, point_convex_hull_distance, point_line_segment_distance`.  
 
 ## Closest Point Tests
 
-`closest_point_on_obb, closest_point_on_ray, closest_point_on_aabb, closest_point_on_cone, closest_point_on_plane, closest_point_on_sphere, closest_point_on_polygon, closest_point_on_triangle, closest_point_on_convex_hull, closest_point_on_line_segment`
+`closest_point_on_obb, closest_point_on_ray, closest_point_on_aabb, closest_point_on_cone, closest_point_on_plane, closest_point_on_sphere, closest_point_on_polygon, closest_point_on_triangle, closest_point_on_convex_hull, closest_point_on_line_segment`.  
 
 ## Point Inside Tests
 
-`point_inside_obb, point_inside_aabb, point_inside_cone, point_inside_sphere, point_inside_polygon, point_inside_triangle point_inside_convex_hull`
+`point_inside_obb, point_inside_aabb, point_inside_cone, point_inside_sphere, point_inside_polygon, point_inside_triangle point_inside_convex_hull`.  
 
 ## Intersection Tests
 
-`ray_vs_aabb, line_vs_line, ray_vs_plane, aabb_vs_plane, line_vs_plane, aabb_vs_frustum, sphere_vs_frustum, sphere_vs_plane, ray_vs_line_segment, line_segment_vs_plane, line_segment_vs_line_segment`
+`ray_vs_aabb, line_vs_line, ray_vs_plane, aabb_vs_plane, line_vs_plane, aabb_vs_frustum, sphere_vs_frustum, sphere_vs_plane, ray_vs_line_segment, line_segment_vs_plane, line_segment_vs_line_segment`.  
+
+## Overlap Tests
+
+`sphere_vs_sphere, sphere_vs_aabb, sphere_vs_obb, aabb_vs_aabb, aabb_vs_frustum, sphere_vs_frustum, sphere_vs_capsule, capsule_vs_capsule, obb_vs_obb, aabb_vs_obb, convex_hull_vs_convex_hull, gjk_2d, gjk_3d`.  
 
 ## + More
 
