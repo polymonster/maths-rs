@@ -205,26 +205,22 @@ let d = f64::atan2(y, x);
 let l = f32::log2(x);
 ```
 
-## Distance Functions
+### Functions
 
-`plane_distance, distance_on_ray, distance_on_line, point_aabb_distance, point_cone_distance, point_plane_distance, point_polygon_distance, point_triangle_distance, point_convex_hull_distance, point_line_segment_distance`.  
+Plane Classification: `point_vs_plane, aabb_vs_plane, sphere_vs_plane, capsule_vs_plane, cone_vs_plane`.  
 
-## Closest Point Tests
+Overlaps: `sphere_vs_sphere, sphere_vs_aabb, sphere_vs_obb, aabb_vs_aabb, aabb_vs_frustum, sphere_vs_frustum, sphere_vs_capsule, capsule_vs_capsule, obb_vs_obb, aabb_vs_obb, convex_hull_vs_convex_hull, gjk_2d, gjk_3d`.  
 
-`closest_point_on_obb, closest_point_on_ray, closest_point_on_aabb, closest_point_on_cone, closest_point_on_plane, closest_point_on_sphere, closest_point_on_polygon, closest_point_on_triangle, closest_point_on_convex_hull, closest_point_on_line_segment`.  
+Point Inside: `point_inside_aabb, point_inside_sphere, point_inside_obb, point_inside_triangle, point_inside_cone, point_inside_convex_hull, point_inside_poly, point_inside_frustum`.  
 
-## Point Inside Tests
+Closest Point: `closest_point_on_aabb, closest_point_on_line, closest_point_on_plane, closest_point_on_obb, closest_point_on_sphere, closest_point_on_ray, closest_point_on_triangle, closest_point_on_polygon, closest_point_on_convex_hull, closest_point_on_cone`.  
 
-`point_inside_obb, point_inside_aabb, point_inside_cone, point_inside_sphere, point_inside_polygon, point_inside_triangle point_inside_convex_hull`.  
+Point Distance: `point_aabb_distance, point_segment_distance, point_triangle_distance, distance_on_line, point_plane_distance, plane_distance, point_sphere_distance, point_polygon_distance, point_convex_hull_distance, point_cone_distance, point_obb_distance`.  
 
-## Intersection Tests
+Ray / Line: `ray_vs_plane, ray_vs_triangle, ray_vs_sphere, ray_vs_line_segment, ray_vs_aabb, ray_vs_obb, ray_vs_capsule, ray_vs_cylinder, line_vs_line, line_vs_poly, shortest_line_segment_between_lines, shortest_line_segment_between_line_segments`.  
 
-`ray_vs_aabb, line_vs_line, ray_vs_plane, aabb_vs_plane, line_vs_plane, aabb_vs_frustum, sphere_vs_frustum, sphere_vs_plane, ray_vs_line_segment, line_segment_vs_plane, line_segment_vs_line_segment`.  
+Shader Style Functions: `dot, cross, normalize, mag, mag2, dist, dist2, triple, vector_triple, lerp, nlerp, slerp, saturate, clamp, normalize, all, any, min, max, smoothstep, step, round, floor, ceil, abs, frac, trunc, exp, exp2, log, log2, sin, cos, tan, asin, acos, atan, sinh, cosh, tanh`.  
 
-## Overlap Tests
+Graph Functions: `smooth_start, smooth_stop, impulse, cubic_pulse, exp_step, parabola, pcurve, exp_sustained_impulse, sinc, gain, almost_identity, integral_smoothstep, quad_impulse, poly_impulse`.  
 
-`sphere_vs_sphere, sphere_vs_aabb, sphere_vs_obb, aabb_vs_aabb, aabb_vs_frustum, sphere_vs_frustum, sphere_vs_capsule, capsule_vs_capsule, obb_vs_obb, aabb_vs_obb, convex_hull_vs_convex_hull, gjk_2d, gjk_3d`.  
-
-## + More
-
-There are more functions included and more to come, I intend to build an interactive demo showcasing all of the features.
+\+ More included!

@@ -482,6 +482,12 @@ pub fn point_polygon_distance<T: Float + FloatOps<T>>(p: Vec2<T>, hull: &Vec<Vec
     dist(p, closest_point_on_polygon(p, hull))
 }
 
+/// returns the unsigned distance from point p to the obb defined by matrix obb, where the matrix transforms a unit cube
+/// from -1 to 1 into an obb
+pub fn point_obb_distance<T: Float, V: VecFloatOps<T> + NumberOps<T> + SignedNumberOps<T> + VecN<T> + SignedVecN<T>, M: MatTranslate<V> + MatInverse<T> + MatN<T, V>>(p: V, mat: M) -> T {
+    dist(p, closest_point_on_obb(p, mat))
+}
+
 /// returns the closest point on the line l1-l2 to point p
 pub fn closest_point_on_line_segment<T: Float, V: VecFloatOps<T> + VecN<T>>(p: V, l1: V, l2: V) -> V {
     let v1 = p - l1;
@@ -1747,7 +1753,6 @@ pub fn map_to_range<T: Float, X: Base<T>>(v: X, in_start: X, in_end: X, out_star
 // quat tests
 
 // TODO: from maths::
-// obb_vs_sphere
 // point_obb_distance
 // gjk
 // obb_vs_aabb

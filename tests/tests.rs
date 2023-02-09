@@ -1710,6 +1710,188 @@ fn closest_point_on_obb_test() {
     let p = vec3f(-7.98, 0.31, -7.8);
     let result = closest_point_on_obb(p, mat);
     assert_eq!(approx(result, vec3f(-3.49981, -3.17162, -5.17936), 0.01), true);
+
+    {
+        //point_inside_obb---------------------------
+        let mat = Mat4f::new(1.44084, 4.81496, -0.0373597, -0.11, 1.65605, -2.58742, -0.655296, -7.14, -1.41194, 1.87878, -0.806716, -1.55, 0.0, 0.0, 0.0, 1.0);
+        let p = vec3f(-7.98, 0.31, -7.8);
+        let result = point_inside_obb(p, mat);
+        assert_eq!(result,false);
+    }
+    {
+        //closest_point_on_obb---------------------------
+        let mat = Mat4f::new(1.44084, 4.81496, -0.0373597, -0.11, 1.65605, -2.58742, -0.655296, -7.14, -1.41194, 1.87878, -0.806716, -1.55, 0.0, 0.0, 0.0, 1.0);
+        let p = vec3f(-7.98, 0.31, -7.8);
+        let result = closest_point_on_obb(p, mat);
+        assert_eq!(approx(result, vec3f(-3.49981, -3.17162, -5.17936), 0.01), true);
+
+        // point obb distance 
+        let d = point_obb_distance(p, mat);
+        assert_eq!(approx(d, dist(p, result), 0.01), true);
+
+    }
+    {
+        //point_inside_obb---------------------------
+        let mat = Mat4f::new(3.1054, 1.02508, -1.2864, -3.14, -0.145484, -4.1949, -7.23778, -3.7, -0.619881, 6.11981, -4.74575, -3.57, 0.0, 0.0, 0.0, 1.0);
+        let p = vec3f(2.73, 8.63, 4.16);
+        let result = point_inside_obb(p, mat);
+        assert_eq!(result,false);
+    }
+    {
+        //closest_point_on_obb---------------------------
+        let mat = Mat4f::new(3.1054, 1.02508, -1.2864, -3.14, -0.145484, -4.1949, -7.23778, -3.7, -0.619881, 6.11981, -4.74575, -3.57, 0.0, 0.0, 0.0, 1.0);
+        let p = vec3f(2.73, 8.63, 4.16);
+        let result = closest_point_on_obb(p, mat);
+        assert_eq!(approx(result, vec3f(1.28104, 3.27264, 0.730437), 0.001), true);
+
+        // point obb distance 
+        let d = point_obb_distance(p, mat);
+        assert_eq!(approx(d, dist(p, result), 0.001), true);
+    }
+    {
+        //point_inside_obb---------------------------
+        let mat = Mat4f::new(-2.10233, -0.747065, 0.887925, -3.2, 0.964173, -2.97305, -0.208202, 3.48, 7.7732, 0.166721, 0.265972, -0.21, 0.0, 0.0, 0.0, 1.0);
+        let p = vec3f(-4.73, 6.14, 7.15);
+        let result = point_inside_obb(p, mat);
+        assert_eq!(result, true);
+    }
+    {
+        //closest_point_on_obb---------------------------
+        let mat = Mat4f::new(-2.10233, -0.747065, 0.887925, -3.2, 0.964173, -2.97305, -0.208202, 3.48, 7.7732, 0.166721, 0.265972, -0.21, 0.0, 0.0, 0.0, 1.0);
+        let p = vec3f(-4.73, 6.14, 7.15);
+        let result = closest_point_on_obb(p, mat);
+        assert_eq!(approx(result, vec3f(-4.73, 6.14, 7.15), 0.001), true);
+
+        // point obb distance 
+        let d = point_obb_distance(p, mat);
+        assert_eq!(approx(d, dist(p, result), 0.001), true);
+    }
+    {
+        //point_inside_obb---------------------------
+        let mat = Mat4f::new(-1.95605, 5.75671, -0.0278781, 3.08, 8.07664, 0.94615, -0.0487177, -1.03, -2.43667, -1.4851, -0.139102, 4.49, 0.0, 0.0, 0.0, 1.0);
+        let p = vec3f(-3.38, 5.18, -1.47);
+        let result = point_inside_obb(p, mat);
+        assert_eq!(result,false);
+    }
+    {
+        //closest_point_on_obb---------------------------
+        let mat = Mat4f::new(-1.95605, 5.75671, -0.0278781, 3.08, 8.07664, 0.94615, -0.0487177, -1.03, -2.43667, -1.4851, -0.139102, 4.49, 0.0, 0.0, 0.0, 1.0);
+        let p = vec3f(-3.38, 5.18, -1.47);
+        let result = closest_point_on_obb(p, mat);
+        assert_eq!(approx(result, vec3f(-2.47189, 6.4115, 2.83468), 0.001), true);
+
+        // point obb distance 
+        let d = point_obb_distance(p, mat);
+        assert_eq!(approx(d, dist(p, result), 0.001), true);
+    }
+    {
+        //point_inside_obb---------------------------
+        let mat = Mat4f::new(0.48281, -0.316362, 0.777428, -4.21, 0.188149, 0.0944012, 3.10238, -7.97, -1.66105, -0.0812624, 0.577381, 3.83, 0.0, 0.0, 0.0, 1.0);
+        let p = vec3f(-2.98, 4.36, 2.79);
+        let result = point_inside_obb(p, mat);
+        assert_eq!(result, false);
+    }
+    {
+        //closest_point_on_obb---------------------------
+        let mat = Mat4f::new(0.48281, -0.316362, 0.777428, -4.21, 0.188149, 0.0944012, 3.10238, -7.97, -1.66105, -0.0812624, 0.577381, 3.83, 0.0, 0.0, 0.0, 1.0);
+        let p = vec3f(-2.98, 4.36, 2.79);
+        let result = closest_point_on_obb(p, mat);
+        assert_eq!(approx(result, vec3f(-3.26612, -4.58507, 2.66507), 0.001), true);
+
+        // point obb distance 
+        let d = point_obb_distance(p, mat);
+        assert_eq!(approx(d, dist(p, result), 0.001), true);
+    }
+    {
+        //point_inside_obb---------------------------
+        let mat = Mat4f::new(0.233119, 0.15824, 4.68325, -0.85, -3.28732, 0.0995424, -6.54445, -2.5, -8.55734, -0.0339287, 2.64165, 0.13, 0.0, 0.0, 0.0, 1.0);
+        let p = vec3f(2.08, -2.94, -8.22);
+        let result = point_inside_obb(p, mat);
+        assert_eq!(result, false);
+    }
+    {
+        //closest_point_on_obb---------------------------
+        let mat = Mat4f::new(0.233119, 0.15824, 4.68325, -0.85, -3.28732, 0.0995424, -6.54445, -2.5, -8.55734, -0.0339287, 2.64165, 0.13, 0.0, 0.0, 0.0, 1.0);
+        let p = vec3f(2.08, -2.94, -8.22);
+        let result = closest_point_on_obb(p, mat);
+        assert_eq!(approx(result, vec3f(-0.843953, -4.77934, -7.59307), 0.001), true);
+
+        // point obb distance 
+        let d = point_obb_distance(p, mat);
+        assert_eq!(approx(d, dist(p, result), 0.001), true);
+    }
+    {
+        //point_inside_obb---------------------------
+        let mat = Mat4f::new(-2.01225, 0.336823, 4.02781, -6.94, 0.677526, 0.402494, -4.47365, -7.33, -3.18758, -0.127079, -3.49355, -8.86, 0.0, 0.0, 0.0, 1.0);
+        let p = vec3f(6.56, 6.63, 6.37);
+        let result = point_inside_obb(p, mat);
+        assert_eq!(result,false);
+    }
+    {
+        //closest_point_on_obb---------------------------
+        let mat = Mat4f::new(-2.01225, 0.336823, 4.02781, -6.94, 0.677526, 0.402494, -4.47365, -7.33, -3.18758, -0.127079, -3.49355, -8.86, 0.0, 0.0, 0.0, 1.0);
+        let p = vec3f(6.56, 6.63, 6.37);
+        let result = closest_point_on_obb(p, mat);
+        assert_eq!(approx(result, vec3f(-8.61873, -3.13139, -2.30594), 0.001), true);
+
+        // point obb distance 
+        let d = point_obb_distance(p, mat);
+        assert_eq!(approx(d, dist(p, result), 0.001), true);
+    }
+    {
+        //point_inside_obb---------------------------
+        let mat = Mat4f::new(1.47341, -1.0907, 0.93134, 8.98, 6.99472, 0.535133, -0.141898, 7.34, -0.861927, 2.47823, 0.440535, -3.44, 0.0, 0.0, 0.0, 1.0);
+        let p = vec3f(-3.87, -9.27, 9.62);
+        let result = point_inside_obb(p, mat);
+        assert_eq!(result,false);
+    }
+    {
+        //closest_point_on_obb---------------------------
+        let mat = Mat4f::new(1.47341, -1.0907, 0.93134, 8.98, 6.99472, 0.535133, -0.141898, 7.34, -0.861927, 2.47823, 0.440535, -3.44, 0.0, 0.0, 0.0, 1.0);
+        let p = vec3f(-3.87, -9.27, 9.62);
+        let result = closest_point_on_obb(p, mat);
+        assert_eq!(approx(result, vec3f(5.48455, 1.02231, -0.540381), 0.001), true);
+
+        // point obb distance 
+        let d = point_obb_distance(p, mat);
+        assert_eq!(approx(d, dist(p, result), 0.001), true);
+    }
+    {
+        //point_inside_obb---------------------------
+        let mat = Mat4f::new(0.63673, -0.819983, 4.53131, -0.21, 6.29561, 0.149606, -0.417113, -6.23, -0.169713, 2.47333, 1.5275, -7.31, 0.0, 0.0, 0.0, 1.0);
+        let p = vec3f(1.94, 5.97, 4.24);
+        let result = point_inside_obb(p, mat);
+        assert_eq!(result, false);
+    }
+    {
+        //closest_point_on_obb---------------------------
+        let mat = Mat4f::new(0.63673, -0.819983, 4.53131, -0.21, 6.29561, 0.149606, -0.417113, -6.23, -0.169713, 2.47333, 1.5275, -7.31, 0.0, 0.0, 0.0, 1.0);
+        let p = vec3f(1.94, 5.97, 4.24);
+        let result = closest_point_on_obb(p, mat);
+        assert_eq!(approx(result, vec3f(3.99176, -0.188433, -3.52821), 0.001), true);
+
+        // point obb distance 
+        let d = point_obb_distance(p, mat);
+        assert_eq!(approx(d, dist(p, result), 0.001), true);
+    }
+    {
+        //point_inside_obb---------------------------
+        let mat = Mat4f::new(-3.86844, -3.50233, 0.632407, -1.29, 2.21493, -2.52092, 3.04181, -0.42, -1.85961, 4.28311, 2.30745, 3.2, 0.0, 0.0, 0.0, 1.0);
+        let p = vec3f(5.8, 3.56, 9.4);
+        let result = point_inside_obb(p, mat);
+        assert_eq!(result,false);
+    }
+    {
+        //closest_point_on_obb---------------------------
+        let mat = Mat4f::new(-3.86844, -3.50233, 0.632407, -1.29, 2.21493, -2.52092, 3.04181, -0.42, -1.85961, 4.28311, 2.30745, 3.2, 0.0, 0.0, 0.0, 1.0);
+        let p = vec3f(5.8, 3.56, 9.4);
+        let result = closest_point_on_obb(p, mat);
+        assert_eq!(approx(result, vec3f(3.99812, 0.973554, 6.40428), 0.001), true);
+
+        // point obb distance 
+        let d = point_obb_distance(p, mat);
+        assert_eq!(approx(d, dist(p, result), 0.001), true);
+    }
 }
 
 #[test]
