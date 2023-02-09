@@ -552,8 +552,15 @@ fn scalar_triple_product() {
 fn vector_triple_product() {
     let a = normalize(vec3f(0.5, 0.0, 0.5));
     let b = normalize(vec3f(-0.3, 0.0, 0.3));
-    let stp = vector_triple(a, b, a);
-    assert_eq!(approx(stp, normalize(vec3f(-0.5, 0.0, 0.5)), 0.001), true);
+    let c = normalize(vec3f(1.0, 0.0, 0.0));
+    let stp = vector_triple(a, b, c);
+    assert_eq!(approx(stp, normalize(vec3f(0.0, 0.0, 1.0)), 0.001), true);
+
+    let a = normalize(vec3f(0.5, 0.0, 0.5));
+    let b = normalize(vec3f(-0.3, 0.0, 0.3));
+    let c = normalize(vec3f(0.0, 0.0, 1.0));
+    let stp = vector_triple(a, b, c);
+    assert_eq!(approx(stp, normalize(vec3f(-1.0, 0.0, 0.0)), 0.001), true);
 }
 
 #[test]
