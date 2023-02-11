@@ -1831,8 +1831,133 @@ pub fn gjk_2d<T: Float + FloatOps<T> + NumberOps<T> + SignedNumber + SignedNumbe
     false
 }
 
+/// returns true if the convex hull convex0 overlaps convex1 where convex hull is an array of vertices forming a 2D convex polygon
 pub fn convex_hull_vs_convex_hull<T: Float + FloatOps<T> + NumberOps<T> + SignedNumber + SignedNumberOps<T>, V: VecN<T> + FloatOps<T> + SignedNumberOps<T> + VecFloatOps<T> + Triple<T>>(convex0: Vec<V>, convex1: Vec<V>) -> bool {
     gjk_2d(convex0, convex1)
+}
+
+// simplex evolution for 3d mesh overlaps
+fn handle_simplex_3d<T: Float + FloatOps<T> + NumberOps<T> + SignedNumber + SignedNumberOps<T>, V: VecN<T> + VecFloatOps<T> + Triple<T> + Cross<T>> (simplex: &mut Vec<V>, dir: &mut V) -> bool {
+    match simplex.len() {
+        2 => {
+            let a = simplex[1];
+            let b = simplex[0];
+            
+            let ab = b - a;
+            let ao = -a;
+            
+            *dir = vector_triple(ab, ao, ab);
+            
+            false
+        },
+        3 => {
+            let a = simplex[2];
+            let b = simplex[1];
+            let c = simplex[0];
+            
+            let ab = b - a;
+            let ac = c - a;
+            let ao = -a;
+            
+            *dir = cross(ac, ab);
+    
+            // flip normal so it points toward the origin
+            if dot(*dir, ao) < T::zero() {
+                *dir = -*dir;
+            }
+    
+            false
+        },
+        4 => {
+            let a = simplex[3];
+            let b = simplex[2];
+            let c = simplex[1];
+            let d = simplex[0];
+            
+            let centre = (a+b+c+d) / T::four();
+            
+            let ab = b - a;
+            let ac = c - a;
+            let ad = d - a;
+            let ao = -a;
+            
+            let mut abac = cross(ab, ac);
+            let mut acad = cross(ac, ad);
+            let mut adab = cross(ad, ab);
+            
+            // flip the normals so they always face outward
+            let centre_abc = (a + b + c) / T::three();
+            let centre_acd = (a + c + d) / T::three();
+            let centre_adb = (a + d + b) / T::three();
+            
+            if dot(centre - centre_abc, abac) > T::zero() {
+                abac = -abac;
+            }
+            
+            if dot(centre - centre_acd, acad) > T::zero() {
+                acad = -acad;
+            }
+            
+            if dot(centre - centre_adb, adab) > T::zero() {
+                adab = -adab;
+            }
+            
+            if dot(abac, ao) > T::zero() {
+                // erase c
+                simplex.remove(0);
+                *dir = abac;
+                false
+            }
+            else if dot(acad, ao) > T::zero() {
+                // erase a
+                simplex.remove(1);
+                *dir = acad;
+                false
+            }
+            else if dot(adab, ao) > T::zero() {
+                // erase b
+                simplex.remove(2);
+                *dir = adab;
+                false
+            }
+            else {
+                true
+            }
+        },
+        _ => {
+            panic!("we should always have 2, 3 or 4 points in the simplex!");
+        }
+    }
+}
+
+/// returns true if the 3D convex hull convex0 overlaps with convex1 using the gjk algorithm
+pub fn gjk_3d<T: Float + FloatOps<T> + NumberOps<T> + SignedNumber + SignedNumberOps<T>, V: VecN<T> + FloatOps<T> + SignedNumberOps<T> + VecFloatOps<T> + Triple<T> + Cross<T>>(convex0: Vec<V>, convex1: Vec<V>) -> bool {
+    // implemented following details in this insightful video: https://www.youtube.com/watch?v=ajv46BSqcK4
+    
+    // start with arbitrary direction
+    let mut dir = V::unit_x();
+    let support = gjk_mesh_support_function(&convex0, &convex1, dir);
+    dir = normalize(-support);
+    
+    // iterative build and test simplex
+    let mut simplex = vec![support];
+    
+    let max_iters = 32;
+    for _i in 0..max_iters {
+        let a = gjk_mesh_support_function(&convex0, &convex1, dir);
+        
+        if dot(a, dir) < T::zero() {
+            return false;
+        }
+        simplex.push(a);
+        
+        if handle_simplex_3d(&mut simplex, &mut dir) {
+            return true;
+        }
+    }
+    
+    // if we reach here we likely have got stuck in a simplex building loop, we assume the shapes are touching but not intersecting
+    false
 }
 
 // tests;;
