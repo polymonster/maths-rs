@@ -4731,3 +4731,408 @@ fn sphere_vs_obb_test() {
         assert_eq!(overlap, true);
     }
 }
+
+#[test]
+fn convex_hull_vs_convex_hull_test() {
+    {
+        let hull = vec![
+            vec2f(5.600000, 0.990000),
+            vec2f(0.970000, 5.120000),
+            vec2f(-4.970000, 7.290001),
+            vec2f(-7.220000, 3.350000),
+            vec2f(-1.600000, -6.970000),
+        ];
+        let hull2 = vec![
+            vec2f(12.450001, -4.090000),
+            vec2f(8.930000, 9.850000),
+            vec2f(6.530000, 14.440001),
+            vec2f(-3.060000, 5.010000),
+            vec2f(-3.040000, 4.030000),
+            vec2f(11.680000, -3.760000),
+        ];
+        let overlap = convex_hull_vs_convex_hull(hull, hull2);
+        assert_eq!(overlap, true);
+    }
+    {
+        let hull = vec![
+            vec2f(5.600000, 0.990000),
+            vec2f(0.970000, 5.120000),
+            vec2f(-4.970000, 7.290001),
+            vec2f(-7.220000, 3.350000),
+            vec2f(-1.600000, -6.970000),
+        ];
+        let hull2 = vec![
+            vec2f(17.932001, -4.090000),
+            vec2f(14.412001, 9.850000),
+            vec2f(12.012000, 14.440001),
+            vec2f(2.422000, 5.010000),
+            vec2f(2.442000, 4.030000),
+            vec2f(17.162001, -3.760000),
+        ];
+        let overlap = convex_hull_vs_convex_hull(hull, hull2);
+        assert_eq!(overlap, false);
+    }
+    {
+        let hull = vec![
+            vec2f(5.600000, 0.990000),
+            vec2f(0.970000, 5.120000),
+            vec2f(-4.970000, 7.290001),
+            vec2f(-7.220000, 3.350000),
+            vec2f(-1.600000, -6.970000),
+        ];
+        let hull2 = vec![
+            vec2f(-5.737000, -4.090000),
+            vec2f(-9.257000, 9.850000),
+            vec2f(-11.657001, 14.440001),
+            vec2f(-21.247000, 5.010000),
+            vec2f(-21.227001, 4.030000),
+            vec2f(-6.507000, -3.760000),
+        ];
+        let overlap = convex_hull_vs_convex_hull(hull, hull2);
+        assert_eq!(overlap, false);
+    }
+    {
+        let hull = vec![
+            vec2f(8.139999, -4.640000),
+            vec2f(-3.650000, 8.650000),
+            vec2f(-9.760000, -1.470000),
+            vec2f(-0.230000, -7.720000),
+            vec2f(4.250000, -8.850000),
+        ];
+        let hull2 = vec![
+            vec2f(-4.477001, 6.370000),
+            vec2f(-14.367001, 10.660000),
+            vec2f(-21.306999, 10.050000),
+            vec2f(-19.146999, -2.020000),
+            vec2f(-18.017000, -3.950000),
+            vec2f(-9.607000, -1.030000),
+        ];
+        let overlap = convex_hull_vs_convex_hull(hull, hull2);
+        assert_eq!(overlap, true);
+    }
+    {
+        let hull = vec![
+            vec2f(8.139999, -4.640000),
+            vec2f(-3.650000, 8.650000),
+            vec2f(-9.760000, -1.470000),
+            vec2f(-0.230000, -7.720000),
+            vec2f(4.250000, -8.850000),
+        ];
+        let hull2 = vec![
+            vec2f(-5.349001, 6.370000),
+            vec2f(-15.239000, 10.660000),
+            vec2f(-22.179001, 10.050000),
+            vec2f(-20.019001, -2.020000),
+            vec2f(-18.889000, -3.950000),
+            vec2f(-10.479000, -1.030000),
+        ];
+        let overlap = convex_hull_vs_convex_hull(hull, hull2);
+        assert_eq!(overlap, false);
+    }
+    {
+        let hull = vec![
+            vec2f(8.139999, -4.640000),
+            vec2f(-3.650000, 8.650000),
+            vec2f(-9.760000, -1.470000),
+            vec2f(-0.230000, -7.720000),
+            vec2f(4.250000, -8.850000),
+        ];
+        let hull2 = vec![
+            vec2f(21.008999, 6.370000),
+            vec2f(11.118999, 10.660000),
+            vec2f(4.179000, 10.050000),
+            vec2f(6.339000, -2.020000),
+            vec2f(7.469000, -3.950000),
+            vec2f(15.879000, -1.030000),
+        ];
+        let overlap = convex_hull_vs_convex_hull(hull, hull2);
+        assert_eq!(overlap, true);
+    }
+    {
+        let hull = vec![
+            vec2f(8.139999, -4.640000),
+            vec2f(-3.650000, 8.650000),
+            vec2f(-9.760000, -1.470000),
+            vec2f(-0.230000, -7.720000),
+            vec2f(4.250000, -8.850000),
+        ];
+        let hull2 = vec![
+            vec2f(21.008999, -13.334001),
+            vec2f(11.118999, -9.044001),
+            vec2f(4.179000, -9.654000),
+            vec2f(6.339000, -21.724001),
+            vec2f(7.469000, -23.654001),
+            vec2f(15.879000, -20.734001),
+        ];
+        let overlap = convex_hull_vs_convex_hull(hull, hull2);
+        assert_eq!(overlap, false);
+    }
+    {
+        let hull = vec![
+            vec2f(6.350000, -8.580000),
+            vec2f(1.130000, 0.060000),
+            vec2f(-9.920000, 9.680000),
+            vec2f(-7.690000, -8.250000),
+        ];
+        let hull2 = vec![
+            vec2f(10.046000, -13.754001),
+            vec2f(6.486000, -8.304001),
+            vec2f(-8.854000, -17.034000),
+            vec2f(7.035999, -18.804001),
+            vec2f(8.535999, -17.584000),
+        ];
+        let overlap = convex_hull_vs_convex_hull(hull, hull2);
+        assert_eq!(overlap, true);
+    }
+    {
+        let hull = vec![
+            vec2f(6.350000, -8.580000),
+            vec2f(1.130000, 0.060000),
+            vec2f(-9.920000, 9.680000),
+            vec2f(-7.690000, -8.250000),
+        ];
+        let hull2 = vec![
+            vec2f(10.046000, 11.746000),
+            vec2f(6.486000, 17.195999),
+            vec2f(-8.854000, 8.466001),
+            vec2f(7.035999, 6.696001),
+            vec2f(8.535999, 7.916000),
+        ];
+        let overlap = convex_hull_vs_convex_hull(hull, hull2);
+        assert_eq!(overlap, true);
+    }
+    {
+        let hull = vec![
+            vec2f(6.350000, -8.580000),
+            vec2f(1.130000, 0.060000),
+            vec2f(-9.920000, 9.680000),
+            vec2f(-7.690000, -8.250000),
+        ];
+        let hull2 = vec![
+            vec2f(10.046000, 6.386000),
+            vec2f(6.486000, 11.835999),
+            vec2f(-8.854000, 3.106000),
+            vec2f(7.035999, 1.336000),
+            vec2f(8.535999, 2.556000),
+        ];
+        let overlap = convex_hull_vs_convex_hull(hull, hull2);
+        assert_eq!(overlap, true);
+    }
+    {
+        let hull = vec![
+            vec2f(8.440001, -4.500000),
+            vec2f(8.129999, 2.380000),
+            vec2f(0.940000, 8.440001),
+            vec2f(-8.740000, 5.060000),
+            vec2f(-6.340000, 2.260000),
+            vec2f(3.940000, -2.620000),
+        ];
+        let hull2 = vec![
+            vec2f(7.676000, 21.211000),
+            vec2f(-5.474000, 24.641001),
+            vec2f(-2.884000, 17.401001),
+            vec2f(5.666000, 5.071001),
+        ];
+        let overlap = convex_hull_vs_convex_hull(hull, hull2);
+        assert_eq!(overlap, false);
+    }
+    {
+        let hull = vec![
+            vec2f(8.440001, -4.500000),
+            vec2f(8.129999, 2.380000),
+            vec2f(0.940000, 8.440001),
+            vec2f(-8.740000, 5.060000),
+            vec2f(-6.340000, 2.260000),
+            vec2f(3.940000, -2.620000),
+        ];
+        let hull2 = vec![
+            vec2f(-7.386000, 21.211000),
+            vec2f(-20.535999, 24.641001),
+            vec2f(-17.945999, 17.401001),
+            vec2f(-9.396000, 5.071001),
+        ];
+        let overlap = convex_hull_vs_convex_hull(hull, hull2);
+        assert_eq!(overlap, false);
+    }
+    {
+        let hull = vec![
+            vec2f(8.440001, -4.500000),
+            vec2f(8.129999, 2.380000),
+            vec2f(0.940000, 8.440001),
+            vec2f(-8.740000, 5.060000),
+            vec2f(-6.340000, 2.260000),
+            vec2f(3.940000, -2.620000),
+        ];
+        let hull2 = vec![
+            vec2f(-7.386000, 11.236000),
+            vec2f(-20.535999, 14.666000),
+            vec2f(-17.945999, 7.426000),
+            vec2f(-9.396000, -4.904000),
+        ];
+        let overlap = convex_hull_vs_convex_hull(hull, hull2);
+        assert_eq!(overlap, true);
+    }
+    {
+        let hull = vec![
+            vec2f(9.950001, -2.330000),
+            vec2f(5.530000, 8.250000),
+            vec2f(-3.750000, 8.680000),
+            vec2f(-9.670000, 3.970000),
+            vec2f(2.100000, -7.890000),
+        ];
+        let hull2 = vec![
+            vec2f(-7.186001, 9.056000),
+            vec2f(-9.676000, 10.006001),
+            vec2f(-21.426001, 11.365999),
+            vec2f(-24.586000, 2.676000),
+            vec2f(-7.936001, 3.536000),
+        ];
+        let overlap = convex_hull_vs_convex_hull(hull, hull2);
+        assert_eq!(overlap, true);
+    }
+    {
+        let hull = vec![
+            vec2f(9.950001, -2.330000),
+            vec2f(5.530000, 8.250000),
+            vec2f(-3.750000, 8.680000),
+            vec2f(-9.670000, 3.970000),
+            vec2f(2.100000, -7.890000),
+        ];
+        let hull2 = vec![
+            vec2f(-7.186001, 1.138999),
+            vec2f(-9.676000, 2.089000),
+            vec2f(-21.426001, 3.448999),
+            vec2f(-24.586000, -5.241000),
+            vec2f(-7.936001, -4.381000),
+        ];
+        let overlap = convex_hull_vs_convex_hull(hull, hull2);
+        assert_eq!(overlap, false);
+    }
+    {
+        let hull = vec![
+            vec2f(9.950001, -2.330000),
+            vec2f(5.530000, 8.250000),
+            vec2f(-3.750000, 8.680000),
+            vec2f(-9.670000, 3.970000),
+            vec2f(2.100000, -7.890000),
+        ];
+        let hull2 = vec![
+            vec2f(26.385000, 1.138999),
+            vec2f(23.895000, 2.089000),
+            vec2f(12.145000, 3.448999),
+            vec2f(8.985001, -5.241000),
+            vec2f(25.635000, -4.381000),
+        ];
+        let overlap = convex_hull_vs_convex_hull(hull, hull2);
+        assert_eq!(overlap, false);
+    }
+    {
+        let hull = vec![
+            vec2f(9.950001, -2.330000),
+            vec2f(5.530000, 8.250000),
+            vec2f(-3.750000, 8.680000),
+            vec2f(-9.670000, 3.970000),
+            vec2f(2.100000, -7.890000),
+        ];
+        let hull2 = vec![
+            vec2f(21.630001, 1.138999),
+            vec2f(19.140001, 2.089000),
+            vec2f(7.390001, 3.448999),
+            vec2f(4.230001, -5.241000),
+            vec2f(20.880001, -4.381000),
+        ];
+        let overlap = convex_hull_vs_convex_hull(hull, hull2);
+        assert_eq!(overlap, true);
+    }
+    {
+        let hull = vec![
+            vec2f(9.290001, -9.460000),
+            vec2f(-1.510000, 7.309999),
+            vec2f(-7.400000, 5.450000),
+            vec2f(-2.250000, -8.200000),
+        ];
+        let hull2 = vec![
+            vec2f(16.556000, -10.841001),
+            vec2f(15.996000, -1.171000),
+            vec2f(14.066000, 1.899000),
+            vec2f(9.256001, 2.569000),
+            vec2f(6.586000, -2.281001),
+            vec2f(7.246000, -5.201000),
+            vec2f(8.316000, -7.891000),
+        ];
+        let overlap = convex_hull_vs_convex_hull(hull, hull2);
+        assert_eq!(overlap, false);
+    }
+    {
+        let hull = vec![
+            vec2f(9.290001, -9.460000),
+            vec2f(-1.510000, 7.309999),
+            vec2f(-7.400000, 5.450000),
+            vec2f(-2.250000, -8.200000),
+        ];
+        let hull2 = vec![
+            vec2f(16.556000, -21.801001),
+            vec2f(15.996000, -12.131001),
+            vec2f(14.066000, -9.061001),
+            vec2f(9.256001, -8.391001),
+            vec2f(6.586000, -13.241001),
+            vec2f(7.246000, -16.161001),
+            vec2f(8.316000, -18.851002),
+        ];
+        let overlap = convex_hull_vs_convex_hull(hull, hull2);
+        assert_eq!(overlap, true);
+    }
+    {
+        let hull = vec![
+            vec2f(9.290001, -9.460000),
+            vec2f(-1.510000, 7.309999),
+            vec2f(-7.400000, 5.450000),
+            vec2f(-2.250000, -8.200000),
+        ];
+        let hull2 = vec![
+            vec2f(2.620999, -21.801001),
+            vec2f(2.061000, -12.131001),
+            vec2f(0.131000, -9.061001),
+            vec2f(-4.679000, -8.391001),
+            vec2f(-7.349000, -13.241001),
+            vec2f(-6.689001, -16.161001),
+            vec2f(-5.619000, -18.851002),
+        ];
+        let overlap = convex_hull_vs_convex_hull(hull, hull2);
+        assert_eq!(overlap, false);
+    }
+    {
+        let hull = vec![
+            vec2f(8.980000, 1.330000),
+            vec2f(-7.340000, 7.110001),
+            vec2f(-6.340000, -5.560000),
+            vec2f(8.780001, -1.810000),
+        ];
+        let hull2 = vec![
+            vec2f(8.390999, -12.821001),
+            vec2f(8.310999, -6.591002),
+            vec2f(-5.269001, -15.121000),
+            vec2f(-9.189000, -18.011002),
+            vec2f(6.041000, -17.561001),
+        ];
+        let overlap = convex_hull_vs_convex_hull(hull, hull2);
+        assert_eq!(overlap, false);
+    }
+    {
+        let hull = vec![
+            vec2f(8.980000, 1.330000),
+            vec2f(-7.340000, 7.110001),
+            vec2f(-6.340000, -5.560000),
+            vec2f(8.780001, -1.810000),
+        ];
+        let hull2 = vec![
+            vec2f(-6.594002, -5.095001),
+            vec2f(-6.674002, 1.134998),
+            vec2f(-20.254002, -7.395000),
+            vec2f(-24.174002, -10.285001),
+            vec2f(-8.944000, -9.835001),
+        ];
+        let overlap = convex_hull_vs_convex_hull(hull, hull2);
+        assert_eq!(overlap, true);
+    }
+}

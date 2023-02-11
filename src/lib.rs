@@ -209,12 +209,12 @@ pub fn cross<T: Number, V: Cross<T>>(a: V, b: V) -> V {
 }
 
 /// returns the scalar triple product of a x b x c, makes sense only for 3 dimensional vectors 
-pub fn scalar_triple<T: Number, V: Cross<T>>(a: V, b: V, c: V) -> T {
+pub fn scalar_triple<T: Number + SignedNumber, V: Triple<T>>(a: V, b: V, c: V) -> T {
     V::scalar_triple(a, b, c)
 }
 
-/// returns the vector triple product of a x b x c, makes sense only for 3 dimensional vectors 
-pub fn vector_triple<T: Number, V: Cross<T>>(a: V, b: V, c: V) -> V {
+/// returns the vector triple product of a x b x c, mainly used for 3D vectors, but with a 2D specialisation leveraging z-up
+pub fn vector_triple<T: Number + SignedNumber, V: Triple<T>>(a: V, b: V, c: V) -> V {
     V::vector_triple(a, b, c)
 }
 
@@ -887,12 +887,7 @@ pub fn aabb_vs_aabb<T: Number, V: VecN<T> + NumberOps<T>>(aabb_min1: V, aabb_max
 pub fn sphere_vs_obb<T: Float, V: VecN<T> + VecFloatOps<T> + NumberOps<T> + SignedNumberOps<T>, M: MatTranslate<V> + MatInverse<T> + MatRotate3D<T, V> + MatN<T, V>>(s: V, r: T, obb: M) -> bool {
     // test the distance to the closest point on the obb
     let cp = closest_point_on_obb(s, obb);
-    if dist2(s, cp) < r * r {
-        true
-    }
-    else {
-        false
-    }
+    dist2(s, cp) < r * r
 }
 
 /// returns true if the capsule cp0-cp1 with radius cr0 overlaps the capsule cp2-cp3 with radius cr1
@@ -903,12 +898,7 @@ pub fn capsule_vs_capsule<T: Float + FloatOps<T> + SignedNumberOps<T>, V: VecN<T
     // check shortest distance between the 2 capsule line segments, if less than the sq radius we overlap
     if let Some((start, end)) = shortest_line_segment_between_line_segments(cp0, cp1, cp2, cp3) {
         let d = dist2(start, end);
-        if d < r2 {
-            true
-        }
-        else {
-            false
-        }
+        d < r2
     }
     else {
         // we must be orthogonal, which means there is no one single closest point between the 2 lines
@@ -927,11 +917,8 @@ pub fn capsule_vs_capsule<T: Float + FloatOps<T> + SignedNumberOps<T>, V: VecN<T
             if t0 >= T::zero() && t0*t0 < dist2(cp1, cp0) {
                 true
             }
-            else if t1 > T::zero() && t1*t1 < dist2(cp2, cp3) {
-                true
-            }
             else {
-                false
+                t1 > T::zero() && t1*t1 < dist2(cp2, cp3)
             }
         }
         else {
@@ -1707,7 +1694,7 @@ pub fn morton_xyz(x: u64, y: u64, z: u64) -> u64 {
     z = (z | (z <<  4)) & 0x30C30C30C30C30C3;
     z = (z | (z <<  2)) & 0x9249249249249249;
 
-    (x << 0) | (y << 1) | (z << 2)
+    x | (y << 1) | (z << 2)
 }
 
 /// returns the number even bits extracted from x as set bits in the return; value 0b010101 returns 0b111
@@ -1739,7 +1726,7 @@ pub fn morton_to_xy(d: u64) -> (u64, u64) {
 
 /// returns the x,y,z grid position for morten order index d
 pub fn morton_to_xyz(d: u64) -> (u64, u64, u64) {
-    (morton_2(d >> 0), morton_2(d >> 1), morton_2(d >> 2))
+    (morton_2(d), morton_2(d >> 1), morton_2(d >> 2))
 }
 
 /// remap v within in_start -> in_end range to the new range out_start -> out_end
@@ -1748,13 +1735,115 @@ pub fn map_to_range<T: Float, X: Base<T>>(v: X, in_start: X, in_end: X, out_star
     out_start + slope * (v - in_start)
 }
 
+/// finds support vertices for gjk based on convex meshses where convex0 and convex1 are an array of vertices that form a convex hull
+pub fn gjk_mesh_support_function<T: Float + FloatOps<T> + NumberOps<T> + SignedNumberOps<T>, V: VecN<T> + VecFloatOps<T> + SignedNumberOps<T> + FloatOps<T>> (convex0: &Vec<V>, convex1: &Vec<V>, dir: V) -> V {
+    let furthest_point = |dir: V, vertices: &Vec<V>| -> V {
+        let mut fd = -T::max_value();
+        let mut fv = vertices[0];
+        for v in vertices {
+            let d = dot(dir, *v);
+            if d > fd {
+                fv = *v;
+                fd = d;
+            }
+        }
+        fv
+    };
+    
+    // selects the furthest points on the 2 meshes in opposite directions
+    let fp0 = furthest_point(dir, convex0);
+    let fp1 = furthest_point(-dir, convex1);
+    fp0 - fp1
+}
+
+/// simplex evolution for 2d mesh overlaps using gjk
+fn handle_simplex_2d<T: Float + FloatOps<T> + NumberOps<T> + SignedNumber + SignedNumberOps<T>, V: VecN<T> + VecFloatOps<T> + Triple<T>> (simplex: &mut Vec<V>, dir: &mut V) -> bool {
+    match simplex.len() {
+        2 => {
+            let a = simplex[1];
+            let b = simplex[0];
+            let ab = b - a;
+            let ao = -a;
+            
+            *dir = vector_triple(ab, ao, ab);
+            
+            false
+        },
+        3 => {
+            let a = simplex[2];
+            let b = simplex[1];
+            let c = simplex[0];
+            
+            let ab = b - a;
+            let ac = c - a;
+            let ao = -a;
+            
+            let abperp = vector_triple(ac, ab, ab);
+            let acperp = vector_triple(ab, ac, ac);
+            
+            if dot(abperp, ao) > T::zero() {
+                simplex.remove(0);
+                *dir = abperp;
+                false
+            }
+            else if dot(acperp, ao) > T::zero() {
+                simplex.remove(1);
+                *dir = acperp;
+                false
+            }
+            else {
+                true
+            }
+        }
+        _ => {
+            panic!("we should always have 2 or 3 points in the simplex!");
+        }
+    }
+}
+
+/// returns true if the 2d convex hull convex0 overlaps with convex1 using the gjk algorithm
+pub fn gjk_2d<T: Float + FloatOps<T> + NumberOps<T> + SignedNumber + SignedNumberOps<T>, V: VecN<T> + FloatOps<T> + SignedNumberOps<T> + VecFloatOps<T> + Triple<T>>(convex0: Vec<V>, convex1: Vec<V>) -> bool {
+    // implemented following details in this insightful video: https://www.youtube.com/watch?v=ajv46BSqcK4
+    
+    // start with arbitrary direction
+    let mut dir = V::unit_x();
+    let support = gjk_mesh_support_function(&convex0, &convex1, dir);
+    dir = normalize(-support);
+    
+    // iterative build and test simplex
+    let mut simplex = vec![support];
+    
+    let max_iters = 32;
+    for _i in 0..max_iters {
+        let a = gjk_mesh_support_function(&convex0, &convex1, dir);
+        
+        if dot(a, dir) < T::zero() {
+            return false;
+        }
+        simplex.push(a);
+        
+        if handle_simplex_2d(&mut simplex, &mut dir) {
+            return true;
+        }
+    }
+    
+    // if we reach here we likely have got stuck in a simplex building loop, we assume the shapes are touching but not intersecting
+    false
+}
+
+pub fn convex_hull_vs_convex_hull<T: Float + FloatOps<T> + NumberOps<T> + SignedNumber + SignedNumberOps<T>, V: VecN<T> + FloatOps<T> + SignedNumberOps<T> + VecFloatOps<T> + Triple<T>>(convex0: Vec<V>, convex1: Vec<V>) -> bool {
+    gjk_2d(convex0, convex1)
+}
+
+
 // tests;;
 // quilez functions
 // quat tests
 
 // TODO: from maths::
-// point_obb_distance
-// gjk
+// gjk 2d
+// hull vs hull
+
+// gjk 3d
 // obb_vs_aabb
 // obb_vs_obb
-// hull vs hull

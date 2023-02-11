@@ -131,14 +131,10 @@ impl<T> Dot<T> for Vec4<T> where T: Number {
     }
 }
 
-/// trait for cross product, this is only implemented for Vec3
+/// trait for cross product, this is implemented for Vec3
 pub trait Cross<T> {
     /// vector cross-product
     fn cross(a: Self, b: Self) -> Self;
-    /// scalar triple product
-    fn scalar_triple(a: Self, b: Self, c: Self) -> T;
-    /// vector triple product
-    fn vector_triple(a: Self, b: Self, c: Self) -> Self;
 }
 
 impl<T> Cross<T> for Vec3<T> where T: Number {
@@ -149,13 +145,41 @@ impl<T> Cross<T> for Vec3<T> where T: Number {
             z: (a.x * b.y) - (a.y * b.x),
         }
     }
+}
 
+pub trait Triple<T> {
+    /// scalar triple product
+    fn scalar_triple(a: Self, b: Self, c: Self) -> T;
+    /// vector triple product
+    fn vector_triple(a: Self, b: Self, c: Self) -> Self;
+}
+
+/// 3D triple products
+impl<T> Triple<T> for Vec3<T> where T: Number {
     fn scalar_triple(a: Self, b: Self, c: Self) -> T {
         a.x * (b.y * c.z - b.z * c.y) + a.y * (b.z * c.x - b.x * c.z) + a.z * (b.x * c.y - b.y * c.x)
     }
 
     fn vector_triple(a: Self, b: Self, c: Self) -> Self {
         Self::cross(Self::cross(a, b), c)
+    }
+}
+
+/// 2D triple product specialisation, levearging z-axis
+impl<T> Triple<T> for Vec2<T> where T: Number + SignedNumber {
+    fn scalar_triple(_a: Self, b: Self, c: Self) -> T {
+        b.x * c.y - b.y * c.x
+    }
+
+    fn vector_triple(a: Self, b: Self, c: Self) -> Self {
+        let a3 = Vec3::<T>::new(a.x, a.y, T::zero());
+        let b3 = Vec3::<T>::new(b.x, b.y, T::zero()); 
+        let c3 = Vec3::<T>::new(c.x, c.y, T::zero());
+        let v3 = Vec3::<T>::cross(Vec3::<T>::cross(a3, b3), c3);
+        Self {
+            x: v3.x,
+            y: v3.y
+        }
     }
 }
 
