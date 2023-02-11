@@ -882,6 +882,41 @@ pub fn aabb_vs_aabb<T: Number, V: VecN<T> + NumberOps<T>>(aabb_min1: V, aabb_max
     true
 }
 
+/// returns true if the aabb defined by aabb_min to aabb_max overlaps obb defined by matrix, where the matrix transforms an aabb with -1 to 1 extents into an obb
+pub fn aabb_vs_obb<T: Number + Float + SignedNumber + SignedNumberOps<T> + NumberOps<T> + FloatOps<T>, V: VecN<T> + NumberOps<T> + FloatOps<T> + Triple<T> + Cross<T>, M: MatTranslate<V> + MatInverse<T> + MatRotate3D<T, V> + MatN<T, V> + std::ops::Mul<Vec3<T>, Output=Vec3<T>>>(aabb_min: Vec3<T>, aabb_max: Vec3<T>, obb: M) -> bool {
+    // this function is for convenience, you can extract vertices and pass to gjk_3d yourself
+    let corners = [
+        Vec3::<T>::new(-T::one(), -T::one(), -T::one()),
+        Vec3::<T>::new( T::one(), -T::one(), -T::one()),
+        Vec3::<T>::new( T::one(),  T::one(), -T::one()),
+        Vec3::<T>::new(-T::one(),  T::one(),  T::one()),
+        Vec3::<T>::new(-T::one(), -T::one(),  T::one()),
+        Vec3::<T>::new( T::one(), -T::one(),  T::one()),
+        Vec3::<T>::new( T::one(),  T::one(),  T::one()),
+        Vec3::<T>::new(-T::one(),  T::one(),  T::one()),
+    ];
+    
+    // aabb
+    let verts0 = vec![
+        aabb_min,
+        Vec3::<T>::new(aabb_min.x, aabb_min.y, aabb_max.z),
+        Vec3::<T>::new(aabb_max.x, aabb_min.y, aabb_min.z),
+        Vec3::<T>::new(aabb_max.x, aabb_min.y, aabb_max.z),
+        Vec3::<T>::new(aabb_min.x, aabb_max.y, aabb_min.z),
+        Vec3::<T>::new(aabb_min.x, aabb_max.y, aabb_max.z),
+        Vec3::<T>::new(aabb_max.x, aabb_max.y, aabb_min.z),
+        aabb_max
+    ];
+    
+    // obb from corners
+    let mut verts1 = Vec::new();
+    for corner in corners {
+        verts1.push(obb * corner);
+    }
+    
+    gjk_3d(verts0, verts1)
+}
+
 // returns true if the sphere with centre s0 and radius r0 overlaps obb defined by matrix obb, where the matrix
 // transforms a unit cube with extents -1 to 1 into an obb
 pub fn sphere_vs_obb<T: Float, V: VecN<T> + VecFloatOps<T> + NumberOps<T> + SignedNumberOps<T>, M: MatTranslate<V> + MatInverse<T> + MatRotate3D<T, V> + MatN<T, V>>(s: V, r: T, obb: M) -> bool {
