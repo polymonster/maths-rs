@@ -1835,15 +1835,11 @@ pub fn convex_hull_vs_convex_hull<T: Float + FloatOps<T> + NumberOps<T> + Signed
     gjk_2d(convex0, convex1)
 }
 
-
 // tests;;
 // quilez functions
 // quat tests
 
 // TODO: from maths::
-// gjk 2d
-// hull vs hull
-
 // gjk 3d
 // obb_vs_aabb
 // obb_vs_obb
