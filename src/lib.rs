@@ -53,150 +53,152 @@ pub enum Classification {
     Intersects,
 }
 
-/// returns the minimum of a and b
+/// returns the minimum of `a` and `b`
 pub fn min<T: Number, V: NumberOps<T>>(a: V, b: V) -> V {
     V::min(a, b)
 }
 
-/// returns the maximum of a and b
+/// returns the maximum of `a` and `b`
 pub fn max<T: Number, V: NumberOps<T>>(a: V, b: V) -> V {
     V::max(a, b)
 }
 
-/// returns the value x clamped to the range of min and max
+/// returns the value `x` clamped to the range of `min` and `max`
 pub fn clamp<T: Number, V: NumberOps<T>>(x: V, min: V, max: V) -> V {
     V::clamp(x, min, max)
 }
 
-/// returns 1 if a > b or 0 otherwise
+/// returns 1 if `a > b` or 0 otherwise
 pub fn step<T: Number, V: NumberOps<T>>(a: V, b: V) -> V {
     V::step(a, b)
 }
 
-/// returns -1 if number is negative, 1 if positive and 0 if zero (integers)
+/// returns -1 if value `a` is negative, 1 if positive and 0 if zero (integers)
 pub fn signum<T: SignedNumber, V: SignedNumberOps<T>>(a: V) -> V {
     V::signum(a)
 }
 
-/// returns the value a with the same sign as second paremeter sign
+/// returns the value `a` with the same sign as second paremeter `sign`
 pub fn copysign<T: Float, V: FloatOps<T>>(a: V, sign: T) -> V {
     V::copysign(a, sign)
 }
 
-/// returns the absolute (positive) value of a 
+/// returns the absolute (positive) value of `a` 
 pub fn abs<T: SignedNumber, V: SignedNumberOps<T>>(a: V) -> V {
     V::abs(a)
 }
 
-/// returns the radian value converted from a which is specificied in degrees
+/// returns the radian value converted from value `a` which is specificied in degrees
 pub fn deg_to_rad<T: Float, V: FloatOps<T>>(a: V) -> V {
     V::deg_to_rad(a)
 }
 
-/// returns the degree value converted from a which is specificied in radians
+/// returns the degree value converted from value `a` which is specificied in radians
 pub fn rad_to_deg<T: Float, V: FloatOps<T>>(a: V) -> V {
     V::deg_to_rad(a)
 }
 
-/// returns the floored value of a (round down to nearest integer)
+/// returns the floored value of `a` (round down to nearest integer)
 pub fn floor<T: Float, V: FloatOps<T>>(a: V) -> V {
     V::floor(a)
 }
 
-/// returns the ceil'd value of a(round up to nearest integer)
+/// returns the ceil'd value of `a` (round up to nearest integer)
 pub fn ceil<T: Float, V: FloatOps<T>>(a: V) -> V {
     V::ceil(a)
 }
 
-/// returns the value a rounded to closest integer floor if a < 0.5 or ceil if a >= 0.5
+/// returns the value `a` rounded to closest integer floor if `a < 0.5` or ceil if `a >= 0.5`
 pub fn round<T: Float, V: FloatOps<T>>(a: V) -> V {
     V::round(a)
 }
 
-/// returns true if a is approximately equal to b within the specified epsilon
+/// returns true if value `a` is approximately equal to value `b` within the specified epsilon `eps`
 pub fn approx<T: Float, V: FloatOps<T>>(a: V, b: V, eps: T) -> bool {
     V::approx(a, b, eps)
 }
 
-/// returns the square root of a
+/// returns the square root of value `a`
 pub fn sqrt<T: Float, V: FloatOps<T>>(a: V) -> V {
     V::sqrt(a)
 }
 
-/// returns a raised to the integer power b
+/// returns value `a` raised to the integer power of value `b`
 pub fn powi<T: Float, V: FloatOps<T>>(a: V, b: i32) -> V {
     V::powi(a, b)
 }
 
-/// returns a squared (raised to the power 2)
+/// returns value `a` squared (raised to the power 2)
 pub fn sqr<T: Float, V: FloatOps<T> + Base<T>>(a: V) -> V {
     a * a
 }
 
-/// returns a cubed (raised to the power 3)
+/// returns value `a` cubed (raised to the power 3)
 pub fn cube<T: Float, V: FloatOps<T> + Base<T>>(a: V) -> V {
     a * a * a
 }
 
-/// returns a raised to the floating point power b
+/// returns value `a` raised to the floating point power of value `b`
 pub fn powf<T: Float, V: FloatOps<T>>(a: V, b: T) -> V {
     V::powf(a, b)
 }
 
-/// returns fused multiply add m * a + b
+/// returns fused multiply add `m * a + b`
 pub fn mad<T: Float, V: FloatOps<T>>(m: V, a: V, b: V) -> V {
     V::mad(m, a, b)
 }
 
-/// returns the floating point remainder of a / b
+/// returns the floating point remainder of `a / b`
 pub fn fmod<T: Float, V: FloatOps<T>>(a: V, b: V) -> V {
     V::fmod(a, b)
 }
 
-/// returns the fractional part of a
+/// returns the fractional part of value `a`
 pub fn frac<T: Float, V: FloatOps<T>>(a: V) -> V {
     V::frac(a)
 }
 
-/// truncates value a - removing the fractional part, truncating to an integer
+/// truncates value `a` - removing the fractional part, truncating to an integer
 pub fn trunc<T: Float, V: FloatOps<T>>(a: V) -> V {
     V::trunc(a)
 }
 
-/// returns the reciprocal square root of a
+/// returns the reciprocal square root of value `a`
 pub fn rsqrt<T: Float, V: FloatOps<T>>(a: V) -> V {
     V::rsqrt(a)
 }
 
-/// returns the reciprocal of a
+/// returns the reciprocal of value `a`
 pub fn recip<T: Float, V: FloatOps<T>>(a: V) -> V {
     V::recip(a)
 }
 
-/// returns the value v broken down into a tuple (fractional, integer) parts
+/// returns the value `v` broken down into a tuple (fractional, integer) parts
 pub fn modf<T: Float, V: FloatOps<T>>(v: V) -> (V, V) {
     V::modf(v)
 }
 
-/// returns a value interpolated between edges e0 and e1 by percentage t
+/// returns a value interpolated between edges `e0` and `e1` by percentage `t`
 pub fn lerp<T: Float, V: FloatOps<T>>(e0: V, e1: V, t: T) -> V {
     V::lerp(e0, e1, t)
 }
 
-/// returns a value interpolated between edges e0 and e1 by percentage t with the result being normalised
+/// returns a value interpolated between edges `e0` and `e1` by percentage `t` with the result being normalised
 pub fn nlerp<T: Float, V: VecFloatOps<T> + Nlerp<T>>(e0: V, e1: V, t: T) -> V {
     V::nlerp(e0, e1, t)
 }
 
-/// returns a value spherically interpolated between edges e0 and e1 by percentage t
+/// returns a value spherically interpolated between edges `e0` and `e1` by percentage `t`
 pub fn slerp<T: Float + NumberOps<T> + FloatOps<T>, V: Slerp<T>>(e0: V, e1: V, t: T) -> V {
     V::slerp(e0, e1, t)
 }
 
-/// returns the hermite interpolated value between edge e0 and e1 by percentage t
+/// returns the hermite interpolated value between edge `e0` and `e1` by percentage `t`
 pub fn smoothstep<T: Float, V: FloatOps<T>>(e0: V, e1: V, t: T) -> V {
     V::smoothstep(e0, e1, t)
 }
+
+// comment sweep here!
 
 /// returns the saturated value of x into to the 0-1 range, this is the same as clamp(x, 0.0, 1.0)
 pub fn saturate<T: Float, V: FloatOps<T>>(x: V) -> V {
@@ -923,6 +925,34 @@ pub fn sphere_vs_obb<T: Float, V: VecN<T> + VecFloatOps<T> + NumberOps<T> + Sign
     // test the distance to the closest point on the obb
     let cp = closest_point_on_obb(s, obb);
     dist2(s, cp) < r * r
+}
+
+/// returns true if the aabb defined by obb0 overlaps obb1 where the obb's are defined by a matrix and the matrix transforms an aabb with -1 to 1 extents into an obb
+pub fn obb_vs_obb<T: Number + Float + SignedNumber + SignedNumberOps<T> + NumberOps<T> + FloatOps<T>, V: VecN<T> + NumberOps<T> + FloatOps<T> + Triple<T> + Cross<T>, M: MatTranslate<V> + MatInverse<T> + MatRotate3D<T, V> + MatN<T, V> + std::ops::Mul<Vec3<T>, Output=Vec3<T>>>(obb0: M, obb1: M) -> bool {
+    // this function is for convenience, you can extract vertices and pass to gjk_3d yourself
+    let corners = [
+        Vec3::<T>::new(-T::one(), -T::one(), -T::one()),
+        Vec3::<T>::new( T::one(), -T::one(), -T::one()),
+        Vec3::<T>::new( T::one(),  T::one(), -T::one()),
+        Vec3::<T>::new(-T::one(),  T::one(),  T::one()),
+        Vec3::<T>::new(-T::one(), -T::one(),  T::one()),
+        Vec3::<T>::new( T::one(), -T::one(),  T::one()),
+        Vec3::<T>::new( T::one(),  T::one(),  T::one()),
+        Vec3::<T>::new(-T::one(),  T::one(),  T::one()),
+    ];
+    
+    // obb from corners
+    let mut verts0 = Vec::new();
+    for corner in corners {
+        verts0.push(obb0 * corner);
+    }
+
+    let mut verts1 = Vec::new();
+    for corner in corners {
+        verts1.push(obb1 * corner);
+    }
+    
+    gjk_3d(verts0, verts1)
 }
 
 /// returns true if the capsule cp0-cp1 with radius cr0 overlaps the capsule cp2-cp3 with radius cr1
@@ -1998,8 +2028,3 @@ pub fn gjk_3d<T: Float + FloatOps<T> + NumberOps<T> + SignedNumber + SignedNumbe
 // tests;;
 // quilez functions
 // quat tests
-
-// TODO: from maths::
-// gjk 3d
-// obb_vs_aabb
-// obb_vs_obb
