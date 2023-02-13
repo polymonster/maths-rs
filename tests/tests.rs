@@ -5420,7 +5420,7 @@ fn obb_vs_obb_test() {
             -0.402272, -3.458451, 0.687430, -10.000000,
             0.489462, 2.900668, 0.763349, -7.228000,
             0.000000, 0.000000, 0.000000, 1.000000);
-        let overlap = obb_vs_obb(obb, obb2);
+        let _overlap = obb_vs_obb(obb, obb2);
         //assert_eq!(overlap, true);
     }
     {
