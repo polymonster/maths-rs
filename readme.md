@@ -195,14 +195,16 @@ let f = smoothstep(5.0, 1.0, f);
 
 These functions are availble for all floating point scalar or vector types: `cos, sin, tan, acos, asin, atan, cosh, sinh, tanh, sin_cos, atan2, exp, exp2, log2, log10`.
 
-They do not have generic implementations as they are not as commonly used, you can access them like so:
-
 ```rust
-let s = Vec3f::sin(x);
-let x = Vec3f::cos(y);
-let f = f32::acos(x);
-let d = f64::atan2(y, x);
-let l = f32::log2(x);
+// trig functions 
+let s = sin(vec2);
+let x = cos(vec3);
+let f = acos(x);
+let d = atan2(y, x);
+
+// exp / log 
+let d = exp(y);
+let l = log2(x);
 ```
 
 ### Functions

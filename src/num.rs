@@ -88,6 +88,14 @@ pub trait FloatOps<T: Float>: Lerp<T> where Self: Sized {
     fn point_five() -> Self;
     /// returns pi
     fn pi() -> Self;
+    /// returns 2.0 * pi
+    fn two_pi() -> Self;
+    /// returns 1.0 / pi
+    fn inv_pi() -> Self;
+    /// returns phi (the golden constant)
+    fn phi() -> Self;
+    /// returns 1.0 / phi (the golden constant)
+    fn inv_phi() -> Self;
     /// returns square root of a
     fn sqrt(a: Self) -> Self;
     /// returns reciprocal square root of a (1/sqrt(a))
@@ -156,7 +164,7 @@ pub trait FloatOps<T: Float>: Lerp<T> where Self: Sized {
     fn atan2(y: Self, x: Self) -> Self;
     // returns the base-e exponential function of v, which is e raised to the power v
     fn exp(v: Self) -> Self;
-    /// returns 2 raised to the given power n
+    /// returns 2 raised to the given power v
     fn exp2(v: Self) -> Self;
     /// returns the binary (base-2) logarithm of v
     fn log2(v: Self) -> Self;
@@ -317,6 +325,23 @@ macro_rules! float_impl {
             #[allow(clippy::excessive_precision)] 
             fn pi() -> Self {
                 3.14159265358979323846264338327950288 as Self
+            }
+
+            fn two_pi() -> Self {
+                2.0 as Self * Self::pi() as Self
+            }
+
+            fn inv_pi() -> Self {
+                1.0 as Self / Self::pi() as Self
+            }
+
+            #[allow(clippy::excessive_precision)] 
+            fn phi() -> Self {
+                1.618033988749894 as Self
+            }
+
+            fn inv_phi() -> Self {
+                1.0 as Self / Self::phi() as Self
             }
 
             fn rsqrt(a: Self) -> Self {

@@ -542,6 +542,30 @@ macro_rules! vec_impl {
                 }
             }
 
+            fn two_pi() -> Self {
+                $VecN {
+                    $($field: T::two_pi(),)+
+                }
+            }
+
+            fn inv_pi() -> Self {
+                $VecN {
+                    $($field: T::inv_pi(),)+
+                }
+            }
+
+            fn phi() -> Self {
+                $VecN {
+                    $($field: T::phi(),)+
+                }
+            }
+
+            fn inv_phi() -> Self {
+                $VecN {
+                    $($field: T::inv_phi(),)+
+                }
+            }
+
             fn sqrt(a: Self) -> Self {
                 Self {
                     $($field: T::sqrt(a.$field),)+

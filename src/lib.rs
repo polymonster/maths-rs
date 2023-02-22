@@ -18,6 +18,7 @@ use vec::*;
 use mat::*;
 use quat::*;
 
+/// opinionated type abbreviations
 #[cfg(feature = "short_types")]
 pub type Vec2f = Vec2<f32>;
 pub type Vec3f = Vec3<f32>;
@@ -198,29 +199,27 @@ pub fn smoothstep<T: Float, V: FloatOps<T>>(e0: V, e1: V, t: T) -> V {
     V::smoothstep(e0, e1, t)
 }
 
-// comment sweep here!
-
-/// returns the saturated value of x into to the 0-1 range, this is the same as clamp(x, 0.0, 1.0)
+/// returns the saturated value of `x` into to the 0-1 range, this is the same as `clamp(x, 0.0, 1.0)`
 pub fn saturate<T: Float, V: FloatOps<T>>(x: V) -> V {
     V::saturate(x)
 }
 
-/// returns the vector cross product of a x b, makes sense only for 3 or 7 dimensional vectors 
+/// returns the vector cross product of `a x b`, makes sense only for 3 or 7 dimensional vectors 
 pub fn cross<T: Number, V: Cross<T>>(a: V, b: V) -> V {
     V::cross(a, b)
 }
 
-/// returns the scalar triple product of a x b x c, makes sense only for 3 dimensional vectors 
+/// returns the scalar triple product of `a x b x c`, makes sense only for 3 dimensional vectors 
 pub fn scalar_triple<T: Number + SignedNumber, V: Triple<T>>(a: V, b: V, c: V) -> T {
     V::scalar_triple(a, b, c)
 }
 
-/// returns the vector triple product of a x b x c, mainly used for 3D vectors, but with a 2D specialisation leveraging z-up
+/// returns the vector triple product of `a x b x c`, mainly used for 3D vectors, but with a 2D specialisation leveraging z-up
 pub fn vector_triple<T: Number + SignedNumber, V: Triple<T>>(a: V, b: V, c: V) -> V {
     V::vector_triple(a, b, c)
 }
 
-/// returns the perpedicular vector of a performing anti-clockwise rotation by 90 degrees
+/// returns the perpedicular vector of `a` performing anti-clockwise rotation by 90 degrees
 pub fn perp<T: SignedNumber>(a: Vec2<T>) -> Vec2<T> {
     Vec2 {
         x: -a.y, 
@@ -228,47 +227,47 @@ pub fn perp<T: SignedNumber>(a: Vec2<T>) -> Vec2<T> {
     }
 }
 
-/// returns the vector dot product between a . b
+/// returns the vector dot product between `a . b`
 pub fn dot<T: Number, V: VecN<T>>(a: V, b: V) -> T {
     V::dot(a, b)
 }
 
-/// returns the scalar magnitude or length of vector
+/// returns the scalar magnitude or length of vector `a`
 pub fn length<T: Float, V: VecFloatOps<T>>(a: V) -> T {
     V::length(a)
 }
 
-/// returns the scalar magnitude or length of vector
+/// returns the scalar magnitude or length of vector `a`
 pub fn mag<T: Float, V: VecFloatOps<T>>(a: V) -> T {
     V::mag(a)
 }
 
-/// returns the scalar magnitude or length of vector squared to avoid using sqrt
+/// returns the scalar magnitude or length of vector `a` squared to avoid using sqrt
 pub fn mag2<T: Float, V: VecFloatOps<T>>(a: V) -> T {
     V::mag2(a)
 }
 
-/// returns a normalized unit vector of a
+/// returns a normalized unit vector of `a`
 pub fn normalize<T: Float, V: VecFloatOps<T>>(a: V) -> V {
     V::normalize(a)
 }
 
-/// returns scalar distance between 2 points (magnitude of the vector between the 2 points)
+/// returns scalar distance between 2 points `a` and `b` (magnitude of the vector between the 2 points)
 pub fn distance<T: Float, V: VecFloatOps<T>>(a: V, b: V) -> T {
     V::distance(a, b)
 }
 
-/// returns scalar distance between 2 points (magnitude of the vector between the 2 points)
+/// returns scalar distance between 2 points `a` and `b` (magnitude of the vector between the 2 points)
 pub fn dist<T: Float, V: VecFloatOps<T>>(a: V, b: V) -> T {
     V::dist(a, b)
 }
 
-/// returns scalar squared distance between 2 points to avoid using sqrt
+/// returns scalar squared distance between 2 points `a` and `b` to avoid using sqrt
 pub fn dist2<T: Float, V: VecFloatOps<T>>(a: V, b: V) -> T {
     V::dist2(a, b)
 }
 
-/// returns the barycentric coordinate (u, v, w) of point p inside triangle t1-t2-t3
+/// returns the barycentric coordinate `(u, v, w)` of point `p` inside triangle `t1-t2-t3`
 pub fn barycentric<T: Float + NumberOps<T>, V: VecN<T> + VecFloatOps<T> + NumberOps<T>>(p: V, t1: V, t2: V, t3: V) -> (T, T, T) {
     let x13 = t1 - t3;
     let x23 = t2 - t3;
@@ -285,7 +284,7 @@ pub fn barycentric<T: Float + NumberOps<T>, V: VecN<T> + VecFloatOps<T> + Number
     (u, v, w)
 }
 
-/// returns an xyz directional unit vector converted from azimuth altitude
+/// returns an `xyz` directional unit vector converted from azimuth altitude
 pub fn azimuth_altitude_to_xyz<T: Float + FloatOps<T>>(azimuth: T, altitude: T) -> Vec3<T> {
     let z = T::sin(altitude);
     let hyp = T::cos(altitude);
@@ -294,12 +293,92 @@ pub fn azimuth_altitude_to_xyz<T: Float + FloatOps<T>>(azimuth: T, altitude: T) 
     Vec3::<T>::new(x, z, y)
 }
 
-/// returns (azimuth, altitude) converted from xyz directional unit vector
+/// returns the cosine of `v` where the value `v` is in radians
+pub fn cos<T: Float, V: FloatOps<T>>(v: V) -> V {
+    V::cos(v)
+}
+
+/// returns the sine of `v` where the value `v` is in radians
+pub fn sin<T: Float, V: FloatOps<T>>(v: V) -> V {
+    V::sin(v)
+}
+
+/// returns the tangent of `v` where the value `v` is in radians
+pub fn tan<T: Float, V: FloatOps<T>>(v: V) -> V {
+    V::tan(v)
+}
+
+/// returns the arc-cosine of `v` where the value `v` is in radians
+pub fn acos<T: Float, V: FloatOps<T>>(v: V) -> V {
+    V::acos(v)
+}
+
+/// returns the arc-sine of `v` where the value `v` is in radians
+pub fn asin<T: Float, V: FloatOps<T>>(v: V) -> V {
+    V::asin(v)
+}
+
+/// returns the arc-tangent of `v` where the value `v` is in radians
+pub fn atan<T: Float, V: FloatOps<T>>(v: V) -> V {
+    V::atan(v)
+}
+
+/// returns the arc-tangent of `v` where the value `v` is in radians
+pub fn atan2<T: Float, V: FloatOps<T>>(y: V, x: V) -> V {
+    V::atan2(y, x)
+}
+
+/// returns the hyperbolic cosine of `v` where the value `v` is in radians
+pub fn cosh<T: Float, V: FloatOps<T>>(v: V) -> V {
+    V::cosh(v)
+}
+
+/// returns the hyperbolic sine of v where the value v is in radians
+pub fn sinh<T: Float, V: FloatOps<T>>(v: V) -> V {
+    V::sinh(v)
+}
+
+/// returns the hyperbolic tangent of `v` where the value `v` is in radians
+pub fn tanh<T: Float, V: FloatOps<T>>(v: V) -> V {
+    V::tanh(v)
+}
+
+/// returns a tuple of (sin(v), cos(v)) of `v` where the value `v` is in radian
+pub fn sin_cos<T: Float, V: FloatOps<T>>(v: V) -> (V, V) {
+    V::sin_cos(v)
+}
+
+// returns the base-e exponential function of `v`, which is e raised to the power `v`
+pub fn exp<T: Float, V: FloatOps<T>>(v: V) -> V {
+    V::exp(v)
+}
+
+/// returns 2 raised to the given power `v`
+pub fn exp2<T: Float, V: FloatOps<T>>(v: V) -> V {
+    V::exp2(v)
+}
+
+/// returns the binary (base-2) logarithm of `v`
+pub fn log2<T: Float, V: FloatOps<T>>(v: V) -> V {
+    V::log2(v)
+}
+
+/// returns the common (base-10) logarithm of `v`
+pub fn log10<T: Float, V: FloatOps<T>>(v: V) -> V {
+    V::log10(v)
+}
+
+/// returns the logarithm of `v` in `base`
+pub fn log<T: Float, V: FloatOps<T>>(v: V, base: T) -> V {
+    V::log(v, base)
+}
+
+/// returns (azimuth, altitude) converted from directional unit vector `xyz`
 pub fn xyz_to_azimuth_altitude<T: Float + FloatOps<T>>(xyz: Vec3<T>) -> (T, T) {
     (T::atan2(xyz.y, xyz.x), T::atan2(xyz.z, sqrt(xyz.x * xyz.x + xyz.y * xyz.y)))
 }
    
-/// returns a convex hull wound clockwise from point cloud "points"
+/// returns a convex hull wound clockwise from point cloud `points`
 pub fn convex_hull_from_points<T: Float + SignedNumberOps<T> + NumberOps<T> + FloatOps<T>>(points: &Vec<Vec2<T>>) -> Vec<Vec2<T>> {    
     //find right most point
     let mut cur = points[0];
@@ -344,7 +423,7 @@ pub fn convex_hull_from_points<T: Float + SignedNumberOps<T> + NumberOps<T> + Fl
     hull
 }
 
-/// returns a plane placked into Vec4 in the form .xyz = plane normal, .w = plane distance / constant from x (point on plane) and n (planes normal)
+/// returns a plane placked into Vec4 in the form `.xyz = plane normal, .w = plane distance (constanr)` from `x` (point on plane) and `n` (planes normal)
 pub fn plane_from_normal_and_point<T: SignedNumber>(x: Vec3<T>, n: Vec3<T>) -> Vec4<T> {
     Vec4 {
         x: n.x,
@@ -354,18 +433,18 @@ pub fn plane_from_normal_and_point<T: SignedNumber>(x: Vec3<T>, n: Vec3<T>) -> V
     }
 }
 
-/// returns the normalized unit vector normal of triangle t1-t2-t3
+/// returns the normalized unit vector normal of triangle `t1-t2-t3`
 pub fn get_triangle_normal<T: Float, V: VecFloatOps<T> + VecN<T> + Cross<T>>(t1: V, t2: V, t3: V) -> V {
     normalize(cross(t2 - t1, t3 - t1))
 }
 
-/// returns the 3D normalized device coordinate of point p projected by view_projection matrix, perfroming homogenous divide
+/// returns the 3D normalized device coordinate of point `p` projected by `view_projection` matrix, perfroming homogenous divide
 pub fn project_to_ndc<T: Float>(p: Vec3<T>, view_projection: Mat4<T>) -> Vec3<T> {
     let ndc = view_projection * Vec4::from((p, T::one()));
     Vec3::from(ndc) / ndc.w
 }
 
-/// returns the 2D screen coordinate of 3D point p projected with view_projection, performing homogenous divide and viewport correction
+/// returns the 2D screen coordinate of 3D point `p` projected with `view_projection`, performing homogenous divide and `viewport` correction
 /// assumes screen coordinates are vup in the y-axis y.0 = bottom y.height = top
 pub fn project_to_sc<T: Float + FloatOps<T>>(p: Vec3<T>, view_projection: Mat4<T>, viewport: Vec2<T>) -> Vec3<T> {
     let ndc = project_to_ndc(p, view_projection);
@@ -373,7 +452,7 @@ pub fn project_to_sc<T: Float + FloatOps<T>>(p: Vec3<T>, view_projection: Mat4<T
     Vec3::from((Vec2::<T>::from(sc) * viewport, sc.z))
 }
 
-/// returns the 2D screen coordinate of 3D point p projected with view_projection, performing homogenous divide and viewport correction
+/// returns the 2D screen coordinate of 3D point `p` projected with `view_projection`, performing homogenous divide and `viewport` correction
 /// coordinates are vdown in the y-axis vdown = y.0 = top y.height = bottom
 pub fn project_to_sc_vdown<T: Float + FloatOps<T>>(p: Vec3<T>, view_projection: Mat4<T>, viewport: Vec2<T>) -> Vec2<T> {
     let ndc = project_to_ndc(p, view_projection);
@@ -381,13 +460,13 @@ pub fn project_to_sc_vdown<T: Float + FloatOps<T>>(p: Vec3<T>, view_projection: 
     Vec2::<T>::from(sc) * viewport
 }
 
-/// returns the unprojected 3D world position of point p which is specified in normalized device coordinates
+/// returns the unprojected 3D world position of point `p` which is specified in normalized device coordinates
 pub fn unproject_ndc<T: Float>(p: Vec3<T>, view_projection: Mat4<T>) -> Vec3<T> {
     let inv = view_projection.inverse();
     inv * p
 }
 
-/// returns the unprojected 3D world position of screen coordinate p
+/// returns the unprojected 3D world position of screen coordinate `p`
 /// assumes screen coordinates are vup in the y-axis y.0 = bottom y.height = top
 pub fn unproject_sc<T: Float>(p: Vec3<T>, view_projection: Mat4<T>, viewport: Vec2<T>) -> Vec3<T> {
     let ndc_xy = (Vec2::from(p) / viewport) * Vec2::from(T::two()) - Vec2::from(T::one());
@@ -395,7 +474,7 @@ pub fn unproject_sc<T: Float>(p: Vec3<T>, view_projection: Mat4<T>, viewport: Ve
     unproject_ndc(ndc, view_projection)
 }
 
-/// returns the unprojected 3D world position of screen coordinate p
+/// returns the unprojected 3D world position of screen coordinate `p`
 /// coordinates are vdown in the y-axis vdown = y.0 = top y.height = bottom
 pub fn unproject_sc_vdown<T: Float>(p: Vec3<T>, view_projection: Mat4<T>, viewport: Vec2<T>) -> Vec3<T> {
     let ndc_xy = (Vec2::from(p) / viewport) * Vec2::new(T::two(), -T::two()) - Vec2::from(T::one());
@@ -403,29 +482,29 @@ pub fn unproject_sc_vdown<T: Float>(p: Vec3<T>, view_projection: Mat4<T>, viewpo
     unproject_ndc(ndc, view_projection)
 }
 
-/// returns the distance to the plane define by a point on the plane x and normal of the plane n
+/// returns the distance to the plane define by a point on the plane `x` and normal of the plane `n`
 pub fn plane_distance<T: SignedNumber, V: VecN<T>>(x: V, n: V) -> T {
     -V::dot(x, n)
 }
 
-/// returns the distance parameter t of point p projected along the line l1-l2, the value is not clamped to the line segment extents
+/// returns the distance parameter t of point `p` projected along the line `l1-l2`, the value is not clamped to the line segment extents
 pub fn distance_on_line<T: Float, V: VecFloatOps<T> + VecN<T>>(p: V, l1: V, l2: V) -> T {
     let v1 = p - l1;
     let v2 = V::normalize(l2 - l1);
     dot(v2, v1)
 }
 
-/// returns the distance parameter t of point p projected along the ray r0 with direction rv, the value is not clamped to 0 or the start of the ray
+/// returns the distance parameter t of point `p` projected along the ray `r0` with direction `rv`, the value is not clamped to 0 or the start of the ray
 pub fn distance_on_ray<T: Float, V: VecFloatOps<T> + VecN<T>>(p: V, r0: V, rv: V) -> T {
     dot(p - r0, rv)
 }
 
-/// returns the distance to the plane from point p where the plane is defined by point on plane x and normal n
+/// returns the distance to the plane from point `p` where the plane is defined by point on plane `x` and normal `n`
 pub fn point_plane_distance<T: SignedNumber, V: VecN<T>>( p: V, x: V, n: V) -> T {
     V::dot(p, n) - V::dot(x, n)
 }
 
-/// returns the distance that point p is from the line segment defined by l1-l2
+/// returns the distance that point `p` is from the line segment defined by `l1-l2`
 pub fn point_line_segment_distance<T: Float + FloatOps<T>, V: VecFloatOps<T> + VecN<T>>(p: V, l1: V, l2: V) -> T {
     let dx = l2 - l1;
     let m2 = mag2(dx);
@@ -435,17 +514,17 @@ pub fn point_line_segment_distance<T: Float + FloatOps<T>, V: VecFloatOps<T> + V
     dist(p, l1 * s12 + l2 * (T::one() - s12))
 }
 
-/// returns the distance that point p is from an aabb defined by aabb_min to aabb_max
+/// returns the distance that point `p` is from an aabb defined by `aabb_min` to `aabb_max`
 pub fn point_aabb_distance<T: Float, V: VecN<T> + NumberOps<T> + VecFloatOps<T>>(p: V, aabb_min: V, aabb_max: V) -> T {
     dist(closest_point_on_aabb(p, aabb_min, aabb_max), p)
 }
 
-// returns the unsigned distance from point p0 to the sphere (or 2d circle) centred at s0 with radius r
+// returns the unsigned distance from point `p0` to the sphere (or 2d circle) centred at `s0` with radius `r`
 pub fn point_sphere_distance<T: Float, V: VecN<T> + NumberOps<T> + VecFloatOps<T>>(p0: V, s0: V, r: T) -> T {
     dist(p0, closest_point_on_sphere(p0, s0, r))
 }
 
-/// returns the distance point p is from a triangle defined by t1-t2-t3
+/// returns the distance point `p` is from a triangle defined by `t1-t2-t3`
 pub fn point_triangle_distance<T: Float + FloatOps<T> + NumberOps<T>, V: VecN<T> + NumberOps<T> + VecFloatOps<T>>(p: V, t1: V, t2: V, t3: V) -> T {
     let (w23, w31, w12) = barycentric(p, t1, t2, t3);
     if w23 >= T::zero() && w31 >= T::zero() && w12 >= T::zero() {
@@ -469,28 +548,28 @@ pub fn point_triangle_distance<T: Float + FloatOps<T> + NumberOps<T>, V: VecN<T>
     }
 }
 
-/// returns the distance from point p to the cone defined by position cp, with height h and radius at the base of r
+/// returns the distance from point `p` to the cone defined by position `cp`, with height `h` and radius at the base of `r`
 pub fn point_cone_distance<T: Float, V: VecN<T> + SignedVecN<T> + VecFloatOps<T>>(p: V, cp: V, cv: V, h: T, r: T) -> T {
     dist(p, closest_point_on_cone(p, cp, cv, h, r))
 }
 
-/// returns the distance from point p to the edge of the convex hull defined by point list 'hull' with clockwise winding
+/// returns the distance from point `p` to the edge of the convex hull defined by point list 'hull' with clockwise winding
 pub fn point_convex_hull_distance<T: Float + FloatOps<T>>(p: Vec2<T>, hull: &Vec<Vec2<T>>) -> T {
     dist(p, closest_point_on_polygon(p, hull))
 }
 
-/// returns the distance from point p to the edge of the polygon defined by point list 'poly'
+/// returns the distance from point `p` to the edge of the polygon defined by point list 'poly'
 pub fn point_polygon_distance<T: Float + FloatOps<T>>(p: Vec2<T>, hull: &Vec<Vec2<T>>) -> T {
     dist(p, closest_point_on_polygon(p, hull))
 }
 
-/// returns the unsigned distance from point p to the obb defined by matrix obb, where the matrix transforms a unit cube
+/// returns the unsigned distance from point `p` to the obb defined by matrix `obb`, where the matrix transforms a unit cube
 /// from -1 to 1 into an obb
 pub fn point_obb_distance<T: Float, V: VecFloatOps<T> + NumberOps<T> + SignedNumberOps<T> + VecN<T> + SignedVecN<T>, M: MatTranslate<V> + MatInverse<T> + MatN<T, V>>(p: V, mat: M) -> T {
     dist(p, closest_point_on_obb(p, mat))
 }
 
-/// returns the closest point on the line l1-l2 to point p
+/// returns the closest point on the line `l1-l2` to point `p`
 pub fn closest_point_on_line_segment<T: Float, V: VecFloatOps<T> + VecN<T>>(p: V, l1: V, l2: V) -> V {
     let v1 = p - l1;
     let v2 = V::normalize(l2 - l1);
@@ -506,22 +585,22 @@ pub fn closest_point_on_line_segment<T: Float, V: VecFloatOps<T> + VecN<T>>(p: V
     }
 }
 
-/// returns the closest point on the plane to point p wher the plane is defined by point on plane x and normal n
+/// returns the closest point on the plane to point `p` where the plane is defined by point on plane `x` and normal `n`
 pub fn closest_point_on_plane<T: SignedNumber, V: VecN<T> + SignedVecN<T>>(p: V, x: V, n: V) -> V {
     p + n * -(V::dot(p, n) - V::dot(x, n))
 }
 
-/// returns the closest point on the aabb defined by aabb_min and aabb_max to point p, if the point is inside the aabb it will return p
+/// returns the closest point on the aabb defined by `aabb_min` and `aabb_max` to point `p`, if the point is inside the aabb it will return `p`
 pub fn closest_point_on_aabb<T: Float, V: NumberOps<T> + VecN<T>>(p: V, aabb_min: V, aabb_max: V) -> V {
     V::min(V::max(p, aabb_min), aabb_max)
 }
 
-/// returns the closest point from p on sphere or circle centred at s with radius r
+/// returns the closest point from `p` on sphere or circle centred at `s` with radius `r`
 pub fn closest_point_on_sphere<T: Float, V: VecFloatOps<T> + VecN<T>>(p: V, s: V, r: T) -> V {
     s + V::normalize(p - s) * r
 }
 
-/// returns the closest point to p on the the ray starting at r0 with diection rv
+/// returns the closest point to `p` on the the ray starting at `r0` with diection `rv`
 pub fn closest_point_on_ray<T: Float, V: VecFloatOps<T> + VecN<T>>(p: V, r0: V, rv: V) -> V {
     let v1 = p - r0;
     let t = dot(v1, rv);
@@ -533,7 +612,7 @@ pub fn closest_point_on_ray<T: Float, V: VecFloatOps<T> + VecN<T>>(p: V, r0: V, 
     }
 }
 
-/// returns the closest point to point p on the obb defined by mat which will transform an aabb centred at 0 with extents -1 to 1 into an obb
+/// returns the closest point to point `p` on the obb defined by `mat` which will transform an aabb with extents -1 to 1 into an obb
 pub fn closest_point_on_obb<T: Float, V: VecFloatOps<T> + NumberOps<T> + SignedNumberOps<T> + VecN<T> + SignedVecN<T>, M: MatTranslate<V> + MatInverse<T> + MatN<T, V>>(p: V, mat: M) -> V {
     let invm = mat.inverse();
     let tp = invm * p;
@@ -541,7 +620,7 @@ pub fn closest_point_on_obb<T: Float, V: VecFloatOps<T> + NumberOps<T> + SignedN
     mat * cp
 }
 
-/// returns the closest point to p on the triangle defined by t1-t2-t3
+/// returns the closest point to `p` on the triangle defined by `t1-t2-t3`
 pub fn closest_point_on_triangle<T: Float + FloatOps<T> + NumberOps<T>, V: VecN<T> + NumberOps<T> + VecFloatOps<T>>(p: V, t1: V, t2: V, t3: V) -> V {
     let (w23, w31, w12) = barycentric(p, t1, t2, t3);
     if w23 >= T::zero() && w31 >= T::zero() && w12 >= T::zero() {
@@ -585,7 +664,7 @@ pub fn closest_point_on_triangle<T: Float + FloatOps<T> + NumberOps<T>, V: VecN<
     }
 }
 
-/// returns the closest point to p on the cone defined by cp position, with direction cv height h an radius r
+/// returns the closest point to `p` on the cone defined by `cp` position, with direction `cv` height `h` and radius `r`
 pub fn closest_point_on_cone<T: Float, V: VecN<T> + VecFloatOps<T>>(p: V, cp: V, cv: V, h: T, r: T) -> V {
     // centre point of the cones base (where radius is largest)
     let l2 = cp + cv * h;
@@ -606,12 +685,12 @@ pub fn closest_point_on_cone<T: Float, V: VecN<T> + VecFloatOps<T>>(p: V, cp: V,
     }
 }
 
-/// returns the clostest point to p on the edge of the convex hull defined by point list 'hull' with clockwise winding
+/// returns the clostest point to `p` on the edge of the convex hull defined by point list 'hull' with clockwise winding
 pub fn closest_point_on_convex_hull<T: Float + FloatOps<T>>(p: Vec2<T>, hull: &Vec<Vec2<T>>) -> Vec2<T> {
     closest_point_on_polygon(p, hull)
 }
 
-/// returns the clostest point to p on the edge of the polygon defined by point list polygon.
+/// returns the clostest point to `p` on the edge of the polygon defined by point list `poly`.
 pub fn closest_point_on_polygon<T: Float + FloatOps<T>>(p: Vec2<T>, poly: &Vec<Vec2<T>>) -> Vec2<T> {
     let ncp = poly.len();
     let mut cp = Vec2::max_value();
@@ -628,7 +707,7 @@ pub fn closest_point_on_polygon<T: Float + FloatOps<T>>(p: Vec2<T>, poly: &Vec<V
     cp
 }
 
-/// returns true if point p is inside the aabb defined by aabb_min and aabb_max
+/// returns true if point `p` is inside the aabb defined by `aabb_min` and `aabb_max`
 pub fn point_inside_aabb<T: Float, V: VecN<T> + VecFloatOps<T>>(p: V, aabb_min: V, aabb_max: V) -> bool {
     for i in 0..V::len() {
         if p[i] < aabb_min[i] || p[i] > aabb_max[i] {
@@ -638,25 +717,25 @@ pub fn point_inside_aabb<T: Float, V: VecN<T> + VecFloatOps<T>>(p: V, aabb_min: 
     true
 }
 
-/// returns true if sphere (or cirlcle) with centre s and radius r contains point p
+/// returns true if sphere (or cirlcle) with centre `s` and radius `r` contains point `p`
 pub fn point_inside_sphere<T: Float, V: VecFloatOps<T> + VecN<T>>(p: V, s: V, r: T) -> bool {
     dist2(p, s) < r * r
 }
 
-/// returns true if the point p is inside the obb defined by mat which will transform an aabb centred at 0 with extents -1 to 1 into an obb
+/// returns true if the point `p` is inside the obb defined by `mat` which will transform an aabb with extents -1 to 1 into an obb
 pub fn point_inside_obb<T: Float, V: VecFloatOps<T> + NumberOps<T> + SignedNumberOps<T> + VecN<T> + SignedVecN<T>, M: MatTranslate<V> + MatInverse<T> + MatN<T, V>>(p: V, mat: M) -> bool {
     let invm = mat.inverse();
     let tp = invm * p;
     point_inside_aabb(tp, V::minus_one(), V::one())
 }
 
-/// returns true if the point p is inside the triangle defined by t1-t2-t3
+/// returns true if the point `p` is inside the triangle defined by `t1-t2-t3`
 pub fn point_inside_triangle<T: Float + FloatOps<T> + NumberOps<T>, V: VecN<T> + NumberOps<T> + VecFloatOps<T>>(p: V, t1: V, t2: V, t3: V) -> bool {
     let (w23, w31, w12) = barycentric(p, t1, t2, t3);
     w23 >= T::zero() && w31 >= T::zero() && w12 >= T::zero()
 }
 
-/// returns true if point p is inside cone defined by position cp facing direction cv with height h and radius r
+/// returns true if point `p` is inside cone defined by position `cp` facing direction `cv` with height `h` and radius `r`
 pub fn point_inside_cone<T: Float + FloatOps<T> + NumberOps<T>, V: VecN<T> + VecFloatOps<T>>(p: V, cp: V, cv: V, h: T, r: T) -> bool {
     let l2 = cp + cv * h;
     let dh = distance_on_line(p, cp, l2) / h;
@@ -665,7 +744,7 @@ pub fn point_inside_cone<T: Float + FloatOps<T> + NumberOps<T>, V: VecN<T> + Vec
     d < dh * r && dh < T::one()
 }
 
-/// returns true if the point p is inside the 2D convex hull defined by point list 'hull' with clockwise winding
+/// returns true if the point `p` is inside the 2D convex hull defined by point list `hull` with clockwise winding
 pub fn point_inside_convex_hull<T: Float>(p: Vec2<T>, hull: &Vec<Vec2<T>>) -> bool {
     let ncp = hull.len();
     for i in 0..ncp {
@@ -682,7 +761,7 @@ pub fn point_inside_convex_hull<T: Float>(p: Vec2<T>, hull: &Vec<Vec2<T>>) -> bo
     true
 }
 
-/// returns true if point p is inside the polygon defined by point list 'poly'
+/// returns true if point `p` is inside the polygon defined by point list `poly`
 pub fn point_inside_polygon<T: Float>(p: Vec2<T>, poly: &Vec<Vec2<T>>) -> bool {
     // copyright (c) 1970-2003, Wm. Randolph Franklin
     // https://wrf.ecse.rpi.edu/Research/Short_Notes/pnpoly.html
@@ -699,7 +778,7 @@ pub fn point_inside_polygon<T: Float>(p: Vec2<T>, poly: &Vec<Vec2<T>>) -> bool {
     c
 }
 
-/// returns true if the point p is inside the frustum defined by 6 planes packed as vec4's .xyz = normal, .w = plane distance
+/// returns true if the point `p` is inside the frustum defined by 6 planes packed as vec4's `.xyz = normal, .w = plane distance`
 pub fn point_inside_frustum<T: Number>(p: Vec3<T>, planes: &[Vec4<T>; 6]) -> bool {
     for plane in planes.iter().take(6) {
         let d = dot(p, Vec3::from(*plane)) + plane.w;
@@ -710,7 +789,7 @@ pub fn point_inside_frustum<T: Number>(p: Vec3<T>, planes: &[Vec4<T>; 6]) -> boo
     true
 }
     
-/// returns the classification of point p vs the plane defined by point on plane x and normal n
+/// returns the classification of point `p` vs the plane defined by point on plane `x` and normal `n`
 pub fn point_vs_plane<T: SignedNumber + SignedNumberOps<T>>(p: Vec3<T>,  x: Vec3<T>, n: Vec3<T>) -> Classification {
     let pd = plane_distance(x, n);
     let d = dot(n, p) + pd;
@@ -725,7 +804,7 @@ pub fn point_vs_plane<T: SignedNumber + SignedNumberOps<T>>(p: Vec3<T>,  x: Vec3
     }
 }
 
-/// returns the classification of the 3D aabb defined as aabb_min to aabb_max vs the plane defined by point on plane x and normal n
+/// returns the classification of the 3D aabb defined as `aabb_min` to `aabb_max` vs the plane defined by point on plane `x` and normal `n`
 pub fn aabb_vs_plane<T: SignedNumber + SignedNumberOps<T>>(aabb_min: Vec3<T>, aabb_max: Vec3<T>, x: Vec3<T>, n: Vec3<T>) -> Classification {
     let e = (aabb_max - aabb_min) / T::two();
     let centre = aabb_min + e;
@@ -743,7 +822,7 @@ pub fn aabb_vs_plane<T: SignedNumber + SignedNumberOps<T>>(aabb_min: Vec3<T>, aa
     }
 }
 
-/// returns the classification of sphere defined by centre s and radius r vs the plane defined by point on plane x and normal n
+/// returns the classification of sphere defined by centre `s` and radius `r` vs the plane defined by point on plane `x` and normal `n`
 pub fn sphere_vs_plane<T: SignedNumber + SignedNumberOps<T>>(s: Vec3<T>, r: T,  x: Vec3<T>, n: Vec3<T>) -> Classification {
     let pd = plane_distance(x, n);
     let d = dot(n, s) + pd;
@@ -758,7 +837,7 @@ pub fn sphere_vs_plane<T: SignedNumber + SignedNumberOps<T>>(s: Vec3<T>, r: T,  
     }
 }
 
-/// returns the classification of a capsule defined by line c1-c2 with radius r vs a plane defined by point on plane x and normal n
+/// returns the classification of a capsule defined by line `c1-c2` with radius `r` vs a plane defined by point on plane `x` and normal `n`
 pub fn capsule_vs_plane<T: Float + FloatOps<T> + SignedNumber + SignedNumberOps<T>>(c1: Vec3<T>, c2: Vec3<T>, r: T, x: Vec3<T>, n: Vec3<T>) -> Classification {
     let pd = plane_distance(x, n);
     // classify both spheres at the ends of the capsule
@@ -794,7 +873,8 @@ pub fn capsule_vs_plane<T: Float + FloatOps<T> + SignedNumber + SignedNumberOps<
     }
 }
 
-/// return the classification of cone defined by position cp, direction cv with height h and radius at the base of r. vs the plane defined by point x and normal n
+/// return the classification of cone defined by position `cp`, direction `cv` with height `h` and radius at the base of `r` 
+/// vs the plane defined by point `x` and normal `n`
 pub fn cone_vs_plane<T: Float + SignedNumberOps<T>, V: VecN<T> + Cross<T> + Dot<T> + SignedVecN<T> + VecFloatOps<T>>(cp: V, cv: V, h: T, r: T, x: V, n: V) -> Classification {
     let l2 = cp + cv * h;
     let pd = plane_distance(x, n);
@@ -817,7 +897,7 @@ pub fn cone_vs_plane<T: Float + SignedNumberOps<T>, V: VecN<T> + Cross<T> + Dot<
     }
 }
 
-/// returns the intersection point of the ray defined as origin of ray r0 and direction rv with the plane defined by point on plane x and normal n
+/// returns the intersection point of the ray defined as origin of ray `r0` and direction `rv` with the plane defined by point on plane `x` and normal `n`
 pub fn ray_vs_plane<T: Float + SignedNumberOps<T>>(r0: Vec3<T>, rv: Vec3<T>, x: Vec3<T>, n: Vec3<T>) -> Option<Vec3<T>> {
     let t = -(dot(r0, n) - dot(x, n))  / dot(rv, n);
     if t < T::zero() {
@@ -828,7 +908,7 @@ pub fn ray_vs_plane<T: Float + SignedNumberOps<T>>(r0: Vec3<T>, rv: Vec3<T>, x: 
     }
 }
 
-/// returns the intersection point of the infinite line defined as point on line l0 and direction lv with the plane defined by point on plane x and normal n
+/// returns the intersection point of the infinite line defined as point on line `l0` and direction `lv` with the plane defined by point on plane `x` and normal `n`
 pub fn line_vs_plane<T: Float + SignedNumberOps<T>>(l0: Vec3<T>, lv: Vec3<T>, x: Vec3<T>, n: Vec3<T>) -> Option<Vec3<T>> {
     let r = dot(lv, n);
     if r == T::zero() {
@@ -840,7 +920,7 @@ pub fn line_vs_plane<T: Float + SignedNumberOps<T>>(l0: Vec3<T>, lv: Vec3<T>, x:
     }
 }
 
-/// returns the intersection point of the line segment l1-l2 and plane defined by point on plane x and normal n, returns None if no intersection exists
+/// returns the intersection point of the line segment `l1-l2` and plane defined by point on plane `x` and normal `n`, returns `None` if no intersection exists
 pub fn line_segment_vs_plane<T: Float + FloatOps<T> + SignedNumber + SignedNumberOps<T>>(l1: Vec3<T>, l2: Vec3<T>, x: Vec3<T>, n: Vec3<T>) -> Option<Vec3<T>> {
     let ll = l2-l1;
     let m = mag(ll);
@@ -854,27 +934,27 @@ pub fn line_segment_vs_plane<T: Float + FloatOps<T> + SignedNumber + SignedNumbe
     }
 }
 
-/// returns true if the sphere or circle at centre s1 with radius r1 intsercts s2-r2
+/// returns true if the sphere or circle at centre `s1` with radius `r1` intsercts `s2-r2`
 pub fn sphere_vs_sphere<T: Float, V: VecN<T> + VecFloatOps<T>>(s1: V, r1: T, s2: V, r2: T) -> bool {
     let d2 = dist2(s1, s2);
     let r22 = r1 + r2;
     d2 < r22 * r22
 }
 
-/// returns true if the sphere or circle at centre s1 with radius r1 intsercts capsule c0-c1 with radius cr
+/// returns true if the sphere or circle at centre `s1` with radius `r1` intsercts capsule `c0-c1` with radius `cr`
 pub fn sphere_vs_capsule<T: Float + FloatOps<T>, V: VecN<T> + VecFloatOps<T> + FloatOps<T>>(s1: V, r1: T, c0: V, c1: V, cr: T) -> bool {
     let cp = closest_point_on_line_segment(s1, c0, c1);
     let r2 = sqr(r1 + cr);
     dist2(s1, cp) < r2
 }
 
-/// returns ture if the aabb defined by aabb_min to aabb_max intersects the sphere (or circle) centred at s with radius r
+/// returns ture if the aabb defined by `aabb_min` to `aabb_max` intersects the sphere (or circle) centred at `s` with radius `r`
 pub fn aabb_vs_sphere<T: Float, V: VecN<T> + VecFloatOps<T> + NumberOps<T>>(aabb_min: V, aabb_max: V, s: V, r: T) -> bool {
     let cp = closest_point_on_aabb(s, aabb_min, aabb_max);
     dist2(cp, s) < r * r
 }
 
-/// returns true if the aabb defined by aabb_min1 to aabb_max1 intersects aabb_min2-aabb_max2
+/// returns true if the aabb defined by `aabb_min1` to `aabb_max1` intersects `aabb_min2-aabb_max2`
 pub fn aabb_vs_aabb<T: Number, V: VecN<T> + NumberOps<T>>(aabb_min1: V, aabb_max1: V, aabb_min2: V, aabb_max2: V) -> bool {
     for i in 0..V::len() {
         if aabb_max1[i] < aabb_min2[i] || aabb_min1[i] > aabb_max2[i] {
@@ -884,7 +964,7 @@ pub fn aabb_vs_aabb<T: Number, V: VecN<T> + NumberOps<T>>(aabb_min1: V, aabb_max
     true
 }
 
-/// returns true if the aabb defined by aabb_min to aabb_max overlaps obb defined by matrix, where the matrix transforms an aabb with -1 to 1 extents into an obb
+/// returns true if the aabb defined by `aabb_min` to `aabb_max` overlaps obb defined by matrix `obb`, where the matrix transforms an aabb with -1 to 1 extents into an obb
 pub fn aabb_vs_obb<T: Number + Float + SignedNumber + SignedNumberOps<T> + NumberOps<T> + FloatOps<T>, V: VecN<T> + NumberOps<T> + FloatOps<T> + Triple<T> + Cross<T>, M: MatTranslate<V> + MatInverse<T> + MatRotate3D<T, V> + MatN<T, V> + std::ops::Mul<Vec3<T>, Output=Vec3<T>>>(aabb_min: Vec3<T>, aabb_max: Vec3<T>, obb: M) -> bool {
     // this function is for convenience, you can extract vertices and pass to gjk_3d yourself
     let corners = [
@@ -919,7 +999,7 @@ pub fn aabb_vs_obb<T: Number + Float + SignedNumber + SignedNumberOps<T> + Numbe
     gjk_3d(verts0, verts1)
 }
 
-// returns true if the sphere with centre s0 and radius r0 overlaps obb defined by matrix obb, where the matrix
+// returns true if the sphere with centre `s0` and radius `r0` overlaps obb defined by matrix `obb`, where the matrix
 // transforms a unit cube with extents -1 to 1 into an obb
 pub fn sphere_vs_obb<T: Float, V: VecN<T> + VecFloatOps<T> + NumberOps<T> + SignedNumberOps<T>, M: MatTranslate<V> + MatInverse<T> + MatRotate3D<T, V> + MatN<T, V>>(s: V, r: T, obb: M) -> bool {
     // test the distance to the closest point on the obb
@@ -927,7 +1007,7 @@ pub fn sphere_vs_obb<T: Float, V: VecN<T> + VecFloatOps<T> + NumberOps<T> + Sign
     dist2(s, cp) < r * r
 }
 
-/// returns true if the aabb defined by obb0 overlaps obb1 where the obb's are defined by a matrix and the matrix transforms an aabb with -1 to 1 extents into an obb
+/// returns true if the aabb defined by `obb0` overlaps `obb1` where the obb's are defined by a matrix and the matrix transforms an aabb with -1 to 1 extents into an obb
 pub fn obb_vs_obb<T: Number + Float + SignedNumber + SignedNumberOps<T> + NumberOps<T> + FloatOps<T>, V: VecN<T> + NumberOps<T> + FloatOps<T> + Triple<T> + Cross<T>, M: MatTranslate<V> + MatInverse<T> + MatRotate3D<T, V> + MatN<T, V> + std::ops::Mul<Vec3<T>, Output=Vec3<T>>>(obb0: M, obb1: M) -> bool {
     // this function is for convenience, you can extract vertices and pass to gjk_3d yourself
     let corners = [
@@ -955,7 +1035,7 @@ pub fn obb_vs_obb<T: Number + Float + SignedNumber + SignedNumberOps<T> + Number
     gjk_3d(verts0, verts1)
 }
 
-/// returns true if the capsule cp0-cp1 with radius cr0 overlaps the capsule cp2-cp3 with radius cr1
+/// returns true if the capsule `cp0-cp1` with radius `cr0` overlaps the capsule `cp2-cp3` with radius `cr1`
 pub fn capsule_vs_capsule<T: Float + FloatOps<T> + SignedNumberOps<T>, V: VecN<T> + VecFloatOps<T> + FloatOps<T> + SignedNumberOps<T>>(cp0: V, cp1: V, cr0: T, cp2: V, cp3: V, cr1: T) -> bool {
     // min sqr distance between capsule to save on sqrts
     let r2 = (cr0 + cr1) * (cr0 + cr1);
@@ -992,7 +1072,7 @@ pub fn capsule_vs_capsule<T: Float + FloatOps<T> + SignedNumberOps<T>, V: VecN<T
     }
 }
 
-/// returns the intersection point of ray wih origin r0 and direction rv against the sphere (or circle) centred at s0 with radius r
+/// returns the intersection point of ray with origin `r0` and direction `rv` against the sphere (or circle) centred at `s0` with radius `r`
 pub fn ray_vs_sphere<T: Float + FloatOps<T> + NumberOps<T>, V: VecN<T> + VecFloatOps<T>>(r0: V, rv: V, s0: V, r: T) -> Option<V> {
     let oc = r0 - s0;
     let a = dot(rv, rv);
@@ -1019,7 +1099,7 @@ pub fn ray_vs_sphere<T: Float + FloatOps<T> + NumberOps<T>, V: VecN<T> + VecFloa
     }
 }
 
-/// returns the intersection point of the ray with origin r0 and direction rv with the aabb defined by aabb_min and aabb_max
+/// returns the intersection point of the ray with origin `r0` and direction `rv` with the aabb defined by `aabb_min` and `aabb_max`
 pub fn ray_vs_aabb<T: Number + NumberOps<T>, V: VecN<T>>(r0: V, rv: V, aabb_min: V, aabb_max: V) -> Option<V> {
     // http://gamedev.stackexchange.com/a/18459
     // min / max's from aabb axes
@@ -1046,7 +1126,7 @@ pub fn ray_vs_aabb<T: Number + NumberOps<T>, V: VecN<T>>(r0: V, rv: V, aabb_min:
     }
 }
 
-/// returns the intersection of the 3D ray with origin r0 and direction rv with the obb defined by mat
+/// returns the intersection of the 3D ray with origin `r0` and direction `rv` with the obb defined by `mat`
 pub fn ray_vs_obb<T: Float + NumberOps<T>, 
     V: VecFloatOps<T> + NumberOps<T> + SignedNumberOps<T> + VecN<T> + SignedVecN<T>, 
     M: MatTranslate<V> + MatInverse<T> + MatRotate3D<T, V> + MatN<T, V>
@@ -1060,7 +1140,7 @@ pub fn ray_vs_obb<T: Float + NumberOps<T>,
     ip.map(|ip| mat * ip)
 }
 
-/// returns the intersection  point of ray r0 and normalized direction rv with triangle t0-t1-t2
+/// returns the intersection point of ray `r0` and normalized direction `rv` with triangle `t0-t1-t2`
 pub fn ray_vs_triangle<T: Float>(r0: Vec3<T>, rv: Vec3<T>, t0: Vec3<T>, t1: Vec3<T>, t2: Vec3<T>) -> Option<Vec3<T>> {
     // möller–trumbore intersection algorithm
     // ported verbatim https://en.wikipedia.org/wiki/Möller–Trumbore_intersection_algorithm
@@ -1100,7 +1180,7 @@ pub fn ray_vs_triangle<T: Float>(r0: Vec3<T>, rv: Vec3<T>, t0: Vec3<T>, t1: Vec3
     }
 }
 
-/// returns the intersection point of ray wih origin r0 and direction rv against the capsule with line c0 - c1 and radius cr
+/// returns the intersection point of ray wih origin `r0` and direction `rv` against the capsule with line `c0-c1` and radius `cr`
 pub fn ray_vs_capsule<T: Float + FloatOps<T> + NumberOps<T> + SignedNumberOps<T>, V: VecN<T> + Cross<T> + VecFloatOps<T> + SignedNumberOps<T> + FloatOps<T>>(r0: V, rv: V, c0: V, c1: V, cr: T) -> Option<V> {
     // shortest line seg within radius will indicate we intersect an infinite cylinder about an axis
     let seg = shortest_line_segment_between_line_and_line_segment(r0, r0 + rv, c0, c1);
@@ -1187,8 +1267,8 @@ pub fn ray_vs_capsule<T: Float + FloatOps<T> + NumberOps<T> + SignedNumberOps<T>
     }
 }
 
-// returns true if there is an intersection between ray wih origin r0 and direction rv against the cylinder with line c0 - c1 and radius cr
-// the intersection point is stored in ip if one exists
+// returns true if there is an intersection between ray wih origin `r0` and direction `rv` against the cylinder with line `c0-c1` and radius `cr`
+// the intersection point is return as an `Option` if it exists.
 pub fn ray_vs_cylinder<T: Float + FloatOps<T> + NumberOps<T> + SignedNumberOps<T>>(r0: Vec3<T>, rv: Vec3<T>, c0: Vec3<T>, c1: Vec3<T>, cr: T) -> Option<Vec3<T>> {
     // intesection of ray and infinite cylinder about axis
     // https://stackoverflow.com/questions/4078401/trying-to-optimize-line-vs-cylinder-intersection
@@ -1260,7 +1340,7 @@ pub fn ray_vs_cylinder<T: Float + FloatOps<T> + NumberOps<T> + SignedNumberOps<T
     None
 }
 
-/// returns true if the sphere with centre s and radius r is inside the frustum defined by 6 planes packed as vec4's .xyz = normal, .w = plane distance
+/// returns true if the sphere with centre `s` and radius `r` is inside the frustum defined by 6 planes packed as vec4's `.xyz = normal, .w = plane distance`
 pub fn sphere_vs_frustum<T: Number>(s: Vec3<T>, r: T, planes: &[Vec4<T>; 6]) -> bool {
     for p in planes.iter().take(6) {
         let d = dot(s, Vec3::from(*p)) + p.w;
@@ -1271,7 +1351,7 @@ pub fn sphere_vs_frustum<T: Number>(s: Vec3<T>, r: T, planes: &[Vec4<T>; 6]) -> 
     true
 }
 
-/// returns true if the aabb defined by aabb_pos (centre) and aabb_extent is inside the frustum defined by 6 planes packed as vec4's .xyz = normal, .w = plane distance
+/// returns true if the aabb defined by `aabb_pos` (centre) and `aabb_extent` is inside the frustum defined by 6 planes packed as vec4's `.xyz = normal, .w = plane distance`
 pub fn aabb_vs_frustum<T: SignedNumber + SignedNumberOps<T>>(aabb_pos: Vec3<T>, aabb_extent: Vec3<T>, planes: &[Vec4<T>; 6]) -> bool {
     let mut inside = true;
     for p in planes.iter().take(6) {
@@ -1286,7 +1366,7 @@ pub fn aabb_vs_frustum<T: SignedNumber + SignedNumberOps<T>>(aabb_pos: Vec3<T>, 
     inside
 }
 
-/// returns the intersection point if the line segment l1-l2 intersects with s1-s2
+/// returns the intersection point if the line segment `l1-l2` intersects with `s1-s2`
 pub fn line_segment_vs_line_segment<T: Float + SignedNumberOps<T> + FloatOps<T>>(l1: Vec3<T>, l2: Vec3<T>,  s1: Vec3<T>, s2: Vec3<T>) -> Option<Vec3<T>> {
     let da = l2 - l1;
     let db = s2 - s1;
@@ -1313,7 +1393,7 @@ pub fn line_segment_vs_line_segment<T: Float + SignedNumberOps<T> + FloatOps<T>>
     }
 }
 
-/// returns the intersection point if the infinite line l1-l2 intersects with s1-s2
+/// returns the intersection point if the infinite line `l1-l2` intersects with `s1-s2`
 pub fn line_vs_line<T: Float + SignedNumberOps<T> + FloatOps<T>>(l1: Vec3<T>, l2: Vec3<T>, s1: Vec3<T>, s2: Vec3<T>) -> Option<Vec3<T>> {
     let da = l2 - l1;
     let db = s2 - s1;
@@ -1335,7 +1415,7 @@ pub fn line_vs_line<T: Float + SignedNumberOps<T> + FloatOps<T>>(l1: Vec3<T>, l2
     }
 }
 
-/// returns the intersection point if the ray intersects the line segment l1-l2 
+/// returns the intersection point if the ray with origin `r0` and direction `rv` intersects the line segment `l1-l2`
 pub fn ray_vs_line_segment<T: Float + SignedNumberOps<T> + FloatOps<T>>(r0: Vec3<T>, rv: Vec3<T>, l1: Vec3<T>, l2: Vec3<T>) -> Option<Vec3<T>> {
     let da = l2 - l1;
     let db = rv;
@@ -1357,7 +1437,7 @@ pub fn ray_vs_line_segment<T: Float + SignedNumberOps<T> + FloatOps<T>>(r0: Vec3
     }
 }
 
-/// returns the shortest line segment between 2 line segments (p1-p2) and (p3-p4) as an option tuple where .0 is the point on line segment 1 and .1 is the point on line segment 2
+/// returns the shortest line segment between 2 line segments `p1-p2` and `p3-p4` as an option tuple where `.0` is the point on line segment 1 and `.1` is the point on line segment 2
 pub fn shortest_line_segment_between_line_segments<T: Float + SignedNumberOps<T> + FloatOps<T>, V: VecN<T> + SignedNumberOps<T> + FloatOps<T> + Dot<T>>(p1: V, p2: V, p3: V, p4: V) -> Option<(V, V)> {
     // https://web.archive.org/web/20120404121511/http://local.wasp.uwa.edu.au/~pbourke/geometry/lineline3d/lineline.c
     
@@ -1394,7 +1474,7 @@ pub fn shortest_line_segment_between_line_segments<T: Float + SignedNumberOps<T>
     ))
 }
 
-/// returns the shortest line segment between 2 lines (p1-p2) and (p3-p4) as an option tuple where .0 is the point on line segment 1 and .1 is the point on line segment 2
+/// returns the shortest line segment between 2 lines `p1-p2` and `p3-p4` as an option tuple where `.0` is the point on line segment 1 and `.1` is the point on line segment 2
 pub fn shortest_line_segment_between_lines<T: Float + SignedNumberOps<T> + FloatOps<T>, V: VecN<T> + SignedNumberOps<T> + FloatOps<T> + Dot<T>>(p1: V, p2: V, p3: V, p4: V) -> Option<(V, V)> {
     // https://web.archive.org/web/20120404121511/http://local.wasp.uwa.edu.au/~pbourke/geometry/lineline3d/lineline.c
     
@@ -1431,7 +1511,7 @@ pub fn shortest_line_segment_between_lines<T: Float + SignedNumberOps<T> + Float
     ))
 }
 
-/// returns the shortest line segment between 2 line segments (p1-p2) and (p3-p4) as an option tuple where .0 is the point on line segment 1 and .1 is the point on line segment 2
+/// returns the shortest line segment between 2 line segments `p1-p2` and `p3-p4` as an option tuple where `.0` is the point on line segment 1 and `.1` is the point on line segment 2
 pub fn shortest_line_segment_between_line_and_line_segment<T: Float + SignedNumberOps<T> + FloatOps<T>, V: VecN<T> + SignedNumberOps<T> + FloatOps<T> + Dot<T>>(p1: V, p2: V, p3: V, p4: V) -> Option<(V, V)> {
     // https://web.archive.org/web/20120404121511/http://local.wasp.uwa.edu.au/~pbourke/geometry/lineline3d/lineline.c
     
@@ -1468,7 +1548,7 @@ pub fn shortest_line_segment_between_line_and_line_segment<T: Float + SignedNumb
     ))
 }
 
-/// returns soft clipping (in a cubic fashion) of x; let m be the threshold (anything above m stays unchanged), and n the value things will take when the signal is zero
+/// returns soft clipping (in a cubic fashion) of `x`; let m be the threshold (anything above m stays unchanged), and n the value things will take when the signal is zero
 pub fn almost_identity<T: Number + Float>(x: T, m: T, n: T) -> T {
     // <https://iquilezles.org/articles/functions/>
     let a = T::two()*n - m;
@@ -1482,7 +1562,7 @@ pub fn almost_identity<T: Number + Float>(x: T, m: T, n: T) -> T {
     }
 }
 
-/// returns the integral smoothstep of x it's derivative is never larger than 1
+/// returns the integral smoothstep of `x` it's derivative is never larger than 1
 pub fn integral_smoothstep<T: Number + Float + FloatOps<T>>(x: T, t: T) -> T {
     // inigo quilez: https://iquilezles.org/articles/functions/
     if x > t {
@@ -1493,34 +1573,34 @@ pub fn integral_smoothstep<T: Number + Float + FloatOps<T>>(x: T, t: T) -> T {
     }
 }
 
-/// returns an exponential impulse (y position on a graph for x); k controls the stretching of the function
+/// returns an exponential impulse (y position on a graph for `x`); `k` controls the stretching of the function
 pub fn exp_impulse<T: Number + Float, X: Base<T> + FloatOps<T>>(k: X, x: X) -> X {
     // inigo quilez: https://iquilezles.org/articles/functions/
     let h = k * x;
     h * X::exp(X::one() - h)
 }
 
-/// returns an quadratic impulse (y position on a graph for x); k controls the stretching of the function
+/// returns an quadratic impulse (y position on a graph for `x`); `k` controls the stretching of the function
 pub fn quad_impulse<T: Number + Float + Base<T> + FloatOps<T>>(k: T, x: T) -> T {
     // inigo quilez: https://iquilezles.org/articles/functions/
     T::two() * T::sqrt(k) * x / (T::one()+k*x*x)
 }
 
-/// returns a quadratic impulse (y position on a graph for x); n is the degree of the polynomial and k controls the stretching of the function
+/// returns a quadratic impulse (y position on a graph for `x`); `n` is the degree of the polynomial and `k` controls the stretching of the function
 pub fn poly_impulse<T: Number + Float + Base<T> + FloatOps<T>>(k: T, x: T, n: T) -> T {
     // inigo quilez: https://iquilezles.org/articles/functions/
     let one = T::one();
     (n/(n-one))* T::powf((n-one)*k,one/n)*x/(one+k*T::powf(x,n))
 }
 
-/// returns an exponential sustained impulse (y position on a graph for x); control on the width of attack with k and release with f
+/// returns an exponential sustained impulse (y position on a graph for `x`); control on the width of attack with `k` and release with `f`
 pub fn exp_sustained_impulse<T: SignedNumber + Float, X: Base<T> + FloatOps<T> + SignedNumberOps<T> + Ord>(x: X, f: X, k: X) -> X {
     // inigo quilez: https://iquilezles.org/articles/functions/
     let s = X::max(x-f, X::zero());
     X::min(x*x/(f*f), X::one() + (X::two()/f)*s*X::exp(-k*s))
 }
 
-/// returns a cubic pulse (y position on a graph for x); equivalent to: smoothstep(c-w,c,x)-smoothstep(c,c+w,x)
+/// returns a cubic pulse (y position on a graph for `x`); equivalent to: `smoothstep(c-w,c,x)-smoothstep(c,c+w,x)`
 pub fn cubic_pulse<X: Float + SignedNumberOps<X>>(c: X, w: X, x: X) -> X {
     // inigo quilez: https://iquilezles.org/articles/functions/
     let mut x = abs(x - c);
@@ -1533,13 +1613,13 @@ pub fn cubic_pulse<X: Float + SignedNumberOps<X>>(c: X, w: X, x: X) -> X {
     }
 }
 
-/// returns an exponential step (y position on a graph for x); k is control parameter, n is power which gives sharper curves.
+/// returns an exponential step (y position on a graph for `x`); `k` is control parameter, `n` is power which gives sharper curves.
 pub fn exp_step<T: SignedNumber + Float, X: Base<T> + FloatOps<T> + SignedNumberOps<T>>(x: X, k: X, n: T) -> X {
     // inigo quilez: https://iquilezles.org/articles/functions/
     X::exp(-k * X::powf(x, n))
 }
 
-/// returns gain (y position on a graph for x); remapping the unit interval into the unit interval by expanding the sides and compressing the center
+/// returns gain (y position on a graph for `x`); remapping the unit interval into the unit interval by expanding the sides and compressing the center
 pub fn gain<T: SignedNumber + Float + FloatOps<T>>(x: T, k: T) -> T {
     // inigo quilez: https://iquilezles.org/articles/functions/
     let y = if x < T::point_five() { 
@@ -1557,27 +1637,27 @@ pub fn gain<T: SignedNumber + Float + FloatOps<T>>(x: T, k: T) -> T {
     }
 }
 
-/// returns a parabola (y position on a graph for x); use k to control its shape
+/// returns a parabola (y position on a graph for `x`); use `k` to control its shape
 pub fn parabola<T: SignedNumber + Float, X: Base<T> + FloatOps<T> + SignedNumberOps<T>>(x: X, k: T) -> X {
     // inigo quilez: https://iquilezles.org/articles/functions/
     powf(X::four() * x * (X::one() - x), k)
 }
 
-/// returns a power curve (y position on a graph for x); this is a generalziation of the parabola
+/// returns a power curve (y position on a graph for `x`); this is a generalziation of the parabola
 pub fn pcurve<T: SignedNumber + Float + Base<T> + FloatOps<T>>(x: T, a: T, b: T) -> T {
     // inigo quilez: https://iquilezles.org/articles/functions/
     let k = powf(a + b, a + b) / (powf(a, a) * powf(b, b));
     k * powf(x, a) * powf(T::one() - x, b)
 }
 
-/// returns a sin curve (y position on a graph for x); can be used for some bouncing behaviors. give k different integer values to tweak the amount of bounces
+/// returns a sin curve (y position on a graph for `x`); can be used for some bouncing behaviors. give `k` different integer values to tweak the amount of bounces
 pub fn sinc<T: SignedNumber + Float, X: Base<T> + FloatOps<T> + SignedNumberOps<T>>(x: X, k: X) -> X {
     // inigo quilez: https://iquilezles.org/articles/functions/
     let a = X::zero() * (k*x-X::one());
     X::sin(a)/a
 }
 
- /// returns a hsv value in 0-1 range converted from rgb in 0-1 range
+ /// returns a hsv value in 0-1 range converted from `rgb` in 0-1 range
  pub fn rgb_to_hsv<T: Float + SignedNumberOps<T> + From<f64>>(rgb: Vec3<T>) -> Vec3<T> {
     // from Foley & van Dam p592
     // optimized: http://lolengine.net/blog/2013/01/13/fast-rgb-to-hsv 
@@ -1605,7 +1685,7 @@ pub fn sinc<T: SignedNumber + Float, X: Base<T> + FloatOps<T> + SignedNumberOps<
     }
  }
  
- /// returns an rgb value in 0-1 range converted from hsv in 0-1 range
+ /// returns an rgb value in 0-1 range converted from `hsv` in 0-1 range
  pub fn hsv_to_rgb<T: Float + FloatOps<T> + From<f64>>(hsv: Vec3<T>) -> Vec3<T> where i32: From<T> {
     // from Foley & van Dam p593: http://en.wikipedia.org/wiki/HSL_and_HSV
     let h = hsv.x;
@@ -1650,7 +1730,7 @@ pub fn sinc<T: SignedNumber + Float, X: Base<T> + FloatOps<T> + SignedNumberOps<
     }
 }
 
-/// returns a vec4 of rgba in 0-1 range from a packed rgba8 inside u32 (4 bytes, R8G8B8A8)
+/// returns a vec4 of rgba in 0-1 range from a packed `rgba` which is inside u32 (4 bytes, R8G8B8A8)
 pub fn rgba8_to_vec4<T: Float + FloatOps<T> + From<u32> + From<f64>>(rgba: u32) -> Vec4<T> {
     let one_over_255 = T::from(1.0 / 255.0);
     Vec4 {
@@ -1661,7 +1741,7 @@ pub fn rgba8_to_vec4<T: Float + FloatOps<T> + From<u32> + From<f64>>(rgba: u32) 
     }
 }
 
-/// returns a packed u32 containing rgba8 (4 bytes, R8G8B8A8) converted from a Vec4 of rgba in 0-1 range
+/// returns a packed u32 containing rgba8 (4 bytes, R8G8B8A8) converted from a Vec4 `v` of rgba in 0-1 range
 pub fn vec4f_to_rgba8<T: Float + From<f64>>(v: Vec4<T>) -> u32 where u32: From<T> {
     let mut rgba : u32 = 0;
     let x = T::from(255.0);
@@ -1672,55 +1752,55 @@ pub fn vec4f_to_rgba8<T: Float + From<f64>>(v: Vec4<T>) -> u32 where u32: From<T
     rgba
 }
 
-/// returns value t between the range c and d with offset b creating smooth easing at the start (t^2)
+/// returns value `t` between the range `c` and `d` with offset `b` creating smooth easing at the start (t^2)
 pub fn smooth_start2<T: Float, X: Base<T>>(t: X, b: X, c: X, d: X) -> X {
     let t = t/d;
     c * t*t + b
 }
 
-/// returns value t between the range c and d with offset b creating smooth easing at the start (t^3)
+/// returns value `t` between the range `c` and `d` with offset `b` creating smooth easing at the start (t^3)
 pub fn smooth_start3<T: Float, X: Base<T>>(t: X, b: X, c: X, d: X) -> X {
     let t = t/d;
     c * t*t*t + b
 }
 
-/// returns value t between the range c and d with offset b creating smooth easing at the start (t^4)
+/// returns value `t` between the range `c` and `d` with offset `b` creating smooth easing at the start (t^4)
 pub fn smooth_start4<T: Float, X: Base<T>>(t: X, b: X, c: X, d: X) -> X {
     let t = t/d;
     c * t*t*t*t + b
 }
 
-/// returns value t between the range c and d with offset b creating smooth easing at the start (t^5)
+/// returns value `t` between the range `c` and `d` with offset `b` creating smooth easing at the start (t^5)
 pub fn smooth_start5<T: Float, X: Base<T>>(t: X, b: X, c: X, d: X) -> X {
     let t = t/d;
     c * t*t*t*t*t + b
 }
 
-/// returns value t between the range c and d with offset b creating smooth easing at the end of t (t^2)
+/// returns value `t` between the range `c` and `d` with offset `b` creating smooth easing at the end of t (t^2)
 pub fn smooth_stop2<T: Float, X: Base<T> + SignedNumberOps<T>>(t: X, b: X, c: X, d: X) -> X {
     let t = t/d;
     -c * t * (t - X::two()) + b
 }
 
-/// returns value t between the range c and d with offset b creating smooth easing at the end of t (t^3)
+/// returns value `t` between the range `c` and `d` with offset `b` creating smooth easing at the end of t (t^3)
 pub fn smooth_stop3<T: Float, X: Base<T> + SignedNumberOps<T>>(t: X, b: X, c: X, d: X) -> X {
     let t = t/d;
     c * (t*t*t + X::one()) + b
 }
 
-/// returns value t between the range c and d with offset b creating smooth easing at the end of t (t^4)
+/// returns value `t` between the range `c` and `d` with offset `b` creating smooth easing at the end of t (t^4)
 pub fn smooth_stop4<T: Float, X: Base<T> + SignedNumberOps<T>>(t: X, b: X, c: X, d: X) -> X {
     let t = t/d;
     c * (t*t*t*t + X::one()) + b
 }
 
-/// returns value t between the range c and d with offset b creating smooth easing at the end of t (t^5)
+/// returns value `t` between the range `c` and `d` with offset `b` creating smooth easing at the end of t (t^5)
 pub fn smooth_stop5<T: Float, X: Base<T> + SignedNumberOps<T>>(t: X, b: X, c: X, d: X) -> X {
     let t = t/d;
     c * (t*t*t*t*t + X::one()) + b
 }
 
-/// returns the morten order index from x,y position
+/// returns the morten order index from `x,y` position
 pub fn morton_xy(x: u64, y: u64) -> u64 {
     let mut x = x;
     x = (x | (x << 16)) & 0x0000FFFF0000FFFF;
@@ -1739,7 +1819,7 @@ pub fn morton_xy(x: u64, y: u64) -> u64 {
     x | (y << 1)
 }
 
-/// returns the morten order index from x,y,z position
+/// returns the morten order index from `x,y,z` position
 pub fn morton_xyz(x: u64, y: u64, z: u64) -> u64 {
     let mut x = x;
     x = (x | (x << 16)) & 0xFFFF00000000FFFF;
@@ -1762,7 +1842,7 @@ pub fn morton_xyz(x: u64, y: u64, z: u64) -> u64 {
     x | (y << 1) | (z << 2)
 }
 
-/// returns the number even bits extracted from x as set bits in the return; value 0b010101 returns 0b111
+/// returns the number even bits extracted from `x` as set bits in the return; value `0b010101` returns `0b111`
 pub fn morton_1(x: u64) -> u64 {
     let mut x = x & 0x5555555555555555;
     x = (x | (x >> 1)) & 0x3333333333333333;
@@ -1773,7 +1853,7 @@ pub fn morton_1(x: u64) -> u64 {
     x
 }
 
-/// returns the number of bits divisible by 3. value 0b001001001 returns 0b111
+/// returns the number of bits divisible by 3 in `x`. value `0b001001001` returns `0b111`
 pub fn morton_2(x: u64) -> u64 {
     let mut x = x & 0x9249249249249249;
     x = (x | (x >> 2)) & 0x30C30C30C30C30C3;
@@ -1784,23 +1864,23 @@ pub fn morton_2(x: u64) -> u64 {
     x
 }
 
-/// returns the x,y grid position for morten order index d
+/// returns the `x,y` grid position for morten order index `d`
 pub fn morton_to_xy(d: u64) -> (u64, u64) {
     (morton_1(d), morton_1(d >> 1))
 }
 
-/// returns the x,y,z grid position for morten order index d
+/// returns the `x,y,z` grid position for morten order index `d`
 pub fn morton_to_xyz(d: u64) -> (u64, u64, u64) {
     (morton_2(d), morton_2(d >> 1), morton_2(d >> 2))
 }
 
-/// remap v within in_start -> in_end range to the new range out_start -> out_end
+/// remap `v` within `in_start` -> `in_end` range to the new range `out_start` -> `out_end`
 pub fn map_to_range<T: Float, X: Base<T>>(v: X, in_start: X, in_end: X, out_start: X, out_end: X) -> X {
     let slope = X::one() * (out_end - out_start) / (in_end - in_start);
     out_start + slope * (v - in_start)
 }
 
-/// finds support vertices for gjk based on convex meshses where convex0 and convex1 are an array of vertices that form a convex hull
+/// finds support vertices for gjk based on convex meshses where `convex0` and `convex1` are an array of vertices that form a convex hull
 pub fn gjk_mesh_support_function<T: Float + FloatOps<T> + NumberOps<T> + SignedNumberOps<T>, V: VecN<T> + VecFloatOps<T> + SignedNumberOps<T> + FloatOps<T>> (convex0: &Vec<V>, convex1: &Vec<V>, dir: V) -> V {
     let furthest_point = |dir: V, vertices: &Vec<V>| -> V {
         let mut fd = -T::max_value();
@@ -1866,7 +1946,7 @@ fn handle_simplex_2d<T: Float + FloatOps<T> + NumberOps<T> + SignedNumber + Sign
     }
 }
 
-/// returns true if the 2d convex hull convex0 overlaps with convex1 using the gjk algorithm
+/// returns true if the 2d convex hull `convex0` overlaps with `convex1` using the gjk algorithm
 pub fn gjk_2d<T: Float + FloatOps<T> + NumberOps<T> + SignedNumber + SignedNumberOps<T>, V: VecN<T> + FloatOps<T> + SignedNumberOps<T> + VecFloatOps<T> + Triple<T>>(convex0: Vec<V>, convex1: Vec<V>) -> bool {
     // implemented following details in this insightful video: https://www.youtube.com/watch?v=ajv46BSqcK4
     
@@ -1896,7 +1976,7 @@ pub fn gjk_2d<T: Float + FloatOps<T> + NumberOps<T> + SignedNumber + SignedNumbe
     false
 }
 
-/// returns true if the convex hull convex0 overlaps convex1 where convex hull is an array of vertices forming a 2D convex polygon
+/// returns true if the convex hull `convex0` overlaps `convex1` where convex hull is an array of vertices forming a 2D convex polygon
 pub fn convex_hull_vs_convex_hull<T: Float + FloatOps<T> + NumberOps<T> + SignedNumber + SignedNumberOps<T>, V: VecN<T> + FloatOps<T> + SignedNumberOps<T> + VecFloatOps<T> + Triple<T>>(convex0: Vec<V>, convex1: Vec<V>) -> bool {
     gjk_2d(convex0, convex1)
 }
@@ -1995,7 +2075,7 @@ fn handle_simplex_3d<T: Float + FloatOps<T> + NumberOps<T> + SignedNumber + Sign
     }
 }
 
-/// returns true if the 3D convex hull convex0 overlaps with convex1 using the gjk algorithm
+/// returns true if the 3D convex hull `convex0` overlaps with `convex1` using the gjk algorithm
 pub fn gjk_3d<T: Float + FloatOps<T> + NumberOps<T> + SignedNumber + SignedNumberOps<T>, V: VecN<T> + FloatOps<T> + SignedNumberOps<T> + VecFloatOps<T> + Triple<T> + Cross<T>>(convex0: Vec<V>, convex1: Vec<V>) -> bool {
     // implemented following details in this insightful video: https://www.youtube.com/watch?v=ajv46BSqcK4
     

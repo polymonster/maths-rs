@@ -1587,6 +1587,20 @@ fn matrix_mul_vec() {
 }
 
 #[test]
+fn constants() {
+    assert_eq!(approx(f32::phi(), 1.6180339887, 0.001), true);
+    assert_eq!(approx(f32::inv_phi(), 1.0 / 1.6180339887, 0.001), true);
+    assert_eq!(approx(f32::pi(), 3.14159265359, 0.001), true);
+    assert_eq!(approx(f32::inv_pi(), 1.0 / 3.14159265359, 0.001), true);
+    assert_eq!(approx(f32::two_pi(), 2.0 * 3.14159265359, 0.001), true);
+    assert_eq!(approx(Vec3f::phi(), splat3f(f32::phi()), 0.001), true);
+    assert_eq!(approx(Vec3f::inv_phi(), splat3f(f32::inv_phi()), 0.001), true);
+    assert_eq!(approx(Vec3f::pi(), splat3f(f32::pi()), 0.001), true);
+    assert_eq!(approx(Vec3f::inv_pi(), splat3f(f32::inv_pi()), 0.001), true);
+    assert_eq!(approx(Vec3f::two_pi(), splat3f(f32::two_pi()), 0.001), true);
+}
+
+#[test]
 fn generics() {
     let v1 : f32 = 1.0;
     let v2 = vec2f(1.0, 1.0);
@@ -1610,6 +1624,18 @@ fn generics() {
     let _n3 = normalize(v3);
     let _d2 = dot(v2, v2);
     let _d3 = dot(v3, v3);
+
+    assert_eq!(sin(0.0 as f32), f32::sin(0.0));
+    assert_eq!(cos(0.0), f64::cos(0.0));
+    assert_eq!(tan(Vec3f::zero()), Vec3::tan(Vec3f::zero()));
+
+    assert_eq!(asin(0.0 as f32), f32::asin(0.0));
+    assert_eq!(acos(0.0), f64::acos(0.0));
+    assert_eq!(atan(Vec3f::zero()), Vec3::atan(Vec3f::zero()));
+
+    assert_eq!(sinh(0.0 as f32), f32::sinh(0.0));
+    assert_eq!(cosh(0.0), f64::cosh(0.0));
+    assert_eq!(tanh(Vec3f::zero()), Vec3::tanh(Vec3f::zero()));
 }
 
 #[test]
