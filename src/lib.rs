@@ -2105,6 +2105,27 @@ pub fn gjk_3d<T: Float + FloatOps<T> + NumberOps<T> + SignedNumber + SignedNumbe
     false
 }
 
+/// Export float types and all functions for qick and easy integration
+pub mod prelude {
+    #[doc(hidden)]
+    pub use crate::{
+        // modules
+        vec::*,
+        mat::*,
+        num::*,
+        quat::*,
+        swizz::*,
+
+        // types
+        Vec2f, Vec3f, Vec4f,
+        Mat2f, Mat3f, Mat34f, Mat4f,
+        Quatf,
+
+        // functions in lib.rs
+        *,
+    };
+}
+
 // tests;;
 // quilez functions
 // quat tests
