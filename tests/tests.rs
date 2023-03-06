@@ -1635,6 +1635,23 @@ fn generics() {
 }
 
 #[test]
+fn min_max_scalar_chebyshev() {
+    let v1 = vec4f(1.0, 2.0, 3.0, 4.0);
+    let v2 = vec4f(8.0, 7.0, 6.0, 5.0);
+
+    assert_eq!(Vec4f::max_scalar(v1), 4.0);
+    assert_eq!(Vec4f::max_scalar(v2), 8.0);
+    assert_eq!(Vec4f::min_scalar(v1), 1.0);
+    assert_eq!(Vec4f::min_scalar(v2), 5.0);
+
+    let c1 = vec3f(0.5, 0.5, 0.5);
+    assert_eq!(chebyshev_normalize(c1), vec3f(1.0, 1.0, 1.0));
+
+    let c2 = vec3f(-0.5, -0.5, -0.5);
+    assert_eq!(chebyshev_normalize(c2), vec3f(-1.0, -1.0, -1.0));
+}
+
+#[test]
 fn closest_point_on_line_test() {
     // 2d
     let l1 = vec2f(0.0, 0.0);

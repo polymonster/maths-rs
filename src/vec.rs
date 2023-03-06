@@ -31,11 +31,11 @@ pub trait VecN<T: Number>:
     Index<usize, Output=T> + IndexMut<usize> + 
     Add<T, Output=Self> + Sub<T, Output=Self> +
     Mul<T, Output=Self> + Div<T, Output=Self> {
-    /// returns the count of elements in the vector
+    /// returns the count of elements in the vector type
     fn len() -> usize;
-    /// returns true if all elements in vector are non-zero
+    /// returns true if all elements in vector `a` are non-zero
     fn all(a: Self) -> bool;
-    /// returns true if any element of the vector is non-zero
+    /// returns true if any element of the vector `a` is non-zero
     fn any(a: Self) -> bool;
     /// returns a vector initialised as a unit vector in the x-axis [1, 0, 0, 0]
     fn unit_x() -> Self;
@@ -67,6 +67,10 @@ pub trait VecN<T: Number>:
     fn as_mut_slice(&mut self) -> &mut [T];
     /// returns a slice of bytes for the vector
     fn as_u8_slice(&self) -> &[u8];
+    // returns the largest scalar value component contained in the vector `a`
+    fn max_scalar(a: Self) -> T;
+    // returns the smallest scalar value component contained in the vector `a`
+    fn min_scalar(a: Self) -> T;
 }
 
 /// trait for vectors of signed types to allow Neg
@@ -77,13 +81,13 @@ pub trait SignedVecN<T: SignedNumber>: Neg<Output=Self> {
 
 /// trait for operations involve vector magnitude or dot product
 pub trait Magnitude<T: Float> {
-    /// returns scalar magnitude or length of vector
+    /// returns scalar magnitude or length of vector `a`
     fn length(a: Self) -> T;
-    /// returns scalar magnitude or length of vector
+    /// returns scalar magnitude or length of vector `a`
     fn mag(a: Self) -> T;
     /// returns scalar magnitude or length of vector squared to avoid using sqrt
     fn mag2(a: Self) -> T;
-    /// returns a normalized unit vector of a
+    /// returns a normalized unit vector of `a`
     fn normalize(a: Self) -> Self;
 }
 
@@ -230,6 +234,26 @@ macro_rules! vec_impl {
             fn any(a: Self) -> bool {
                 $(a.$field != T::zero() ||)+
                 false
+            }
+
+            fn max_scalar(a: Self) -> T {
+                let mut max = a[0];
+                for i in 1..Self::len() {
+                    if a[i] > max {
+                        max = a[i];
+                    }
+                }
+                max
+            }
+
+            fn min_scalar(a: Self) -> T {
+                let mut min = a[0];
+                for i in 1..Self::len() {
+                    if a[i] < min {
+                        min = a[i];
+                    }
+                }
+                min
             }
 
             fn unit_x() -> $VecN<T> {
@@ -1344,101 +1368,3 @@ vec_cast!(Vec4 {x, y, z, w}, f32, f64);
 vec_cast!(Vec4 {x, y, z, w}, f32, i32);
 vec_cast!(Vec4 {x, y, z, w}, f32, u32);
 vec_cast!(Vec4 {x, y, z, w}, i32, u32);
-
-// experims
-// v3 / v2 mod, with use... didnt correctly deduce the function by type
-// v3:: with use
-
-// generic... (code gen)
-/*
-fn dot<V: VecN<T>, T: Number>(v1: &V, v2: &V) -> T {
-    let mut r = T::default();
-    for i in 0..V::len() {
-        r += v1[i] * v2[i];
-    }
-    r
-}
-*/
-
-/*
-fn dot_v2_index<T: Default + std::ops::Mul<Output = T> + std::ops::Add<Output = T> + std::ops::AddAssign + Copy>(v1: &Vec2<T>, v2: &Vec2<T>) -> T {
-    let mut r = T::default();
-    for i in 0..2 {
-        r += v1[i] * v2[i];
-    }
-    r
-}
-
-fn dot_v2<T: std::ops::Mul<Output = T> + std::ops::Add<Output = T> + Copy>(v1: &Vec2<T>, v2: &Vec2<T>) -> T {
-    v1[0] * v2[0] + v1[1] * v2[1]
-}
-
-impl<T> Vec3<T> where T: Number {
-    fn dot(x1: &Vec3<T>, x2: &Vec3<T>) -> T {
-        x1.x * x2.x + x1.y * x2.y + x1.z * x2.z
-    }
-}
-
-pub fn dot<T: super::Number>(a: super::$VecN<T>, b: super::$VecN<T>) -> T {
-    T::default() // needs this!? ;_;
-    $( 
-        +(a.$field * b.$field)
-    )+
-}
-
-// overloading through traits... template style specialisation is not possible
-#[derive(Debug, Copy, Clone)]
-pub struct Bec<T, X, const N: usize> {
-    pub v: [T; N]
-}
-
-pub trait Bec2 {}
-pub trait Bec3 {}
-
-pub fn t1<T: Number, X: Bec2>(a: Bec<T, X, 2>, b: Bec<T, X, 2>) -> T {
-    a.v[0] + b.v[1]
-}
-
-pub fn t1<T: Number, X: Bec3>(a: Bec<T, X, 2>, b: Bec<T, X, 2>) -> T {
-    a.v[0] + b.v[2]
-}
-
-// ? repeater
-pub fn xxx<T: super::Number>(_a: super::$VecN<T>, _b: super::$VecN<T>) -> T{
-    $( 
-        //let mut c = (a.$field * b.$field);
-        println!("? {}", _a.$field);
-    )?
-
-    $(
-        println!("* {}", _a.$field);
-
-        //+ (a.$field * b.$field)
-    )*
-
-    T::zero()
-}
-
-// lhs
-impl<T> Add<Vec2<T>> for T where T: Number {
-    type Output = Vec2<T>;
-    fn add(self, other: Vec2<T>) -> Vec2<T> {
-        Vec2 {
-            x: other.x + self,
-            y: other.y + self,
-        }
-    }
-}
-
-/*
-impl<T> Add<Vec2<T>> for T {
-    type Output = T;
-    fn add(self, other: Vec2<T>) -> Vec2<T> {
-        Vec2::zero()
-    }
-}
-*/
-
-// impl<T> Add<Vec2<T>> for T {
-//     ^ type parameter `T` must be covered by another type when it appears before the first local type (`Vec2<T>`)
-*/

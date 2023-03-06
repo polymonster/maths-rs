@@ -252,6 +252,11 @@ pub fn normalize<T: Float, V: VecFloatOps<T>>(a: V) -> V {
     V::normalize(a)
 }
 
+/// returns a chebyshevnormalized unit vector of `a` (where the normalization projects onto the unit cube)
+pub fn chebyshev_normalize<T: Float, V: VecFloatOps<T> + VecN<T> + SignedNumberOps<T>>(a: V) -> V {
+    a / V::max_scalar(V::abs(a))
+}
+
 /// returns scalar distance between 2 points `a` and `b` (magnitude of the vector between the 2 points)
 pub fn distance<T: Float, V: VecFloatOps<T>>(a: V, b: V) -> T {
     V::distance(a, b)
