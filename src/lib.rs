@@ -2110,7 +2110,7 @@ pub fn gjk_3d<T: Float + FloatOps<T> + NumberOps<T> + SignedNumber + SignedNumbe
     false
 }
 
-/// Export float types and all functions for qick and easy integration
+/// export float types and all functions for qick and easy integration
 pub mod prelude {
     #[doc(hidden)]
     pub use crate::{
