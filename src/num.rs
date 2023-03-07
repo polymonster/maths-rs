@@ -34,15 +34,15 @@ pub trait Base<T: Number>:
     Div<Output=Self> + DivAssign +
     Rem<Output=Self> + RemAssign
     where Self: Sized {
-    /// returns 0
+    /// returns `0`
     fn zero() -> Self;
-    /// returns 1
+    /// returns `1`
     fn one() -> Self;
-    /// returns 2
+    /// returns `2`
     fn two() -> Self;
-    /// returns 3
+    /// returns `3`
     fn three() -> Self;
-    /// returns 4
+    /// returns `4`
     fn four() -> Self;
     /// returns the smallest representable number with the available precision
     fn min_value() -> Self;
@@ -52,125 +52,125 @@ pub trait Base<T: Number>:
 
 /// operations applicable to both floating point, integer and unsigned types
 pub trait NumberOps<T: Number> {
-    /// returns the minimum value of a and b
+    /// returns the minimum value of `a` and `b`
     fn min(a: Self, b: Self) -> Self;
-    /// returns the maximum value of a and b
+    /// returns the maximum value of `a` and `b`
     fn max(a: Self, b: Self) -> Self;
-    /// returns value x clamped to the range min - max
+    /// returns value `x` clamped to the range `min` - `max`
     fn clamp(x: Self, min: Self, max: Self) -> Self;
-    /// returns a vector stepped component wise; 1 if a is >= b, 0 otherwise
+    /// returns a vector stepped component wise; `1` if `a` is >= `b`, `0` otherwise
     fn step(a: Self, b: Self) -> Self;
 }
 
 /// operations applicable to signed types
 pub trait SignedNumberOps<T: SignedNumber>: Neg<Output=Self> {
-    /// returns sign value of a; -1 = negative, 1 = positive or 0 (integers only)
+    /// returns sign value of `a`; `-1` = negative, `1` = positive or `0` (integers only)
     fn signum(a: Self) -> Self;
-    /// returns the absolute (postive) value of a
+    /// returns the absolute (postive) value of `a`
     fn abs(a: Self) -> Self;
 }
 
 /// operations applicable to integer types
 pub trait IntegerOps<T: Integer> {
-    /// returns value a raised to unsigned integer power
+    /// returns value `a` raised to unsigned integer power `exp`
     fn pow(a: Self, exp: u32) -> Self;
 }
 
 /// trait for performing linear interpolation on scalars, vectors or quaternions
 pub trait Lerp<T: Float> {
-    /// returns linear interpolation of t between e0 and e1, t specifies the ratio to interpolate between the values
+    /// returns linear interpolation of `t` between `e0` and `e1`, `t` specifies the ratio to interpolate between the values
     fn lerp(e0: Self, e1: Self, t: T) -> Self;
 }
 
 /// operations applicable to floating point types
 pub trait FloatOps<T: Float>: Lerp<T> where Self: Sized {
-    /// returns 0.5
+    /// returns `0.5`
     fn point_five() -> Self;
-    /// returns pi
+    /// returns `pi`
     fn pi() -> Self;
-    /// returns 2.0 * pi
+    /// returns `2.0 * pi`
     fn two_pi() -> Self;
-    /// returns 1.0 / pi
+    /// returns `1.0 / pi`
     fn inv_pi() -> Self;
-    /// returns phi (the golden constant)
+    /// returns `phi` (the golden constant)
     fn phi() -> Self;
-    /// returns 1.0 / phi (the golden constant)
+    /// returns `1.0 / phi` (the golden constant)
     fn inv_phi() -> Self;
-    /// returns square root of a
+    /// returns square root of `a`
     fn sqrt(a: Self) -> Self;
-    /// returns reciprocal square root of a (1/sqrt(a))
+    /// returns reciprocal square root of `a` (`1/sqrt(a)`)
     fn rsqrt(a: Self) -> Self;
-    /// returns the reciprocal of a
+    /// returns the reciprocal of `a`
     fn recip(a: Self) -> Self;
-    /// returns a raised to integer power
+    /// returns `a` raised to integer power `exp`
     fn powi(a: Self, exp: i32) -> Self;
-    /// returns a raised to float power
+    /// returns `a` raised to float power `exp`
     fn powf(a: Self, exp: T) -> Self;
-    /// returns fused multiply add a * m + b
+    /// returns fused multiply add `a * m + b`
     fn mad(m: Self, a: Self, b: Self) -> Self;
-    /// returns true if a and b are approximately equal within the designated epsilon
+    /// returns true if `a` and `b` are approximately equal within the designated epsilon `eps`
     fn approx(a: Self, b: Self, eps: T) -> bool;
     /// returns the greatest integer which is less than or equal to a
     fn floor(a: Self) -> Self;
-    /// returns the smallest integer which is greater than or equal to a
+    /// returns the smallest integer which is greater than or equal to `a`
     fn ceil(a: Self) -> Self;
-    /// returns value a with the same sign as the second parameter sign
+    /// returns value `a` with the same sign as the second parameter `sign`
     fn copysign(a: Self, sign: T) -> Self;
-    /// returns hermite interpolation between 0-1 of t between edges e0 and e1
+    /// returns hermite interpolation between `0-1` of `t` between edges `e0` and `e1`
     fn smoothstep(e0: Self, e1: Self, t: T) -> Self;
-    /// returns a rounded component wise
+    /// returns `a` rounded component wise
     fn round(a: Self) -> Self;
-    /// returns true if a is not a number
+    /// returns true if `a` is not a number (`nan`)
     fn is_nan(a: Self) -> Self;
-    /// returns true if a is inf
+    /// returns true if `a` is `inf`
     fn is_infinite(a: Self) -> Self;
-    /// returns true is a is finite
+    /// returns true is `a` is finite
     fn is_finite(a: Self) -> Self;
-    /// returns the value of a saturated (clamped between 0-1). equivalent to clamp (x, 0, 1)
+    /// returns the value of `a` saturated (clamped between `0-1`). equivalent to `clamp(x, 0, 1)`
     fn saturate(x: Self) -> Self;
-    /// returns theta converted from degrees to radians
+    /// returns `theta` converted from degrees to radians
     fn deg_to_rad(theta: Self) -> Self;
-    /// returns theta converted from radians to degrees
+    /// returns `theta` converted from radians to degrees
     fn rad_to_deg(theta: Self) -> Self;
-    /// returns the floating-point remainder
+    /// returns the floating-point remainder of `x/y`
     fn fmod(x: Self, y: Self) -> Self;
-    /// returns the fractional part of floating point number removing the integer
+    /// returns the fractional part of floating point number `v` removing the integer part
     fn frac(v: Self) -> Self;
-    /// returns the integer part of a float truncating the decimal part
+    /// returns the integer part of float value `v` truncating the decimal part
     fn trunc(v: Self) -> Self;
-    /// returns a tuple containing (frac(v), trunc(v)) breaking the float into 2 parts 
+    /// returns a tuple containing `(frac(v), trunc(v))` breaking the float into 2 parts 
     fn modf(v: Self) -> (Self, Self);
-    /// returns the cosine of v where the value v is in radians
+    /// returns the cosine of `v` where the value `v` is in radians
     fn cos(v: Self) -> Self;
-    /// returns the sine of v where the value v is in radians
+    /// returns the sine of `v` where the value `v` is in radians
     fn sin(v: Self) -> Self;
-    /// returns the tangent of v where the value v is in radians
+    /// returns the tangent of `v` where the value `v` is in radians
     fn tan(v: Self) -> Self;
-    /// returns the arc cosine of v where the value v is in radians
+    /// returns the arc cosine of `v` where the value `v` is in radians
     fn acos(v: Self) -> Self;
-    /// returns the arc sine of v where the value v is in radians
+    /// returns the arc sine of `v` where the value `v` is in radians
     fn asin(v: Self) -> Self;
-    /// returns the arc tangent of v where the value v is in radians
+    /// returns the arc tangent of `v` where the value `v` is in radians
     fn atan(v: Self) -> Self;
-    /// returns the hyperbolic cosine of v where the value v is in radians
+    /// returns the hyperbolic cosine of `v` where the value `v` is in radians
     fn cosh(v: Self) -> Self;
-    /// returns the hyperbolic sine of v where the value v is in radians
+    /// returns the hyperbolic sine of `v` where the value `v` is in radians
     fn sinh(v: Self) -> Self;
-    /// returns the hyperbolic tangent of v where the value v is in radians
+    /// returns the hyperbolic tangent of `v` where the value `v` is in radians
     fn tanh(v: Self) -> Self;
-    /// returns a tuple of (sin(v), cos(v)) of v where the value v is in radians
+    /// returns a tuple of `(sin(v), cos(v))` of `v` where the value `v` is in radians
     fn sin_cos(v: Self) -> (Self, Self);
-    // returns the value of the arc tangent of y/x, expressed in radians
+    // returns the value of the arc tangent of `y/x`, expressed in radians
     fn atan2(y: Self, x: Self) -> Self;
-    // returns the base-e exponential function of v, which is e raised to the power v
+    // returns the base-e exponential function of `v`, which is `e` raised to the power `v`
     fn exp(v: Self) -> Self;
-    /// returns 2 raised to the given power v
+    /// returns 2 raised to the given power `v`
     fn exp2(v: Self) -> Self;
-    /// returns the binary (base-2) logarithm of v
+    /// returns the binary (base-2) logarithm of `v`
     fn log2(v: Self) -> Self;
-    /// returns the common (base-10) logarithm of v
+    /// returns the common (base-10) logarithm of `v`
     fn log10(v: Self) -> Self;
-    /// returns the logarithm of v in base
+    /// returns the logarithm of `v` in base
     fn log(v: Self, base: T) -> Self;
 }
 

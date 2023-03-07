@@ -37,25 +37,25 @@ pub trait VecN<T: Number>:
     fn all(a: Self) -> bool;
     /// returns true if any element of the vector `a` is non-zero
     fn any(a: Self) -> bool;
-    /// returns a vector initialised as a unit vector in the x-axis [1, 0, 0, 0]
+    /// returns a vector initialised as a unit vector in the x-axis `[1, 0, 0, 0]`
     fn unit_x() -> Self;
-    /// returns a vector initialised as a unit vector in the y-axis [0, 1, 0, 0]
+    /// returns a vector initialised as a unit vector in the y-axis `[0, 1, 0, 0]`
     fn unit_y() -> Self;
-    /// returns a vector initialised as a unit vector in the z-axis [0, 0, 1, 0] value will be truncated to 0 for vectors < 3 dimension
+    /// returns a vector initialised as a unit vector in the z-axis `[0, 0, 1, 0]` value will be truncated to 0 for vectors < 3 dimension
     fn unit_z() -> Self;
-    /// returns a vector initialised as a unit vector in the w-axis [0, 0, 0, 1] value will be truncated to 0 for vectors < 4 dimension
+    /// returns a vector initialised as a unit vector in the w-axis `[0, 0, 0, 1]` value will be truncated to 0 for vectors < 4 dimension
     fn unit_w() -> Self;
-    /// returns a vector initialised to red [1, 0, 0, 1]
+    /// returns a vector initialised to red `[1, 0, 0, 1]`
     fn red() -> Self;
-    /// returns a vector initialised to green [0, 1, 0, 1]
+    /// returns a vector initialised to green `[0, 1, 0, 1]`
     fn green() -> Self;
-    /// returns a vector initialised to blue [0, 0, 1, 1] value will be truncated to 0 for vectors < 3 dimension
+    /// returns a vector initialised to blue `[0, 0, 1, 1]` value will be truncated to 0 for vectors < 3 dimension
     fn blue() -> Self;
-    /// returns a vector initialised to cyan [0, 1, 1, 1] value will be truncated to green for vectors < 3 dimension
+    /// returns a vector initialised to cyan `[0, 1, 1, 1]` value will be truncated to green for vectors < 3 dimension
     fn cyan() -> Self;
-    /// returns a vector initialised to magenta [1, 0, 1, 1] value will be truncated to red for vectors < 3 dimension
+    /// returns a vector initialised to magenta `[1, 0, 1, 1]` value will be truncated to red for vectors < 3 dimension
     fn magenta() -> Self;
-    /// returns a vector initialised to yellow [1, 1, 0, 0]
+    /// returns a vector initialised to yellow `[1, 1, 0, 0]`
     fn yellow() -> Self;
     /// returns a vector initialised to black (zero's)
     fn black() -> Self;
@@ -67,9 +67,9 @@ pub trait VecN<T: Number>:
     fn as_mut_slice(&mut self) -> &mut [T];
     /// returns a slice of bytes for the vector
     fn as_u8_slice(&self) -> &[u8];
-    // returns the largest scalar value component contained in the vector `a`
+    /// returns the largest scalar value component contained in the vector `a`
     fn max_scalar(a: Self) -> T;
-    // returns the smallest scalar value component contained in the vector `a`
+    /// returns the smallest scalar value component contained in the vector `a`
     fn min_scalar(a: Self) -> T;
 }
 
@@ -85,7 +85,7 @@ pub trait Magnitude<T: Float> {
     fn length(a: Self) -> T;
     /// returns scalar magnitude or length of vector `a`
     fn mag(a: Self) -> T;
-    /// returns scalar magnitude or length of vector squared to avoid using sqrt
+    /// returns scalar magnitude or length of vector `a` squared to avoid using sqrt
     fn mag2(a: Self) -> T;
     /// returns a normalized unit vector of `a`
     fn normalize(a: Self) -> Self;
@@ -93,21 +93,21 @@ pub trait Magnitude<T: Float> {
 
 /// operations to apply to n-dimensional vectors
 pub trait VecFloatOps<T: Float>: SignedVecN<T> + Magnitude<T> {
-    /// returns scalar distance between 2 points (magnitude of the vector between the 2 points)
+    /// returns scalar distance between point `a` and `b` (magnitude of the vector between the 2 points)
     fn distance(a: Self, b: Self) -> T;
-    /// returns scalar distance between 2 points (magnitude of the vector between the 2 points)
+    /// returns scalar distance between point `a` and `b` (magnitude of the vector between the 2 points)
     fn dist(a: Self, b: Self) -> T;
-    /// returns scalar squared distance between 2 points to avoid using sqrt
+    /// returns scalar squared distance between point `a` and `b` to avoid using sqrt
     fn dist2(a: Self, b: Self) -> T;
-    /// returns a reflection vector using an incident ray and a surface normal
+    /// returns a reflection vector using an incident ray `i` and a surface normal `n`
     fn reflect(i: Self, n: Self) -> Self;
-    /// returns a refraction vector using an entering ray, a surface normal, and a refraction index
+    /// returns a refraction vector using an entering ray `i`, a surface normal `n`, and a refraction index `eta`
     fn refract(i: Self, n: Self, eta: T) -> Self;
-    /// returns linear interpolation between e0 and e1, t specifies the ratio to interpolate between the values, with component-wise t
+    /// returns linear interpolation between `e0` and `e1`, `t` specifies the ratio to interpolate between the values, with component-wise `t`
     fn vlerp(e0: Self, e1: Self, t: Self) -> Self;
-    /// returns vector with component wise hermite interpolation between 0-1, with component-wise t
+    /// returns vector with component wise hermite interpolation between `0-1`, with component-wise `t`
     fn vsmoothstep(e0: Self, e1: Self, t: Self) -> Self;
-    /// returns vector with component wise pow 
+    /// returns vector `a` raised to component wise power `exp`
     fn powfn(a: Self, exp: Self) -> Self;
 }
 
@@ -189,13 +189,13 @@ impl<T> Triple<T> for Vec2<T> where T: Number + SignedNumber {
 
 /// trait for spherical interpolation, which is applicable with vec and quat
 pub trait Slerp<T: Float + FloatOps<T>> {
-    // spherically interpolate between edges e0 and e1 by percentage t
+    // spherically interpolate between edges `e0` and `e1` by percentage `t`
     fn slerp(e0: Self, e1: Self, t: T) -> Self;
 }
 
 /// trait for normalized interpolation, which is applicable with vec and quat
 pub trait Nlerp<T: Float> {
-    // linearly interpolate between edges e0 and e1 by percentage t and return the normalized value
+    // linearly interpolate between edges `e0` and `e1` by percentage `t` and return the normalized value
     fn nlerp(e0: Self, e1: Self, t: T) -> Self;
 }
 

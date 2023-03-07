@@ -353,7 +353,7 @@ pub fn sin_cos<T: Float, V: FloatOps<T>>(v: V) -> (V, V) {
     V::sin_cos(v)
 }
 
-// returns the base-e exponential function of `v`, which is e raised to the power `v`
+/// returns the base-e exponential function of `v`, which is e raised to the power `v`
 pub fn exp<T: Float, V: FloatOps<T>>(v: V) -> V {
     V::exp(v)
 }
@@ -524,7 +524,7 @@ pub fn point_aabb_distance<T: Float, V: VecN<T> + NumberOps<T> + VecFloatOps<T>>
     dist(closest_point_on_aabb(p, aabb_min, aabb_max), p)
 }
 
-// returns the unsigned distance from point `p0` to the sphere (or 2d circle) centred at `s0` with radius `r`
+/// returns the unsigned distance from point `p0` to the sphere (or 2d circle) centred at `s0` with radius `r`
 pub fn point_sphere_distance<T: Float, V: VecN<T> + NumberOps<T> + VecFloatOps<T>>(p0: V, s0: V, r: T) -> T {
     dist(p0, closest_point_on_sphere(p0, s0, r))
 }
@@ -1004,8 +1004,8 @@ pub fn aabb_vs_obb<T: Number + Float + SignedNumber + SignedNumberOps<T> + Numbe
     gjk_3d(verts0, verts1)
 }
 
-// returns true if the sphere with centre `s0` and radius `r0` overlaps obb defined by matrix `obb`, where the matrix
-// transforms a unit cube with extents -1 to 1 into an obb
+/// returns true if the sphere with centre `s0` and radius `r0` overlaps obb defined by matrix `obb`, where the matrix
+/// transforms a unit cube with extents -1 to 1 into an obb
 pub fn sphere_vs_obb<T: Float, V: VecN<T> + VecFloatOps<T> + NumberOps<T> + SignedNumberOps<T>, M: MatTranslate<V> + MatInverse<T> + MatRotate3D<T, V> + MatN<T, V>>(s: V, r: T, obb: M) -> bool {
     // test the distance to the closest point on the obb
     let cp = closest_point_on_obb(s, obb);
@@ -1272,8 +1272,8 @@ pub fn ray_vs_capsule<T: Float + FloatOps<T> + NumberOps<T> + SignedNumberOps<T>
     }
 }
 
-// returns true if there is an intersection between ray wih origin `r0` and direction `rv` against the cylinder with line `c0-c1` and radius `cr`
-// the intersection point is return as an `Option` if it exists.
+/// returns true if there is an intersection between ray wih origin `r0` and direction `rv` against the cylinder with line `c0-c1` and radius `cr`
+/// the intersection point is return as an `Option` if it exists.
 pub fn ray_vs_cylinder<T: Float + FloatOps<T> + NumberOps<T> + SignedNumberOps<T>>(r0: Vec3<T>, rv: Vec3<T>, c0: Vec3<T>, c1: Vec3<T>, cr: T) -> Option<Vec3<T>> {
     // intesection of ray and infinite cylinder about axis
     // https://stackoverflow.com/questions/4078401/trying-to-optimize-line-vs-cylinder-intersection
@@ -1662,14 +1662,14 @@ pub fn sinc<T: SignedNumber + Float, X: Base<T> + FloatOps<T> + SignedNumberOps<
     X::sin(a)/a
 }
 
- /// returns a hsv value in 0-1 range converted from `rgb` in 0-1 range
- pub fn rgb_to_hsv<T: Float + SignedNumberOps<T> + From<f64>>(rgb: Vec3<T>) -> Vec3<T> {
+/// returns a hsv value in 0-1 range converted from `rgb` in 0-1 range
+pub fn rgb_to_hsv<T: Float + SignedNumberOps<T> + From<f64>>(rgb: Vec3<T>) -> Vec3<T> {
     // from Foley & van Dam p592
     // optimized: http://lolengine.net/blog/2013/01/13/fast-rgb-to-hsv 
     let mut r = rgb.x;
     let mut g = rgb.y;
     let mut b = rgb.z;
-    
+
     let mut k = T::zero();
     if g < b {
         std::mem::swap(&mut g, &mut b);
@@ -1680,18 +1680,18 @@ pub fn sinc<T: SignedNumber + Float, X: Base<T> + FloatOps<T> + SignedNumberOps<
         std::mem::swap(&mut r, &mut g);
         k = -T::two() / T::from(6.0) - k;
     }
-    
+
     let chroma = r - if g < b { g } else { b };
 
     Vec3 {
-    x: abs(k + (g - b) / (T::from(6.0)  * chroma + T::small_epsilon())),
-    y: chroma / (r + T::small_epsilon()),
-    z: r
+        x: abs(k + (g - b) / (T::from(6.0)  * chroma + T::small_epsilon())),
+        y: chroma / (r + T::small_epsilon()),
+        z: r
     }
- }
+}
  
- /// returns an rgb value in 0-1 range converted from `hsv` in 0-1 range
- pub fn hsv_to_rgb<T: Float + FloatOps<T> + From<f64>>(hsv: Vec3<T>) -> Vec3<T> where i32: From<T> {
+/// returns an rgb value in 0-1 range converted from `hsv` in 0-1 range
+pub fn hsv_to_rgb<T: Float + FloatOps<T> + From<f64>>(hsv: Vec3<T>) -> Vec3<T> where i32: From<T> {
     // from Foley & van Dam p593: http://en.wikipedia.org/wiki/HSL_and_HSV
     let h = hsv.x;
     let s = hsv.y;
@@ -1986,7 +1986,7 @@ pub fn convex_hull_vs_convex_hull<T: Float + FloatOps<T> + NumberOps<T> + Signed
     gjk_2d(convex0, convex1)
 }
 
-// simplex evolution for 3d mesh overlaps
+/// simplex evolution for 3d mesh overlaps
 fn handle_simplex_3d<T: Float + FloatOps<T> + NumberOps<T> + SignedNumber + SignedNumberOps<T>, V: VecN<T> + VecFloatOps<T> + Triple<T> + Cross<T>> (simplex: &mut Vec<V>, dir: &mut V) -> bool {
     match simplex.len() {
         2 => {
