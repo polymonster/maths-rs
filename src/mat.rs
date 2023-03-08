@@ -878,7 +878,7 @@ impl<T> MatN<T, Vec3<T>> for Mat4<T> where T: Number {}
 
 /// trait for minimum of 4 column matrices to create translation
 pub trait MatTranslate<V> {
-    /// create a translation matrix from 3-dimensional vector t
+    /// create a translation matrix from 3-dimensional vector `t`
     fn from_translation(t: V) -> Self;
 }
 
@@ -901,6 +901,7 @@ impl<T> MatTranslate<Vec3<T>> for Mat34<T> where T: Number {
 
 /// trait for all matrices to cerate a scaling matrix
 pub trait MatScale<V> {
+    /// create a scale matrix from n-dimensional vector `t`
     fn from_scale(t: V) -> Self;
 }
 
@@ -945,7 +946,7 @@ impl<T> MatScale<Vec2<T>> for Mat2<T> where T: Number {
 
 /// trait for minimum of 2x2 matrices applying rotation in z-axis
 pub trait MatRotate2D<T> {
-    /// create rotation about the z axis by theta radians
+    /// create rotation about the z axis by `theta` radians
     fn from_z_rotation(theta: T) -> Self;
 }
 
@@ -1001,7 +1002,7 @@ impl<T> MatRotate2D<T> for Mat34<T> where T: Float + FloatOps<T> {
     }
 }
 
-/// given the normalised vector n, constructs an orthonormal basis returned as tuple
+/// given the normalised vector `n`, constructs an orthonormal basis returned as tuple
 pub fn get_orthonormal_basis_hughes_moeller<T: Float + SignedNumberOps<T> + FloatOps<T>>(n: Vec3<T>) -> (Vec3<T>, Vec3<T>) {
     // choose a vector orthogonal to n as the direction of b2.
     let b2 = if T::abs(n.x) > T::abs(n.z) {
@@ -1020,7 +1021,7 @@ pub fn get_orthonormal_basis_hughes_moeller<T: Float + SignedNumberOps<T> + Floa
     (b1, b2)
 }
 
-/// given the normalised vector n construct an orthonormal basis without sqrt..
+/// given the normalised vector `n` construct an orthonormal basis without sqrt..
 pub fn get_orthonormal_basis_frisvad<T: Float + SignedNumberOps<T> + FloatOps<T> + From<f64>>(n: Vec3<T>) -> (Vec3<T>, Vec3<T>) {
     let epsilon = T::from(-0.99999999);
     if n.z < epsilon {
@@ -1036,13 +1037,13 @@ pub fn get_orthonormal_basis_frisvad<T: Float + SignedNumberOps<T> + FloatOps<T>
 
 /// trait for minimum of 3x3 matrices applying rotation to x, y or aribtrary 3D axes
 pub trait MatRotate3D<T, V> {
-    /// create rotation about the x axis by theta radians
+    /// create rotation about the x axis by `theta` radians
     fn from_x_rotation(theta: T) -> Self;
-    /// create rotation about the y axis by theta radians
+    /// create rotation about the y axis by `theta` radians
     fn from_y_rotation(theta: T) -> Self;
-    /// create rotation about the abitrary axis by theta radians
+    /// create rotation about the abitrary `axis` by `theta` radians
     fn from_rotation(axis: V, theta: T) -> Self;
-    /// create an othonormal basis from the normal vector
+    /// create an othonormal basis from the `normal` vector
     fn from_orthonormal_basis(normal: Vec3<T>) -> Self;
 }
 
@@ -1140,6 +1141,7 @@ impl<T> MatRotate3D<T, Vec3<T>> for Mat4<T> where T: Float + FloatOps<T> + Signe
 
 /// trait for square matrices to compute determinant
 pub trait MatDeterminant<T> {
+    /// return the determinant of the matrix as scalar `T`
     fn determinant(&self) -> T;
 }
 
@@ -1179,6 +1181,7 @@ impl<T> MatDeterminant<T> for Mat4<T> where T: Number {
 
 /// trait for all kinds of matrices to calculate inverse
 pub trait MatInverse<T> {
+    /// returns the inverse of the matrix
     fn inverse(&self) -> Self;
 }
 
@@ -1274,19 +1277,19 @@ impl<T> MatInverse<T> for Mat4<T> where T: SignedNumber {
 
 /// trait for 4x4 projection matrices
 pub trait MatProjection<T> {
-    /// returns 6 frustum planes as Vec4's in the form .xyz = normal, .w = plane distance 
+    /// returns 6 frustum planes as `Vec4`'s in the form `.xyz = normal, .w = plane distance`
     fn get_frustum_planes(&self) -> [Vec4<T>; 6];
     /// returns 8 points which are the corners of the frustum first 4 near, second 4 far
     fn get_frustum_corners(&self) -> [Vec3<T>; 8];
-    /// returns an orthogrpahic projection matrix define by left, right, top, bottom edges and near - far depth range
+    /// returns an orthogrpahic projection matrix defined by `left`, `right`, `top`, `bottom` edges and `near` - `far` depth range
     fn create_ortho_matrix(left: T, right: T, bottom: T, top: T, near: T, far: T) -> Self;
-    /// returns a perespective projection matrix (left hand coordinate system with y-up) from fov (radians), aspect ratio and near - far depth
+    /// returns a perespective projection matrix (left hand coordinate system with y-up) from `fov` (radians), `aspect` ratio and `near` - `far` depth
     fn create_perspective_projection_lh_yup(fov: T, aspect: T, near: T, far: T) -> Self; 
-    /// returns a perespective projection matrix (right hand coordinate system with y-up) from fov (radians), aspect ratio and near - far depth
+    /// returns a perespective projection matrix (right hand coordinate system with y-up) from `fov` (radians), `aspect` ratio and `near` - `far` depth
     fn create_perspective_projection_rh_yup(fov: T, aspect: T, near: T, far: T) -> Self;
 }
 
-/// internal utility function to extract a plane in the form xyz=normal, w=constant from plane corners (of a frustum)
+/// internal utility function to extract a plane in the form `.xyz=normal, w=constant` from plane corners (of a frustum)
 fn plane_from_vectors<T: Float + FloatOps<T>>(plane_vectors: &[Vec3<T>; 18], offset: usize) -> Vec4<T> {
     let v1 = super::normalize(plane_vectors[offset + 1] - plane_vectors[offset]);
     let v2 = super::normalize(plane_vectors[offset + 2] - plane_vectors[offset]);

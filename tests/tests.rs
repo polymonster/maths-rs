@@ -1583,6 +1583,37 @@ fn matrix_mul_vec() {
 }
 
 #[test]
+fn quat() {
+    // identity and constructors
+    let identity = Quatf::identity();
+    let euler_identity = Quatf::from_euler_angles(0.0, 0.0, 0.0);
+    assert_eq!(identity, euler_identity);
+
+    // multiply by identity
+    let euler_90y = Quatf::from_euler_angles(0.0, f32::pi() / 2.0, 0.0);
+    assert_eq!(euler_90y, euler_90y * identity);
+
+    // from euler
+    let euler_45x = Quatf::from_euler_angles(f32::pi() / 4.0, 0.0, 0.0);
+    let euler_45y = Quatf::from_euler_angles(0.0, f32::pi() / 4.0, 0.0);
+    let euler_45z = Quatf::from_euler_angles(0.0, 0.0, f32::pi() / 4.0);
+    assert_eq!(approx(Vec3f::from(Quatf::to_euler_angles(euler_45x)), Vec3f::from((f32::pi() / 4.0, 0.0, 0.0)), 0.01), true);
+    assert_eq!(approx(Vec3f::from(Quatf::to_euler_angles(euler_45y)), Vec3f::from((0.0, f32::pi() / 4.0, 0.0)), 0.01), true);
+    assert_eq!(approx(Vec3f::from(Quatf::to_euler_angles(euler_45z)), Vec3f::from((0.0, 0.0, f32::pi() / 4.0)), 0.01), true);
+
+    // mul
+    let euler_22z = Quatf::from_euler_angles(0.0, 0.0, f32::pi() / 8.0);
+    let euler_45z = Quatf::from_euler_angles(0.0, 0.0, f32::pi() / 4.0);
+    let euler_mul = euler_22z * euler_22z;
+    assert_eq!(approx(Vec3f::from(Quatf::to_euler_angles(euler_45z)), Vec3f::from(Quatf::to_euler_angles(euler_mul)), 0.1), true);
+
+    // mul assign
+    let mut euler_mul_asign = euler_22z;
+    euler_mul_asign *= euler_22z; 
+    assert_eq!(euler_mul_asign, euler_mul);
+}
+
+#[test]
 fn constants() {
     assert_eq!(approx(f32::phi(), 1.6180339887, 0.001), true);
     assert_eq!(approx(f32::inv_phi(), 1.0 / 1.6180339887, 0.001), true);

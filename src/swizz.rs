@@ -2,6 +2,7 @@
 use crate::vec::*;
 use crate::num::*;
 
+/// swizzle combinations of x and y
 pub trait Vec2Swizzle<T: Number>: VecN<T> {
     fn xx(self) -> Vec2<T>;
     fn xy(self) -> Vec2<T>;
@@ -11,6 +12,7 @@ pub trait Vec2Swizzle<T: Number>: VecN<T> {
     fn set_yx(&mut self, other: Vec2<T>);
 }
 
+/// swizzle combinations of xyz
 pub trait Vec3Swizzle<T: Number>: VecN<T> {
     fn xz(self) -> Vec2<T>;
     fn yz(self) -> Vec2<T>;
@@ -56,6 +58,7 @@ pub trait Vec3Swizzle<T: Number>: VecN<T> {
     fn set_zyx(&mut self, other: Vec3<T>);
 }
 
+/// swizzle combinations of xyzw
 pub trait Vec4Swizzle<T: Number>: VecN<T> {
     fn xw(self) -> Vec2<T>;
     fn yw(self) -> Vec2<T>;

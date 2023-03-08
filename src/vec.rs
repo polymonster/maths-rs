@@ -151,6 +151,7 @@ impl<T> Cross<T> for Vec3<T> where T: Number {
     }
 }
 
+/// trait for scalar and vector triple products
 pub trait Triple<T> {
     /// scalar triple product
     fn scalar_triple(a: Self, b: Self, c: Self) -> T;

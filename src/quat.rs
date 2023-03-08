@@ -10,12 +10,15 @@ use std::ops::SubAssign;
 use std::ops::Deref;
 use std::ops::DerefMut;
 
+use std::fmt::Display;
+use std::fmt::Formatter;
+
 use crate::num::*;
 use crate::vec::*;
 use crate::mat::*;
 use crate::swizz::*;
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
 #[repr(C)]
 pub struct Quat<T> {
     x: T,
@@ -25,7 +28,17 @@ pub struct Quat<T> {
 }
 
 impl<T> Quat<T> where T: Float + FloatOps<T> + SignedNumberOps<T> {
-    /// construct a quaternion from 3 radian euler angles
+    /// constructs an identity quaternion which means no rotation and if multiplied with another quat it has no effect
+    pub fn identity() -> Self {
+        Self {
+            x: T::zero(),
+            y: T::zero(),
+            z: T::zero(),
+            w: T::one()
+        }
+    }
+
+    /// construct a quaternion from 3 euler angles `x`, `y` and `z`
     pub fn from_euler_angles(x: T, y: T, z: T) -> Self {
         let half_z = T::point_five() * z;
         let half_x = T::point_five() * x;
@@ -47,7 +60,7 @@ impl<T> Quat<T> where T: Float + FloatOps<T> + SignedNumberOps<T> {
         })
     }
 
-    /// constructs quaternion from axis / angle representation where angle is in radians
+    /// constructs quaternion from `axis` and `angle` representation where `angle` is in radians
     pub fn from_axis_angle(axis: Vec3<T>, angle: T) -> Self {
         let half_angle = angle * T::point_five();
         Self::normalize( Quat {
@@ -58,7 +71,7 @@ impl<T> Quat<T> where T: Float + FloatOps<T> + SignedNumberOps<T> {
         })
     }
 
-    /// constructs quaternion from matrix m
+    /// constructs quaternion from matrix `m`
     pub fn from_matrix(m: Mat3<T>) -> Self {
         // https://math.stackexchange.com/questions/893984/conversion-of-rotation-matrix-to-quaternion
         let m00 = m.m[0];
@@ -117,8 +130,8 @@ impl<T> Quat<T> where T: Float + FloatOps<T> + SignedNumberOps<T> {
         }
     }
 
-    /// get euler angles as tuple (x, y, z) from quaternion
-    pub fn get_euler_angles(self) -> (T, T, T) {
+    /// returns euler angles as tuple `(x, y, z)` from quaternion
+    pub fn to_euler_angles(self) -> (T, T, T) {
         let t2 = T::two();
         let t1 = T::one();
 
@@ -165,21 +178,21 @@ impl<T> Quat<T> where T: Float + FloatOps<T> + SignedNumberOps<T> {
         )
     }
 
-    /// returns a slice T of the quaternion
+    /// returns a slice `T` of the quaternion
     pub fn as_slice(&self) -> &[T] {
         unsafe {
             std::slice::from_raw_parts(&self.x, 4)
         }
     }
 
-    /// returns a mutable slice T of the quaternion
+    /// returns a mutable slice `T` of the quaternion
     pub fn as_mut_slice(&mut self) -> &mut [T] {
         unsafe {
             std::slice::from_raw_parts_mut(&mut self.x, 4)
         }
     }
 
-    /// returns a slice of bytes for the quaternion
+    /// returns a slice of `u8` bytes for the quaternion
     pub fn as_u8_slice(&self) -> &[u8] {
         unsafe {
             std::slice::from_raw_parts((&self.x as *const T) as *const u8, std::mem::size_of::<Quat<T>>())
@@ -300,10 +313,7 @@ impl<T> Mul<Self> for Quat<T> where T: Number {
 
 impl<T> MulAssign<Self> for Quat<T> where T: Number {
     fn mul_assign(&mut self, other: Self) {
-        self.x *= self.w * other.w - self.x * other.x - self.y * other.y - self.z * other.z;
-        self.y *= self.w * other.x + self.x * other.w + self.y * other.z - self.z * other.y;
-        self.z *= self.w * other.y - self.x * other.z + self.y * other.w + self.z * other.z;
-        self.w *= self.w * other.z + self.x * other.y - self.y * other.x + self.z * other.w;
+        *self = Self::mul(*self, other);
     }
 }
 
@@ -344,7 +354,7 @@ impl<T> Magnitude<T> for Quat<T> where T: Float + FloatOps<T> {
     }
 }
 
-/// returns a quaternion spherically interpolated between e0 and e1 by percentage t
+/// returns a quaternion spherically interpolated between `e0` and `e1` by percentage `t`
 impl<T> Slerp<T> for Quat<T> where T: Float + FloatOps<T> + NumberOps<T> + From<f64> {
     fn slerp(e0: Self, e1: Self, t: T) -> Self {
         let q1 = e0;
@@ -380,28 +390,28 @@ impl<T> Slerp<T> for Quat<T> where T: Float + FloatOps<T> + NumberOps<T> + From<
     }
 }
 
-/// returns a quaternion lineraly interpolated between e0 and e1 by percentage t
+/// returns a quaternion lineraly interpolated between `e0` and `e1` by percentage `t`
 impl<T> Lerp<T> for Quat<T> where T: Float + FloatOps<T> + NumberOps<T> {
     fn lerp(e0: Self, e1: Self, t: T) -> Self {
         e0 * (T::one() - t) + e1 * t
     }
 }
 
-/// returns a quaternion lineraly interpolated between e0 and e1 by percentage t normalising the return value
+/// returns a quaternion lineraly interpolated between `e0` and `e1` by percentage `t` normalising the return value
 impl<T> Nlerp<T> for Quat<T> where T: Float + FloatOps<T> + NumberOps<T> {
     fn nlerp(e0: Self, e1: Self, t: T) -> Self {
         Self::normalize(e0 * (T::one() - t) + e1 * t)
     }
 }
 
-/// constructs from a vec3, assuming the vec3 is poulated with euler angles (x, y, z) where the angles are in radians
+/// constructs from a `Vec3`, assuming the `Vec3` is poulated with euler angles `(x, y, z)` where the angles are in radians
 impl<T> From<Vec3<T>> for Quat<T> where T: Float + FloatOps<T> + SignedNumberOps<T> {
     fn from(v: Vec3<T>) -> Self {
         Quat::from_euler_angles(v.x, v.y, v.z)
     }
 }
 
-/// constructs from a vec4, assuming the vec4 is an axis / angle representation. xyz = axis, w = radian angle
+/// constructs from a `Vec4`, assuming the `Vec4` is an `axis` - `angle` representation. `xyz = axis, w = radian angle`
 impl<T> From<Vec4<T>> for Quat<T> where T: Float + FloatOps<T> + SignedNumberOps<T> {
     fn from(v: Vec4<T>) -> Self {
         Quat::from_axis_angle(v.xyz(), v.w)
@@ -415,6 +425,7 @@ impl<T> From<Mat3<T>> for Quat<T> where T: Float + FloatOps<T> + SignedNumberOps
     }
 }
 
+/// dereference to a slice of `T`
 impl<T> Deref for Quat<T> where T: Float + FloatOps<T> + SignedNumberOps<T> {
     type Target = [T];
     fn deref(&self) -> &[T] {
@@ -422,8 +433,16 @@ impl<T> Deref for Quat<T> where T: Float + FloatOps<T> + SignedNumberOps<T> {
     }
 }
 
+/// mutably dereference to a slice of `T`
 impl<T> DerefMut for Quat<T> where T: Float + FloatOps<T> + SignedNumberOps<T> {
     fn deref_mut(&mut self) -> &mut [T] {
         self.as_mut_slice()
+    }
+}
+
+/// displays like [1.0, 2.0, 3.0, 4.0]
+impl<T> Display for Quat<T> where T: Display {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(f, "[{}, {}, {}, {}]", self.x, self.y, self.z, self.w)
     }
 }
