@@ -156,7 +156,7 @@ let quatd = Quatd::from(q2);
 
 ## Generic Functions
 
-You can use generic functions on different sized vectors or scalars: `min, max, clamp, step, signum, copysign, abs, deg_to_rad, rad_to_deg, floor, ceil, round, approx, sqrt, powi, powf, sqrt, frac, trunc, modf, rsqrt, recip lerp, nlerp, slerp, smoothstep, dot, perp, cross, mag, mag2, length, distance, dist, dist2, normalize`
+You can use generic functions on different sized vectors or scalars: `min, max, clamp, step, signum, copysign, abs, deg_to_rad, rad_to_deg, floor, ceil, round, approx, sqrt, powi, powf, sqrt, frac, trunc, modf, rsqrt, recip lerp, nlerp, slerp, smoothstep, dot, perp, cross, mag, mag2, length, distance, dist, dist2, normalize, chebyshev_normalize`
 
 ```rust
 // numeric ops
