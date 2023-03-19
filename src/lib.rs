@@ -298,6 +298,21 @@ pub fn azimuth_altitude_to_xyz<T: Float + FloatOps<T>>(azimuth: T, altitude: T) 
     Vec3::<T>::new(x, z, y)
 }
 
+/// returns field of view converted from focal length with the specified aperture_width
+pub fn focal_length_to_fov<T: Float + FloatOps<T> + Cast<T>>(focal_length: T, aperture_width: T) -> T {
+    T::two() * rad_to_deg(atan((aperture_width * T::from_f64(25.4)) / (T::two() * focal_length)))
+}
+
+/// returns focal length converted field of view  with the specified aperture_width
+pub fn fov_to_focal_length<T: Float + FloatOps<T> + Cast<T>>(fov: T, aperture_width: T) -> T {
+    (aperture_width * T::from_f64(25.4)) / (T::two() * tan(deg_to_rad(fov / T::two())))
+}
+
+/// returns (azimuth, altitude) converted from directional unit vector `xyz`
+pub fn xyz_to_azimuth_altitude<T: Float + FloatOps<T>>(xyz: Vec3<T>) -> (T, T) {
+    (T::atan2(xyz.y, xyz.x), T::atan2(xyz.z, sqrt(xyz.x * xyz.x + xyz.y * xyz.y)))
+}
+
 /// returns the cosine of `v` where the value `v` is in radians
 pub fn cos<T: Float, V: FloatOps<T>>(v: V) -> V {
     V::cos(v)
@@ -376,11 +391,6 @@ pub fn log10<T: Float, V: FloatOps<T>>(v: V) -> V {
 /// returns the logarithm of `v` in `base`
 pub fn log<T: Float, V: FloatOps<T>>(v: V, base: T) -> V {
     V::log(v, base)
-}
-
-/// returns (azimuth, altitude) converted from directional unit vector `xyz`
-pub fn xyz_to_azimuth_altitude<T: Float + FloatOps<T>>(xyz: Vec3<T>) -> (T, T) {
-    (T::atan2(xyz.y, xyz.x), T::atan2(xyz.z, sqrt(xyz.x * xyz.x + xyz.y * xyz.y)))
 }
    
 /// returns a convex hull wound clockwise from point cloud `points`
