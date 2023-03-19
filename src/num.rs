@@ -82,6 +82,23 @@ pub trait Lerp<T: Float> {
     fn lerp(e0: Self, e1: Self, t: T) -> Self;
 }
 
+pub trait Cast<T: Number> {
+    fn from_f32(v: f32) -> Self;
+    fn from_f64(v: f64) -> Self;
+    fn from_u32(v: u32) -> Self;
+    fn from_i32(v: i32) -> Self;
+    fn from_u64(v: u64) -> Self;
+    fn from_i64(v: i64) -> Self;
+    fn from_usize(v: usize) -> Self;
+    fn as_f32(&self) -> f32;
+    fn as_f64(&self) -> f64;
+    fn as_u32(&self) -> u32;
+    fn as_i32(&self) -> i32;
+    fn as_u64(&self) -> u64;
+    fn as_i64(&self) -> i64;
+    fn as_usize(&self) -> usize;
+}
+
 /// operations applicable to floating point types
 pub trait FloatOps<T: Float>: Lerp<T> where Self: Sized {
     /// returns `0.5`
@@ -248,6 +265,64 @@ macro_rules! number_impl {
                 else {
                     Self::zero()
                 }
+            }
+        }
+
+        impl Cast<$t> for $t {
+            fn from_f32(v: f32) -> Self {
+                v as Self 
+            }
+
+            fn from_f64(v: f64) -> Self {
+                v as Self 
+            }
+
+            fn from_u32(v: u32) -> Self {
+                v as Self 
+            }
+
+            fn from_i32(v: i32) -> Self {
+                v as Self 
+            }
+
+            fn from_u64(v: u64) -> Self {
+                v as Self 
+            }
+
+            fn from_i64(v: i64) -> Self {
+                v as Self 
+            }
+
+            fn from_usize(v: usize) -> Self {
+                v as Self 
+            }
+
+            fn as_f32(&self) -> f32 {
+                *self as f32
+            }
+
+            fn as_f64(&self) -> f64 {
+                *self as f64
+            }
+
+            fn as_u32(&self) -> u32 {
+                *self as u32
+            }
+
+            fn as_i32(&self) -> i32 {
+                *self as i32
+            }
+
+            fn as_u64(&self) -> u64 {
+                *self as u64
+            }
+            
+            fn as_i64(&self) -> i64 {
+                *self as i64
+            }
+
+            fn as_usize(&self) -> usize {
+                *self as usize
             }
         }
     }
@@ -464,13 +539,14 @@ macro_rules! integer_impl {
     }
 }
 
-signed_number_trait_impl!(signum, abs);
 number_trait_impl!();
+integer_trait_impl!();
 
+signed_number_trait_impl!(signum, abs);
 float_trait_impl!(
     floor, ceil, round, sqrt, recip,
     cos, sin, tan, acos, asin, atan, cosh, sinh, tanh,
     exp, exp2, log2, log10
 );
 
-integer_trait_impl!();
+// num_cast!(f32, f64);

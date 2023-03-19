@@ -5518,3 +5518,54 @@ fn obb_vs_obb_test() {
         assert_eq!(overlap, true);
     }
 }
+
+#[test]
+fn hsv_rgb() {
+    let rgb = hsv_to_rgb(Vec3f::zero());
+    assert_eq!(rgb, Vec3f::zero());
+
+    let rgb = hsv_to_rgb(vec3f(0.0, 0.0, 1.0));
+    assert_eq!(rgb, Vec3f::white());
+
+    let rgb = hsv_to_rgb(vec3f(0.0, 1.0, 1.0));
+    assert_eq!(rgb, Vec3f::red());
+
+    let rgb = hsv_to_rgb(vec3f(0.33333333, 1.0, 1.0));
+    assert_eq!(rgb, Vec3f::green());
+
+    let rgb = hsv_to_rgb(vec3f(0.66666666, 1.0, 1.0));
+    assert_eq!(rgb, Vec3f::blue());
+
+    let rgb = hsv_to_rgb(vec3f(0.16666667, 1.0, 1.0));
+    assert_eq!(rgb, Vec3f::yellow());
+
+    let rgb = hsv_to_rgb(vec3f(0.83333334, 1.0, 1.0));
+    assert_eq!(approx(rgb, Vec3f::magenta(), 0.0001), true);
+
+    let rgb = hsv_to_rgb(vec3f(0.5, 1.0, 1.0));
+    assert_eq!(rgb, Vec3f::cyan());
+
+    let hsv = rgb_to_hsv(Vec3f::zero());
+    assert_eq!(hsv, Vec3f::zero());
+
+    let hsv = rgb_to_hsv(Vec3f::white());
+    assert_eq!(hsv, vec3f(0.0, 0.0, 1.0));
+
+    let hsv = rgb_to_hsv(Vec3f::red());
+    assert_eq!(hsv, vec3f(0.0, 1.0, 1.0));
+
+    let hsv = rgb_to_hsv(Vec3f::green());
+    assert_eq!(hsv, vec3f(0.33333333, 1.0, 1.0));
+
+    let hsv = rgb_to_hsv(Vec3f::blue());
+    assert_eq!(hsv, vec3f(0.6666666, 1.0, 1.0));
+
+    let hsv = rgb_to_hsv(Vec3f::yellow());
+    assert_eq!(hsv, vec3f(0.16666667, 1.0, 1.0));
+
+    let hsv = rgb_to_hsv(Vec3f::magenta());
+    assert_eq!(hsv, vec3f(0.83333334, 1.0, 1.0));
+
+    let hsv = rgb_to_hsv(Vec3f::cyan());
+    assert_eq!(hsv, vec3f(0.5, 1.0, 1.0));
+}

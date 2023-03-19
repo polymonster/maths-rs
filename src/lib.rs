@@ -1663,7 +1663,7 @@ pub fn sinc<T: SignedNumber + Float, X: Base<T> + FloatOps<T> + SignedNumberOps<
 }
 
 /// returns a hsv value in 0-1 range converted from `rgb` in 0-1 range
-pub fn rgb_to_hsv<T: Float + SignedNumberOps<T> + From<f64>>(rgb: Vec3<T>) -> Vec3<T> {
+pub fn rgb_to_hsv<T: Float + SignedNumberOps<T> + Cast<T>>(rgb: Vec3<T>) -> Vec3<T> {
     // from Foley & van Dam p592
     // optimized: http://lolengine.net/blog/2013/01/13/fast-rgb-to-hsv 
     let mut r = rgb.x;
@@ -1678,20 +1678,20 @@ pub fn rgb_to_hsv<T: Float + SignedNumberOps<T> + From<f64>>(rgb: Vec3<T>) -> Ve
 
     if r < g {
         std::mem::swap(&mut r, &mut g);
-        k = -T::two() / T::from(6.0) - k;
+        k = -T::two() / T::from_f64(6.0) - k;
     }
 
     let chroma = r - if g < b { g } else { b };
 
     Vec3 {
-        x: abs(k + (g - b) / (T::from(6.0)  * chroma + T::small_epsilon())),
+        x: abs(k + (g - b) / (T::from_f64(6.0)  * chroma + T::small_epsilon())),
         y: chroma / (r + T::small_epsilon()),
         z: r
     }
 }
  
 /// returns an rgb value in 0-1 range converted from `hsv` in 0-1 range
-pub fn hsv_to_rgb<T: Float + FloatOps<T> + From<f64>>(hsv: Vec3<T>) -> Vec3<T> where i32: From<T> {
+pub fn hsv_to_rgb<T: Float + FloatOps<T> + Cast<T>>(hsv: Vec3<T>) -> Vec3<T> {
     // from Foley & van Dam p593: http://en.wikipedia.org/wiki/HSL_and_HSV
     let h = hsv.x;
     let s = hsv.y;
@@ -1706,8 +1706,8 @@ pub fn hsv_to_rgb<T: Float + FloatOps<T> + From<f64>>(hsv: Vec3<T>) -> Vec3<T> w
         };
     }
 
-    let h = T::fmod(h, T::one()) / T::from(0.16666666666);
-    let i = i32::from(h);
+    let h = T::fmod(h, T::one()) / T::from_f64(0.16666666666);
+    let i = h.as_i32();
     let f = h - floor(h);
     let p = v * (T::one() - s);
     let q = v * (T::one() - s * f);
