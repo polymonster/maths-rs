@@ -6,6 +6,8 @@ Maths is a linear algebra library which aims to be ergonmic and fun to use for g
 
 All features of the crate are enabled by default, you can choose to opt out if you wish.
 
+Most of this code was ported from my C++ [maths library](https://github.com/polymonster/maths), there is a live [WebGL demo](https://www.polymonster.co.uk/pmtech/examples/maths_functions.html) which showcases a lot of the features in an interactive way and was used to generate test data and verify the functions work correctly.
+
 ## Vector
 
 This is a narrow vector library with `Vec2`, `Vec3` and `Vec4` column-vector implementations.  
