@@ -5,6 +5,7 @@ pub mod num;
 pub mod vec;
 
 /// multi dimensional row-major matrix with generic mat2, mat3, mat34 and mat4 implementations
+/// there is a column-major mat43 type which can be transposed from mat34 but it does not support the full functionality
 pub mod mat;
 
 /// generic quaternion for varying floating point precision
@@ -35,10 +36,12 @@ pub type Vec4u = Vec4<u32>;
 pub type Mat2f = Mat2<f32>;
 pub type Mat3f = Mat3<f32>;
 pub type Mat34f = Mat34<f32>;
+pub type Mat43f = Mat43<f32>;
 pub type Mat4f = Mat4<f32>;
 pub type Mat2d = Mat2<f64>;
 pub type Mat3d = Mat3<f64>;
 pub type Mat34d = Mat34<f64>;
+pub type Mat43d = Mat43<f64>;
 pub type Mat4d = Mat4<f64>;
 pub type Quatf = Quat<f32>;
 pub type Quatd = Quat<f64>;

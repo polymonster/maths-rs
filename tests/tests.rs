@@ -948,6 +948,7 @@ fn matrix_transpose() {
         1.0, 3.0
     );
     assert_eq!(m2.transpose(),t2);
+    assert_eq!(t2.transpose(),m2);
 
     // 3x3
     let m3 = Mat3f::new(
@@ -961,6 +962,7 @@ fn matrix_transpose() {
         2.0, 5.0, 8.0
     );
     assert_eq!(m3.transpose(),t3);
+    assert_eq!(t3.transpose(),m3);
 
     // 4x4
     let m4 = Mat4f::new(
@@ -976,6 +978,22 @@ fn matrix_transpose() {
         3.0, 7.0, 11.0, 15.0
     );
     assert_eq!(m4.transpose(),t4);
+    assert_eq!(t4.transpose(),m4);
+
+    // 3x4 to 4x3
+    let m34 = Mat34f::new(
+        0.0, 1.0, 2.0, 3.0, 
+        4.0, 5.0, 6.0, 7.0, 
+        8.0, 9.0, 10.0, 11.0
+    );
+    let t43 = Mat43f::new(
+        0.0, 4.0, 8.0,
+        1.0, 5.0, 9.0,
+        2.0, 6.0, 10.0,
+        3.0, 7.0, 11.0
+    );
+    assert_eq!(m34.transpose(), t43);
+    assert_eq!(t43.transpose(), m34);
 }
 
 #[test]

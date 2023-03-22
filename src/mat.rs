@@ -37,7 +37,10 @@ use std::fmt::Formatter;
 /// 08 09 10 11
 /// 12 13 14 15
 
-macro_rules! mat_impl {
+/// Create a partial matrix class, this is the concreate matrix struct and indexing operations.
+/// the partial implementation allows data only (no arithmetic or traits) to be created
+/// to facilitate 3x4 to 4x3 trasposes for interoperation with other API's and shaders
+macro_rules! mat_partial_impl {
     ($MatN:ident, $rows:expr, $cols:expr, $elems:expr, 
         $RowVecN:ident { $($row_field:ident, $row_field_index:expr),* },
         $ColVecN:ident { $($col_field:ident, $col_field_index:expr),* } ) => {
@@ -81,14 +84,18 @@ macro_rules! mat_impl {
         impl<T> Deref for $MatN<T> where T: Number {
             type Target = [T];
             fn deref(&self) -> &Self::Target {
-                self.as_slice()
+                unsafe {
+                    std::slice::from_raw_parts(&self.m[0], $elems)
+                }
             }
         }
 
         /// mutably deref matrix as a slice of T
         impl<T> DerefMut for $MatN<T> where T: Number {
             fn deref_mut(&mut self) -> &mut [T] {
-                self.as_mut_slice()
+                unsafe {
+                    std::slice::from_raw_parts_mut(&mut self.m[0], $elems)
+                }
             }
         }
 
@@ -140,7 +147,14 @@ macro_rules! mat_impl {
                 true
             }
         }
+    }
+}
 
+/// creates the basic generic traits for row-major matrices 
+macro_rules! mat_impl {
+    ($MatN:ident, $rows:expr, $cols:expr, $elems:expr, 
+        $RowVecN:ident { $($row_field:ident, $row_field_index:expr),* },
+        $ColVecN:ident { $($col_field:ident, $col_field_index:expr),* } ) => {
         impl<T> $MatN<T> where T: Number {
             /// initialise matrix to all zero's
             pub fn zero() -> $MatN<T> {
@@ -162,6 +176,14 @@ macro_rules! mat_impl {
                     }
                     mat
                 }
+            }
+
+            pub const fn get_num_rows(&self) -> usize {
+                $rows
+            }
+
+            pub const fn get_num_columns(&self) -> usize {
+                $cols
             }
 
             /// get single element from the matrix at row, column index
@@ -225,17 +247,6 @@ macro_rules! mat_impl {
                 unsafe {
                     std::slice::from_raw_parts((&self.m[0] as *const T) as *const u8, std::mem::size_of::<$MatN<T>>())
                 }
-            }
-
-            /// returns a transposed matrix so rows become columns and columns become rows
-            pub fn transpose(&self) -> $MatN<T> {
-                let mut t = *self;
-                for r in 0..$rows {
-                    for c in 0..$cols {
-                        t.set(c, r, self.at(r, c));
-                    }
-                }
-                t
             }
         }
     }
@@ -1275,6 +1286,78 @@ impl<T> MatInverse<T> for Mat4<T> where T: SignedNumber {
     }
 }
 
+/// trait for matrix transpose
+pub trait MatTranspose<T, Other> {
+    fn transpose(&self) -> Other;
+}
+
+impl<T> MatTranspose<T, Self> for Mat2<T> where T: Number {
+    fn transpose(&self) -> Self {
+        let mut t = *self;
+        for r in 0..t.get_num_rows() as u32 {
+            for c in 0..t.get_num_columns() as u32 {
+                t.set(c, r, self.at(r, c));
+            }
+        }
+        t
+    }
+}
+
+impl<T> MatTranspose<T, Self> for Mat3<T> where T: Number {
+    fn transpose(&self) -> Self {
+        let mut t = *self;
+        for r in 0..t.get_num_rows() as u32 {
+            for c in 0..t.get_num_columns() as u32 {
+                t.set(c, r, self.at(r, c));
+            }
+        }
+        t
+    }
+}
+
+impl<T> MatTranspose<T, Self> for Mat4<T> where T: Number {
+    fn transpose(&self) -> Self {
+        let mut t = *self;
+        for r in 0..t.get_num_rows() as u32 {
+            for c in 0..t.get_num_columns() as u32 {
+                t.set(c, r, self.at(r, c));
+            }
+        }
+        t
+    }
+}
+
+impl<T> MatTranspose<T, Mat43<T>> for Mat34<T> where T: Number {
+    fn transpose(&self) -> Mat43<T> {
+        let mut t = Mat43 {
+            m: [T::zero(); 12]
+        };
+        for r in 0..3 {
+            for c in 0..4 {
+                let i = c * 3 + r;
+                let v = self.at(r as u32, c as u32);
+                t.m[i] = v;
+            }
+        }
+        t
+    }
+}
+
+impl<T> MatTranspose<T, Mat34<T>> for Mat43<T> where T: Number {
+    fn transpose(&self) -> Mat34<T> {
+        let mut t = Mat34 {
+            m: [T::zero(); 12]
+        };
+        for r in 0..4 {
+            for c in 0..3 {
+                let i = r * 3 + c;
+                t.set(c, r, self.m[i as usize]);
+            }
+        }
+        t
+    }
+}
+
 /// trait for 4x4 projection matrices
 pub trait MatProjection<T> {
     /// returns 6 frustum planes as `Vec4`'s in the form `.xyz = normal, .w = plane distance`
@@ -1486,6 +1569,35 @@ impl<T> MatNew34<T> for Mat34<T> where T: Number {
 }
 
 #[allow(clippy::too_many_arguments)] 
+/// trait to construct matrix from 12 scalars
+pub trait MatNew43<T> {
+    fn new(
+        m00: T, m01: T, m02: T, 
+        m03: T, m10: T, m11: T,
+        m12: T, m13: T, m20: T, 
+        m21: T, m22: T, m23: T,
+    ) -> Self;
+}
+
+impl<T> MatNew43<T> for Mat43<T> where T: Number {
+    fn new(
+        m00: T, m01: T, m02: T, 
+        m03: T, m10: T, m11: T, 
+        m12: T, m13: T, m20: T, 
+        m21: T, m22: T, m23: T,
+    ) -> Self {
+        Self {
+            m: [
+                m00, m01, m02, 
+                m03, m10, m11, 
+                m12, m13, m20, 
+                m21, m22, m23
+            ]
+        }
+    }
+}
+
+#[allow(clippy::too_many_arguments)] 
 /// trait to construct matrix from 16 scalars
 pub trait MatNew4<T> {
     fn new(
@@ -1514,7 +1626,16 @@ impl<T> MatNew4<T> for Mat4<T> where T: Number {
     }
 }
 
+mat_partial_impl!(Mat2, 2, 2, 4, Vec2 {x, 0, y, 1}, Vec2 {x, 0, y, 1});
 mat_impl!(Mat2, 2, 2, 4, Vec2 {x, 0, y, 1}, Vec2 {x, 0, y, 1});
+
+mat_partial_impl!(Mat3, 3, 3, 9, Vec3 {x, 0, y, 1, z, 2}, Vec3 {x, 0, y, 1, z, 2});
 mat_impl!(Mat3, 3, 3, 9, Vec3 {x, 0, y, 1, z, 2}, Vec3 {x, 0, y, 1, z, 2});
+
+mat_partial_impl!(Mat4, 4, 4, 16, Vec4 {x, 0, y, 1, z, 2, w, 3}, Vec4 {x, 0, y, 1, z, 2, w, 3});
 mat_impl!(Mat4, 4, 4, 16, Vec4 {x, 0, y, 1, z, 2, w, 3}, Vec4 {x, 0, y, 1, z, 2, w, 3});
+
+mat_partial_impl!(Mat34, 3, 4, 12, Vec4 {x, 0, y, 1, z, 2, w, 3}, Vec3 {x, 0, y, 1, z, 2});
 mat_impl!(Mat34, 3, 4, 12, Vec4 {x, 0, y, 1, z, 2, w, 3}, Vec3 {x, 0, y, 1, z, 2});
+
+mat_partial_impl!(Mat43, 4, 3, 12, Vec4 {x, 0, y, 1, z, 2}, Vec3 {x, 0, y, 1, z, 2, w, 3});

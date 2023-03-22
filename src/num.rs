@@ -82,7 +82,7 @@ pub trait Lerp<T: Float> {
     fn lerp(e0: Self, e1: Self, t: T) -> Self;
 }
 
-pub trait Cast<T: Number> {
+pub trait Cast<T: Number> where Self: Sized {
     fn from_f32(v: f32) -> Self;
     fn from_f64(v: f64) -> Self;
     fn from_u32(v: u32) -> Self;
@@ -548,5 +548,3 @@ float_trait_impl!(
     cos, sin, tan, acos, asin, atan, cosh, sinh, tanh,
     exp, exp2, log2, log10
 );
-
-// num_cast!(f32, f64);
