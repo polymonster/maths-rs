@@ -853,6 +853,12 @@ fn matrix_identity() {
     assert_eq!(m34.get_row(0), vec4f(1.0, 0.0, 0.0, 0.0));
     assert_eq!(m34.get_row(1), vec4f(0.0, 1.0, 0.0, 0.0));
     assert_eq!(m34.get_row(2), vec4f(0.0, 0.0, 1.0, 0.0));
+
+    let m43 = Mat43f::identity();
+    assert_eq!(m43.get_row(0), vec3f(1.0, 0.0, 0.0));
+    assert_eq!(m43.get_row(1), vec3f(0.0, 1.0, 0.0));
+    assert_eq!(m43.get_row(2), vec3f(0.0, 0.0, 1.0));
+    assert_eq!(m43.get_row(3), vec3f(0.0, 0.0, 0.0));
 }
 
 #[test]

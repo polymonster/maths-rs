@@ -37,10 +37,8 @@ use std::fmt::Formatter;
 /// 08 09 10 11
 /// 12 13 14 15
 
-/// Create a partial matrix class, this is the concreate matrix struct and indexing operations.
-/// the partial implementation allows data only (no arithmetic or traits) to be created
-/// to facilitate 3x4 to 4x3 trasposes for interoperation with other API's and shaders
-macro_rules! mat_partial_impl {
+/// creates the basic generic traits for row-major matrices 
+macro_rules! mat_impl {
     ($MatN:ident, $rows:expr, $cols:expr, $elems:expr, 
         $RowVecN:ident { $($row_field:ident, $row_field_index:expr),* },
         $ColVecN:ident { $($col_field:ident, $col_field_index:expr),* } ) => {
@@ -147,14 +145,7 @@ macro_rules! mat_partial_impl {
                 true
             }
         }
-    }
-}
-
-/// creates the basic generic traits for row-major matrices 
-macro_rules! mat_impl {
-    ($MatN:ident, $rows:expr, $cols:expr, $elems:expr, 
-        $RowVecN:ident { $($row_field:ident, $row_field_index:expr),* },
-        $ColVecN:ident { $($col_field:ident, $col_field_index:expr),* } ) => {
+    
         impl<T> $MatN<T> where T: Number {
             /// initialise matrix to all zero's
             pub fn zero() -> $MatN<T> {
@@ -1626,16 +1617,8 @@ impl<T> MatNew4<T> for Mat4<T> where T: Number {
     }
 }
 
-mat_partial_impl!(Mat2, 2, 2, 4, Vec2 {x, 0, y, 1}, Vec2 {x, 0, y, 1});
 mat_impl!(Mat2, 2, 2, 4, Vec2 {x, 0, y, 1}, Vec2 {x, 0, y, 1});
-
-mat_partial_impl!(Mat3, 3, 3, 9, Vec3 {x, 0, y, 1, z, 2}, Vec3 {x, 0, y, 1, z, 2});
 mat_impl!(Mat3, 3, 3, 9, Vec3 {x, 0, y, 1, z, 2}, Vec3 {x, 0, y, 1, z, 2});
-
-mat_partial_impl!(Mat4, 4, 4, 16, Vec4 {x, 0, y, 1, z, 2, w, 3}, Vec4 {x, 0, y, 1, z, 2, w, 3});
 mat_impl!(Mat4, 4, 4, 16, Vec4 {x, 0, y, 1, z, 2, w, 3}, Vec4 {x, 0, y, 1, z, 2, w, 3});
-
-mat_partial_impl!(Mat34, 3, 4, 12, Vec4 {x, 0, y, 1, z, 2, w, 3}, Vec3 {x, 0, y, 1, z, 2});
 mat_impl!(Mat34, 3, 4, 12, Vec4 {x, 0, y, 1, z, 2, w, 3}, Vec3 {x, 0, y, 1, z, 2});
-
-mat_partial_impl!(Mat43, 4, 3, 12, Vec4 {x, 0, y, 1, z, 2}, Vec3 {x, 0, y, 1, z, 2, w, 3});
+mat_impl!(Mat43, 4, 3, 12, Vec3 {x, 0, y, 1, z, 2}, Vec4 {x, 0, y, 1, z, 2, w, 3});
