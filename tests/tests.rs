@@ -5593,3 +5593,36 @@ fn hsv_rgb() {
     let hsv = rgb_to_hsv(Vec3f::cyan());
     assert_eq!(hsv, vec3f(0.5, 1.0, 1.0));
 }
+
+#[test]
+fn rbg8_rgb32f() {
+    assert_eq!(rgba8_to_vec4(0xff0000ff), vec4f(1.0, 0.0, 0.0, 1.0));
+    assert_eq!(rgba8_to_vec4(0x00ff00ff), vec4f(0.0, 1.0, 0.0, 1.0));
+    assert_eq!(rgba8_to_vec4(0x0000ffff), vec4f(0.0, 0.0, 1.0, 1.0));
+    assert_eq!(rgba8_to_vec4(0xffffffff), vec4f(1.0, 1.0, 1.0, 1.0));
+    assert_eq!(rgba8_to_vec4(0x000000ff), vec4f(0.0, 0.0, 0.0, 1.0));
+    assert_eq!(rgba8_to_vec4(0x00000000), vec4f(0.0, 0.0, 0.0, 0.0));
+
+    assert_eq!(0xff0000ff, vec4_to_rgba8(vec4f(1.0, 0.0, 0.0, 1.0)));
+    assert_eq!(0x00ff00ff, vec4_to_rgba8(vec4f(0.0, 1.0, 0.0, 1.0)));
+    assert_eq!(0x0000ffff, vec4_to_rgba8(vec4f(0.0, 0.0, 1.0, 1.0)));
+    assert_eq!(0xffffffff, vec4_to_rgba8(vec4f(1.0, 1.0, 1.0, 1.0)));
+    assert_eq!(0x000000ff, vec4_to_rgba8(vec4f(0.0, 0.0, 0.0, 1.0)));
+    assert_eq!(0x00000000, vec4_to_rgba8(vec4f(0.0, 0.0, 0.0, 0.0)));
+}
+
+#[test]
+fn bezier() {
+    let cp = vec![
+        vec3f(0.0, 0.0, 0.0),
+        vec3f(0.0, 1.0, 0.0),
+        vec3f(1.0, 1.0, 0.0),
+        vec3f(1.0, 0.0, 0.0),
+    ];
+
+    let c = cubic_interpolate(cp[0], cp[1], cp[2], cp[3], 0.5);
+    assert_eq!(c, vec3f(0.5, 0.75, 0.0));
+
+    let t = cubic_tangent(cp[0], cp[1], cp[2], cp[3], 0.5);
+    assert_eq!(t, vec3f(0.5, 0.0, 0.0));
+}

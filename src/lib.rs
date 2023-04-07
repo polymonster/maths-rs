@@ -1748,25 +1748,25 @@ pub fn hsv_to_rgb<T: Float + FloatOps<T> + Cast<T>>(hsv: Vec3<T>) -> Vec3<T> {
     }
 }
 
-/// returns a vec4 of rgba in 0-1 range from a packed `rgba` which is inside u32 (4 bytes, R8G8B8A8)
-pub fn rgba8_to_vec4<T: Float + FloatOps<T> + From<u32> + From<f64>>(rgba: u32) -> Vec4<T> {
-    let one_over_255 = T::from(1.0 / 255.0);
+/// returns a vec4 of rgba in 0-1 range from a packed `rgba` which is inside u32 (4 bytes, 0xRRGGBBAA)
+pub fn rgba8_to_vec4<T: Float + FloatOps<T> + Cast<T>>(rgba: u32) -> Vec4<T> {
+    let one_over_255 = T::from_f32(1.0 / 255.0);
     Vec4 {
-        x: T::from(rgba & 0xff) * one_over_255,
-        y: T::from((rgba >>  8) & 0xff) * one_over_255,
-        z: T::from((rgba >> 16) & 0xff) * one_over_255,
-        w: T::from((rgba >> 24) & 0xff) * one_over_255
+        x: T::from_u32((rgba >> 24) & 0xff) * one_over_255,
+        y: T::from_u32((rgba >> 16) & 0xff) * one_over_255,
+        z: T::from_u32((rgba >> 8) & 0xff) * one_over_255,
+        w: T::from_u32(rgba & 0xff) * one_over_255
     }
 }
 
 /// returns a packed u32 containing rgba8 (4 bytes, R8G8B8A8) converted from a Vec4 `v` of rgba in 0-1 range
-pub fn vec4f_to_rgba8<T: Float + From<f64>>(v: Vec4<T>) -> u32 where u32: From<T> {
+pub fn vec4_to_rgba8<T: Float + Cast<T>>(v: Vec4<T>) -> u32 {
     let mut rgba : u32 = 0;
-    let x = T::from(255.0);
-    rgba |= u32::from(v[0] * x);
-    rgba |= u32::from(v[1] * x) << 8;
-    rgba |= u32::from(v[2] * x) << 16;
-    rgba |= u32::from(v[3] * x) << 24;
+    let x = T::from_f32(255.0);
+    rgba |= (v[0] * x).as_u32() << 24;
+    rgba |= (v[1] * x).as_u32() << 16;
+    rgba |= (v[2] * x).as_u32() << 8;
+    rgba |= (v[3] * x).as_u32();
     rgba
 }
 
@@ -1816,6 +1816,22 @@ pub fn smooth_stop4<T: Float, X: Base<T> + SignedNumberOps<T>>(t: X, b: X, c: X,
 pub fn smooth_stop5<T: Float, X: Base<T> + SignedNumberOps<T>>(t: X, b: X, c: X, d: X) -> X {
     let t = t/d;
     c * (t*t*t*t*t + X::one()) + b
+}
+
+/// returns the cubic interpolation of bezier control points `p1-p2-p3-p4` with percentage t
+pub fn cubic_interpolate<T: Float, V: VecN<T> + NumberOps<T> + VecFloatOps<T>>(p1: V, p2: V, p3: V, p4: V, t: T) -> V {
+    p1 * (T::one() - t) * (T::one() - t) * (T::one() - t) +
+    p2 * T::three() * t * (T::one() - t) * (T::one() - t) +
+    p3 * T::three() * t * t * (T::one() - t) +
+    p4 * t * t * t
+}
+
+/// returns the tangent of bezier control points `p1-p2-p3-p4` with percentage t
+pub fn cubic_tangent<T: Float, V: VecN<T> + NumberOps<T> + VecFloatOps<T>>(p1: V, p2: V, p3: V, p4: V, t: T) -> V {
+    p1 * (-T::one() + T::two() * t - t * t) +
+    p2 * (T::one() - T::four() * t + T::three() * t * t) +
+    p3 * (T::two() * t - T::three() * t * t) +
+    p4 * (t * t)
 }
 
 /// returns the morten order index from `x,y` position
