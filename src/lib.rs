@@ -395,6 +395,13 @@ pub fn log10<T: Float, V: FloatOps<T>>(v: V) -> V {
 pub fn log<T: Float, V: FloatOps<T>>(v: V, base: T) -> V {
     V::log(v, base)
 }
+
+/// returns the vec2 rotated anti-clockwise rotation by radian `angle` 
+pub fn rotate_2d<T: Float + FloatOps<T>>(v: Vec2<T>, angle: T) -> Vec2<T> {
+    let c = cos(angle);
+    let s = sin(angle);
+    Vec2::new(c * v.x - s * v.y, s * v.x + c * v.y)
+}
    
 /// returns a convex hull wound clockwise from point cloud `points`
 pub fn convex_hull_from_points<T: Float + SignedNumberOps<T> + NumberOps<T> + FloatOps<T>>(points: &Vec<Vec2<T>>) -> Vec<Vec2<T>> {    

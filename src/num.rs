@@ -111,8 +111,10 @@ pub trait FloatOps<T: Float>: Lerp<T> where Self: Sized {
     fn inv_pi() -> Self;
     /// returns `phi` (the golden constant)
     fn phi() -> Self;
-    /// returns `1.0 / phi` (the golden constant)
+    /// returns `1.0 / phi` inverse phi (the golden constant)
     fn inv_phi() -> Self;
+    /// returns tau, which is ratio of the circumference of a circle to its radius
+    fn tau() -> Self;
     /// returns square root of `a`
     fn sqrt(a: Self) -> Self;
     /// returns reciprocal square root of `a` (`1/sqrt(a)`)
@@ -417,6 +419,11 @@ macro_rules! float_impl {
 
             fn inv_phi() -> Self {
                 1.0 as Self / Self::phi() as Self
+            }
+
+            #[allow(clippy::excessive_precision)] 
+            fn tau() -> Self {
+                6.2831853071795864 as Self
             }
 
             fn rsqrt(a: Self) -> Self {

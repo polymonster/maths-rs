@@ -5626,3 +5626,9 @@ fn bezier() {
     let t = cubic_tangent(cp[0], cp[1], cp[2], cp[3], 0.5);
     assert_eq!(t, vec3f(0.5, 0.0, 0.0));
 }
+
+#[test]
+fn test_rotate() {
+    let v = rotate_2d(vec2f(0.0, 1.0), f32::pi() / 2.0);
+    assert_eq!(approx(v, vec2f(-1.0, 0.0), 0.01), true);
+}

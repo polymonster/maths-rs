@@ -591,6 +591,12 @@ macro_rules! vec_impl {
                 }
             }
 
+            fn tau() -> Self {
+                $VecN {
+                    $($field: T::tau(),)+
+                }
+            }
+
             fn sqrt(a: Self) -> Self {
                 Self {
                     $($field: T::sqrt(a.$field),)+
