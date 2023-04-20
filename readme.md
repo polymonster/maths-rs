@@ -7,7 +7,11 @@
 
 Maths is a linear algebra library which aims to be ergonmic and fun to use for gamedev and graphics. If you like writing shaders you should feel right at home. In addition to the usual implementation of vectors, matrices and quaternions it includes a comprehensive collection of utility functions, vector swizzling, intersection tests, point tests, distance functions, trig functions, graphs and signal processing functions.
 
-All features of the crate are enabled by default, you can choose to opt out if you wish.
+Most features of the crate are enabled by default, you can choose to opt out if you wish, `serde` support is optional and can be enabled with:
+
+```text
+features = ["serde"]
+```
 
 Most of this code was ported from my C++ [maths library](https://github.com/polymonster/maths), there is a live [WebGL demo](https://www.polymonster.co.uk/pmtech/examples/maths_functions.html) which showcases a lot of the features in an interactive way and was used to generate test data and verify the functions work correctly.
 
