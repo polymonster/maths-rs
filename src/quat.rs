@@ -18,6 +18,7 @@ use crate::vec::*;
 use crate::mat::*;
 use crate::swizz::*;
 
+#[cfg_attr(feature="serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 #[repr(C)]
 pub struct Quat<T> {

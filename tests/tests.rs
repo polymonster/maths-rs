@@ -5632,3 +5632,19 @@ fn test_rotate() {
     let v = rotate_2d(vec2f(0.0, 1.0), f32::pi() / 2.0);
     assert_eq!(approx(v, vec2f(-1.0, 0.0), 0.01), true);
 }
+
+#[cfg(feature = "serde")]
+#[test]
+fn test_serde() {
+    let m = Mat4f::identity();
+    let v = Vec4f::white();
+    let q = Quatf::identity();
+
+    let serde_m = serde_json::to_string_pretty(&m).unwrap();
+    let serde_v = serde_json::to_string_pretty(&v).unwrap();
+    let serde_q = serde_json::to_string_pretty(&q).unwrap();
+
+    println!("{}", serde_m);
+    println!("{}", serde_v);
+    println!("{}", serde_q);
+}

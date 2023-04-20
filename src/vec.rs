@@ -207,6 +207,8 @@ pub trait Nlerp<T: Float> {
 /// macro to stamp out various n-dimensional vectors, all of their ops and functions
 macro_rules! vec_impl {
     ($VecN:ident { $($field:ident, $field_index:expr),* }, $len:expr, $module:ident) => {
+        
+        #[cfg_attr(feature="serde", derive(serde::Serialize, serde::Deserialize))]
         #[derive(Debug, Copy, Clone)]
         #[repr(C)]
         pub struct $VecN<T> {
