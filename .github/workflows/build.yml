@@ -1,10 +1,9 @@
 name: build
-
 on:
   push:
-    branches: [ "master" ]
+    branches: ["master"]
   pull_request:
-    branches: [ "master" ]
+    branches: ["master"]
 
 env:
   CARGO_TERM_COLOR: always
@@ -17,4 +16,4 @@ jobs:
     - name: build
       run: cargo build --verbose
     - name: test
-      run: cargo test --verbose
+      run: cargo test --verbose --features serde

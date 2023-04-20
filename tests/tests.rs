@@ -5640,11 +5640,11 @@ fn test_serde() {
     let v = Vec4f::white();
     let q = Quatf::identity();
 
-    let serde_m = serde_json::to_string_pretty(&m).unwrap();
-    let serde_v = serde_json::to_string_pretty(&v).unwrap();
-    let serde_q = serde_json::to_string_pretty(&q).unwrap();
+    let serde_m = serde_json::to_string(&m).unwrap();
+    let serde_v = serde_json::to_string(&v).unwrap();
+    let serde_q = serde_json::to_string(&q).unwrap();
 
-    println!("{}", serde_m);
-    println!("{}", serde_v);
-    println!("{}", serde_q);
+    assert_eq!("{\"m\":[1.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0,1.0]}", serde_m);
+    assert_eq!("{\"x\":1.0,\"y\":1.0,\"z\":1.0,\"w\":1.0}", serde_v);
+    assert_eq!("{\"x\":0.0,\"y\":0.0,\"z\":0.0,\"w\":1.0}", serde_q);
 }
