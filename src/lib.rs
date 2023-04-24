@@ -67,6 +67,11 @@ pub fn max<T: Number, V: NumberOps<T>>(a: V, b: V) -> V {
     V::max(a, b)
 }
 
+/// returns the tuple (min, max) of the value `a` and `min_max` tuple (min, max)
+pub fn min_max<T: Number, V: NumberOps<T> + Copy>(a: V, min_max: (V, V)) -> (V, V) {
+    (V::min(a, min_max.0), V::max(a, min_max.1))
+}
+
 /// returns the value `x` clamped to the range of `min` and `max`
 pub fn clamp<T: Number, V: NumberOps<T>>(x: V, min: V, max: V) -> V {
     V::clamp(x, min, max)

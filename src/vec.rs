@@ -901,6 +901,28 @@ macro_rules! vec_impl {
                 }
             }
         }
+
+        // add refs
+        impl<T> Add<&Self> for $VecN<T> where T: Number {
+            type Output = Self;
+            fn add(self, other: &Self) -> Self {
+                self.add(*other)
+            }
+        }
+
+        impl<T> Add<$VecN<T>> for &$VecN<T> where T: Number {
+            type Output = $VecN<T>;
+            fn add(self, other: $VecN<T>) -> $VecN<T> {
+                *self + other
+            }
+        }
+
+        impl<T> Add<Self> for &$VecN<T> where T: Number {
+            type Output = $VecN<T>;
+            fn add(self, other: Self) -> $VecN<T> {
+                *self + other
+            }
+        }
         
         impl<T> AddAssign<Self> for $VecN<T> where T: Number {
             fn add_assign(&mut self, other: Self) {
@@ -911,6 +933,13 @@ macro_rules! vec_impl {
         impl<T> AddAssign<T> for $VecN<T> where T: Number {
             fn add_assign(&mut self, other: T) {
                 $(self.$field += other;)+
+            }
+        }
+
+        // add assign ref
+        impl<T> AddAssign<&Self> for $VecN<T> where T: Number {
+            fn add_assign(&mut self, other: &Self) {
+                $(self.$field += other.$field;)+
             }
         }
         
@@ -931,6 +960,28 @@ macro_rules! vec_impl {
                 }
             }
         }
+
+        // sub refs
+        impl<T> Sub<&Self> for $VecN<T> where T: Number {
+            type Output = Self;
+            fn sub(self, other: &Self) -> Self {
+                self.sub(*other)
+            }
+        }
+
+        impl<T> Sub<$VecN<T>> for &$VecN<T> where T: Number {
+            type Output = $VecN<T>;
+            fn sub(self, other: $VecN<T>) -> $VecN<T> {
+                *self - other
+            }
+        }
+
+        impl<T> Sub<Self> for &$VecN<T> where T: Number {
+            type Output = $VecN<T>;
+            fn sub(self, other: Self) -> $VecN<T> {
+                *self - other
+            }
+        }
         
         impl<T> SubAssign<Self> for $VecN<T> where T: Number {
             fn sub_assign(&mut self, other: Self) {
@@ -941,6 +992,13 @@ macro_rules! vec_impl {
         impl<T> SubAssign<T> for $VecN<T> where T: Number {
             fn sub_assign(&mut self, other: T) {
                 $(self.$field -= other;)+
+            }
+        }
+
+        // sub assign ref
+        impl<T> SubAssign<&Self> for $VecN<T> where T: Number {
+            fn sub_assign(&mut self, other: &Self) {
+                $(self.$field -= other.$field;)+
             }
         }
         
@@ -961,6 +1019,28 @@ macro_rules! vec_impl {
                 }
             }
         }
+
+        // mul refs
+        impl<T> Mul<&Self> for $VecN<T> where T: Number {
+            type Output = Self;
+            fn mul(self, other: &Self) -> Self {
+                self.mul(*other)
+            }
+        }
+
+        impl<T> Mul<$VecN<T>> for &$VecN<T> where T: Number {
+            type Output = $VecN<T>;
+            fn mul(self, other: $VecN<T>) -> $VecN<T> {
+                *self * other
+            }
+        }
+
+        impl<T> Mul<Self> for &$VecN<T> where T: Number {
+            type Output = $VecN<T>;
+            fn mul(self, other: Self) -> $VecN<T> {
+                *self * other
+            }
+        }
         
         impl<T> MulAssign<Self> for $VecN<T> where T: Number {
             fn mul_assign(&mut self, other: Self) {
@@ -971,6 +1051,13 @@ macro_rules! vec_impl {
         impl<T> MulAssign<T> for $VecN<T> where T: Number {
             fn mul_assign(&mut self, other: T) {
                 $(self.$field *= other;)+
+            }
+        }
+
+        // mul assign ref
+        impl<T> MulAssign<&Self> for $VecN<T> where T: Number {
+            fn mul_assign(&mut self, other: &Self) {
+                $(self.$field *= other.$field;)+
             }
         }
         
@@ -991,6 +1078,28 @@ macro_rules! vec_impl {
                 }
             }
         }
+
+        // div refs
+        impl<T> Div<&Self> for $VecN<T> where T: Number {
+            type Output = Self;
+            fn div(self, other: &Self) -> Self {
+                self.div(*other)
+            }
+        }
+
+        impl<T> Div<$VecN<T>> for &$VecN<T> where T: Number {
+            type Output = $VecN<T>;
+            fn div(self, other: $VecN<T>) -> $VecN<T> {
+                *self / other
+            }
+        }
+
+        impl<T> Div<Self> for &$VecN<T> where T: Number {
+            type Output = $VecN<T>;
+            fn div(self, other: Self) -> $VecN<T> {
+                *self / other
+            }
+        }
         
         impl<T> DivAssign<Self> for $VecN<T> where T: Number {
             fn div_assign(&mut self, other: Self) {
@@ -1001,6 +1110,13 @@ macro_rules! vec_impl {
         impl<T> DivAssign<T> for $VecN<T> where T: Number {
             fn div_assign(&mut self, other: T) {
                 $(self.$field /= other;)+
+            }
+        }
+
+        // div assign ref
+        impl<T> DivAssign<&Self> for $VecN<T> where T: Number {
+            fn div_assign(&mut self, other: &Self) {
+                $(self.$field /= other.$field;)+
             }
         }
 

@@ -17,6 +17,8 @@ use crate::num::*;
 use crate::vec::*;
 use crate::mat::*;
 use crate::swizz::*;
+use crate::dot;
+use crate::cross;
 
 #[cfg_attr(feature="serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
@@ -327,6 +329,23 @@ impl<T> Neg for Quat<T> where T: Float {
             z: -self.z,
             w: -self.w,
         }
+    }
+}
+
+/// mul with vec3 assumes quat is normalized
+impl<T> Mul<Vec3<T>> for Quat<T> where T: Number {
+    type Output = Vec3<T>;
+    fn mul(self, other: Vec3<T>) -> Vec3<T> {
+        // https://gamedev.stackexchange.com/questions/28395/rotating-vector3-by-a-quaternion
+        let u = Vec3::new(self.x, self.y, self.z);
+        let v = other;
+        let s = self.w;
+
+        let r0 = u * T::two() * dot(u, v);
+        let r1 = v * (s*s - dot(u, u));
+        let r2 = cross(u, v) * T::two() * s;
+
+        r0 + r1 + r2
     }
 }
 

@@ -44,12 +44,18 @@ let o = Vec3f::one();
 let m = Vec3f::max_value();
 // + more
 
-// arithmentic / operators
+// arithmetic / operators
 let result = v2 * v2_short;
 let result = v2 + v2_short;
 let result = v2 / v2_short;
 let result = v2 - v2_short;
 let result = -v2;
+
+// arithmetic with values and refs so no need for dereferencing
+let v2ref = &v2;
+let result = v2ref * v2; // ref * value
+let result = v2 * v2ref; // value * ref
+let result = v2ref * v2ref; // ref * ref
 
 // construct from tuples and vectors of various sizes
 let v4 = Vec4f::from((v2, v2)); // vec4 from 2x v2's
@@ -109,6 +115,13 @@ let result = x4 * m4;
 let v4 = vec4f(0.0, 1.0, 0.0, 1.0);
 let result = m4 * v4;
 
+// arithmetic with values and refs so no need for dereferencing
+let v4ref = &v4;
+let m4ref = &m4;
+let result = m4ref * v4; // ref * value
+let result = m4 * v4ref; // value * ref
+let result = m4ref * v4ref; // ref * ref
+
 // functions
 let det = m4.determinant();
 let inv = m4.inverse();
@@ -154,6 +167,10 @@ let q3 = q * q2;
 let q4 = q + q2;
 let q5 = q - q2;
 let q6 = -q;
+
+// quat * vec
+let v = vec3f(1.0, 0.0, 0.0);
+let vv = q * v3;
 
 // functions
 let rev = q.reverse();

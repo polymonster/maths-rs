@@ -131,6 +131,21 @@ fn add() {
     let expected = vec2f(-20.0, -10.0);
     let result = v1 + v2;
     assert_eq!(expected, result);
+
+    // value + ref
+    let v2ref = &v2;
+    let result = v1 + v2ref;
+    assert_eq!(expected, result);
+
+    // ref + value
+    let v1ref = &v1;
+    let result = v1ref + v2;
+    assert_eq!(expected, result);
+
+    // ref + ref
+    let v1ref = &v1;
+    let result = v1ref + v2ref;
+    assert_eq!(expected, result);
 }
 
 #[test]
@@ -147,6 +162,12 @@ fn add_assign() {
     let v2 = vec2f(-20.0, -10.0);
     let expected = vec2f(-20.0, -10.0);
     v1 += v2;
+    assert_eq!(expected, v1);
+
+    // value += ref
+    let mut v1 = vec2f(0.0, 0.0);
+    let v2ref = &v2;
+    v1 += v2ref;
     assert_eq!(expected, v1);
 }
 
@@ -209,6 +230,21 @@ fn sub() {
     let expected = vec2f(98.0, 544.0);
     let result = v1 - v2;
     assert_eq!(expected, result);
+
+    // value - ref
+    let v2ref = &v2;
+    let result = v1 - v2ref;
+    assert_eq!(expected, result);
+
+    // ref - value
+    let v1ref = &v1;
+    let result = v1ref - v2;
+    assert_eq!(expected, result);
+
+    // ref - ref
+    let v1ref = &v1;
+    let result = v1ref - v2ref;
+    assert_eq!(expected, result);
 }
 
 #[test]
@@ -225,6 +261,12 @@ fn sub_assign() {
     let v2 = vec2f(-67.0, -320.0);
     let expected = vec2f(98.0, 544.0);
     v1 -= v2;
+    assert_eq!(expected, v1);
+
+    // value -= ref
+    let mut v1 = vec2f(31.0, 224.0);
+    let v2ref = &v2;
+    v1 -= v2ref;
     assert_eq!(expected, v1);
 }
 
@@ -287,6 +329,21 @@ fn mul() {
     let expected = vec2f(-1008.0, -36.0);
     let result = v1 * v2;
     assert_eq!(expected, result);
+
+    // value * ref
+    let v2ref = &v2;
+    let result = v1 * v2ref;
+    assert_eq!(expected, result);
+
+    // ref * value
+    let v1ref = &v1;
+    let result = v1ref * v2;
+    assert_eq!(expected, result);
+
+    // ref * ref
+    let v1ref = &v1;
+    let result = v1ref * v2ref;
+    assert_eq!(expected, result);
 }
 
 #[test]
@@ -303,6 +360,12 @@ fn mul_assign() {
     let v2 = vec2f(-56.0, -9.0);
     let expected = vec2f(-1008.0, -36.0);
     v1 *= v2;
+    assert_eq!(expected, v1);
+
+    // value *= ref
+    let mut v1 = vec2f(18.0, 4.0);
+    let v2ref = &v2;
+    v1 *= v2ref;
     assert_eq!(expected, v1);
 }
 
@@ -365,6 +428,21 @@ fn div() {
     let expected = vec2f(-0.32142857142, -0.44444444444);
     let result = v1 / v2;
     assert_eq!(Vec2f::approx(expected, result, 0.001), true);
+
+    // value * ref
+    let v2ref = &v2;
+    let result = v1 / v2ref;
+    assert_eq!(expected, result);
+
+    // ref * value
+    let v1ref = &v1;
+    let result = v1ref / v2;
+    assert_eq!(expected, result);
+
+    // ref * ref
+    let v1ref = &v1;
+    let result = v1ref / v2ref;
+    assert_eq!(expected, result);
 }
 
 #[test]
@@ -382,6 +460,12 @@ fn div_assign() {
     let expected = vec2f(-0.32142857142, -0.44444444444);
     v1 /= v2;
     assert_eq!(Vec2f::approx(expected, v1, 0.001), true);
+
+    // value /= ref
+    let mut v1 = vec2f(18.0, 4.0);
+    let v2ref = &v2;
+    v1 /= v2ref;
+    assert_eq!(expected, v1);
 }
 
 #[test]
@@ -805,8 +889,6 @@ fn reflect_refract() {
     let refl = Vec3f::reflect(v3, normal);
     assert_eq!(refl, vec3f(0.0, 1.25, 0.0));
 }
-
-// TODO: atan2
 
 #[test]
 fn matrix_get_rows_columns() {
@@ -1374,6 +1456,265 @@ fn matrix_deref() {
 }
 
 #[test]
+fn matrix_mul() {
+    // 2x2 value * valiue
+    let m2 = Mat2f::from_z_rotation(f32::deg_to_rad(90.0));
+    let mi = Mat2f::identity();
+    let rotated = m2 * mi;
+    let expected = Mat2f::new(
+        0.0, -1.0,
+        1.0, 0.0
+    );
+    assert_eq!(Mat2f::approx(rotated, expected, 0.001), true);
+
+    // ref * value
+    let m2ref = &m2;
+    let rotated = m2ref * mi;
+    assert_eq!(Mat2f::approx(rotated, expected, 0.001), true);
+
+    // value * ref
+    let miref = &mi;
+    let rotated = m2 * miref;
+    assert_eq!(Mat2f::approx(rotated, expected, 0.001), true);
+
+    // ref * ref
+    let rotated = m2ref * miref;
+    assert_eq!(Mat2f::approx(rotated, expected, 0.001), true);
+
+    // 2x2 * vec2 value * value
+    let m2 = Mat2f::from_scale(vec2f(10.0, 20.0));
+    let v2 = vec2f(60.0, 70.0);
+    let transformed = m2 * v2;
+    let expected = vec2f(600.0, 1400.0);
+    assert_eq!(transformed, expected);
+
+    // 2x2ref * v2value
+    let m2ref = &m2;
+    let transformed = m2ref * v2;
+    assert_eq!(transformed, expected);
+
+    // 2x2value * v2ref
+    let v2ref = &v2;
+    let transformed = m2 * v2ref;
+    assert_eq!(transformed, expected);
+
+    // 2x2ref * v2ref
+    let transformed = m2ref * v2ref;
+    assert_eq!(transformed, expected);
+
+    // mat3
+    let m3 = Mat3f::from_z_rotation(f32::deg_to_rad(-90.0));
+    let mi = Mat3f::identity();
+    let rotated = m3 * mi;
+    let expected = Mat3f::new(
+        0.0, 1.0, 0.0,
+        -1.0, 0.0, 0.0,
+        0.0, 0.0, 1.0
+    );
+    assert_eq!(Mat3f::approx(rotated, expected, 0.001), true);
+
+    // ref * value
+    let m3ref = &m3;
+    let rotated = m3ref * mi;
+    assert_eq!(Mat3f::approx(rotated, expected, 0.001), true);
+
+    // value * ref
+    let miref = &mi;
+    let rotated = m3 * miref;
+    assert_eq!(Mat3f::approx(rotated, expected, 0.001), true);
+
+    // ref * ref
+    let rotated = m3ref * miref;
+    assert_eq!(Mat3f::approx(rotated, expected, 0.001), true);
+
+    // 3x3 * vec3 value * value
+    let m3 = Mat3f::from_z_rotation(f32::deg_to_rad(-90.0));
+    let v3 = Vec3f::unit_x();
+    let transformed = m3 * v3;
+    let expected = vec3f(0.0, -1.0, 0.0);
+    assert_eq!(Vec3f::approx(transformed, expected, 0.001), true);
+
+    // 3x3ref * v3value
+    let m3ref = &m3;
+    let transformed = m3ref * v3;
+    assert_eq!(Vec3f::approx(transformed, expected, 0.001), true);
+
+    // 3x3value * v3ref
+    let v3ref = &v3;
+    let transformed = m3 * v3ref;
+    assert_eq!(Vec3f::approx(transformed, expected, 0.001), true);
+
+    // 3x3ref * v3ref
+    let transformed = m3ref * v3ref;
+    assert_eq!(Vec3f::approx(transformed, expected, 0.001), true);
+
+    // mat34
+
+    // value * value
+    let m34 = Mat34f::from_z_rotation(f32::deg_to_rad(270.0));
+    let mi = Mat34f::identity();
+    let rotated = m34 * mi;
+    let expected = Mat34f::new(
+        0.0, 1.0, 0.0, 0.0,
+        -1.0, 0.0, 0.0, 0.0,
+        0.0, 0.0, 1.0, 0.0,
+    );
+    assert_eq!(Mat34f::approx(rotated, expected, 0.001), true);
+
+    // ref * value
+    let m34ref = &m34;
+    let rotated = m34ref * mi;
+    assert_eq!(Mat34f::approx(rotated, expected, 0.001), true);
+
+    // value * ref
+    let miref = &mi;
+    let rotated = m34 * miref;
+    assert_eq!(Mat34f::approx(rotated, expected, 0.001), true);
+
+    // ref * ref
+    let rotated = m34ref * miref;
+    assert_eq!(Mat34f::approx(rotated, expected, 0.001), true);
+
+    // m34 value * v3 value
+    let m34 = Mat34f::from_scale(vec3f(10.0, 2.0, 30.0));
+    let v3 = vec3f(1.0, 2.0, 3.0);
+    let transformed = m34 * v3;
+    let expected = vec3f(10.0, 4.0, 90.0);
+    assert_eq!(Vec3f::approx(transformed, expected, 0.001), true);
+
+    // m34 ref * v3 value
+    let m34ref = &m34;
+    let transformed = m34ref * v3;
+    assert_eq!(Vec3f::approx(transformed, expected, 0.001), true);
+
+    // m34 value * v3 ref
+    let v3ref = &v3;
+    let transformed = m34 * v3ref;
+    assert_eq!(Vec3f::approx(transformed, expected, 0.001), true);
+
+    // m34 ref * v3 ref
+    let transformed = m34 * v3ref;
+    assert_eq!(Vec3f::approx(transformed, expected, 0.001), true);
+
+    // m34 ref * v3 value
+    let expected = vec4f(10.0, 4.0, 90.0, 1.0);
+    let v4 = Vec4f::from((v3, 1.0));
+    let m34ref = &m34;
+    let transformed = m34ref * v4;
+    assert_eq!(Vec4f::approx(transformed, expected, 0.001), true);
+
+    // m34 value * v3 ref
+    let v4ref = &v4;
+    let transformed = m34 * v4ref;
+    assert_eq!(Vec4f::approx(transformed, expected, 0.001), true);
+
+    // m34 ref * v3 ref
+    let transformed = m34 * v4ref;
+    assert_eq!(Vec4f::approx(transformed, expected, 0.001), true);
+
+    // mat4
+
+    let m4 = Mat4f::from_z_rotation(f32::deg_to_rad(180.0));
+    let mi = Mat4f::identity();
+    let rotated = m4 * mi;
+    let expected = Mat4f::new(
+        -1.0, 0.0, 0.0, 0.0,
+        0.0, -1.0, 0.0, 0.0,
+        0.0, 0.0, 1.0, 0.0,
+        0.0, 0.0, 0.0, 1.0
+    );
+    assert_eq!(Mat4f::approx(rotated, expected, 0.001), true);
+
+    // ref * value
+    let m4ref = &m4;
+    let rotated = m4ref * mi;
+    assert_eq!(Mat4f::approx(rotated, expected, 0.001), true);
+
+    // value * ref
+    let miref = &mi;
+    let rotated = m4 * miref;
+    assert_eq!(Mat4f::approx(rotated, expected, 0.001), true);
+
+    // ref * ref
+    let rotated = m4ref * miref;
+    assert_eq!(Mat4f::approx(rotated, expected, 0.001), true);
+
+    // 4x4 rot
+    let m4 = Mat4f::from_z_rotation(f32::deg_to_rad(90.0));
+    let v3 = vec3f(10.0, 0.0, 0.0);
+    let transformed = m4 * v3;
+    let expected = vec3f(0.0, 10.0, 0.0);
+    assert_eq!(Vec3f::approx(transformed, expected, 0.001), true);
+
+    let m4ref = &m4;
+    let v3ref = &v3;
+
+    let transformed = m4ref * v3;
+    assert_eq!(Vec3f::approx(transformed, expected, 0.001), true);
+
+    let transformed = m4 * v3ref;
+    assert_eq!(Vec3f::approx(transformed, expected, 0.001), true);
+
+    let transformed = m4ref * v3ref;
+    assert_eq!(Vec3f::approx(transformed, expected, 0.001), true);
+    
+    // 4x4 scale
+    let m4 = Mat4f::from_scale(vec3f(50.0, -10.0, 20.0));
+    let v4 = vec4f(3.0, 4.0, 5.0, 1.0);
+    let transformed = m4 * v4;
+    let expected = vec4f(150.0, -40.0, 100.0, 1.0);
+    assert_eq!(transformed, expected);
+
+    let m4ref = &m4;
+    let v4ref = &v4;
+
+    let transformed = m4ref * v4;
+    assert_eq!(Vec4f::approx(transformed, expected, 0.001), true);
+
+    let transformed = m4 * v4ref;
+    assert_eq!(Vec4f::approx(transformed, expected, 0.001), true);
+
+    let transformed = m4ref * v4ref;
+    assert_eq!(Vec4f::approx(transformed, expected, 0.001), true);
+
+    // TODO:
+    // m4 * m34 refs
+    let m4 = Mat4f::from_x_rotation(f32::deg_to_rad(-90.0));
+    let mi = Mat34f::identity();
+    let rotated = m4 * mi;
+    let expected = Mat4f::new(
+        1.0, 0.0, 0.0, 0.0,
+        0.0, 0.0, 1.0, 0.0,
+        0.0, -1.0, 0.0, 0.0,
+        0.0, 0.0, 0.0, 1.0
+    );
+    assert_eq!(Mat4f::approx(rotated, expected, 0.001), true);
+
+    let m4ref = &m4;
+    let miref = &mi;
+    assert_eq!(Mat4f::approx(m4ref * mi, expected, 0.001), true);
+    assert_eq!(Mat4f::approx(m4 * miref, expected, 0.001), true);
+    assert_eq!(Mat4f::approx(m4ref * miref, expected, 0.001), true);
+
+    let m4 = Mat34f::from_x_rotation(f32::deg_to_rad(-90.0));
+    let mi = Mat4f::identity();
+    let rotated = m4 * mi;
+    let expected = Mat4f::new(
+        1.0, 0.0, 0.0, 0.0,
+        0.0, 0.0, 1.0, 0.0,
+        0.0, -1.0, 0.0, 0.0,
+        0.0, 0.0, 0.0, 1.0
+    );
+    assert_eq!(Mat4f::approx(rotated, expected, 0.001), true);
+
+    let m4ref = &m4;
+    let miref = &mi;
+    assert_eq!(Mat4f::approx(m4ref * mi, expected, 0.001), true);
+    assert_eq!(Mat4f::approx(m4 * miref, expected, 0.001), true);
+    assert_eq!(Mat4f::approx(m4ref * miref, expected, 0.001), true);
+}
+
+#[test]
 fn matrix_rotate() {
     // 2x2 z rotation
     let m2 = Mat2f::from_z_rotation(f32::deg_to_rad(90.0));
@@ -1638,6 +1979,27 @@ fn quat() {
 }
 
 #[test]
+fn quat_vec() {
+    let v1 = Vec3f::unit_x();
+    let v2 = -Vec3f::unit_z();
+    let euler_90y = Quatf::from_euler_angles(0.0, f32::pi() / 2.0, 0.0);
+    let euler_90z = Quatf::from_euler_angles(0.0, 0.0, f32::pi() / 2.0);
+    let euler_45x = Quatf::from_euler_angles(f32::pi() / 4.0, 0.0, 0.0);
+
+    // rotate 90 degrees clockwise about y
+    let r1 = euler_90y * v1;
+    assert_eq!(approx(r1, -Vec3f::unit_z(), 0.01), true);
+
+    // rotate 90 degrees clockwise about z
+    let r1 = euler_90z * v1;
+    assert_eq!(approx(r1, Vec3f::unit_y(), 0.01), true);
+
+    // rotate 45 degrees clockwise about x
+    let r1 = euler_45x * v2;
+    assert_eq!(approx(r1, normalize(vec3f(0.0, 0.5, -0.5)), 0.01), true);
+}
+
+#[test]
 fn constants() {
     assert_eq!(approx(f32::phi(), 1.6180339887, 0.001), true);
     assert_eq!(approx(f32::inv_phi(), 1.0 / 1.6180339887, 0.001), true);
@@ -1668,6 +2030,14 @@ fn generics() {
     let _min1 = min(v1, v1);
     let _min2 = min(v2, v2);
     let _min3 = min(v3, v3);
+
+    let mm = (f32::max_value(), -f32::max_value());
+    let mm = min_max(-100.0, mm);
+    let mm = min_max( 100.0, mm);
+    let mm = min_max( 10.0, mm);
+    let mm = min_max(-10.0, mm);
+    assert_eq!(mm.0, -100.0);
+    assert_eq!(mm.1,  100.0);
 
     let _m2 = mag(v2);
     let _m3 = mag(v3);
