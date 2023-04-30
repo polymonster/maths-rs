@@ -1976,6 +1976,19 @@ fn quat() {
     let mut euler_mul_asign = euler_22z;
     euler_mul_asign *= euler_22z; 
     assert_eq!(euler_mul_asign, euler_mul);
+
+    // val * ref
+    let euler_22z_ref = &euler_22z;
+    let euler_mul = euler_22z * euler_22z_ref;
+    assert_eq!(approx(Vec3f::from(Quatf::to_euler_angles(euler_45z)), Vec3f::from(Quatf::to_euler_angles(euler_mul)), 0.1), true);
+
+    // ref * val
+    let euler_mul = euler_22z_ref * euler_22z;
+    assert_eq!(approx(Vec3f::from(Quatf::to_euler_angles(euler_45z)), Vec3f::from(Quatf::to_euler_angles(euler_mul)), 0.1), true);
+
+    // ref * ref
+    let euler_mul = euler_22z_ref * euler_22z_ref;
+    assert_eq!(approx(Vec3f::from(Quatf::to_euler_angles(euler_45z)), Vec3f::from(Quatf::to_euler_angles(euler_mul)), 0.1), true);
 }
 
 #[test]
@@ -1996,6 +2009,22 @@ fn quat_vec() {
 
     // rotate 45 degrees clockwise about x
     let r1 = euler_45x * v2;
+    assert_eq!(approx(r1, normalize(vec3f(0.0, 0.5, -0.5)), 0.01), true);
+
+    // refs
+    let euler_45x_ref = &euler_45x;
+    let v2_ref = &v2;
+
+    // quat * vec ref
+    let r1 = euler_45x * v2_ref;
+    assert_eq!(approx(r1, normalize(vec3f(0.0, 0.5, -0.5)), 0.01), true);
+
+    // quat ref * vec
+    let r1 = euler_45x_ref * v2;
+    assert_eq!(approx(r1, normalize(vec3f(0.0, 0.5, -0.5)), 0.01), true);
+
+    // quat ref * vec ref
+    let r1 = euler_45x_ref * v2_ref;
     assert_eq!(approx(r1, normalize(vec3f(0.0, 0.5, -0.5)), 0.01), true);
 }
 

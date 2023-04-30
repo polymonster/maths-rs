@@ -172,6 +172,14 @@ let q6 = -q;
 let v = vec3f(1.0, 0.0, 0.0);
 let vv = q * v3;
 
+// multiply with refs or values without need to deref
+let qref = &q;
+let vref = &v3;
+
+let qr = qref * v3;
+let qr = q * v3ref;
+let qr = qref * vref;
+
 // functions
 let rev = q.reverse();
 let inv = q.inverse();

@@ -302,9 +302,49 @@ impl<T> MulAssign<T> for Quat<T> where T: Number {
     }
 }
 
+// value * value
 impl<T> Mul<Self> for Quat<T> where T: Number {
     type Output = Self;
     fn mul(self, other: Self) -> Self {
+        Quat {
+            w: self.w * other.w - self.x * other.x - self.y * other.y - self.z * other.z,
+            x: self.w * other.x + self.x * other.w + self.y * other.z - self.z * other.y,
+            y: self.w * other.y - self.x * other.z + self.y * other.w + self.z * other.z,
+            z: self.w * other.z + self.x * other.y - self.y * other.x + self.z * other.w
+        }
+    }
+}
+
+// ref * value
+impl<T> Mul<Quat<T>> for &Quat<T> where T: Number {
+    type Output = Quat<T>;
+    fn mul(self, other: Quat<T>) -> Quat<T> {
+        Quat {
+            w: self.w * other.w - self.x * other.x - self.y * other.y - self.z * other.z,
+            x: self.w * other.x + self.x * other.w + self.y * other.z - self.z * other.y,
+            y: self.w * other.y - self.x * other.z + self.y * other.w + self.z * other.z,
+            z: self.w * other.z + self.x * other.y - self.y * other.x + self.z * other.w
+        }
+    }
+}
+
+// value * ref
+impl<T> Mul<&Self> for Quat<T> where T: Number {
+    type Output = Self;
+    fn mul(self, other: &Self) -> Self {
+        Quat {
+            w: self.w * other.w - self.x * other.x - self.y * other.y - self.z * other.z,
+            x: self.w * other.x + self.x * other.w + self.y * other.z - self.z * other.y,
+            y: self.w * other.y - self.x * other.z + self.y * other.w + self.z * other.z,
+            z: self.w * other.z + self.x * other.y - self.y * other.x + self.z * other.w
+        }
+    }
+}
+
+// ref * ref
+impl<T> Mul<Self> for &Quat<T> where T: Number {
+    type Output = Quat<T>;
+    fn mul(self, other: Self) -> Quat<T> {
         Quat {
             w: self.w * other.w - self.x * other.x - self.y * other.y - self.z * other.z,
             x: self.w * other.x + self.x * other.w + self.y * other.z - self.z * other.y,
@@ -346,6 +386,30 @@ impl<T> Mul<Vec3<T>> for Quat<T> where T: Number {
         let r2 = cross(u, v) * T::two() * s;
 
         r0 + r1 + r2
+    }
+}
+
+// ref * value
+impl<T> Mul<Vec3<T>> for &Quat<T> where T: Number {
+    type Output = Vec3<T>;
+    fn mul(self, other: Vec3<T>) -> Vec3<T> {
+        (*self).mul(other)
+    }
+}
+
+// value * ref
+impl<T> Mul<&Vec3<T>> for Quat<T> where T: Number {
+    type Output = Vec3<T>;
+    fn mul(self, other: &Vec3<T>) -> Vec3<T> {
+        self.mul(*other)
+    }
+}
+
+// ref * ref
+impl<T> Mul<&Vec3<T>> for &Quat<T> where T: Number {
+    type Output = Vec3<T>;
+    fn mul(self, other: &Vec3<T>) -> Vec3<T> {
+        (*self).mul(*other)
     }
 }
 
