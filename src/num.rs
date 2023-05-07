@@ -25,12 +25,12 @@ use std::cmp::PartialOrd;
 
 use std::fmt::Display;
 
-/// base trait for scalar and vector numerical operations, arithmetic and generic constants 
+/// base trait for scalar and vector numerical operations, arithmetic and generic constants
 pub trait Base<T: Number>:
     Copy + Display +
     Add<Output=Self> + AddAssign +
-    Sub<Output=Self> + SubAssign + 
-    Mul<Output=Self> + MulAssign + 
+    Sub<Output=Self> + SubAssign +
+    Mul<Output=Self> + MulAssign +
     Div<Output=Self> + DivAssign +
     Rem<Output=Self> + RemAssign
     where Self: Sized {
@@ -135,8 +135,10 @@ pub trait FloatOps<T: Float>: Lerp<T> where Self: Sized {
     fn ceil(a: Self) -> Self;
     /// returns value `a` with the same sign as the second parameter `sign`
     fn copysign(a: Self, sign: T) -> Self;
-    /// returns hermite interpolation between `0-1` of `t` between edges `e0` and `e1`
+    /// returns cubic hermite interpolation between `0-1` of `t` between edges `e0` and `e1`
     fn smoothstep(e0: Self, e1: Self, t: T) -> Self;
+    /// returns quintic hermite interpolation between `0-1` of `t` between edges `e0` and `e1`
+    fn smootherstep(e0: Self, e1: Self, t: T) -> Self;
     /// returns `a` rounded component wise
     fn round(a: Self) -> Self;
     /// returns true if `a` is not a number (`nan`)
@@ -157,7 +159,7 @@ pub trait FloatOps<T: Float>: Lerp<T> where Self: Sized {
     fn frac(v: Self) -> Self;
     /// returns the integer part of float value `v` truncating the decimal part
     fn trunc(v: Self) -> Self;
-    /// returns a tuple containing `(frac(v), trunc(v))` breaking the float into 2 parts 
+    /// returns a tuple containing `(frac(v), trunc(v))` breaking the float into 2 parts
     fn modf(v: Self) -> (Self, Self);
     /// returns the cosine of `v` where the value `v` is in radians
     fn cos(v: Self) -> Self;
@@ -263,7 +265,7 @@ macro_rules! number_impl {
             fn step(a: Self, b: Self) -> Self {
                 if a >= b {
                     Self::one()
-                } 
+                }
                 else {
                     Self::zero()
                 }
@@ -272,31 +274,31 @@ macro_rules! number_impl {
 
         impl Cast<$t> for $t {
             fn from_f32(v: f32) -> Self {
-                v as Self 
+                v as Self
             }
 
             fn from_f64(v: f64) -> Self {
-                v as Self 
+                v as Self
             }
 
             fn from_u32(v: u32) -> Self {
-                v as Self 
+                v as Self
             }
 
             fn from_i32(v: i32) -> Self {
-                v as Self 
+                v as Self
             }
 
             fn from_u64(v: u64) -> Self {
-                v as Self 
+                v as Self
             }
 
             fn from_i64(v: i64) -> Self {
-                v as Self 
+                v as Self
             }
 
             fn from_usize(v: usize) -> Self {
-                v as Self 
+                v as Self
             }
 
             fn as_f32(&self) -> f32 {
@@ -318,7 +320,7 @@ macro_rules! number_impl {
             fn as_u64(&self) -> u64 {
                 *self as u64
             }
-            
+
             fn as_i64(&self) -> i64 {
                 *self as i64
             }
@@ -399,7 +401,7 @@ macro_rules! float_impl {
                 0.5 as Self
             }
 
-            #[allow(clippy::excessive_precision)] 
+            #[allow(clippy::excessive_precision)]
             fn pi() -> Self {
                 3.14159265358979323846264338327950288 as Self
             }
@@ -412,7 +414,7 @@ macro_rules! float_impl {
                 1.0 as Self / Self::pi() as Self
             }
 
-            #[allow(clippy::excessive_precision)] 
+            #[allow(clippy::excessive_precision)]
             fn phi() -> Self {
                 1.618033988749894 as Self
             }
@@ -421,7 +423,7 @@ macro_rules! float_impl {
                 1.0 as Self / Self::phi() as Self
             }
 
-            #[allow(clippy::excessive_precision)] 
+            #[allow(clippy::excessive_precision)]
             fn tau() -> Self {
                 6.2831853071795864 as Self
             }
@@ -461,6 +463,13 @@ macro_rules! float_impl {
                 x * x * (3 as Self - 2 as Self * x)
             }
 
+            fn smootherstep(e0: Self, e1: Self, t: Self) -> Self {
+                if t < e0 { return Self::zero(); }
+                if (t >= e1) { return Self::one(); }
+                let x = (t - e0) / (e1 - e0);
+                x * x * x * (3 as Self * x * (2 as Self * x - 5 as Self) + 10 as Self)
+            }
+
             fn saturate(v: Self) -> Self {
                 Self::max(Self::min(v, 1.0), 0.0)
             }
@@ -468,7 +477,7 @@ macro_rules! float_impl {
             fn powi(v: Self, exp: i32) -> Self {
                 v.powi(exp)
             }
-            
+
             fn powf(v: Self, exp: $t) -> Self {
                 v.powf(exp)
             }
@@ -515,12 +524,12 @@ macro_rules! float_impl {
 macro_rules! integer_trait_impl {
     ($($func:ident),*) => {
         /// integer point trait for various sized integers
-        pub trait Integer: Number + 
+        pub trait Integer: Number +
             Shl<Output=Self> + ShlAssign +
-            Shr<Output=Self> + ShrAssign + 
+            Shr<Output=Self> + ShrAssign +
             BitOr<Output=Self> + BitOrAssign +
-            BitAnd<Output=Self> + BitAndAssign + 
-            BitXor<Output=Self> + BitXorAssign { 
+            BitAnd<Output=Self> + BitAndAssign +
+            BitXor<Output=Self> + BitXorAssign {
         }
         integer_impl!(i8 { $($func),* });
         integer_impl!(u8 { $($func),* });
