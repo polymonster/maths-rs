@@ -1049,10 +1049,10 @@ fn mul4x4_3x4<T: Number>(lhs: Mat4<T>, rhs: Mat34<T>) -> Mat4<T> {
             lhs.m[8] * rhs.m[2] + lhs.m[9] * rhs.m[6] + lhs.m[10] * rhs.m[10],
             lhs.m[8] * rhs.m[3] + lhs.m[9] * rhs.m[7] + lhs.m[10] * rhs.m[11] + lhs.m[11],
 
-            lhs.m[12] * rhs.m[0] + lhs.m[10] * rhs.m[4] + lhs.m[14] * rhs.m[8],
-            lhs.m[12] * rhs.m[1] + lhs.m[10] * rhs.m[5] + lhs.m[14] * rhs.m[9],
-            lhs.m[12] * rhs.m[2] + lhs.m[10] * rhs.m[6] + lhs.m[14] * rhs.m[10],
-            lhs.m[12] * rhs.m[3] + lhs.m[10] * rhs.m[7] + lhs.m[14] * rhs.m[11] + lhs.m[15],
+            lhs.m[12] * rhs.m[0] + lhs.m[13] * rhs.m[4] + lhs.m[14] * rhs.m[8],
+            lhs.m[12] * rhs.m[1] + lhs.m[13] * rhs.m[5] + lhs.m[14] * rhs.m[9],
+            lhs.m[12] * rhs.m[2] + lhs.m[13] * rhs.m[6] + lhs.m[14] * rhs.m[10],
+            lhs.m[12] * rhs.m[3] + lhs.m[13] * rhs.m[7] + lhs.m[14] * rhs.m[11] + lhs.m[15],
         ]
     }
 }
