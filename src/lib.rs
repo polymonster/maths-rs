@@ -92,7 +92,7 @@ pub fn copysign<T: Float, V: FloatOps<T>>(a: V, sign: T) -> V {
     V::copysign(a, sign)
 }
 
-/// returns the absolute (positive) value of `a` 
+/// returns the absolute (positive) value of `a`
 pub fn abs<T: SignedNumber, V: SignedNumberOps<T>>(a: V) -> V {
     V::abs(a)
 }
@@ -212,12 +212,12 @@ pub fn saturate<T: Float, V: FloatOps<T>>(x: V) -> V {
     V::saturate(x)
 }
 
-/// returns the vector cross product of `a x b`, makes sense only for 3 or 7 dimensional vectors 
+/// returns the vector cross product of `a x b`, makes sense only for 3 or 7 dimensional vectors
 pub fn cross<T: Number, V: Cross<T>>(a: V, b: V) -> V {
     V::cross(a, b)
 }
 
-/// returns the scalar triple product of `a x b x c`, makes sense only for 3 dimensional vectors 
+/// returns the scalar triple product of `a x b x c`, makes sense only for 3 dimensional vectors
 pub fn scalar_triple<T: Number + SignedNumber, V: Triple<T>>(a: V, b: V, c: V) -> T {
     V::scalar_triple(a, b, c)
 }
@@ -230,7 +230,7 @@ pub fn vector_triple<T: Number + SignedNumber, V: Triple<T>>(a: V, b: V, c: V) -
 /// returns the perpedicular vector of `a` performing anti-clockwise rotation by 90 degrees
 pub fn perp<T: SignedNumber>(a: Vec2<T>) -> Vec2<T> {
     Vec2 {
-        x: -a.y, 
+        x: -a.y,
         y: a.x
     }
 }
@@ -401,15 +401,15 @@ pub fn log<T: Float, V: FloatOps<T>>(v: V, base: T) -> V {
     V::log(v, base)
 }
 
-/// returns the vec2 rotated anti-clockwise rotation by radian `angle` 
+/// returns the vec2 rotated anti-clockwise rotation by radian `angle`
 pub fn rotate_2d<T: Float + FloatOps<T>>(v: Vec2<T>, angle: T) -> Vec2<T> {
     let c = cos(angle);
     let s = sin(angle);
     Vec2::new(c * v.x - s * v.y, s * v.x + c * v.y)
 }
-   
+
 /// returns a convex hull wound clockwise from point cloud `points`
-pub fn convex_hull_from_points<T: Float + SignedNumberOps<T> + NumberOps<T> + FloatOps<T>>(points: &Vec<Vec2<T>>) -> Vec<Vec2<T>> {    
+pub fn convex_hull_from_points<T: Float + SignedNumberOps<T> + NumberOps<T> + FloatOps<T>>(points: &Vec<Vec2<T>>) -> Vec<Vec2<T>> {
     //find right most point
     let mut cur = points[0];
     let mut curi = 0;
@@ -420,7 +420,7 @@ pub fn convex_hull_from_points<T: Float + SignedNumberOps<T> + NumberOps<T> + Fl
             curi = i;
         }
     }
-    
+
     // wind the hull clockwise by using cross product to test which side of an edge a point lies on
     // discarding points that do not form the perimeter
     let mut hull = vec![cur];
@@ -445,7 +445,7 @@ pub fn convex_hull_from_points<T: Float + SignedNumberOps<T> + NumberOps<T> + Fl
         if approx(x1, hull[0], T::small_epsilon()) {
             break;
         }
-            
+
         cur = x1;
         curi = rm;
         hull.push(x1);
@@ -702,11 +702,11 @@ pub fn closest_point_on_cone<T: Float, V: VecN<T> + VecFloatOps<T>>(p: V, cp: V,
     // find point onbase plane and clamp to the extent
     let cplane = closest_point_on_plane(p, l2, cv);
     let extent = l2 + normalize(cplane - l2) * r;
-    
+
     // test closest point on line with the axis along the side and bottom of the cone
     let e1 = closest_point_on_line_segment(p, cp, extent);
     let e2 = closest_point_on_line_segment(p, l2, extent);
-    
+
     if dist2(p, e1) < dist2(p, e2) {
         e1
     }
@@ -729,7 +729,7 @@ pub fn closest_point_on_polygon<T: Float + FloatOps<T>>(p: Vec2<T>, poly: &Vec<V
         let i2 = (i+1)%ncp;
         let cpp = closest_point_on_line_segment(p, poly[i], poly[i2]);
         let cppd2 = dist2(p, cpp);
-        if dist2(p, cpp) < cd2 { 
+        if dist2(p, cpp) < cd2 {
             cp = cpp;
             cd2 = cppd2;
         }
@@ -818,7 +818,7 @@ pub fn point_inside_frustum<T: Number>(p: Vec3<T>, planes: &[Vec4<T>; 6]) -> boo
     }
     true
 }
-    
+
 /// returns the classification of point `p` vs the plane defined by point on plane `x` and normal `n`
 pub fn point_vs_plane<T: SignedNumber + SignedNumberOps<T>>(p: Vec3<T>,  x: Vec3<T>, n: Vec3<T>) -> Classification {
     let pd = plane_distance(x, n);
@@ -903,7 +903,7 @@ pub fn capsule_vs_plane<T: Float + FloatOps<T> + SignedNumber + SignedNumberOps<
     }
 }
 
-/// return the classification of cone defined by position `cp`, direction `cv` with height `h` and radius at the base of `r` 
+/// return the classification of cone defined by position `cp`, direction `cv` with height `h` and radius at the base of `r`
 /// vs the plane defined by point `x` and normal `n`
 pub fn cone_vs_plane<T: Float + SignedNumberOps<T>, V: VecN<T> + Cross<T> + Dot<T> + SignedVecN<T> + VecFloatOps<T>>(cp: V, cv: V, h: T, r: T, x: V, n: V) -> Classification {
     let l2 = cp + cv * h;
@@ -989,7 +989,7 @@ pub fn aabb_vs_aabb<T: Number, V: VecN<T> + NumberOps<T>>(aabb_min1: V, aabb_max
     for i in 0..V::len() {
         if aabb_max1[i] < aabb_min2[i] || aabb_min1[i] > aabb_max2[i] {
             return false;
-        } 
+        }
     }
     true
 }
@@ -1007,7 +1007,7 @@ pub fn aabb_vs_obb<T: Number + Float + SignedNumber + SignedNumberOps<T> + Numbe
         Vec3::<T>::new( T::one(),  T::one(),  T::one()),
         Vec3::<T>::new(-T::one(),  T::one(),  T::one()),
     ];
-    
+
     // aabb
     let verts0 = vec![
         aabb_min,
@@ -1019,13 +1019,13 @@ pub fn aabb_vs_obb<T: Number + Float + SignedNumber + SignedNumberOps<T> + Numbe
         Vec3::<T>::new(aabb_max.x, aabb_max.y, aabb_min.z),
         aabb_max
     ];
-    
+
     // obb from corners
     let mut verts1 = Vec::new();
     for corner in corners {
         verts1.push(obb * corner);
     }
-    
+
     gjk_3d(verts0, verts1)
 }
 
@@ -1050,7 +1050,7 @@ pub fn obb_vs_obb<T: Number + Float + SignedNumber + SignedNumberOps<T> + Number
         Vec3::<T>::new( T::one(),  T::one(),  T::one()),
         Vec3::<T>::new(-T::one(),  T::one(),  T::one()),
     ];
-    
+
     // obb from corners
     let mut verts0 = Vec::new();
     for corner in corners {
@@ -1061,7 +1061,7 @@ pub fn obb_vs_obb<T: Number + Float + SignedNumber + SignedNumberOps<T> + Number
     for corner in corners {
         verts1.push(obb1 * corner);
     }
-    
+
     gjk_3d(verts0, verts1)
 }
 
@@ -1087,7 +1087,7 @@ pub fn capsule_vs_capsule<T: Float + FloatOps<T> + SignedNumberOps<T>, V: VecN<T
         if d < r2 {
             let l1 = normalize(cp3 - cp2);
             let t1 = dot(cp0 - cp2, l1);
-            
+
             // now check if the capsule axes overlap
             if t0 >= T::zero() && t0*t0 < dist2(cp1, cp0) {
                 true
@@ -1157,8 +1157,8 @@ pub fn ray_vs_aabb<T: Number + NumberOps<T>, V: VecN<T>>(r0: V, rv: V, aabb_min:
 }
 
 /// returns the intersection of the 3D ray with origin `r0` and direction `rv` with the obb defined by `mat`
-pub fn ray_vs_obb<T: Float + NumberOps<T>, 
-    V: VecFloatOps<T> + NumberOps<T> + SignedNumberOps<T> + VecN<T> + SignedVecN<T>, 
+pub fn ray_vs_obb<T: Float + NumberOps<T>,
+    V: VecFloatOps<T> + NumberOps<T> + SignedNumberOps<T> + VecN<T> + SignedVecN<T>,
     M: MatTranslate<V> + MatInverse<T> + MatRotate3D<T, V> + MatN<T, V>
     + Into<Mat3<T>> + Copy>
     (r0: V, rv: V, mat: M) -> Option<V> where Mat3<T> : MatN<T, V> {
@@ -1225,18 +1225,18 @@ pub fn ray_vs_capsule<T: Float + FloatOps<T> + NumberOps<T> + SignedNumberOps<T>
             let b = c1;
             let v = rv;
             let r = cr;
-            
+
             let ab = b - a;
             let ao = r0 - a;
             let aoxab = cross(ao, ab);
             let vxab = cross(v, ab);
             let ab2 = dot(ab, ab);
-            
+
             let aa = dot(vxab, vxab);
             let bb = T::two() * dot(vxab, aoxab);
             let cc = dot(aoxab, aoxab) - (r*r * ab2);
             let dd = bb * bb - T::four() * aa * cc;
-            
+
             if dd >= T::zero() {
                 let t = (-bb - sqrt(dd)) / (T::two() * aa);
                 if t >= T::zero() {
@@ -1306,18 +1306,18 @@ pub fn ray_vs_cylinder<T: Float + FloatOps<T> + NumberOps<T> + SignedNumberOps<T
     let b = c1;
     let v = rv;
     let r = cr;
-    
+
     let ab = b - a;
     let ao = r0 - a;
     let aoxab = cross(ao, ab);
     let vxab = cross(v, ab);
     let ab2 = dot(ab, ab);
-    
+
     let aa = dot(vxab, vxab);
     let bb = T::two() * dot(vxab, aoxab);
     let cc = dot(aoxab, aoxab) - (r*r * ab2);
     let dd = bb * bb - T::four() * aa * cc;
-    
+
     if dd >= T::zero() {
         let t = (-bb - sqrt(dd)) / (T::two() * aa);
         if t >= T::zero() {
@@ -1330,7 +1330,7 @@ pub fn ray_vs_cylinder<T: Float + FloatOps<T> + NumberOps<T> + SignedNumberOps<T
             }
         }
     }
-    
+
     // intersect with the top and bottom circles
     let ip_top = ray_vs_plane(r0, rv, c0, normalize(c0 - c1));
     let ip_bottom = ray_vs_plane(r0, rv, c1, normalize(c1 - c0));
@@ -1359,7 +1359,7 @@ pub fn ray_vs_cylinder<T: Float + FloatOps<T> + NumberOps<T> + SignedNumberOps<T
             }
         }
     }
-    
+
     if btop {
         if let Some(ip_top) = ip_top {
             return Some(ip_top);
@@ -1470,7 +1470,7 @@ pub fn ray_vs_line_segment<T: Float + SignedNumberOps<T> + FloatOps<T>>(r0: Vec3
 /// returns the shortest line segment between 2 line segments `p1-p2` and `p3-p4` as an option tuple where `.0` is the point on line segment 1 and `.1` is the point on line segment 2
 pub fn shortest_line_segment_between_line_segments<T: Float + SignedNumberOps<T> + FloatOps<T>, V: VecN<T> + SignedNumberOps<T> + FloatOps<T> + Dot<T>>(p1: V, p2: V, p3: V, p4: V) -> Option<(V, V)> {
     // https://web.archive.org/web/20120404121511/http://local.wasp.uwa.edu.au/~pbourke/geometry/lineline3d/lineline.c
-    
+
     let p13 = p1 - p3;
     let p43 = p4 - p3;
 
@@ -1507,7 +1507,7 @@ pub fn shortest_line_segment_between_line_segments<T: Float + SignedNumberOps<T>
 /// returns the shortest line segment between 2 lines `p1-p2` and `p3-p4` as an option tuple where `.0` is the point on line segment 1 and `.1` is the point on line segment 2
 pub fn shortest_line_segment_between_lines<T: Float + SignedNumberOps<T> + FloatOps<T>, V: VecN<T> + SignedNumberOps<T> + FloatOps<T> + Dot<T>>(p1: V, p2: V, p3: V, p4: V) -> Option<(V, V)> {
     // https://web.archive.org/web/20120404121511/http://local.wasp.uwa.edu.au/~pbourke/geometry/lineline3d/lineline.c
-    
+
     let p13 = p1 - p3;
     let p43 = p4 - p3;
 
@@ -1544,7 +1544,7 @@ pub fn shortest_line_segment_between_lines<T: Float + SignedNumberOps<T> + Float
 /// returns the shortest line segment between 2 line segments `p1-p2` and `p3-p4` as an option tuple where `.0` is the point on line segment 1 and `.1` is the point on line segment 2
 pub fn shortest_line_segment_between_line_and_line_segment<T: Float + SignedNumberOps<T> + FloatOps<T>, V: VecN<T> + SignedNumberOps<T> + FloatOps<T> + Dot<T>>(p1: V, p2: V, p3: V, p4: V) -> Option<(V, V)> {
     // https://web.archive.org/web/20120404121511/http://local.wasp.uwa.edu.au/~pbourke/geometry/lineline3d/lineline.c
-    
+
     let p13 = p1 - p3;
     let p43 = p4 - p3;
 
@@ -1652,7 +1652,7 @@ pub fn exp_step<T: SignedNumber + Float, X: Base<T> + FloatOps<T> + SignedNumber
 /// returns gain (y position on a graph for `x`); remapping the unit interval into the unit interval by expanding the sides and compressing the center
 pub fn gain<T: SignedNumber + Float + FloatOps<T>>(x: T, k: T) -> T {
     // inigo quilez: https://iquilezles.org/articles/functions/
-    let y = if x < T::point_five() { 
+    let y = if x < T::point_five() {
         x
     }
     else {
@@ -1690,7 +1690,7 @@ pub fn sinc<T: SignedNumber + Float, X: Base<T> + FloatOps<T> + SignedNumberOps<
 /// returns a hsv value in 0-1 range converted from `rgb` in 0-1 range
 pub fn rgb_to_hsv<T: Float + SignedNumberOps<T> + Cast<T>>(rgb: Vec3<T>) -> Vec3<T> {
     // from Foley & van Dam p592
-    // optimized: http://lolengine.net/blog/2013/01/13/fast-rgb-to-hsv 
+    // optimized: http://lolengine.net/blog/2013/01/13/fast-rgb-to-hsv
     let mut r = rgb.x;
     let mut g = rgb.y;
     let mut b = rgb.z;
@@ -1714,14 +1714,14 @@ pub fn rgb_to_hsv<T: Float + SignedNumberOps<T> + Cast<T>>(rgb: Vec3<T>) -> Vec3
         z: r
     }
 }
- 
+
 /// returns an rgb value in 0-1 range converted from `hsv` in 0-1 range
 pub fn hsv_to_rgb<T: Float + FloatOps<T> + Cast<T>>(hsv: Vec3<T>) -> Vec3<T> {
     // from Foley & van Dam p593: http://en.wikipedia.org/wiki/HSL_and_HSV
     let h = hsv.x;
     let s = hsv.y;
     let v = hsv.z;
-        
+
     if s == T::zero() {
         // gray
         return Vec3 {
@@ -1940,7 +1940,7 @@ pub fn gjk_mesh_support_function<T: Float + FloatOps<T> + NumberOps<T> + SignedN
         }
         fv
     };
-    
+
     // selects the furthest points on the 2 meshes in opposite directions
     let fp0 = furthest_point(dir, convex0);
     let fp1 = furthest_point(-dir, convex1);
@@ -1955,23 +1955,23 @@ fn handle_simplex_2d<T: Float + FloatOps<T> + NumberOps<T> + SignedNumber + Sign
             let b = simplex[0];
             let ab = b - a;
             let ao = -a;
-            
+
             *dir = vector_triple(ab, ao, ab);
-            
+
             false
         },
         3 => {
             let a = simplex[2];
             let b = simplex[1];
             let c = simplex[0];
-            
+
             let ab = b - a;
             let ac = c - a;
             let ao = -a;
-            
+
             let abperp = vector_triple(ac, ab, ab);
             let acperp = vector_triple(ab, ac, ac);
-            
+
             if dot(abperp, ao) > T::zero() {
                 simplex.remove(0);
                 *dir = abperp;
@@ -1995,29 +1995,29 @@ fn handle_simplex_2d<T: Float + FloatOps<T> + NumberOps<T> + SignedNumber + Sign
 /// returns true if the 2d convex hull `convex0` overlaps with `convex1` using the gjk algorithm
 pub fn gjk_2d<T: Float + FloatOps<T> + NumberOps<T> + SignedNumber + SignedNumberOps<T>, V: VecN<T> + FloatOps<T> + SignedNumberOps<T> + VecFloatOps<T> + Triple<T>>(convex0: Vec<V>, convex1: Vec<V>) -> bool {
     // implemented following details in this insightful video: https://www.youtube.com/watch?v=ajv46BSqcK4
-    
+
     // start with arbitrary direction
     let mut dir = V::unit_x();
     let support = gjk_mesh_support_function(&convex0, &convex1, dir);
     dir = normalize(-support);
-    
+
     // iterative build and test simplex
     let mut simplex = vec![support];
-    
+
     let max_iters = 32;
     for _i in 0..max_iters {
         let a = gjk_mesh_support_function(&convex0, &convex1, dir);
-        
+
         if dot(a, dir) < T::zero() {
             return false;
         }
         simplex.push(a);
-        
+
         if handle_simplex_2d(&mut simplex, &mut dir) {
             return true;
         }
     }
-    
+
     // if we reach here we likely have got stuck in a simplex building loop, we assume the shapes are touching but not intersecting
     false
 }
@@ -2033,30 +2033,30 @@ fn handle_simplex_3d<T: Float + FloatOps<T> + NumberOps<T> + SignedNumber + Sign
         2 => {
             let a = simplex[1];
             let b = simplex[0];
-            
+
             let ab = b - a;
             let ao = -a;
-            
+
             *dir = vector_triple(ab, ao, ab);
-            
+
             false
         },
         3 => {
             let a = simplex[2];
             let b = simplex[1];
             let c = simplex[0];
-            
+
             let ab = b - a;
             let ac = c - a;
             let ao = -a;
-            
+
             *dir = cross(ac, ab);
-    
+
             // flip normal so it points toward the origin
             if dot(*dir, ao) < T::zero() {
                 *dir = -*dir;
             }
-    
+
             false
         },
         4 => {
@@ -2064,35 +2064,35 @@ fn handle_simplex_3d<T: Float + FloatOps<T> + NumberOps<T> + SignedNumber + Sign
             let b = simplex[2];
             let c = simplex[1];
             let d = simplex[0];
-            
+
             let centre = (a+b+c+d) / T::four();
-            
+
             let ab = b - a;
             let ac = c - a;
             let ad = d - a;
             let ao = -a;
-            
+
             let mut abac = cross(ab, ac);
             let mut acad = cross(ac, ad);
             let mut adab = cross(ad, ab);
-            
+
             // flip the normals so they always face outward
             let centre_abc = (a + b + c) / T::three();
             let centre_acd = (a + c + d) / T::three();
             let centre_adb = (a + d + b) / T::three();
-            
+
             if dot(centre - centre_abc, abac) > T::zero() {
                 abac = -abac;
             }
-            
+
             if dot(centre - centre_acd, acad) > T::zero() {
                 acad = -acad;
             }
-            
+
             if dot(centre - centre_adb, adab) > T::zero() {
                 adab = -adab;
             }
-            
+
             if dot(abac, ao) > T::zero() {
                 // erase c
                 simplex.remove(0);
@@ -2124,29 +2124,29 @@ fn handle_simplex_3d<T: Float + FloatOps<T> + NumberOps<T> + SignedNumber + Sign
 /// returns true if the 3D convex hull `convex0` overlaps with `convex1` using the gjk algorithm
 pub fn gjk_3d<T: Float + FloatOps<T> + NumberOps<T> + SignedNumber + SignedNumberOps<T>, V: VecN<T> + FloatOps<T> + SignedNumberOps<T> + VecFloatOps<T> + Triple<T> + Cross<T>>(convex0: Vec<V>, convex1: Vec<V>) -> bool {
     // implemented following details in this insightful video: https://www.youtube.com/watch?v=ajv46BSqcK4
-    
+
     // start with arbitrary direction
     let mut dir = V::unit_x();
     let support = gjk_mesh_support_function(&convex0, &convex1, dir);
     dir = normalize(-support);
-    
+
     // iterative build and test simplex
     let mut simplex = vec![support];
-    
+
     let max_iters = 32;
     for _i in 0..max_iters {
         let a = gjk_mesh_support_function(&convex0, &convex1, dir);
-        
+
         if dot(a, dir) < T::zero() {
             return false;
         }
         simplex.push(a);
-        
+
         if handle_simplex_3d(&mut simplex, &mut dir) {
             return true;
         }
     }
-    
+
     // if we reach here we likely have got stuck in a simplex building loop, we assume the shapes are touching but not intersecting
     false
 }

@@ -16,33 +16,33 @@ use std::fmt::Display;
 use std::fmt::Formatter;
 
 /// row major matrix index layouts
-/// 
+///
 /// Mat2:
 /// 00 01
-/// 02 03 
-/// 
+/// 02 03
+///
 /// Mat3:
 /// 00 01 02
 /// 03 04 05
 /// 06 07 08
-/// 
+///
 /// Mat34:
 /// 00 01 02 03
 /// 04 05 06 07
 /// 08 09 10 11
-/// 
+///
 /// Mat44:
 /// 00 01 02 03
 /// 04 05 06 07
 /// 08 09 10 11
 /// 12 13 14 15
 
-/// creates the basic generic traits for row-major matrices 
+/// creates the basic generic traits for row-major matrices
 macro_rules! mat_impl {
-    ($MatN:ident, $rows:expr, $cols:expr, $elems:expr, 
+    ($MatN:ident, $rows:expr, $cols:expr, $elems:expr,
         $RowVecN:ident { $($row_field:ident, $row_field_index:expr),* },
         $ColVecN:ident { $($col_field:ident, $col_field_index:expr),* } ) => {
-        
+
         #[cfg_attr(feature="serde", derive(serde::Serialize, serde::Deserialize))]
         #[derive(Debug, Copy, Clone)]
         #[repr(C)]
@@ -113,7 +113,7 @@ macro_rules! mat_impl {
                         if c < $cols-1 {
                             output += &String::from(", ");
                         }
-                        
+
                     }
                     output += "]";
                     if r < $rows-1 {
@@ -147,7 +147,7 @@ macro_rules! mat_impl {
                 true
             }
         }
-    
+
         impl<T> $MatN<T> where T: Number {
             /// initialise matrix to all zero's
             pub fn zero() -> $MatN<T> {
@@ -389,8 +389,8 @@ impl<T> From<(T, T, T, T, T, T, T, T, T)> for Mat3<T> where T: Number {
     fn from(other: (T, T, T, T, T, T, T, T, T)) -> Mat3<T> {
         Mat3 {
             m: [
-                other.0, other.1, other.2, 
-                other.3, other.4, other.5, 
+                other.0, other.1, other.2,
+                other.3, other.4, other.5,
                 other.6, other.7, other.8,
             ]
         }
@@ -468,8 +468,8 @@ impl<T> From<(T, T, T, T, T, T, T, T, T, T, T, T)> for Mat34<T> where T: Number 
     fn from(other: (T, T, T, T, T, T, T, T, T, T, T, T)) -> Mat34<T> {
         Mat34 {
             m: [
-                other.0, other.1, other.2, other.3, 
-                other.4, other.5, other.6, other.7, 
+                other.0, other.1, other.2, other.3,
+                other.4, other.5, other.6, other.7,
                 other.8, other.9, other.10, other.11
             ]
         }
@@ -536,9 +536,9 @@ impl<T> From<(T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T)> for Mat4<T> where
     fn from(other: (T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T)) -> Mat4<T> {
         Mat4 {
             m: [
-                other.0, other.1, other.2, other.3, 
-                other.4, other.5, other.6, other.7, 
-                other.8, other.9, other.10, other.11, 
+                other.0, other.1, other.2, other.3,
+                other.4, other.5, other.6, other.7,
+                other.8, other.9, other.10, other.11,
                 other.12, other.13, other.14, other.15
             ]
         }
@@ -1210,9 +1210,9 @@ impl<T> Mul<&Vec3<T>> for &Mat4<T> where T: Number {
 }
 
 /// base matrix trait for arithmetic ops
-pub trait MatN<T: Number, V: VecN<T>>: 
+pub trait MatN<T: Number, V: VecN<T>>:
     Sized + Display + Copy + Clone +
-    Mul<V, Output=V> + Mul<Self, Output=Self> + MulAssign<Self> + 
+    Mul<V, Output=V> + Mul<Self, Output=Self> + MulAssign<Self> +
 {
 }
 
@@ -1358,10 +1358,10 @@ pub fn get_orthonormal_basis_hughes_moeller<T: Float + SignedNumberOps<T> + Floa
     else {
         Vec3::new(T::zero(), -n.z, n.y)
     };
-    
+
     // normalise b2
     let b2 = b2 * T::rsqrt(Vec3::dot(b2, b2));
-    
+
     // construct b1 using cross product
     let b1 = Vec3::cross(b2, n);
 
@@ -1507,7 +1507,7 @@ impl<T> MatDeterminant<T> for Mat3<T> where T: Number {
 }
 
 /// returns the 4x4 determinant using laplace expansion theorum
-#[allow(clippy::zero_prefixed_literal)] 
+#[allow(clippy::zero_prefixed_literal)]
 impl<T> MatDeterminant<T> for Mat4<T> where T: Number {
     fn determinant(&self) -> T {
         let s0 = (self.m[00] * self.m[05]) - (self.m[01] * self.m[04]);
@@ -1536,11 +1536,11 @@ impl<T> MatInverse<T> for Mat2<T> where T: SignedNumber {
     fn inverse(&self) -> Self {
         let det = self.determinant();
         let inv_det = T::one()/det;
-        Mat2 { 
+        Mat2 {
             m: [
                 inv_det * self.m[3], inv_det * -self.m[1],
                 inv_det * -self.m[2], inv_det * self.m[0],
-            ] 
+            ]
         }
     }
 }
@@ -1568,7 +1568,7 @@ impl<T> MatInverse<T> for Mat3<T> where T: SignedNumber {
 }
 
 impl<T> MatInverse<T> for Mat34<T> where T: SignedNumber {
-    fn inverse(&self) -> Self {        
+    fn inverse(&self) -> Self {
         let m3_inv = Mat3::<T>::from(*self).inverse();
         let mut m34 = Mat34::<T>::from(m3_inv);
         let t = Vec3::<T>::from((-self.m[3], -self.m[7], -self.m[11]));
@@ -1582,7 +1582,7 @@ impl<T> MatInverse<T> for Mat34<T> where T: SignedNumber {
     }
 }
 
-#[allow(clippy::zero_prefixed_literal)] 
+#[allow(clippy::zero_prefixed_literal)]
 impl<T> MatInverse<T> for Mat4<T> where T: SignedNumber {
     fn inverse(&self) -> Self {
         let s0 = (self.m[00] * self.m[05]) - (self.m[01] * self.m[04]);
@@ -1703,7 +1703,7 @@ pub trait MatProjection<T> {
     /// returns an orthogrpahic projection matrix defined by `left`, `right`, `top`, `bottom` edges and `near` - `far` depth range
     fn create_ortho_matrix(left: T, right: T, bottom: T, top: T, near: T, far: T) -> Self;
     /// returns a perespective projection matrix (left hand coordinate system with y-up) from `fov` (radians), `aspect` ratio and `near` - `far` depth
-    fn create_perspective_projection_lh_yup(fov: T, aspect: T, near: T, far: T) -> Self; 
+    fn create_perspective_projection_lh_yup(fov: T, aspect: T, near: T, far: T) -> Self;
     /// returns a perespective projection matrix (right hand coordinate system with y-up) from `fov` (radians), `aspect` ratio and `near` - `far` depth
     fn create_perspective_projection_rh_yup(fov: T, aspect: T, near: T, far: T) -> Self;
 }
@@ -1819,7 +1819,7 @@ impl<T> MatProjection<T> for Mat4<T> where T: Float + FloatOps<T>, Vec3<T>: Floa
         let bottom = -top;
         create_perspective_matrix_internal_lh(left, right, bottom, top, near, far)
     }
-    
+
     fn create_perspective_projection_rh_yup(fov: T, aspect: T, near: T, far: T) -> Mat4<T> {
         let tfov = T::tan(fov * T::point_five());
         let right = tfov * aspect * near;
@@ -1833,17 +1833,17 @@ impl<T> MatProjection<T> for Mat4<T> where T: Float + FloatOps<T>, Vec3<T>: Floa
 /// trait to construct matrix from 4 scalars
 pub trait MatNew2<T> {
     fn new(
-        m00: T, m01: T, 
+        m00: T, m01: T,
         m10: T, m11: T
     ) -> Self;
 }
 
 impl<T> MatNew2<T> for Mat2<T> where T: Number {
     fn new(
-        m00: T, m01: T, 
+        m00: T, m01: T,
         m10: T, m11: T
     ) -> Self {
-        Self {  
+        Self {
             m: [
                 m00, m01,
                 m10, m11
@@ -1852,7 +1852,7 @@ impl<T> MatNew2<T> for Mat2<T> where T: Number {
     }
 }
 
-#[allow(clippy::too_many_arguments)] 
+#[allow(clippy::too_many_arguments)]
 /// trait to construct matrix from 9 scalars
 pub trait MatNew3<T> {
     fn new(
@@ -1878,7 +1878,7 @@ impl<T> MatNew3<T> for Mat3<T> where T: Number {
     }
 }
 
-#[allow(clippy::too_many_arguments)] 
+#[allow(clippy::too_many_arguments)]
 /// trait to construct matrix from 12 scalars
 pub trait MatNew34<T> {
     fn new(
@@ -1904,36 +1904,36 @@ impl<T> MatNew34<T> for Mat34<T> where T: Number {
     }
 }
 
-#[allow(clippy::too_many_arguments)] 
+#[allow(clippy::too_many_arguments)]
 /// trait to construct matrix from 12 scalars
 pub trait MatNew43<T> {
     fn new(
-        m00: T, m01: T, m02: T, 
+        m00: T, m01: T, m02: T,
         m03: T, m10: T, m11: T,
-        m12: T, m13: T, m20: T, 
+        m12: T, m13: T, m20: T,
         m21: T, m22: T, m23: T,
     ) -> Self;
 }
 
 impl<T> MatNew43<T> for Mat43<T> where T: Number {
     fn new(
-        m00: T, m01: T, m02: T, 
-        m03: T, m10: T, m11: T, 
-        m12: T, m13: T, m20: T, 
+        m00: T, m01: T, m02: T,
+        m03: T, m10: T, m11: T,
+        m12: T, m13: T, m20: T,
         m21: T, m22: T, m23: T,
     ) -> Self {
         Self {
             m: [
-                m00, m01, m02, 
-                m03, m10, m11, 
-                m12, m13, m20, 
+                m00, m01, m02,
+                m03, m10, m11,
+                m12, m13, m20,
                 m21, m22, m23
             ]
         }
     }
 }
 
-#[allow(clippy::too_many_arguments)] 
+#[allow(clippy::too_many_arguments)]
 /// trait to construct matrix from 16 scalars
 pub trait MatNew4<T> {
     fn new(

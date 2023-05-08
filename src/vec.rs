@@ -22,13 +22,13 @@ use std::fmt::Formatter;
 use crate::num::*;
 
 //
-// Vec Traits 
+// Vec Traits
 //
 
 /// generic vec trait to allow sized vectors to be treated generically
-pub trait VecN<T: Number>: 
-    Base<T> + Dot<T> + 
-    Index<usize, Output=T> + IndexMut<usize> + 
+pub trait VecN<T: Number>:
+    Base<T> + Dot<T> +
+    Index<usize, Output=T> + IndexMut<usize> +
     Add<T, Output=Self> + Sub<T, Output=Self> +
     Mul<T, Output=Self> + Div<T, Output=Self> {
     /// returns the count of elements in the vector type
@@ -144,7 +144,7 @@ pub trait Cross<T> {
 impl<T> Cross<T> for Vec3<T> where T: Number {
     fn cross(a: Self, b: Self) -> Self {
         Vec3 {
-            x: (a.y * b.z) - (a.z * b.y), 
+            x: (a.y * b.z) - (a.z * b.y),
             y: (a.z * b.x) - (a.x * b.z),
             z: (a.x * b.y) - (a.y * b.x),
         }
@@ -178,7 +178,7 @@ impl<T> Triple<T> for Vec2<T> where T: Number + SignedNumber {
 
     fn vector_triple(a: Self, b: Self, c: Self) -> Self {
         let a3 = Vec3::<T>::new(a.x, a.y, T::zero());
-        let b3 = Vec3::<T>::new(b.x, b.y, T::zero()); 
+        let b3 = Vec3::<T>::new(b.x, b.y, T::zero());
         let c3 = Vec3::<T>::new(c.x, c.y, T::zero());
         let v3 = Vec3::<T>::cross(Vec3::<T>::cross(a3, b3), c3);
         Self {
@@ -200,14 +200,14 @@ pub trait Nlerp<T: Float> {
     fn nlerp(e0: Self, e1: Self, t: T) -> Self;
 }
 
-// 
+//
 // Macro Implementation
 //
 
 /// macro to stamp out various n-dimensional vectors, all of their ops and functions
 macro_rules! vec_impl {
     ($VecN:ident { $($field:ident, $field_index:expr),* }, $len:expr, $module:ident) => {
-        
+
         #[cfg_attr(feature="serde", derive(serde::Serialize, serde::Deserialize))]
         #[derive(Debug, Copy, Clone)]
         #[repr(C)]
@@ -488,7 +488,7 @@ macro_rules! vec_impl {
         impl<T> Slerp<T> for $VecN<T> where T: Float + FloatOps<T> + NumberOps<T> {
             fn slerp(e0: Self, e1: Self, t: T) -> Self {
                 // https://blog.demofox.org/2016/02/19/normalized-vector-interpolation-tldr/
-                let dot = Self::dot(e0, e1);     
+                let dot = Self::dot(e0, e1);
                 let dot = T::clamp(dot, T::minus_one(), T::one());
                 let theta = T::acos(dot) * t;
                 let v = Self::normalize(e1 - e0 * dot);
@@ -669,7 +669,7 @@ macro_rules! vec_impl {
                     $($field: T::round(a.$field),)+
                 }
             }
-        
+
             fn is_nan(a: Self) -> Self {
                 Self {
                     $($field: T::is_nan(a.$field),)+
@@ -923,13 +923,13 @@ macro_rules! vec_impl {
                 *self + other
             }
         }
-        
+
         impl<T> AddAssign<Self> for $VecN<T> where T: Number {
             fn add_assign(&mut self, other: Self) {
                 $(self.$field += other.$field;)+
             }
         }
-        
+
         impl<T> AddAssign<T> for $VecN<T> where T: Number {
             fn add_assign(&mut self, other: T) {
                 $(self.$field += other;)+
@@ -942,7 +942,7 @@ macro_rules! vec_impl {
                 $(self.$field += other.$field;)+
             }
         }
-        
+
         impl<T> Sub<Self> for $VecN<T> where T: Number {
             type Output = Self;
             fn sub(self, other: Self) -> Self {
@@ -951,7 +951,7 @@ macro_rules! vec_impl {
                 }
             }
         }
-        
+
         impl<T> Sub<T> for $VecN<T> where T: Number {
             type Output = Self;
             fn sub(self, other: T) -> Self {
@@ -982,13 +982,13 @@ macro_rules! vec_impl {
                 *self - other
             }
         }
-        
+
         impl<T> SubAssign<Self> for $VecN<T> where T: Number {
             fn sub_assign(&mut self, other: Self) {
                 $(self.$field -= other.$field;)+
             }
         }
-        
+
         impl<T> SubAssign<T> for $VecN<T> where T: Number {
             fn sub_assign(&mut self, other: T) {
                 $(self.$field -= other;)+
@@ -1001,7 +1001,7 @@ macro_rules! vec_impl {
                 $(self.$field -= other.$field;)+
             }
         }
-        
+
         impl<T> Mul<Self> for $VecN<T> where T: Number {
             type Output = Self;
             fn mul(self, other: Self) -> Self {
@@ -1010,7 +1010,7 @@ macro_rules! vec_impl {
                 }
             }
         }
-        
+
         impl<T> Mul<T> for $VecN<T> where T: Number {
             type Output = Self;
             fn mul(self, other: T) -> Self {
@@ -1041,13 +1041,13 @@ macro_rules! vec_impl {
                 *self * other
             }
         }
-        
+
         impl<T> MulAssign<Self> for $VecN<T> where T: Number {
             fn mul_assign(&mut self, other: Self) {
                 $(self.$field *= other.$field;)+
             }
         }
-        
+
         impl<T> MulAssign<T> for $VecN<T> where T: Number {
             fn mul_assign(&mut self, other: T) {
                 $(self.$field *= other;)+
@@ -1060,7 +1060,7 @@ macro_rules! vec_impl {
                 $(self.$field *= other.$field;)+
             }
         }
-        
+
         impl<T> Div<Self> for $VecN<T> where T: Number {
             type Output = Self;
             fn div(self, other: Self) -> Self {
@@ -1069,7 +1069,7 @@ macro_rules! vec_impl {
                 }
             }
         }
-        
+
         impl<T> Div<T> for $VecN<T> where T: Number {
             type Output = Self;
             fn div(self, other: T) -> Self {
@@ -1100,13 +1100,13 @@ macro_rules! vec_impl {
                 *self / other
             }
         }
-        
+
         impl<T> DivAssign<Self> for $VecN<T> where T: Number {
             fn div_assign(&mut self, other: Self) {
                 $(self.$field /= other.$field;)+
             }
         }
-        
+
         impl<T> DivAssign<T> for $VecN<T> where T: Number {
             fn div_assign(&mut self, other: T) {
                 $(self.$field /= other;)+
@@ -1128,7 +1128,7 @@ macro_rules! vec_impl {
                 }
             }
         }
-        
+
         impl<T> Rem<T> for $VecN<T> where T: Number {
             type Output = Self;
             fn rem(self, other: T) -> Self {
@@ -1137,19 +1137,19 @@ macro_rules! vec_impl {
                 }
             }
         }
-        
+
         impl<T> RemAssign<Self> for $VecN<T> where T: Number {
             fn rem_assign(&mut self, other: Self) {
                 $(self.$field %= other.$field;)+
             }
         }
-        
+
         impl<T> RemAssign<T> for $VecN<T> where T: Number {
             fn rem_assign(&mut self, other: T) {
                 $(self.$field %= other;)+
             }
         }
-        
+
         impl<T> Neg for $VecN<T> where T: SignedNumber {
             type Output = Self;
             fn neg(self) -> Self::Output {
@@ -1158,7 +1158,7 @@ macro_rules! vec_impl {
                 }
             }
         }
-        
+
         impl<T> Eq for $VecN<T> where T: Eq  {}
         impl<T> PartialEq for $VecN<T> where T: PartialEq  {
             fn eq(&self, other: &Self) -> bool {

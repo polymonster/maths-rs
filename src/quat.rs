@@ -122,7 +122,7 @@ impl<T> Quat<T> where T: Float + FloatOps<T> + SignedNumberOps<T> {
             let w = t1 + m00 + m11 + m22;
             (x, y, z, w)
         };
-        
+
         let sq = T::point_five() / T::sqrt(t);
 
         Quat {
@@ -204,11 +204,11 @@ impl<T> Quat<T> where T: Float + FloatOps<T> + SignedNumberOps<T> {
 
     /// returns a quationion which reverses the axis of rotation of self
     pub fn reverse(self) -> Self {
-        Quat { 
-            x: -self.x, 
-            y: -self.y, 
-            z: -self.z, 
-            w: self.w 
+        Quat {
+            x: -self.x,
+            y: -self.y,
+            z: -self.z,
+            w: self.w
         }
     }
 
@@ -449,7 +449,7 @@ impl<T> Slerp<T> for Quat<T> where T: Float + FloatOps<T> + NumberOps<T> + From<
         else {
             e1
         };
-        
+
         let theta = T::acos(Self::dot(q1, q2));
         let k_epsilon = T::from(0.000001);
         let (m1, m2) = if theta > k_epsilon {
@@ -465,11 +465,11 @@ impl<T> Slerp<T> for Quat<T> where T: Float + FloatOps<T> + NumberOps<T> + From<
             )
         };
 
-        Quat { 
-            w: m1 * q1.w + m2 * q2.w, 
-            x: m1 * q1.x + m2 * q2.x, 
-            y: m1 * q1.y + m2 * q2.y, 
-            z: m1 * q1.z + m2 * q2.z 
+        Quat {
+            w: m1 * q1.w + m2 * q2.w,
+            x: m1 * q1.x + m2 * q2.x,
+            y: m1 * q1.y + m2 * q2.y,
+            z: m1 * q1.z + m2 * q2.z
         }
     }
 }
