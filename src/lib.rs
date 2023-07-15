@@ -104,7 +104,7 @@ pub fn deg_to_rad<T: Float, V: FloatOps<T>>(a: V) -> V {
 
 /// returns the degree value converted from value `a` which is specificied in radians
 pub fn rad_to_deg<T: Float, V: FloatOps<T>>(a: V) -> V {
-    V::deg_to_rad(a)
+    V::rad_to_deg(a)
 }
 
 /// returns the floored value of `a` (round down to nearest integer)
