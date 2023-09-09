@@ -124,6 +124,12 @@ macro_rules! mat_impl {
             }
         }
 
+        impl<T> Default for $MatN<T> where T: Number {
+            fn default() -> Self {
+                Self::zero()
+            }
+        }
+
         impl<T> Eq for $MatN<T> where T: Eq  {}
         impl<T> PartialEq for $MatN<T> where T: PartialEq  {
             fn eq(&self, other: &Self) -> bool {
