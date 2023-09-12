@@ -867,6 +867,7 @@ macro_rules! vec_impl {
             }
         }
 
+        /// default to zero
         impl<T> Default for $VecN<T> where T: Number {
             fn default() -> Self {
                 Self::zero()

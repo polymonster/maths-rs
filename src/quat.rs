@@ -413,6 +413,7 @@ impl<T> Mul<&Vec3<T>> for &Quat<T> where T: Number {
     }
 }
 
+/// default to identity quaternion
 impl<T> Default for Quat<T> where T: Float + FloatOps<T> + SignedNumberOps<T> {
     fn default() -> Self {
         Self::identity()

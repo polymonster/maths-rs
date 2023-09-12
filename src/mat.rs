@@ -124,6 +124,7 @@ macro_rules! mat_impl {
             }
         }
 
+        /// default to identity matrix
         impl<T> Default for $MatN<T> where T: Number {
             fn default() -> Self {
                 Self::identity()
