@@ -126,7 +126,7 @@ macro_rules! mat_impl {
 
         impl<T> Default for $MatN<T> where T: Number {
             fn default() -> Self {
-                Self::zero()
+                Self::identity()
             }
         }
 

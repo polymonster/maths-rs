@@ -924,10 +924,7 @@ fn matrix_get_rows_columns() {
 #[test]
 fn matrix_default() {
     let m4 : Mat4<f32> = Default::default();
-    for i in 0..4 {
-        assert_eq!(m4.get_row(i), vec4f(0.0, 0.0, 0.0, 0.0));
-        assert_eq!(m4.get_column(i), vec4f(0.0, 0.0, 0.0, 0.0));
-    }
+    assert_eq!(m4, Mat4f::identity());
 }
 
 #[test]
