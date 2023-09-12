@@ -652,6 +652,13 @@ fn perp_product() {
 }
 
 #[test]
+fn default() {
+    let vz : Vec3f = Default::default();
+    let expected = vec3f(0.0, 0.0, 0.0);
+    assert_eq!(vz, expected);
+}
+
+#[test]
 fn zero() {
     let vz = Vec3f::zero();
     let expected = vec3f(0.0, 0.0, 0.0);
@@ -912,6 +919,12 @@ fn matrix_get_rows_columns() {
     };
     assert_eq!(m34.get_row(1), vec4f(4.0, 5.0, 6.0, 7.0));
     assert_eq!(m34.get_column(2), vec3f(2.0, 6.0, 10.0));
+}
+
+#[test]
+fn matrix_default() {
+    let m4 : Mat4<f32> = Default::default();
+    assert_eq!(m4, Mat4f::identity());
 }
 
 #[test]
