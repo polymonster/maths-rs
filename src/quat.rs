@@ -413,6 +413,12 @@ impl<T> Mul<&Vec3<T>> for &Quat<T> where T: Number {
     }
 }
 
+impl<T> Default for Quat<T> where T: Float + FloatOps<T> + SignedNumberOps<T> {
+    fn default() -> Self {
+        Self::identity()
+    }
+}
+
 impl<T> Dot<T> for Quat<T> where T: Float + FloatOps<T> {
     fn dot(a: Self, b: Self) -> T {
         a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w

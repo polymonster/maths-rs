@@ -1067,14 +1067,14 @@ fn matrix_transpose() {
 
     // 4x4
     let m4 = Mat4f::new(
-        0.0, 1.0, 2.0, 3.0, 
-        4.0, 5.0, 6.0, 7.0, 
+        0.0, 1.0, 2.0, 3.0,
+        4.0, 5.0, 6.0, 7.0,
         8.0, 9.0, 10.0, 11.0,
         12.0, 13.0, 14.0, 15.0
     );
     let t4 = Mat4f::new(
-        0.0, 4.0, 8.0, 12.0, 
-        1.0, 5.0, 9.0, 13.0, 
+        0.0, 4.0, 8.0, 12.0,
+        1.0, 5.0, 9.0, 13.0,
         2.0, 6.0, 10.0, 14.0,
         3.0, 7.0, 11.0, 15.0
     );
@@ -1083,8 +1083,8 @@ fn matrix_transpose() {
 
     // 3x4 to 4x3
     let m34 = Mat34f::new(
-        0.0, 1.0, 2.0, 3.0, 
-        4.0, 5.0, 6.0, 7.0, 
+        0.0, 1.0, 2.0, 3.0,
+        4.0, 5.0, 6.0, 7.0,
         8.0, 9.0, 10.0, 11.0
     );
     let t43 = Mat43f::new(
@@ -1172,7 +1172,7 @@ fn matrix_from_get_row_get_column() {
 
     assert_eq!(m2.get_row(0), vec2f(1.0, 2.0));
     assert_eq!(m2.get_row(1), vec2f(3.0, 4.0));
-    
+
     assert_eq!(m2.get_column(0), vec2f(1.0, 3.0));
     assert_eq!(m2.get_column(1), vec2f(2.0, 4.0));
 
@@ -1208,8 +1208,8 @@ fn matrix_from_get_row_get_column() {
 
     // 3x4
     let m34 = Mat34f::new(
-        1.0, 2.0, 3.0, 4.0, 
-        5.0, 6.0, 7.0, 8.0, 
+        1.0, 2.0, 3.0, 4.0,
+        5.0, 6.0, 7.0, 8.0,
         9.0, 10.0, 11.0, 12.0
     );
     let m34v = Mat34f::from((
@@ -1239,8 +1239,8 @@ fn matrix_from_get_row_get_column() {
 
     // 4x4
     let m4 = Mat4f::new(
-        1.0, 2.0, 3.0, 4.0, 
-        5.0, 6.0, 7.0, 8.0, 
+        1.0, 2.0, 3.0, 4.0,
+        5.0, 6.0, 7.0, 8.0,
         9.0, 10.0, 11.0, 12.0,
         13.0, 14.0, 15.0, 16.0
     );
@@ -1279,7 +1279,7 @@ fn matrix_from_get_row_get_column() {
         4.0, 5.0
     ));
     assert_eq!(m2_from_m3, expected);
-    
+
     // 2x2 from 3x4
     let m2_from_m34 = Mat2f::from(m34);
     let expected = Mat2f::from((
@@ -1670,7 +1670,7 @@ fn matrix_mul() {
 
     let transformed = m4ref * v3ref;
     assert_eq!(Vec3f::approx(transformed, expected, 0.001), true);
-    
+
     // 4x4 scale
     let m4 = Mat4f::from_scale(vec3f(50.0, -10.0, 20.0));
     let v4 = vec4f(3.0, 4.0, 5.0, 1.0);
@@ -1789,7 +1789,7 @@ fn matrix_rotate() {
         0.0, 0.0, 1.0, 0.0,
     );
     assert_eq!(Mat34f::approx(rotated, expected, 0.001), true);
-    
+
     // 3x4 z-axis
     let axis_z = Mat34f::from_rotation(Vec3f::unit_z(), f32::deg_to_rad(270.0));
     let rotated = axis_z * mi;
@@ -1968,7 +1968,7 @@ fn matrix_mul_vec() {
     let transformed = m4 * v3;
     let expected = vec3f(0.0, 10.0, 0.0);
     assert_eq!(Vec3f::approx(transformed, expected, 0.001), true);
-    
+
     // 4x4 scale
     let m4 = Mat4f::from_scale(vec3f(50.0, -10.0, 20.0));
     let v3 = vec3f(3.0, 4.0, 5.0);
@@ -2011,7 +2011,7 @@ fn quat() {
 
     // mul assign
     let mut euler_mul_asign = euler_22z;
-    euler_mul_asign *= euler_22z; 
+    euler_mul_asign *= euler_22z;
     assert_eq!(euler_mul_asign, euler_mul);
 
     // val * ref
@@ -2026,6 +2026,12 @@ fn quat() {
     // ref * ref
     let euler_mul = euler_22z_ref * euler_22z_ref;
     assert_eq!(approx(Vec3f::from(Quatf::to_euler_angles(euler_45z)), Vec3f::from(Quatf::to_euler_angles(euler_mul)), 0.1), true);
+}
+
+#[test]
+fn quat_default() {
+    let d = Quatf::default();
+    assert_eq!(d, Quatf::identity());
 }
 
 #[test]
@@ -2084,7 +2090,7 @@ fn generics() {
     let v1 : f32 = 1.0;
     let v2 = vec2f(1.0, 1.0);
     let v3 = vec3f(1.0, 1.0, 1.0);
-    
+
     let _s1 = sqrt(v1);
     let _s2 = sqrt(v2);
     let _s3 = sqrt(v3);
@@ -2186,7 +2192,7 @@ fn closest_point_on_aabb_test() {
     let p = vec2f(20.0, -7.0);
     let cp = closest_point_on_aabb(p, aabb_min, aabb_max);
     assert_eq!(cp, vec2f(10.0, -7.0));
-    // inside 
+    // inside
     let p = vec2f(1.0, 1.0);
     let cp = closest_point_on_aabb(p, aabb_min, aabb_max);
     assert_eq!(cp, vec2f(1.0, 1.0));
@@ -2222,9 +2228,9 @@ fn closest_point_on_ray_test() {
 fn closest_point_on_obb_test() {
     // 3x4
     let mat = Mat34f::new(
-        1.44084, 4.81496, -0.0373597, -0.11, 
-        1.65605, -2.58742, -0.655296, -7.14, 
-        -1.41194, 1.87878, -0.806716, -1.55, 
+        1.44084, 4.81496, -0.0373597, -0.11,
+        1.65605, -2.58742, -0.655296, -7.14,
+        -1.41194, 1.87878, -0.806716, -1.55,
     );
     let p = vec3f(-7.98, 0.31, -7.8);
     let result = closest_point_on_obb(p, mat);
@@ -2232,8 +2238,8 @@ fn closest_point_on_obb_test() {
 
     // 4x4
     let mat = Mat4f::new(
-        1.44084, 4.81496, -0.0373597, -0.11, 
-        1.65605, -2.58742, -0.655296, -7.14, 
+        1.44084, 4.81496, -0.0373597, -0.11,
+        1.65605, -2.58742, -0.655296, -7.14,
         -1.41194, 1.87878, -0.806716, -1.55,
         0.0, 0.0, 0.0, 1.0
     );
@@ -2255,7 +2261,7 @@ fn closest_point_on_obb_test() {
         let result = closest_point_on_obb(p, mat);
         assert_eq!(approx(result, vec3f(-3.49981, -3.17162, -5.17936), 0.01), true);
 
-        // point obb distance 
+        // point obb distance
         let d = point_obb_distance(p, mat);
         assert_eq!(approx(d, dist(p, result), 0.01), true);
 
@@ -2274,7 +2280,7 @@ fn closest_point_on_obb_test() {
         let result = closest_point_on_obb(p, mat);
         assert_eq!(approx(result, vec3f(1.28104, 3.27264, 0.730437), 0.001), true);
 
-        // point obb distance 
+        // point obb distance
         let d = point_obb_distance(p, mat);
         assert_eq!(approx(d, dist(p, result), 0.001), true);
     }
@@ -2292,7 +2298,7 @@ fn closest_point_on_obb_test() {
         let result = closest_point_on_obb(p, mat);
         assert_eq!(approx(result, vec3f(-4.73, 6.14, 7.15), 0.001), true);
 
-        // point obb distance 
+        // point obb distance
         let d = point_obb_distance(p, mat);
         assert_eq!(approx(d, dist(p, result), 0.001), true);
     }
@@ -2310,7 +2316,7 @@ fn closest_point_on_obb_test() {
         let result = closest_point_on_obb(p, mat);
         assert_eq!(approx(result, vec3f(-2.47189, 6.4115, 2.83468), 0.001), true);
 
-        // point obb distance 
+        // point obb distance
         let d = point_obb_distance(p, mat);
         assert_eq!(approx(d, dist(p, result), 0.001), true);
     }
@@ -2328,7 +2334,7 @@ fn closest_point_on_obb_test() {
         let result = closest_point_on_obb(p, mat);
         assert_eq!(approx(result, vec3f(-3.26612, -4.58507, 2.66507), 0.001), true);
 
-        // point obb distance 
+        // point obb distance
         let d = point_obb_distance(p, mat);
         assert_eq!(approx(d, dist(p, result), 0.001), true);
     }
@@ -2346,7 +2352,7 @@ fn closest_point_on_obb_test() {
         let result = closest_point_on_obb(p, mat);
         assert_eq!(approx(result, vec3f(-0.843953, -4.77934, -7.59307), 0.001), true);
 
-        // point obb distance 
+        // point obb distance
         let d = point_obb_distance(p, mat);
         assert_eq!(approx(d, dist(p, result), 0.001), true);
     }
@@ -2364,7 +2370,7 @@ fn closest_point_on_obb_test() {
         let result = closest_point_on_obb(p, mat);
         assert_eq!(approx(result, vec3f(-8.61873, -3.13139, -2.30594), 0.001), true);
 
-        // point obb distance 
+        // point obb distance
         let d = point_obb_distance(p, mat);
         assert_eq!(approx(d, dist(p, result), 0.001), true);
     }
@@ -2382,7 +2388,7 @@ fn closest_point_on_obb_test() {
         let result = closest_point_on_obb(p, mat);
         assert_eq!(approx(result, vec3f(5.48455, 1.02231, -0.540381), 0.001), true);
 
-        // point obb distance 
+        // point obb distance
         let d = point_obb_distance(p, mat);
         assert_eq!(approx(d, dist(p, result), 0.001), true);
     }
@@ -2400,7 +2406,7 @@ fn closest_point_on_obb_test() {
         let result = closest_point_on_obb(p, mat);
         assert_eq!(approx(result, vec3f(3.99176, -0.188433, -3.52821), 0.001), true);
 
-        // point obb distance 
+        // point obb distance
         let d = point_obb_distance(p, mat);
         assert_eq!(approx(d, dist(p, result), 0.001), true);
     }
@@ -2418,7 +2424,7 @@ fn closest_point_on_obb_test() {
         let result = closest_point_on_obb(p, mat);
         assert_eq!(approx(result, vec3f(3.99812, 0.973554, 6.40428), 0.001), true);
 
-        // point obb distance 
+        // point obb distance
         let d = point_obb_distance(p, mat);
         assert_eq!(approx(d, dist(p, result), 0.001), true);
     }
@@ -2452,8 +2458,8 @@ fn point_inside_sphere_test() {
 fn point_inside_obb_test() {
     // inside
     let mat = Mat34f::new(
-        -2.10233, -0.747065, 0.887925, -3.2, 
-        0.964173, -2.97305, -0.208202, 3.48, 
+        -2.10233, -0.747065, 0.887925, -3.2,
+        0.964173, -2.97305, -0.208202, 3.48,
         7.7732, 0.166721, 0.265972, -0.21,
     );
     let p = vec3f(-4.73, 6.14, 7.15);
@@ -2461,8 +2467,8 @@ fn point_inside_obb_test() {
     assert_eq!(result, true);
     // outside
     let mat = Mat34f::new(
-        1.44084, 4.81496, -0.0373597, -0.11, 
-        1.65605, -2.58742, -0.655296, -7.14, 
+        1.44084, 4.81496, -0.0373597, -0.11,
+        1.65605, -2.58742, -0.655296, -7.14,
         -1.41194, 1.87878, -0.806716, -1.55
     );
     let p = vec3f(-7.98, 0.31, -7.8);
@@ -2472,8 +2478,8 @@ fn point_inside_obb_test() {
     // 4x4
     // inside
     let mat = Mat4f::new(
-        -2.10233, -0.747065, 0.887925, -3.2, 
-        0.964173, -2.97305, -0.208202, 3.48, 
+        -2.10233, -0.747065, 0.887925, -3.2,
+        0.964173, -2.97305, -0.208202, 3.48,
         7.7732, 0.166721, 0.265972, -0.21,
         0.0, 0.0, 0.0, 1.0
     );
@@ -2482,8 +2488,8 @@ fn point_inside_obb_test() {
     assert_eq!(result, true);
     // outside
     let mat = Mat4f::new(
-        1.44084, 4.81496, -0.0373597, -0.11, 
-        1.65605, -2.58742, -0.655296, -7.14, 
+        1.44084, 4.81496, -0.0373597, -0.11,
+        1.65605, -2.58742, -0.655296, -7.14,
         -1.41194, 1.87878, -0.806716, -1.55,
         0.0, 0.0, 0.0, 1.0
     );
@@ -2495,9 +2501,9 @@ fn point_inside_obb_test() {
 #[test]
 fn point_inside_frustum_test() {
     let planes = Mat4f::new(
-		0.85501, 1.45179e-08, 0.467094, 0.0, 
-		0.39811, 1.52002, -0.728735, 0.0, 
-		0.420904, -0.479617, -0.770459, 60.004, 
+		0.85501, 1.45179e-08, 0.467094, 0.0,
+		0.39811, 1.52002, -0.728735, 0.0,
+		0.420904, -0.479617, -0.770459, 60.004,
 		0.420736, -0.479426, -0.770151, 60.0
     ).get_frustum_planes();
 
@@ -3017,7 +3023,7 @@ fn line_vs_plane_test() {
     if let Some(result) = result {
         assert_eq!(approx(result, vec3f(15.925, 4.41882, -17.4797), 0.001), true);
     }
-    
+
     // this will not intersect
     let x = vec3f(0.0, 0.0, 0.0);
     let n = vec3f(1.0, 0.0, 0.0);
@@ -3049,7 +3055,7 @@ fn ray_vs_plane_test() {
     if let Some(result) = result {
         assert_eq!(approx(result, vec3f(15.925, 4.41882, -17.4797), 0.001), true);
     }
-    
+
     // no intersect
     let x = vec3f(0.0, 0.0, 0.0);
     let n = vec3f(1.0, 0.0, 0.0);
@@ -3168,7 +3174,7 @@ fn aabb_vs_aabb_test() {
 #[test]
 fn convex_hull() {
     //  0   1   2   3   4   5   6   7
-    //  -   -   -   x   -   -   -   -          
+    //  -   -   -   x   -   -   -   -
     //  a   x   0       0   x       y
     //          0   0   0   0
     //  x       0   0       0       x
@@ -3232,7 +3238,7 @@ fn convex_hull() {
     let p = vec2f(7.0, 1.0);
     let seg = closest_point_on_line_segment(p, vec2f(5.0, 1.0), vec2f(7.0, 3.0));
     assert_eq!(closest_point_on_convex_hull(p, &hull), closest_point_on_line_segment(p, vec2f(5.0, 1.0), vec2f(7.0, 3.0)));
-    
+
     let p = vec2f(7.0, 1.0);
     assert_eq!(point_convex_hull_distance(p, &hull), dist(p, seg));
 
@@ -3241,7 +3247,7 @@ fn convex_hull() {
 #[test]
 fn polygon() {
     //   0   1   2   3   4   5   6   7
-    //0  -   -   -   x   -   -   -   -          
+    //0  -   -   -   x   -   -   -   -
     //1  a   x   0       0   x       y
     //2          0   0   0   0
     //3  x       0   0       0       x
@@ -3364,8 +3370,8 @@ fn ray_vs_triangle_test() {
 fn ray_vs_obb_test() {
     // 3x4 hit
     let mat = Mat34f::new(
-        -4.29814, -0.134092, 4.26139, 4.39, 
-        2.24637, -0.347541, 8.13622, -1.33, 
+        -4.29814, -0.134092, 4.26139, 4.39,
+        2.24637, -0.347541, 8.13622, -1.33,
         0.0485004, 4.21357, 0.806702, -8.81
     );
     let r1 = vec3f(6.85, -0.81, -6.19);
@@ -3375,9 +3381,9 @@ fn ray_vs_obb_test() {
 
     // 3x4 hit
     let mat = Mat34f::new(
-        -1.62582, -3.23365, 1.34286, 7.29, 
-        -0.884833, 5.89037, 0.796295, -0.45, 
-        -0.613404, 0.0739455, -4.70789, 0.82, 
+        -1.62582, -3.23365, 1.34286, 7.29,
+        -0.884833, 5.89037, 0.796295, -0.45,
+        -0.613404, 0.0739455, -4.70789, 0.82,
     );
     let r1 = vec3f(0.13, -5.59, -2.19);
     let rv = vec3f(0.783562, 0.178533, 0.595111);
@@ -3457,9 +3463,9 @@ fn ray_vs_sphere_test() {
 #[test]
 fn sphere_vs_frustum_test() {
     let planes = Mat4f::new(
-		0.85501, 1.45179e-08, 0.467094, 0.0, 
-		0.39811, 1.52002, -0.728735, 0.0, 
-		0.420904, -0.479617, -0.770459, 60.004, 
+		0.85501, 1.45179e-08, 0.467094, 0.0,
+		0.39811, 1.52002, -0.728735, 0.0,
+		0.420904, -0.479617, -0.770459, 60.004,
 		0.420736, -0.479426, -0.770151, 60.0
     ).get_frustum_planes();
 
@@ -3489,9 +3495,9 @@ fn sphere_vs_frustum_test() {
 #[test]
 fn aabb_vs_frustum_test() {
     let planes = Mat4f::new(
-		0.85501, 1.45179e-08, 0.467094, 0.0, 
-		0.39811, 1.52002, -0.728735, 0.0, 
-		0.420904, -0.479617, -0.770459, 60.004, 
+		0.85501, 1.45179e-08, 0.467094, 0.0,
+		0.39811, 1.52002, -0.728735, 0.0,
+		0.420904, -0.479617, -0.770459, 60.004,
 		0.420736, -0.479426, -0.770151, 60.0
     ).get_frustum_planes();
 
@@ -3741,7 +3747,7 @@ fn morton() {
 
     let all = 0b11111111;
     assert_eq!(morton_1(all), 0b1111);
-    
+
     //     0    1  |  2    3  |  4    5  |  6    7
     // --------------------------------------------
     // 0|  0    1  |  4    5  |  16   17 |  20   21
@@ -3768,14 +3774,14 @@ fn morton() {
     assert_eq!(morton_to_xy(26), (4, 3));
     assert_eq!(morton_to_xy(40), (0, 6));
 
-    //     0    1  |  2    3 
+    //     0    1  |  2    3
     // -----------------------------
     //      4    5  |  12   13
     //      6    7  |  14   15
     //     \         \
     //   z  \          \
-    //       |  0    1  |  8    9  |  
-    //       |  2    3  |  10   11 | 
+    //       |  0    1  |  8    9  |
+    //       |  2    3  |  10   11 |
 
     assert_eq!(morton_xyz(0, 0, 0), 0);
     assert_eq!(morton_xyz(1, 0, 0), 1);
@@ -3787,11 +3793,11 @@ fn morton() {
     assert_eq!(morton_xyz(1, 1, 1), 7);
     assert_eq!(morton_xyz(2, 0, 0), 8);
     assert_eq!(morton_xyz(3, 0, 0), 9);
-    assert_eq!(morton_xyz(2, 1, 0), 10); 
+    assert_eq!(morton_xyz(2, 1, 0), 10);
     assert_eq!(morton_xyz(3, 1, 0), 11);
     assert_eq!(morton_xyz(2, 0, 1), 12);
     assert_eq!(morton_xyz(3, 0, 1), 13);
-    assert_eq!(morton_xyz(2, 1, 1), 14); 
+    assert_eq!(morton_xyz(2, 1, 1), 14);
     assert_eq!(morton_xyz(3, 1, 1), 15);
     assert_eq!(morton_xyz(0, 2, 0), 16);
     assert_eq!(morton_xyz(1, 2, 0), 17);
@@ -4681,7 +4687,7 @@ fn shortest_line_segment_between_line_segments_test() {
         let l01 = vec3f(7.290001, 0.000000, -1.600000);
         let l10 = vec3f(1.690000, 0.000000, 7.090000);
         let l11 = vec3f(1.570000, 0.000000, 5.600000);
-        
+
         let has = shortest_line_segment_between_line_segments(l00, l01, l10, l11);
         assert_eq!(has.is_some(), true);
         if let Some((r0, r1)) = has {
