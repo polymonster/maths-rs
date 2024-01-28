@@ -44,6 +44,7 @@ macro_rules! mat_impl {
         $ColVecN:ident { $($col_field:ident, $col_field_index:expr),* } ) => {
 
         #[cfg_attr(feature="serde", derive(serde::Serialize, serde::Deserialize))]
+        #[cfg_attr(feature="hash", derive(Hash))]
         #[derive(Debug, Copy, Clone)]
         #[repr(C)]
         pub struct $MatN<T> {

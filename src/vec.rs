@@ -209,6 +209,7 @@ macro_rules! vec_impl {
     ($VecN:ident { $($field:ident, $field_index:expr),* }, $len:expr, $module:ident) => {
 
         #[cfg_attr(feature="serde", derive(serde::Serialize, serde::Deserialize))]
+        #[cfg_attr(feature="hash", derive(Hash))]
         #[derive(Debug, Copy, Clone)]
         #[repr(C)]
         pub struct $VecN<T> {

@@ -6090,3 +6090,30 @@ fn test_serde() {
     assert_eq!("{\"x\":1.0,\"y\":1.0,\"z\":1.0,\"w\":1.0}", serde_v);
     assert_eq!("{\"x\":0.0,\"y\":0.0,\"z\":0.0,\"w\":1.0}", serde_q);
 }
+
+#[cfg(feature = "hash")]
+#[test]
+fn test_hash() {
+    use std::collections::HashMap;
+
+    // integer vector
+    let vi = vec2i(5, 10);
+    let mut vmap = HashMap::new();
+    vmap.insert(
+        vi,
+        "vec2i(5, 10)".to_string()
+    );
+    assert_eq!("vec2i(5, 10)", vmap[&vi]);
+
+    // integer matrix
+    let mi = Mat2::<i32>::from((
+        vec2i(6, 11),
+        vec2i(7, 12),
+    ));
+    let mut mmap = HashMap::new();
+    mmap.insert(
+        mi,
+        "[vec2i(6, 11), vec2i(7, 12)]".to_string()
+    );
+    assert_eq!("[vec2i(6, 11), vec2i(7, 12)]", mmap[&mi]);
+}
