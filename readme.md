@@ -236,7 +236,7 @@ let vn = nlerp(vec2, vec2, 0.3);
 let f = smoothstep(5.0, 1.0, f);
 ```
 
-## Trigenometry and Logarithmic Functions
+## Trigonometry and Logarithmic Functions
 
 These functions are availble for all floating point scalar or vector types: `cos, sin, tan, acos, asin, atan, cosh, sinh, tanh, sin_cos, atan2, exp, exp2, log2, log10`.
 
