@@ -105,8 +105,10 @@ pub trait VecFloatOps<T: Float>: SignedVecN<T> + Magnitude<T> {
     fn refract(i: Self, n: Self, eta: T) -> Self;
     /// returns linear interpolation between `e0` and `e1`, `t` specifies the ratio to interpolate between the values, with component-wise `t`
     fn vlerp(e0: Self, e1: Self, t: Self) -> Self;
-    /// returns vector with component wise hermite interpolation between `0-1`, with component-wise `t`
+    /// returns vector with component wise cubic hermite interpolation between `0-1`, with component-wise `t`
     fn vsmoothstep(e0: Self, e1: Self, t: Self) -> Self;
+    /// returns vector with component wise quintic hermite interpolation between `0-1`, with component-wise `t`
+    fn vsmootherstep(e0: Self, e1: Self, t: Self) -> Self;
     /// returns vector `a` raised to component wise power `exp`
     fn powfn(a: Self, exp: Self) -> Self;
 }
@@ -479,6 +481,12 @@ macro_rules! vec_impl {
                 }
             }
 
+            fn vsmootherstep(e0: Self, e1: Self, t: Self) -> Self {
+                Self {
+                    $($field: T::smootherstep(e0.$field, e1.$field, t.$field),)+
+                }
+            }
+
             fn powfn(a: Self, exp: Self) -> Self {
                 Self {
                     $($field: T::powf(a.$field, exp.$field),)+
@@ -662,6 +670,12 @@ macro_rules! vec_impl {
             fn smoothstep(e0: Self, e1: Self, t: T) -> Self {
                 Self {
                     $($field: T::smoothstep(e0.$field, e1.$field, t),)+
+                }
+            }
+
+            fn smootherstep(e0: Self, e1: Self, t: T) -> Self {
+                Self {
+                    $($field: T::smootherstep(e0.$field, e1.$field, t),)+
                 }
             }
 
