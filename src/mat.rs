@@ -1702,6 +1702,20 @@ impl<T> MatTranspose<T, Mat34<T>> for Mat43<T> where T: Number {
     }
 }
 
+pub trait MatAdjugate<T> {
+    fn adjugate(&self) -> Self;
+}
+
+impl<T> MatAdjugate<T> for Mat2<T> where T: SignedNumber {
+    fn adjugate(&self) -> Self {
+        // 2x2 is a simple hardcoded case
+        Mat2::from((
+             self.m[3], -self.m[1],
+            -self.m[2],  self.m[0]
+        ))
+    }
+}
+
 /// trait for 4x4 projection matrices
 pub trait MatProjection<T> {
     /// returns 6 frustum planes as `Vec4`'s in the form `.xyz = normal, .w = plane distance`

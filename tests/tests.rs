@@ -6117,3 +6117,24 @@ fn test_hash() {
     );
     assert_eq!("[vec2i(6, 11), vec2i(7, 12)]", mmap[&mi]);
 }
+
+#[test]
+fn test_adjugate() {
+    let m = Mat2::from((
+        2, 3,
+        1, 4
+    ));
+    assert_eq!(m.adjugate(), Mat2::from((
+        4, -3,
+        -1, 2
+    )));
+
+    let m = Mat2::from((
+        3, 6,
+        -4, 8
+    ));
+    assert_eq!(m.adjugate(), Mat2::from((
+        8, -6,
+        4, 3
+    )));
+}
