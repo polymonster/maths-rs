@@ -1716,6 +1716,34 @@ impl<T> MatAdjugate<T> for Mat2<T> where T: SignedNumber {
     }
 }
 
+impl<T> MatAdjugate<T> for Mat3<T> where T: SignedNumber {
+    fn adjugate(&self) -> Self {
+        let mut output = Mat3::zero();
+        for j in 0..3 {
+            for i in 0..3 {
+                // gather minor matrix
+                let mut mm = Mat2::zero();
+                let mut pos = 0;
+                for l in 0..3 {
+                    for k in 0..3 {
+                        if l != j && k != i {
+                            let sign = if (k+l & 1) == 1 {
+                                T::minus_one()
+                            } else {
+                                T::one()
+                            };
+                            mm.m[pos] = self.at(k, l) * sign;
+                            pos = pos + 1;
+                        }
+                    }
+                }
+                output.set(i, j, mm.determinant());
+            }
+        }
+        output.transpose()
+    }
+}
+
 /// trait for 4x4 projection matrices
 pub trait MatProjection<T> {
     /// returns 6 frustum planes as `Vec4`'s in the form `.xyz = normal, .w = plane distance`

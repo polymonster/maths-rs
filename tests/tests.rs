@@ -6137,4 +6137,26 @@ fn test_adjugate() {
         8, -6,
         4, 3
     )));
+
+    let m = Mat3::from((
+        1, -1, 2,
+        2, 3, 5,
+        1, 0, 3
+    ));
+    assert_eq!(m.adjugate(), Mat3::from((
+        9, 3, -11,
+        -1, 1, -1,
+        -3, -1, 5
+    )));
+
+    let m = Mat3::from((
+        0, 1, 1,
+        1, 0, 1,
+        1, 1, 0
+    ));
+    assert_eq!(m.adjugate(), Mat3::from((
+        -1,  1,  1,
+         1, -1,  1,
+         1,  1, -1
+    )));
 }
