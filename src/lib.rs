@@ -202,9 +202,14 @@ pub fn slerp<T: Float + NumberOps<T> + FloatOps<T>, V: Slerp<T>>(e0: V, e1: V, t
     V::slerp(e0, e1, t)
 }
 
-/// returns the hermite interpolated value between edge `e0` and `e1` by percentage `t`
+/// returns the cubic hermite interpolated value between edge `e0` and `e1` by percentage `t`
 pub fn smoothstep<T: Float, V: FloatOps<T>>(e0: V, e1: V, t: T) -> V {
     V::smoothstep(e0, e1, t)
+}
+
+/// returns the quintic hermite interpolated value between edge `e0` and `e1` by percentage `t`
+pub fn smootherstep<T: Float, V: FloatOps<T>>(e0: V, e1: V, t: T) -> V {
+    V::smootherstep(e0, e1, t)
 }
 
 /// returns the saturated value of `x` into to the 0-1 range, this is the same as `clamp(x, 0.0, 1.0)`
