@@ -1702,6 +1702,8 @@ impl<T> MatTranspose<T, Mat34<T>> for Mat43<T> where T: Number {
     }
 }
 
+/// trait for the minor of a matrix
+/// the minor is the determinant of the matrix without the given row and column
 pub trait MatMinor<T, Other> {
     fn minor(&self, row: u32, column: u32) -> T;
 }
@@ -1748,6 +1750,8 @@ impl<T> MatMinor<T, Mat3<T>> for Mat4<T> where T: Number {
     }
 }
 
+/// trait for the cofactor of a matrix
+/// the cofactor is the minor with an alternating sign, multiplied by (-1)^(row+column)
 pub trait MatCofactor<T, Other> {
     fn cofactor(&self, row: u32, column: u32) -> T;
 }
@@ -1773,17 +1777,22 @@ impl<T> MatCofactor<T, T> for Mat4<T> where T: SignedNumber {
     }
 }
 
+/// trait for the adjugate of a matrix
+/// the adjugate is the transpose of the cofactor matrix
+/// the cofactor matrix is the matrix where each element is replaced by its cofactor
 pub trait MatAdjugate<T> {
     fn adjugate(&self) -> Self;
 }
 
 impl<T> MatAdjugate<T> for Mat2<T> where T: SignedNumber {
     fn adjugate(&self) -> Self {
-        // 2x2 is a simple hardcoded case
-        Mat2::from((
-             self.m[3], -self.m[1],
-            -self.m[2],  self.m[0]
-        ))
+        let mut output = Mat2::zero();
+        output.set(0, 0, self.cofactor(0, 0));
+        output.set(0, 1, self.cofactor(1, 0));
+        output.set(1, 0, self.cofactor(0, 1));
+        output.set(1, 1, self.cofactor(1, 1));
+        
+        output
     }
 }
 
@@ -1792,54 +1801,23 @@ impl<T> MatAdjugate<T> for Mat3<T> where T: SignedNumber {
         let mut output = Mat3::zero();
         for j in 0..3 {
             for i in 0..3 {
-                // gather minor matrix
-                let mut mm = Mat2::zero();
-                let mut pos = 0;
-                for l in 0..3 {
-                    for k in 0..3 {
-                        if l != j && k != i {
-                            let sign = if (k+l & 1) == 1 {
-                                T::minus_one()
-                            } else {
-                                T::one()
-                            };
-                            mm.m[pos] = self.at(k, l) * sign;
-                            pos = pos + 1;
-                        }
-                    }
-                }
-                output.set(i, j, mm.determinant());
+                output.set(i, j, self.cofactor(i, j));
             }
         }
+        
         output.transpose()
     }
 }
-
 
 impl<T> MatAdjugate<T> for Mat4<T> where T: SignedNumber {
     fn adjugate(&self) -> Self {
         let mut output = Mat4::zero();
         for j in 0..4 {
             for i in 0..4 {
-                // gather minor matrix
-                let mut mm = Mat3::zero();
-                let mut pos = 0;
-                for l in 0..4 {
-                    for k in 0..4 {
-                        if l != j && k != i {
-                            let sign = if (k+l & 1) == 1 {
-                                T::minus_one()
-                            } else {
-                                T::one()
-                            };
-                            mm.m[pos] = self.at(k, l) * sign;
-                            pos = pos + 1;
-                        }
-                    }
-                }
-                output.set(i, j, mm.determinant());
+                output.set(i, j, self.cofactor(i, j));
             }
         }
+        
         output.transpose()
     }
 }
