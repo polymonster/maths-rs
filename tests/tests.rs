@@ -6173,3 +6173,83 @@ fn test_adjugate() {
          123,  75,  -228, -27
     )));
 }
+
+#[test]
+fn test_minor() {
+    let m = Mat2::from((
+        2, 3,
+        1, 4
+    ));
+    
+    assert_eq!(m.minor(0, 0), 4);
+    assert_eq!(m.minor(0, 1), 1);
+    assert_eq!(m.minor(1, 0), 3);
+    assert_eq!(m.minor(1, 1), 2);
+    
+    let m = Mat3::from((
+        1, -1, 2,
+        2, 3, 5,
+        1, 0, 3
+    ));
+    
+    assert_eq!(m.minor(0, 0), Mat2::new(3, 5,0, 3).determinant());
+    assert_eq!(m.minor(0, 1), Mat2::new(2, 5,1, 3).determinant());
+    assert_eq!(m.minor(0, 2), Mat2::new(2, 3,1, 0).determinant());
+    assert_eq!(m.minor(1, 0), Mat2::new(-1, 2,0, 3).determinant());
+    assert_eq!(m.minor(1, 1), Mat2::new(1, 2,1, 3).determinant());
+    assert_eq!(m.minor(1, 2), Mat2::new(1, -1,1, 0).determinant());
+    assert_eq!(m.minor(2, 0), Mat2::new(-1, 2,3, 5).determinant());
+    assert_eq!(m.minor(2, 1), Mat2::new(1, 2,2, 5).determinant());
+    assert_eq!(m.minor(2, 2), Mat2::new(1, -1,2, 3).determinant());
+    
+    let m = Mat4::from((
+        1, 3, -1, 2,
+        5, -6, 7, 0,
+        1, 0, 2, 9,
+        10, -3, -2, 1
+    ));
+    
+    assert_eq!(m.minor(0, 0), Mat3::new(-6, 7, 0, 0, 2, 9, -3, -2, 1).determinant());
+    assert_eq!(m.minor(0, 1), Mat3::new(5, 7, 0, 1, 2, 9, 10, -2, 1).determinant());
+    assert_eq!(m.minor(0, 2), Mat3::new(5, -6, 0, 1, 0, 9, 10, -3, 1).determinant());
+    assert_eq!(m.minor(0, 3), Mat3::new(5, -6, 7, 1, 0, 2, 10, -3, -2).determinant());
+    assert_eq!(m.minor(1, 0), Mat3::new(3, -1, 2, 0, 2, 9, -3, -2, 1).determinant());
+    assert_eq!(m.minor(1, 1), Mat3::new(1, -1, 2, 1, 2, 9, 10, -2, 1).determinant());
+    assert_eq!(m.minor(1, 2), Mat3::new(1, 3, 2, 1, 0, 9, 10, -3, 1).determinant());
+    assert_eq!(m.minor(1, 3), Mat3::new(1, 3, -1, 1, 0, 2, 10, -3, -2).determinant());
+    assert_eq!(m.minor(2, 0), Mat3::new(3, -1, 2, -6, 7, 0, -3, -2, 1).determinant());
+    assert_eq!(m.minor(2, 1), Mat3::new(1, -1, 2, 5, 7, 0, 10, -2, 1).determinant());
+    assert_eq!(m.minor(2, 2), Mat3::new(1, 3, 2, 5, -6, 0, 10, -3, 1).determinant());
+    assert_eq!(m.minor(2, 3), Mat3::new(1, 3, -1, 5, -6, 7, 10, -3, -2).determinant());
+    assert_eq!(m.minor(3, 0), Mat3::new(3, -1, 2, -6, 7, 0, 0, 2, 9).determinant());
+    assert_eq!(m.minor(3, 1), Mat3::new(1, -1, 2, 5, 7, 0, 1, 2, 9).determinant());
+    assert_eq!(m.minor(3, 2), Mat3::new(1, 3, 2, 5, -6, 0, 1, 0, 9).determinant());
+    assert_eq!(m.minor(3, 3), Mat3::new(1, 3, -1, 5, -6, 7, 1, 0, 2).determinant());
+}
+
+#[test]
+fn test_cofactor() {
+    let m = Mat4::from((
+        1, 3, -1, 2,
+        5, -6, 7, 0,
+        1, 0, 2, 9,
+        10, -3, -2, 1
+    ));
+
+    assert_eq!(m.cofactor(0, 0), Mat3::new(-6, 7, 0, 0, 2, 9, -3, -2, 1).determinant());
+    assert_eq!(m.cofactor(0, 1), -Mat3::new(5, 7, 0, 1, 2, 9, 10, -2, 1).determinant());
+    assert_eq!(m.cofactor(0, 2), Mat3::new(5, -6, 0, 1, 0, 9, 10, -3, 1).determinant());
+    assert_eq!(m.cofactor(0, 3), -Mat3::new(5, -6, 7, 1, 0, 2, 10, -3, -2).determinant());
+    assert_eq!(m.cofactor(1, 0), -Mat3::new(3, -1, 2, 0, 2, 9, -3, -2, 1).determinant());
+    assert_eq!(m.cofactor(1, 1), Mat3::new(1, -1, 2, 1, 2, 9, 10, -2, 1).determinant());
+    assert_eq!(m.cofactor(1, 2), -Mat3::new(1, 3, 2, 1, 0, 9, 10, -3, 1).determinant());
+    assert_eq!(m.cofactor(1, 3), Mat3::new(1, 3, -1, 1, 0, 2, 10, -3, -2).determinant());
+    assert_eq!(m.cofactor(2, 0), Mat3::new(3, -1, 2, -6, 7, 0, -3, -2, 1).determinant());
+    assert_eq!(m.cofactor(2, 1), -Mat3::new(1, -1, 2, 5, 7, 0, 10, -2, 1).determinant());
+    assert_eq!(m.cofactor(2, 2), Mat3::new(1, 3, 2, 5, -6, 0, 10, -3, 1).determinant());
+    assert_eq!(m.cofactor(2, 3), -Mat3::new(1, 3, -1, 5, -6, 7, 10, -3, -2).determinant());
+    assert_eq!(m.cofactor(3, 0), -Mat3::new(3, -1, 2, -6, 7, 0, 0, 2, 9).determinant());
+    assert_eq!(m.cofactor(3, 1), Mat3::new(1, -1, 2, 5, 7, 0, 1, 2, 9).determinant());
+    assert_eq!(m.cofactor(3, 2), -Mat3::new(1, 3, 2, 5, -6, 0, 1, 0, 9).determinant());
+    assert_eq!(m.cofactor(3, 3), Mat3::new(1, 3, -1, 5, -6, 7, 1, 0, 2).determinant());
+}

@@ -78,14 +78,14 @@ impl<T> Quat<T> where T: Float + FloatOps<T> + SignedNumberOps<T> {
     pub fn from_matrix(m: Mat3<T>) -> Self {
         // https://math.stackexchange.com/questions/893984/conversion-of-rotation-matrix-to-quaternion
         let m00 = m.m[0];
-        let m01 = m.m[4];
-        let m02 = m.m[8];
+        let m01 = m.m[3];
+        let m02 = m.m[6];
         let m10 = m.m[1];
-        let m11 = m.m[5];
-        let m12 = m.m[9];
+        let m11 = m.m[4];
+        let m12 = m.m[7];
         let m20 = m.m[2];
-        let m21 = m.m[6];
-        let m22 = m.m[10];
+        let m21 = m.m[5];
+        let m22 = m.m[8];
 
         let t = T::zero();
         let t0 = T::zero();
