@@ -135,8 +135,10 @@ pub trait FloatOps<T: Float>: Lerp<T> where Self: Sized {
     fn ceil(a: Self) -> Self;
     /// returns value `a` with the same sign as the second parameter `sign`
     fn copysign(a: Self, sign: T) -> Self;
-    /// returns hermite interpolation between `0-1` of `t` between edges `e0` and `e1`
+    /// returns cubic hermite interpolation between `0-1` of `t` between edges `e0` and `e1`
     fn smoothstep(e0: Self, e1: Self, t: T) -> Self;
+    /// returns quintic hermite interpolation between `0-1` of `t` between edges `e0` and `e1`
+    fn smootherstep(e0: Self, e1: Self, t: T) -> Self;
     /// returns `a` rounded component wise
     fn round(a: Self) -> Self;
     /// returns true if `a` is not a number (`nan`)
@@ -459,6 +461,13 @@ macro_rules! float_impl {
                 if (t >= e1) { return Self::one(); }
                 let x = (t - e0) / (e1 - e0);
                 x * x * (3 as Self - 2 as Self * x)
+            }
+
+            fn smootherstep(e0: Self, e1: Self, t: Self) -> Self {
+                if t < e0 { return Self::zero(); }
+                if (t >= e1) { return Self::one(); }
+                let x = (t - e0) / (e1 - e0);
+                x * x * x * (3 as Self * x * (2 as Self * x - 5 as Self) + 10 as Self)
             }
 
             fn saturate(v: Self) -> Self {
