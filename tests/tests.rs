@@ -777,7 +777,7 @@ fn splat() {
 }
 
 #[test]
-fn length() {
+fn length_mag() {
     let v3 = vec3f(1.0, 2.0, 3.0);
     let sq = (14.0_f32).sqrt();
     assert_eq!(Vec3f::length(v3), sq);
@@ -891,10 +891,28 @@ fn exp_log() {
 
 #[test]
 fn reflect_refract() {
-    let v3 = vec3f(0.5, -0.5, 0.0);
-    let normal = vec3f(0.0, 1.0, 0.0);
-    let refl = Vec3f::reflect(v3, normal);
-    assert_eq!(refl, vec3f(0.0, 1.25, 0.0));
+    // 45 degree bounce off horizontal surface: i - 2 * n * dot(i, n)
+    let i = vec3f(1.0, -1.0, 0.0);
+    let n = vec3f(0.0, 1.0, 0.0);
+    let refl = Vec3f::reflect(i, n);
+    assert_eq!(refl, vec3f(1.0, 1.0, 0.0));
+
+    // head-on hit bounces straight back
+    let i2 = vec3f(0.0, -1.0, 0.0);
+    let refl2 = Vec3f::reflect(i2, n);
+    assert_eq!(refl2, vec3f(0.0, 1.0, 0.0));
+
+    // 2d reflect
+    let i2d = vec2f(1.0, -1.0);
+    let n2d = vec2f(0.0, 1.0);
+    let refl2d = Vec2f::reflect(i2d, n2d);
+    assert_eq!(refl2d, vec2f(1.0, 1.0));
+
+    // glancing angle off a vertical wall
+    let i3 = vec3f(1.0, -0.1, 0.0);
+    let n3 = vec3f(-1.0, 0.0, 0.0);
+    let refl3 = Vec3f::reflect(i3, n3);
+    assert_eq!(approx(refl3, vec3f(-1.0, -0.1, 0.0), 0.001), true);
 }
 
 #[test]
@@ -2026,6 +2044,46 @@ fn quat() {
     // ref * ref
     let euler_mul = euler_22z_ref * euler_22z_ref;
     assert_eq!(approx(Vec3f::from(Quatf::to_euler_angles(euler_45z)), Vec3f::from(Quatf::to_euler_angles(euler_mul)), 0.1), true);
+
+    // slerp
+    let euler_zero = Quatf::from_euler_angles(0.0, 0.0, 0.0);
+    let euler_90x = Quatf::from_euler_angles(f32::pi() / 2.0, 0.0, 0.0);
+    let qslerp = Quatf::slerp(euler_zero, euler_90x, 0.5 as f32);
+    assert_eq!(approx(Vec3f::from(Quatf::to_euler_angles(euler_45x)), Vec3f::from(Quatf::to_euler_angles(qslerp)), 0.1), true);
+
+    // lerp
+    let euler_zero = Quatf::from_euler_angles(0.0, 0.0, 0.0);
+    let euler_90x = Quatf::from_euler_angles(f32::pi() / 2.0, 0.0, 0.0);
+    let qlerp = Quatf::lerp(euler_zero, euler_90x, 0.5 as f32);
+    assert_eq!(approx(Vec3f::from(Quatf::to_euler_angles(euler_45x)), Vec3f::from(Quatf::to_euler_angles(qlerp)), 0.2), true);
+
+    // nlerp
+    let euler_zero = Quatf::from_euler_angles(0.0, 0.0, 0.0);
+    let euler_90x = Quatf::from_euler_angles(f32::pi() / 2.0, 0.0, 0.0);
+    let qnlerp = Quatf::nlerp(euler_zero, euler_90x, 0.5 as f32);
+    assert_eq!(approx(Vec3f::from(Quatf::to_euler_angles(euler_45x)), Vec3f::from(Quatf::to_euler_angles(qnlerp)), 0.1), true);
+
+    // generic free function nlerp / slerp with quats
+    let qnlerp_generic = nlerp(euler_zero, euler_90x, 0.5_f32);
+    assert_eq!(approx(Vec3f::from(Quatf::to_euler_angles(euler_45x)), Vec3f::from(Quatf::to_euler_angles(qnlerp_generic)), 0.1), true);
+    let qslerp_generic = slerp(euler_zero, euler_90x, 0.5_f32);
+    assert_eq!(approx(Vec3f::from(Quatf::to_euler_angles(euler_45x)), Vec3f::from(Quatf::to_euler_angles(qslerp_generic)), 0.1), true);
+
+    // slerp takes the shortest path when quats are in opposite hemispheres
+    // -q represents the same rotation as q, but nlerp blindly blends through the long arc
+    let q_90x_neg = -euler_90x;
+
+    // slerp detects negative dot and flips, still gives ~45 degrees (shortest path)
+    let slerp_negated = Quatf::slerp(euler_zero, q_90x_neg, 0.5);
+    assert_eq!(approx(Vec3f::from(Quatf::to_euler_angles(euler_45x)), Vec3f::from(Quatf::to_euler_angles(slerp_negated)), 0.1), true);
+
+    // nlerp with the normal quat gives ~45 degrees
+    let nlerp_short = Quatf::nlerp(euler_zero, euler_90x, 0.5);
+    assert_eq!(approx(Vec3f::from(Quatf::to_euler_angles(euler_45x)), Vec3f::from(Quatf::to_euler_angles(nlerp_short)), 0.1), true);
+
+    // nlerp with the negated quat takes the long way around - NOT ~45 degrees
+    let nlerp_long = Quatf::nlerp(euler_zero, q_90x_neg, 0.5);
+    assert_eq!(approx(Vec3f::from(Quatf::to_euler_angles(euler_45x)), Vec3f::from(Quatf::to_euler_angles(nlerp_long)), 0.1), false);
 }
 
 #[test]
@@ -2117,6 +2175,31 @@ fn generics() {
     let _n3 = normalize(v3);
     let _d2 = dot(v2, v2);
     let _d3 = dot(v3, v3);
+
+    // quat generics: dot, mag, mag2, length, normalize
+    let q1 = Quatf::from_euler_angles(f32::pi() / 4.0, 0.0, 0.0);
+    let q2 = Quatf::from_euler_angles(0.0, f32::pi() / 4.0, 0.0);
+    let _qd = dot(q1, q2);
+    let _qm = mag(q1);
+    let _qm2 = mag2(q1);
+    let _ql = length(q1);
+    assert_eq!(approx(_qm, 1.0_f32, 0.001), true);
+    assert_eq!(approx(_qm2, 1.0_f32, 0.001), true);
+    assert_eq!(approx(_ql, 1.0_f32, 0.001), true);
+    let _qn = normalize(q1);
+
+    // vec generics: lerp, nlerp, slerp
+    let _vl2 = lerp(v2, v2, 0.5_f32);
+    let _vl3 = lerp(v3, v3, 0.5_f32);
+    let _vn2 = nlerp(normalize(v2), normalize(v2), 0.5_f32);
+    let _vn3 = nlerp(normalize(v3), normalize(v3), 0.5_f32);
+    let _vs2 = slerp(normalize(v2), normalize(v2), 0.5_f32);
+    let _vs3 = slerp(normalize(v3), normalize(v3), 0.5_f32);
+
+    // quat generics: lerp, nlerp, slerp
+    let _ql = lerp(q1, q2, 0.5_f32);
+    let _qn = nlerp(q1, q2, 0.5_f32);
+    let _qs = slerp(q1, q2, 0.5_f32);
 
     assert_eq!(sin(0.0 as f32), f32::sin(0.0));
     assert_eq!(cos(0.0), f64::cos(0.0));

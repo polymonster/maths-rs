@@ -87,24 +87,23 @@ impl<T> Quat<T> where T: Float + FloatOps<T> + SignedNumberOps<T> {
         let m21 = m.m[5];
         let m22 = m.m[8];
 
-        let t = T::zero();
         let t0 = T::zero();
         let t1 = T::one();
 
-        let (x, y, z, w) = if m22 < t0 {
+        let (x, y, z, w, t) = if m22 < t0 {
             if m00 > m11 {
                 let x = t1 + m00 -m11 -m22;
                 let y = m01 + m10;
                 let z = m20 + m02;
                 let w = m12 - m21;
-                (x, y, z, w)
+                (x, y, z, w, x)
             }
             else {
                 let x = m01 + m10;
                 let y = t1 -m00 + m11 -m22;
                 let z = m12 + m21;
                 let w = m20 - m02;
-                (x, y, z, w)
+                (x, y, z, w, y)
 
             }
         }
@@ -113,14 +112,14 @@ impl<T> Quat<T> where T: Float + FloatOps<T> + SignedNumberOps<T> {
             let y = m12+m21;
             let z = t1 -m00 -m11 + m22;
             let w = m01-m10;
-            (x, y, z, w)
+            (x, y, z, w, z)
         }
         else {
             let x = m12-m21;
             let y = m20-m02;
             let z = m01-m10;
             let w = t1 + m00 + m11 + m22;
-            (x, y, z, w)
+            (x, y, z, w, w)
         };
 
         let sq = T::point_five() / T::sqrt(t);
@@ -446,7 +445,7 @@ impl<T> Magnitude<T> for Quat<T> where T: Float + FloatOps<T> {
 }
 
 /// returns a quaternion spherically interpolated between `e0` and `e1` by percentage `t`
-impl<T> Slerp<T> for Quat<T> where T: Float + FloatOps<T> + NumberOps<T> + From<f64> {
+impl<T> Slerp<T> for Quat<T> where T: Float + FloatOps<T> + NumberOps<T> + From<T> {
     fn slerp(e0: Self, e1: Self, t: T) -> Self {
         let q1 = e0;
         // reverse the sign of e1 if q1.q2 < 0.
@@ -458,7 +457,7 @@ impl<T> Slerp<T> for Quat<T> where T: Float + FloatOps<T> + NumberOps<T> + From<
         };
 
         let theta = T::acos(Self::dot(q1, q2));
-        let k_epsilon = T::from(0.000001);
+        let k_epsilon = T::small_epsilon();
         let (m1, m2) = if theta > k_epsilon {
             (
                 T::sin((T::one() - t) * theta) / T::sin(theta),

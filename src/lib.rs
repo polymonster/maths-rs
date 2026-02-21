@@ -22,28 +22,74 @@ use quat::*;
 /// opinionated type abbreviations
 #[cfg(feature = "short_types")]
 pub type Vec2f = Vec2<f32>;
+
+#[cfg(feature = "short_types")]
 pub type Vec3f = Vec3<f32>;
+
+#[cfg(feature = "short_types")]
 pub type Vec4f = Vec4<f32>;
+
+#[cfg(feature = "short_types")]
 pub type Vec2d = Vec2<f64>;
+
+#[cfg(feature = "short_types")]
 pub type Vec3d = Vec3<f64>;
+
+#[cfg(feature = "short_types")]
 pub type Vec4d = Vec4<f64>;
+
+#[cfg(feature = "short_types")]
 pub type Vec2i = Vec2<i32>;
+
+#[cfg(feature = "short_types")]
 pub type Vec3i = Vec3<i32>;
+
+#[cfg(feature = "short_types")]
 pub type Vec4i = Vec4<i32>;
+
+#[cfg(feature = "short_types")]
 pub type Vec2u = Vec2<u32>;
+
+#[cfg(feature = "short_types")]
 pub type Vec3u = Vec3<u32>;
+
+#[cfg(feature = "short_types")]
 pub type Vec4u = Vec4<u32>;
+
+#[cfg(feature = "short_types")]
 pub type Mat2f = Mat2<f32>;
+
+#[cfg(feature = "short_types")]
 pub type Mat3f = Mat3<f32>;
+
+#[cfg(feature = "short_types")]
 pub type Mat34f = Mat34<f32>;
+
+#[cfg(feature = "short_types")]
 pub type Mat43f = Mat43<f32>;
+
+#[cfg(feature = "short_types")]
 pub type Mat4f = Mat4<f32>;
+
+#[cfg(feature = "short_types")]
 pub type Mat2d = Mat2<f64>;
+
+#[cfg(feature = "short_types")]
 pub type Mat3d = Mat3<f64>;
+
+#[cfg(feature = "short_types")]
 pub type Mat34d = Mat34<f64>;
+
+#[cfg(feature = "short_types")]
 pub type Mat43d = Mat43<f64>;
+
+#[cfg(feature = "short_types")]
 pub type Mat4d = Mat4<f64>;
+
+#[cfg(feature = "short_types")]
 pub type Quatf = Quat<f32>;
+
+#[cfg(feature = "short_types")]
 pub type Quatd = Quat<f64>;
 
 /// classification for tests vs planes (behind, infront or intersects)
@@ -188,12 +234,12 @@ pub fn modf<T: Float, V: FloatOps<T>>(v: V) -> (V, V) {
 }
 
 /// returns a value interpolated between edges `e0` and `e1` by percentage `t`
-pub fn lerp<T: Float, V: FloatOps<T>>(e0: V, e1: V, t: T) -> V {
+pub fn lerp<T: Float, V: Lerp<T>>(e0: V, e1: V, t: T) -> V {
     V::lerp(e0, e1, t)
 }
 
 /// returns a value interpolated between edges `e0` and `e1` by percentage `t` with the result being normalised
-pub fn nlerp<T: Float, V: VecFloatOps<T> + Nlerp<T>>(e0: V, e1: V, t: T) -> V {
+pub fn nlerp<T: Float, V: Nlerp<T>>(e0: V, e1: V, t: T) -> V {
     V::nlerp(e0, e1, t)
 }
 
@@ -236,27 +282,27 @@ pub fn perp<T: SignedNumber>(a: Vec2<T>) -> Vec2<T> {
 }
 
 /// returns the vector dot product between `a . b`
-pub fn dot<T: Number, V: VecN<T>>(a: V, b: V) -> T {
+pub fn dot<T: Number, V: Dot<T>>(a: V, b: V) -> T {
     V::dot(a, b)
 }
 
 /// returns the scalar magnitude or length of vector `a`
-pub fn length<T: Float, V: VecFloatOps<T>>(a: V) -> T {
+pub fn length<T: Float, V: Magnitude<T>>(a: V) -> T {
     V::length(a)
 }
 
 /// returns the scalar magnitude or length of vector `a`
-pub fn mag<T: Float, V: VecFloatOps<T>>(a: V) -> T {
+pub fn mag<T: Float, V: Magnitude<T>>(a: V) -> T {
     V::mag(a)
 }
 
 /// returns the scalar magnitude or length of vector `a` squared to avoid using sqrt
-pub fn mag2<T: Float, V: VecFloatOps<T>>(a: V) -> T {
+pub fn mag2<T: Float, V: Magnitude<T>>(a: V) -> T {
     V::mag2(a)
 }
 
 /// returns a normalized unit vector of `a`
-pub fn normalize<T: Float, V: VecFloatOps<T>>(a: V) -> V {
+pub fn normalize<T: Float, V: Magnitude<T>>(a: V) -> V {
     V::normalize(a)
 }
 
@@ -1178,7 +1224,7 @@ pub fn ray_vs_triangle<T: Float>(r0: Vec3<T>, rv: Vec3<T>, t0: Vec3<T>, t1: Vec3
     let edge2 = t2 - t0;
     let h = cross(rv, edge2);
     let a = dot(edge1, h);
-    if a > T::small_epsilon() && a < T::small_epsilon() {
+    if a > -T::small_epsilon() && a < T::small_epsilon() {
         // ray is parallel to the triangle
         None
     }

@@ -452,7 +452,7 @@ macro_rules! vec_impl {
 
             fn reflect(i: Self, n: Self) -> Self {
                 // https://docs.microsoft.com/en-us/windows/win32/direct3dhlsl/dx-graphics-hlsl-reflect
-                (i - T::two()) * n * Self::dot(i, n)
+                i - Self::from(T::two()) * n * Self::dot(i, n)
             }
 
             fn refract(i: Self, n: Self, eta: T) -> Self {
