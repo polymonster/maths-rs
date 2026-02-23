@@ -342,18 +342,27 @@ macro_rules! vec_impl {
             }
 
             fn as_slice(&self) -> &[T] {
+                // SAFETY: The struct is #[repr(C)] with $len fields of the same type T laid out
+                // contiguously. `self.x` is the first field, so the pointer is valid for $len
+                // reads of T and the lifetime is bounded by `&self`.
                 unsafe {
                     std::slice::from_raw_parts(&self.x, $len)
                 }
             }
 
             fn as_mut_slice(&mut self) -> &mut [T] {
+                // SAFETY: The struct is #[repr(C)] with $len fields of the same type T laid out
+                // contiguously. `self.x` is the first field, so the pointer is valid for $len
+                // writes of T. Exclusive access is guaranteed by `&mut self`.
                 unsafe {
                     std::slice::from_raw_parts_mut(&mut self.x, $len)
                 }
             }
 
             fn as_u8_slice(&self) -> &[u8] {
+                // SAFETY: Any initialized memory can be viewed as bytes. The struct is #[repr(C)]
+                // and T: Number ensures all bytes are initialized. The cast to *const u8 is valid
+                // since u8 has alignment 1, and the length is the exact byte size of the struct.
                 unsafe {
                     std::slice::from_raw_parts((&self.x as *const T) as *const u8, std::mem::size_of::<$VecN<T>>())
                 }
@@ -839,7 +848,7 @@ macro_rules! vec_impl {
             fn index(&self, i: usize) -> &Self::Output {
                 match i {
                     $($field_index => &self.$field, )+
-                    _ => &self.x
+                    _ => panic!()
                 }
             }
         }
@@ -848,7 +857,7 @@ macro_rules! vec_impl {
             fn index_mut(&mut self, i: usize) -> &mut T {
                 match i {
                     $($field_index => &mut self.$field, )+
-                    _ => &mut self.x
+                    _ => panic!()
                 }
             }
         }

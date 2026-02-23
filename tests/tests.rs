@@ -80,6 +80,13 @@ fn vec_index() {
 }
 
 #[test]
+#[should_panic]
+fn vec_index_out_of_bounds() {
+    let v = vec4f(1.0, 2.0, 3.0, 4.0);
+    let _ = v[4];
+}
+
+#[test]
 fn equal() {
     let a = Vec2f {
         x: 2.0,

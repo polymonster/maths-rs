@@ -191,6 +191,9 @@ impl<T> Quat<T> where T: Float + FloatOps<T> + SignedNumberOps<T> {
 
     /// returns a slice `T` of the quaternion
     pub fn as_slice(&self) -> &[T] {
+        // SAFETY: The struct is #[repr(C)] with 4 fields of the same type T (x, y, z, w) laid
+        // out contiguously. `self.x` is the first field, so the pointer is valid for 4 reads
+        // of T and the lifetime is bounded by `&self`.
         unsafe {
             std::slice::from_raw_parts(&self.x, 4)
         }
@@ -198,6 +201,9 @@ impl<T> Quat<T> where T: Float + FloatOps<T> + SignedNumberOps<T> {
 
     /// returns a mutable slice `T` of the quaternion
     pub fn as_mut_slice(&mut self) -> &mut [T] {
+        // SAFETY: The struct is #[repr(C)] with 4 fields of the same type T (x, y, z, w) laid
+        // out contiguously. `self.x` is the first field, so the pointer is valid for 4 writes
+        // of T. Exclusive access is guaranteed by `&mut self`.
         unsafe {
             std::slice::from_raw_parts_mut(&mut self.x, 4)
         }
@@ -205,6 +211,9 @@ impl<T> Quat<T> where T: Float + FloatOps<T> + SignedNumberOps<T> {
 
     /// returns a slice of `u8` bytes for the quaternion
     pub fn as_u8_slice(&self) -> &[u8] {
+        // SAFETY: Any initialized memory can be viewed as bytes. The struct is #[repr(C)]
+        // and T: Float ensures all bytes are initialized. The cast to *const u8 is valid
+        // since u8 has alignment 1, and the length is the exact byte size of the struct.
         unsafe {
             std::slice::from_raw_parts((&self.x as *const T) as *const u8, std::mem::size_of::<Quat<T>>())
         }

@@ -22,10 +22,10 @@ Reviewed: 2026-02-21
 - [ ] **I4** `lib.rs:412,587,592,719,724,778,795` — Functions take `&Vec<T>` instead of idiomatic `&[T]`
 - [ ] **I5** `lib.rs:1627` — `exp_sustained_impulse` requires `Ord` on `T`, uncallable with f32/f64
 - [x] **I6** `mat.rs:212` — `set_row` doc uses `//` instead of `///`, missing from rustdoc
-- [ ] **I7** `vec.rs:344-358`, `mat.rs:85-101,234-251`, `quat.rs:185-202` — `unsafe` slice conversions lack `// SAFETY:` comments
-- [ ] **I8** — No `#[must_use]` attributes on pure math functions
+- [x] **I7** `vec.rs:344-358`, `mat.rs:85-101,234-251`, `quat.rs:185-202` — `unsafe` slice conversions lack `// SAFETY:` comments
+- [-] **I8** — No `#[must_use]` attributes on pure math functions (intentional — skipped for now)
 - [x] **I9** `num.rs:196-212,333-345` — `isize` is `Number` but not `SignedNumber`, inconsistent
-- [ ] **I10** `vec.rs:838-844` — Index out of bounds silently returns `x` component instead of panicking
+- [x] **I10** `vec.rs:838-844` — Index out of bounds silently returns `x` component instead of panicking
 
 ## Minor (nice to have)
 

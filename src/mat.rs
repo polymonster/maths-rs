@@ -85,6 +85,9 @@ macro_rules! mat_impl {
         impl<T> Deref for $MatN<T> where T: Number {
             type Target = [T];
             fn deref(&self) -> &Self::Target {
+                // SAFETY: `self.m` is a contiguous array of $elems elements of type T.
+                // The pointer to the first element is valid for $elems reads and the
+                // lifetime is bounded by `&self`.
                 unsafe {
                     std::slice::from_raw_parts(&self.m[0], $elems)
                 }
@@ -94,6 +97,9 @@ macro_rules! mat_impl {
         /// mutably deref matrix as a slice of T
         impl<T> DerefMut for $MatN<T> where T: Number {
             fn deref_mut(&mut self) -> &mut [T] {
+                // SAFETY: `self.m` is a contiguous array of $elems elements of type T.
+                // The pointer to the first element is valid for $elems writes.
+                // Exclusive access is guaranteed by `&mut self`.
                 unsafe {
                     std::slice::from_raw_parts_mut(&mut self.m[0], $elems)
                 }
@@ -231,6 +237,9 @@ macro_rules! mat_impl {
 
             /// returns a slice T of the matrix
             pub fn as_slice(&self) -> &[T] {
+                // SAFETY: `self.m` is a contiguous array of $elems elements of type T.
+                // The pointer to the first element is valid for $elems reads and the
+                // lifetime is bounded by `&self`.
                 unsafe {
                     std::slice::from_raw_parts(&self.m[0], $elems)
                 }
@@ -238,6 +247,9 @@ macro_rules! mat_impl {
 
             /// returns a mutable slice T of the matrix
             pub fn as_mut_slice(&mut self) -> &mut [T] {
+                // SAFETY: `self.m` is a contiguous array of $elems elements of type T.
+                // The pointer to the first element is valid for $elems writes.
+                // Exclusive access is guaranteed by `&mut self`.
                 unsafe {
                     std::slice::from_raw_parts_mut(&mut self.m[0], $elems)
                 }
@@ -245,6 +257,9 @@ macro_rules! mat_impl {
 
             /// returns a slice of bytes for the matrix
             pub fn as_u8_slice(&self) -> &[u8] {
+                // SAFETY: Any initialized memory can be viewed as bytes. T: Number ensures all
+                // bytes are initialized. The cast to *const u8 is valid since u8 has alignment 1,
+                // and the length is the exact byte size of the struct.
                 unsafe {
                     std::slice::from_raw_parts((&self.m[0] as *const T) as *const u8, std::mem::size_of::<$MatN<T>>())
                 }
