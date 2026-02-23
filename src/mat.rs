@@ -300,8 +300,14 @@ macro_rules! mat_cast {
 
 #[cfg(feature = "casts")]
 mat_cast!(Mat2, 4, f32, f64);
+
+#[cfg(feature = "casts")]
 mat_cast!(Mat3, 9, f32, f64);
+
+#[cfg(feature = "casts")]
 mat_cast!(Mat34, 12, f32, f64);
+
+#[cfg(feature = "casts")]
 mat_cast!(Mat4, 16, f32, f64);
 
 //
@@ -320,7 +326,7 @@ impl<T> From<(T, T, T, T)> for Mat2<T> where T: Number {
     }
 }
 
-/// constructs Mat3 from tuple of 2 2D row vectors
+/// constructs Mat2 from tuple of 2 2D row vectors
 impl<T> From<(Vec2<T>, Vec2<T>)> for Mat2<T> where T: Number {
     fn from(other: (Vec2<T>, Vec2<T>)) -> Mat2<T> {
         Mat2 {
@@ -332,7 +338,7 @@ impl<T> From<(Vec2<T>, Vec2<T>)> for Mat2<T> where T: Number {
     }
 }
 
-/// constructs Mat3 from 3x3 matrix truncating the 3rd row and column
+/// constructs Mat2 from 3x3 matrix truncating the 3rd row and column
 impl<T> From<Mat3<T>> for Mat2<T> where T: Number {
     fn from(other: Mat3<T>) -> Mat2<T> {
         Mat2 {
@@ -344,7 +350,7 @@ impl<T> From<Mat3<T>> for Mat2<T> where T: Number {
     }
 }
 
-/// constructs Mat3 from 3x4 matrix truncating the 3rd row and 3rd and 4th column
+/// constructs Mat2 from 3x4 matrix truncating the 3rd row and 3rd and 4th column
 impl<T> From<Mat34<T>> for Mat2<T> where T: Number {
     fn from(other: Mat34<T>) -> Mat2<T> {
         Mat2 {
@@ -356,7 +362,7 @@ impl<T> From<Mat34<T>> for Mat2<T> where T: Number {
     }
 }
 
-/// constructs Mat3 from 3x4 matrix truncating the 3rd and 4th row and 3rd and 4th column
+/// constructs Mat2 from 3x4 matrix truncating the 3rd and 4th row and 3rd and 4th column
 impl<T> From<Mat4<T>> for Mat2<T> where T: Number {
     fn from(other: Mat4<T>) -> Mat2<T> {
         Mat2 {

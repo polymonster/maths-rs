@@ -21,6 +21,7 @@ use crate::dot;
 use crate::cross;
 
 #[cfg_attr(feature="serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature="hash", derive(Hash))]
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 #[repr(C)]
 pub struct Quat<T> {
@@ -50,7 +51,7 @@ impl<T> Quat<T> where T: Float + FloatOps<T> + SignedNumberOps<T> {
         }
     }
 
-    /// construct a quaternion from 3 euler angles `x`, `y` and `z`
+    /// construct a quaternion from 3 euler angles `x`, `y` and `z` in radians
     pub fn from_euler_angles(x: T, y: T, z: T) -> Self {
         let half_z = T::point_five() * z;
         let half_x = T::point_five() * x;
@@ -141,7 +142,7 @@ impl<T> Quat<T> where T: Float + FloatOps<T> + SignedNumberOps<T> {
         }
     }
 
-    /// returns euler angles as tuple `(x, y, z)` from quaternion
+    /// returns euler angles in radians as tuple `(x, y, z)` from quaternion
     pub fn to_euler_angles(self) -> (T, T, T) {
         let t2 = T::two();
         let t1 = T::one();
@@ -219,7 +220,7 @@ impl<T> Quat<T> where T: Float + FloatOps<T> + SignedNumberOps<T> {
         }
     }
 
-    /// returns a quationion which reverses the axis of rotation of self
+    /// returns a quaternion which reverses the axis of rotation of self
     pub fn reverse(self) -> Self {
         Quat {
             x: -self.x,
@@ -498,14 +499,14 @@ impl<T> Slerp<T> for Quat<T> where T: Float + FloatOps<T> + NumberOps<T> + From<
     }
 }
 
-/// returns a quaternion lineraly interpolated between `e0` and `e1` by percentage `t`
+/// returns a quaternion linearly interpolated between `e0` and `e1` by percentage `t`
 impl<T> Lerp<T> for Quat<T> where T: Float + FloatOps<T> + NumberOps<T> {
     fn lerp(e0: Self, e1: Self, t: T) -> Self {
         e0 * (T::one() - t) + e1 * t
     }
 }
 
-/// returns a quaternion lineraly interpolated between `e0` and `e1` by percentage `t` normalising the return value
+/// returns a quaternion linearly interpolated between `e0` and `e1` by percentage `t` normalising the return value
 impl<T> Nlerp<T> for Quat<T> where T: Float + FloatOps<T> + NumberOps<T> {
     fn nlerp(e0: Self, e1: Self, t: T) -> Self {
         Self::normalize(e0 * (T::one() - t) + e1 * t)

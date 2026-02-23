@@ -1,3 +1,22 @@
+//! A linear algebra library for gamedev and graphics.
+//!
+//! # Conventions
+//!
+//! ## Angles
+//! All angles are in **radians** unless the function name explicitly states otherwise.
+//! The exceptions are [`focal_length_to_fov`] and [`fov_to_focal_length`], which
+//! work in degrees to match common camera/lens tooling conventions.
+//!
+//! ## Matrix Layout
+//! Matrices are stored in **row-major** order in memory. The element `m[row * cols + col]`
+//! accesses the element at a given row and column.
+//!
+//! ## Handedness
+//! The library does not enforce a single coordinate system handedness. Functions that
+//! depend on handedness — such as perspective projection — are provided in both variants
+//! and indicate their convention explicitly in the function name (e.g. `_lh_yup` for
+//! left-handed y-up, `_rh_yup` for right-handed y-up).
+
 /// base traits and operations for scalar numbers, signed numbers, integers and floats
 pub mod num;
 
@@ -133,7 +152,7 @@ pub fn signum<T: SignedNumber, V: SignedNumberOps<T>>(a: V) -> V {
     V::signum(a)
 }
 
-/// returns the value `a` with the same sign as second paremeter `sign`
+/// returns the value `a` with the same sign as second parameter `sign`
 pub fn copysign<T: Float, V: FloatOps<T>>(a: V, sign: T) -> V {
     V::copysign(a, sign)
 }
@@ -143,12 +162,12 @@ pub fn abs<T: SignedNumber, V: SignedNumberOps<T>>(a: V) -> V {
     V::abs(a)
 }
 
-/// returns the radian value converted from value `a` which is specificied in degrees
+/// returns the radian value converted from value `a` which is specified in degrees
 pub fn deg_to_rad<T: Float, V: FloatOps<T>>(a: V) -> V {
     V::deg_to_rad(a)
 }
 
-/// returns the degree value converted from value `a` which is specificied in radians
+/// returns the degree value converted from value `a` which is specified in radians
 pub fn rad_to_deg<T: Float, V: FloatOps<T>>(a: V) -> V {
     V::rad_to_deg(a)
 }
@@ -273,7 +292,7 @@ pub fn vector_triple<T: Number + SignedNumber, V: Triple<T>>(a: V, b: V, c: V) -
     V::vector_triple(a, b, c)
 }
 
-/// returns the perpedicular vector of `a` performing anti-clockwise rotation by 90 degrees
+/// returns the perpendicular vector of `a` performing anti-clockwise rotation by 90 degrees
 pub fn perp<T: SignedNumber>(a: Vec2<T>) -> Vec2<T> {
     Vec2 {
         x: -a.y,
@@ -306,7 +325,7 @@ pub fn normalize<T: Float, V: Magnitude<T>>(a: V) -> V {
     V::normalize(a)
 }
 
-/// returns a chebyshevnormalized unit vector of `a` (where the normalization projects onto the unit cube)
+/// returns a Chebyshev normalized unit vector of `a` (where the normalization projects onto the unit cube)
 pub fn chebyshev_normalize<T: Float, V: VecFloatOps<T> + VecN<T> + SignedNumberOps<T>>(a: V) -> V {
     a / V::max_scalar(V::abs(a))
 }
@@ -343,7 +362,7 @@ pub fn barycentric<T: Float + NumberOps<T>, V: VecN<T> + VecFloatOps<T> + Number
     (u, v, w)
 }
 
-/// returns an `xyz` directional unit vector converted from azimuth altitude
+/// returns an `xyz` directional unit vector converted from `azimuth` and `altitude` angles in radians
 pub fn azimuth_altitude_to_xyz<T: Float + FloatOps<T>>(azimuth: T, altitude: T) -> Vec3<T> {
     let z = T::sin(altitude);
     let hyp = T::cos(altitude);
@@ -352,17 +371,17 @@ pub fn azimuth_altitude_to_xyz<T: Float + FloatOps<T>>(azimuth: T, altitude: T) 
     Vec3::<T>::new(x, z, y)
 }
 
-/// returns field of view converted from focal length with the specified aperture_width
+/// returns field of view in degrees converted from focal length with the specified aperture_width
 pub fn focal_length_to_fov<T: Float + FloatOps<T> + Cast<T>>(focal_length: T, aperture_width: T) -> T {
     T::two() * rad_to_deg(atan((aperture_width * T::from_f64(25.4)) / (T::two() * focal_length)))
 }
 
-/// returns focal length converted field of view  with the specified aperture_width
+/// returns focal length converted from field of view `fov` in degrees with the specified aperture_width
 pub fn fov_to_focal_length<T: Float + FloatOps<T> + Cast<T>>(fov: T, aperture_width: T) -> T {
     (aperture_width * T::from_f64(25.4)) / (T::two() * tan(deg_to_rad(fov / T::two())))
 }
 
-/// returns (azimuth, altitude) converted from directional unit vector `xyz`
+/// returns `(azimuth, altitude)` in radians converted from directional unit vector `xyz`
 pub fn xyz_to_azimuth_altitude<T: Float + FloatOps<T>>(xyz: Vec3<T>) -> (T, T) {
     (T::atan2(xyz.y, xyz.x), T::atan2(xyz.z, sqrt(xyz.x * xyz.x + xyz.y * xyz.y)))
 }
@@ -455,7 +474,7 @@ pub fn rotate_2d<T: Float + FloatOps<T>>(v: Vec2<T>, angle: T) -> Vec2<T> {
 }
 
 /// returns a convex hull wound clockwise from point cloud `points`
-pub fn convex_hull_from_points<T: Float + SignedNumberOps<T> + NumberOps<T> + FloatOps<T>>(points: &Vec<Vec2<T>>) -> Vec<Vec2<T>> {
+pub fn convex_hull_from_points<T: Float + SignedNumberOps<T> + NumberOps<T> + FloatOps<T>>(points: &[Vec2<T>]) -> Vec<Vec2<T>> {
     //find right most point
     let mut cur = points[0];
     let mut curi = 0;
@@ -499,7 +518,7 @@ pub fn convex_hull_from_points<T: Float + SignedNumberOps<T> + NumberOps<T> + Fl
     hull
 }
 
-/// returns a plane placked into Vec4 in the form `.xyz = plane normal, .w = plane distance (constanr)` from `x` (point on plane) and `n` (planes normal)
+/// returns a plane packed into Vec4 in the form `.xyz = plane normal, .w = plane distance (constant)` from `x` (point on plane) and `n` (planes normal)
 pub fn plane_from_normal_and_point<T: SignedNumber>(x: Vec3<T>, n: Vec3<T>) -> Vec4<T> {
     Vec4 {
         x: n.x,
@@ -514,7 +533,7 @@ pub fn get_triangle_normal<T: Float, V: VecFloatOps<T> + VecN<T> + Cross<T>>(t1:
     normalize(cross(t2 - t1, t3 - t1))
 }
 
-/// returns the 3D normalized device coordinate of point `p` projected by `view_projection` matrix, perfroming homogenous divide
+/// returns the 3D normalized device coordinate of point `p` projected by `view_projection` matrix, performing homogenous divide
 pub fn project_to_ndc<T: Float>(p: Vec3<T>, view_projection: Mat4<T>) -> Vec3<T> {
     let ndc = view_projection * Vec4::from((p, T::one()));
     Vec3::from(ndc) / ndc.w
@@ -630,12 +649,12 @@ pub fn point_cone_distance<T: Float, V: VecN<T> + SignedVecN<T> + VecFloatOps<T>
 }
 
 /// returns the distance from point `p` to the edge of the convex hull defined by point list 'hull' with clockwise winding
-pub fn point_convex_hull_distance<T: Float + FloatOps<T>>(p: Vec2<T>, hull: &Vec<Vec2<T>>) -> T {
+pub fn point_convex_hull_distance<T: Float + FloatOps<T>>(p: Vec2<T>, hull: &[Vec2<T>]) -> T {
     dist(p, closest_point_on_polygon(p, hull))
 }
 
 /// returns the distance from point `p` to the edge of the polygon defined by point list 'poly'
-pub fn point_polygon_distance<T: Float + FloatOps<T>>(p: Vec2<T>, hull: &Vec<Vec2<T>>) -> T {
+pub fn point_polygon_distance<T: Float + FloatOps<T>>(p: Vec2<T>, hull: &[Vec2<T>]) -> T {
     dist(p, closest_point_on_polygon(p, hull))
 }
 
@@ -676,7 +695,7 @@ pub fn closest_point_on_sphere<T: Float, V: VecFloatOps<T> + VecN<T>>(p: V, s: V
     s + V::normalize(p - s) * r
 }
 
-/// returns the closest point to `p` on the the ray starting at `r0` with diection `rv`
+/// returns the closest point to `p` on the the ray starting at `r0` with direction `rv`
 pub fn closest_point_on_ray<T: Float, V: VecFloatOps<T> + VecN<T>>(p: V, r0: V, rv: V) -> V {
     let v1 = p - r0;
     let t = dot(v1, rv);
@@ -762,12 +781,12 @@ pub fn closest_point_on_cone<T: Float, V: VecN<T> + VecFloatOps<T>>(p: V, cp: V,
 }
 
 /// returns the clostest point to `p` on the edge of the convex hull defined by point list 'hull' with clockwise winding
-pub fn closest_point_on_convex_hull<T: Float + FloatOps<T>>(p: Vec2<T>, hull: &Vec<Vec2<T>>) -> Vec2<T> {
+pub fn closest_point_on_convex_hull<T: Float + FloatOps<T>>(p: Vec2<T>, hull: &[Vec2<T>]) -> Vec2<T> {
     closest_point_on_polygon(p, hull)
 }
 
 /// returns the clostest point to `p` on the edge of the polygon defined by point list `poly`.
-pub fn closest_point_on_polygon<T: Float + FloatOps<T>>(p: Vec2<T>, poly: &Vec<Vec2<T>>) -> Vec2<T> {
+pub fn closest_point_on_polygon<T: Float + FloatOps<T>>(p: Vec2<T>, poly: &[Vec2<T>]) -> Vec2<T> {
     let ncp = poly.len();
     let mut cp = Vec2::max_value();
     let mut cd2 = T::max_value();
@@ -793,7 +812,7 @@ pub fn point_inside_aabb<T: Float, V: VecN<T> + VecFloatOps<T>>(p: V, aabb_min: 
     true
 }
 
-/// returns true if sphere (or cirlcle) with centre `s` and radius `r` contains point `p`
+/// returns true if sphere (or circle) with centre `s` and radius `r` contains point `p`
 pub fn point_inside_sphere<T: Float, V: VecFloatOps<T> + VecN<T>>(p: V, s: V, r: T) -> bool {
     dist2(p, s) < r * r
 }
@@ -821,7 +840,7 @@ pub fn point_inside_cone<T: Float + FloatOps<T> + NumberOps<T>, V: VecN<T> + Vec
 }
 
 /// returns true if the point `p` is inside the 2D convex hull defined by point list `hull` with clockwise winding
-pub fn point_inside_convex_hull<T: Float>(p: Vec2<T>, hull: &Vec<Vec2<T>>) -> bool {
+pub fn point_inside_convex_hull<T: Float>(p: Vec2<T>, hull: &[Vec2<T>]) -> bool {
     let ncp = hull.len();
     for i in 0..ncp {
         let i2 = (i+1)%ncp;
@@ -838,7 +857,7 @@ pub fn point_inside_convex_hull<T: Float>(p: Vec2<T>, hull: &Vec<Vec2<T>>) -> bo
 }
 
 /// returns true if point `p` is inside the polygon defined by point list `poly`
-pub fn point_inside_polygon<T: Float>(p: Vec2<T>, poly: &Vec<Vec2<T>>) -> bool {
+pub fn point_inside_polygon<T: Float>(p: Vec2<T>, poly: &[Vec2<T>]) -> bool {
     // copyright (c) 1970-2003, Wm. Randolph Franklin
     // https://wrf.ecse.rpi.edu/Research/Short_Notes/pnpoly.html
     let npol = poly.len();
@@ -1010,21 +1029,21 @@ pub fn line_segment_vs_plane<T: Float + FloatOps<T> + SignedNumber + SignedNumbe
     }
 }
 
-/// returns true if the sphere or circle at centre `s1` with radius `r1` intsercts `s2-r2`
+/// returns true if the sphere or circle at centre `s1` with radius `r1` intersects `s2-r2`
 pub fn sphere_vs_sphere<T: Float, V: VecN<T> + VecFloatOps<T>>(s1: V, r1: T, s2: V, r2: T) -> bool {
     let d2 = dist2(s1, s2);
     let r22 = r1 + r2;
     d2 < r22 * r22
 }
 
-/// returns true if the sphere or circle at centre `s1` with radius `r1` intsercts capsule `c0-c1` with radius `cr`
+/// returns true if the sphere or circle at centre `s1` with radius `r1` intersects capsule `c0-c1` with radius `cr`
 pub fn sphere_vs_capsule<T: Float + FloatOps<T>, V: VecN<T> + VecFloatOps<T> + FloatOps<T>>(s1: V, r1: T, c0: V, c1: V, cr: T) -> bool {
     let cp = closest_point_on_line_segment(s1, c0, c1);
     let r2 = sqr(r1 + cr);
     dist2(s1, cp) < r2
 }
 
-/// returns ture if the aabb defined by `aabb_min` to `aabb_max` intersects the sphere (or circle) centred at `s` with radius `r`
+/// returns true if the aabb defined by `aabb_min` to `aabb_max` intersects the sphere (or circle) centred at `s` with radius `r`
 pub fn aabb_vs_sphere<T: Float, V: VecN<T> + VecFloatOps<T> + NumberOps<T>>(aabb_min: V, aabb_max: V, s: V, r: T) -> bool {
     let cp = closest_point_on_aabb(s, aabb_min, aabb_max);
     dist2(cp, s) < r * r
@@ -1670,7 +1689,7 @@ pub fn poly_impulse<T: Number + Float + Base<T> + FloatOps<T>>(k: T, x: T, n: T)
 }
 
 /// returns an exponential sustained impulse (y position on a graph for `x`); control on the width of attack with `k` and release with `f`
-pub fn exp_sustained_impulse<T: SignedNumber + Float, X: Base<T> + FloatOps<T> + SignedNumberOps<T> + Ord>(x: X, f: X, k: X) -> X {
+pub fn exp_sustained_impulse<T: SignedNumber + Float, X: Base<T> + FloatOps<T> + SignedNumberOps<T> + NumberOps<T>>(x: X, f: X, k: X) -> X {
     // inigo quilez: https://iquilezles.org/articles/functions/
     let s = X::max(x-f, X::zero());
     X::min(x*x/(f*f), X::one() + (X::two()/f)*s*X::exp(-k*s))
@@ -1973,8 +1992,8 @@ pub fn map_to_range<T: Float, X: Base<T>>(v: X, in_start: X, in_end: X, out_star
 }
 
 /// finds support vertices for gjk based on convex meshses where `convex0` and `convex1` are an array of vertices that form a convex hull
-pub fn gjk_mesh_support_function<T: Float + FloatOps<T> + NumberOps<T> + SignedNumberOps<T>, V: VecN<T> + VecFloatOps<T> + SignedNumberOps<T> + FloatOps<T>> (convex0: &Vec<V>, convex1: &Vec<V>, dir: V) -> V {
-    let furthest_point = |dir: V, vertices: &Vec<V>| -> V {
+pub fn gjk_mesh_support_function<T: Float + FloatOps<T> + NumberOps<T> + SignedNumberOps<T>, V: VecN<T> + VecFloatOps<T> + SignedNumberOps<T> + FloatOps<T>> (convex0: &[V], convex1: &[V], dir: V) -> V {
+    let furthest_point = |dir: V, vertices: &[V]| -> V {
         let mut fd = -T::max_value();
         let mut fv = vertices[0];
         for v in vertices {

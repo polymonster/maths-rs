@@ -6355,3 +6355,53 @@ fn test_cofactor() {
     assert_eq!(m.cofactor(3, 2), -Mat3::new(1, 3, 2, 5, -6, 0, 1, 0, 9).determinant());
     assert_eq!(m.cofactor(3, 3), Mat3::new(1, 3, -1, 5, -6, 7, 1, 0, 2).determinant());
 }
+
+#[test]
+fn graph_funcs() {
+    let eps = 0.0001_f32;
+
+    // almost_identity: x > m passes through unchanged; x=0 returns n; continuous at x=m
+    assert_eq!(almost_identity(2.0_f32, 1.0, 0.5), 2.0);
+    assert!(approx(almost_identity(0.0_f32, 1.0, 0.5), 0.5, eps));
+    assert!(approx(almost_identity(1.0_f32, 1.0, 0.5), 1.0, eps));
+
+    // integral_smoothstep: 0 at x=0; for x>t returns x - t/2
+    assert!(approx(integral_smoothstep(0.0_f32, 1.0), 0.0, eps));
+    assert!(approx(integral_smoothstep(2.0_f32, 1.0), 1.5, eps));
+
+    // exp_impulse: 0 at x=0; peaks at 1.0 when x=1/k
+    assert!(approx(exp_impulse(1.0_f32, 0.0_f32), 0.0, eps));
+    assert!(approx(exp_impulse(1.0_f32, 1.0_f32), 1.0, eps));
+
+    // quad_impulse: 0 at x=0; peaks at 1.0 when x=1/sqrt(k)
+    assert!(approx(quad_impulse(1.0_f32, 0.0), 0.0, eps));
+    assert!(approx(quad_impulse(1.0_f32, 1.0), 1.0, eps));
+
+    // exp_sustained_impulse: 0 at x=0; peaks at 1.0 when x=f
+    assert!(approx(exp_sustained_impulse(0.0_f32, 1.0_f32, 1.0_f32), 0.0, eps));
+    assert!(approx(exp_sustained_impulse(1.0_f32, 1.0_f32, 1.0_f32), 1.0, eps));
+
+    // cubic_pulse: 1.0 at center x=c; 0.0 outside range c±w
+    assert!(approx(cubic_pulse(0.5_f32, 0.5, 0.5), 1.0, eps));
+    assert!(approx(cubic_pulse(0.5_f32, 0.5, 2.0), 0.0, eps));
+
+    // exp_step: 1.0 at x=0; strictly decreasing
+    assert!(approx(exp_step(0.0_f32, 1.0_f32, 1.0_f32), 1.0, eps));
+    assert!(exp_step(1.0_f32, 1.0_f32, 1.0_f32) < 1.0);
+
+    // gain: midpoint x=0.5 always maps to 0.5; k=1 is identity
+    assert!(approx(gain(0.5_f32, 0.7), 0.5, eps));
+    assert!(approx(gain(0.3_f32, 1.0), 0.3, eps));
+
+    // parabola: peaks at 1.0 when x=0.5; 0.0 at the edges x=0 and x=1
+    assert!(approx(parabola(0.5_f32, 1.0_f32), 1.0, eps));
+    assert!(approx(parabola(0.0_f32, 1.0_f32), 0.0, eps));
+    assert!(approx(parabola(1.0_f32, 1.0_f32), 0.0, eps));
+
+    // pcurve: peaks at 1.0 at x=a/(a+b); for a=b=1 that's x=0.5
+    assert!(approx(pcurve(0.5_f32, 1.0, 1.0), 1.0, eps));
+    assert!(approx(pcurve(0.0_f32, 1.0, 1.0), 0.0, eps));
+
+    // sinc: spot-check sin(pi*(k*x-1))/(pi*(k*x-1)) at x=0.5, k=1 -> 2/pi
+    assert!(approx(sinc(0.5_f32, 1.0_f32), 2.0 / f32::pi(), eps));
+}
