@@ -209,7 +209,7 @@ macro_rules! mat_impl {
                 }
             }
 
-            // sets a single row of the matrix by an n sized vec, where n is the column count of the matrix
+            /// sets a single row of the matrix by an n sized vec, where n is the column count of the matrix
             pub fn set_row(&mut self, row: u32, value: $RowVecN<T>) {
                 let urow = row as usize;
                 $(self.m[urow * $cols + $row_field_index] = value.$row_field;)+

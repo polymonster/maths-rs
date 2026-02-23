@@ -2045,6 +2045,18 @@ fn quat() {
     let euler_mul = euler_22z_ref * euler_22z_ref;
     assert_eq!(approx(Vec3f::from(Quatf::to_euler_angles(euler_45z)), Vec3f::from(Quatf::to_euler_angles(euler_mul)), 0.1), true);
 
+    // mul across different axes: q_z * q_x exercises self.z * other.x in the y-component
+    // (regression for B9: bug used self.z * other.z, which is only caught when both terms are non-zero)
+    let q_x90 = Quatf::from_euler_angles(f32::pi() / 2.0, 0.0, 0.0);
+    let q_z90 = Quatf::from_euler_angles(0.0, 0.0, f32::pi() / 2.0);
+    let v = Vec3f::unit_y();
+    let combined_zx = q_z90 * q_x90;
+    assert_eq!(approx(combined_zx * v, q_z90 * (q_x90 * v), 0.001), true);
+
+    // q_x * q_z: exercises self.x * other.z and -self.z * other.y terms
+    let combined_xz = q_x90 * q_z90;
+    assert_eq!(approx(combined_xz * v, q_x90 * (q_z90 * v), 0.001), true);
+
     // slerp
     let euler_zero = Quatf::from_euler_angles(0.0, 0.0, 0.0);
     let euler_90x = Quatf::from_euler_angles(f32::pi() / 2.0, 0.0, 0.0);

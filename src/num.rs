@@ -338,6 +338,7 @@ macro_rules! signed_number_trait_impl {
         }
         signed_number_impl!(f64 { $($func),* }, -1.0);
         signed_number_impl!(f32 { $($func),* }, -1.0);
+        signed_number_impl!(isize { $($func),* }, -1);
         signed_number_impl!(i64 { $($func),* }, -1);
         signed_number_impl!(i32 { $($func),* }, -1);
         signed_number_impl!(i16 { $($func),* }, -1);

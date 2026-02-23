@@ -829,7 +829,7 @@ pub fn point_inside_convex_hull<T: Float>(p: Vec2<T>, hull: &Vec<Vec2<T>>) -> bo
         let p2 = hull[i2];
         let v1 = p2 - p1;
         let v2 = p - p1;
-        let z = v1.x * v2.y - v2.x - v1.y;
+        let z = v1.x * v2.y - v2.x * v1.y;
         if z > T::zero() {
             return false;
         }
@@ -1047,7 +1047,7 @@ pub fn aabb_vs_obb<T: Number + Float + SignedNumber + SignedNumberOps<T> + Numbe
         Vec3::<T>::new(-T::one(), -T::one(), -T::one()),
         Vec3::<T>::new( T::one(), -T::one(), -T::one()),
         Vec3::<T>::new( T::one(),  T::one(), -T::one()),
-        Vec3::<T>::new(-T::one(),  T::one(),  T::one()),
+        Vec3::<T>::new(-T::one(),  T::one(), -T::one()),
         Vec3::<T>::new(-T::one(), -T::one(),  T::one()),
         Vec3::<T>::new( T::one(), -T::one(),  T::one()),
         Vec3::<T>::new( T::one(),  T::one(),  T::one()),
@@ -1090,7 +1090,7 @@ pub fn obb_vs_obb<T: Number + Float + SignedNumber + SignedNumberOps<T> + Number
         Vec3::<T>::new(-T::one(), -T::one(), -T::one()),
         Vec3::<T>::new( T::one(), -T::one(), -T::one()),
         Vec3::<T>::new( T::one(),  T::one(), -T::one()),
-        Vec3::<T>::new(-T::one(),  T::one(),  T::one()),
+        Vec3::<T>::new(-T::one(),  T::one(), -T::one()),
         Vec3::<T>::new(-T::one(), -T::one(),  T::one()),
         Vec3::<T>::new( T::one(), -T::one(),  T::one()),
         Vec3::<T>::new( T::one(),  T::one(),  T::one()),
@@ -1729,7 +1729,7 @@ pub fn pcurve<T: SignedNumber + Float + Base<T> + FloatOps<T>>(x: T, a: T, b: T)
 /// returns a sin curve (y position on a graph for `x`); can be used for some bouncing behaviors. give `k` different integer values to tweak the amount of bounces
 pub fn sinc<T: SignedNumber + Float, X: Base<T> + FloatOps<T> + SignedNumberOps<T>>(x: X, k: X) -> X {
     // inigo quilez: https://iquilezles.org/articles/functions/
-    let a = X::zero() * (k*x-X::one());
+    let a = X::pi() * (k*x-X::one());
     X::sin(a)/a
 }
 

@@ -24,10 +24,10 @@ use crate::cross;
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 #[repr(C)]
 pub struct Quat<T> {
-    x: T,
-    y: T,
-    z: T,
-    w: T
+    pub x: T,
+    pub y: T,
+    pub z: T,
+    pub w: T
 }
 
 impl<T> Quat<T> where T: Float + FloatOps<T> + SignedNumberOps<T> {
@@ -38,6 +38,15 @@ impl<T> Quat<T> where T: Float + FloatOps<T> + SignedNumberOps<T> {
             y: T::zero(),
             z: T::zero(),
             w: T::one()
+        }
+    }
+
+    pub fn new(x: T, y: T, z: T, w: T) -> Self {
+        Self {
+            x,
+            y,
+            z,
+            w
         }
     }
 
@@ -308,7 +317,7 @@ impl<T> Mul<Self> for Quat<T> where T: Number {
         Quat {
             w: self.w * other.w - self.x * other.x - self.y * other.y - self.z * other.z,
             x: self.w * other.x + self.x * other.w + self.y * other.z - self.z * other.y,
-            y: self.w * other.y - self.x * other.z + self.y * other.w + self.z * other.z,
+            y: self.w * other.y - self.x * other.z + self.y * other.w + self.z * other.x,
             z: self.w * other.z + self.x * other.y - self.y * other.x + self.z * other.w
         }
     }
@@ -321,7 +330,7 @@ impl<T> Mul<Quat<T>> for &Quat<T> where T: Number {
         Quat {
             w: self.w * other.w - self.x * other.x - self.y * other.y - self.z * other.z,
             x: self.w * other.x + self.x * other.w + self.y * other.z - self.z * other.y,
-            y: self.w * other.y - self.x * other.z + self.y * other.w + self.z * other.z,
+            y: self.w * other.y - self.x * other.z + self.y * other.w + self.z * other.x,
             z: self.w * other.z + self.x * other.y - self.y * other.x + self.z * other.w
         }
     }
@@ -334,7 +343,7 @@ impl<T> Mul<&Self> for Quat<T> where T: Number {
         Quat {
             w: self.w * other.w - self.x * other.x - self.y * other.y - self.z * other.z,
             x: self.w * other.x + self.x * other.w + self.y * other.z - self.z * other.y,
-            y: self.w * other.y - self.x * other.z + self.y * other.w + self.z * other.z,
+            y: self.w * other.y - self.x * other.z + self.y * other.w + self.z * other.x,
             z: self.w * other.z + self.x * other.y - self.y * other.x + self.z * other.w
         }
     }
@@ -347,7 +356,7 @@ impl<T> Mul<Self> for &Quat<T> where T: Number {
         Quat {
             w: self.w * other.w - self.x * other.x - self.y * other.y - self.z * other.z,
             x: self.w * other.x + self.x * other.w + self.y * other.z - self.z * other.y,
-            y: self.w * other.y - self.x * other.z + self.y * other.w + self.z * other.z,
+            y: self.w * other.y - self.x * other.z + self.y * other.w + self.z * other.x,
             z: self.w * other.z + self.x * other.y - self.y * other.x + self.z * other.w
         }
     }

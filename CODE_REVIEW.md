@@ -8,23 +8,23 @@ Reviewed: 2026-02-21
 - [x] **B2** `quat.rs:90,126` — `Quat::from_matrix` variable `t` is always zero, causes division by zero / NaN
 - [x] **B3** `lib.rs:1181` — `ray_vs_triangle` parallel check `a > eps && a < eps` is always false, should be `a > -eps && a < eps`
 - [x] **B4** `vec.rs:455` — `reflect` formula has wrong operator precedence: `(i - 2) * n * dot` instead of `i - n * (2 * dot)`
-- [ ] **B5** `vec.rs:527-531` — `Vec::three()` returns 4 (copy-paste from `four()`), affects `smoothstep`
-- [ ] **B6** `lib.rs:786` — `point_inside_convex_hull` 2D cross product uses `-` instead of `*`: `v1.x * v2.y - v2.x - v1.y`
-- [ ] **B7** `quat.rs:26-31` — Quat fields are private with no `new()` constructor, users can't construct or read components
-- [ ] **B8** `lib.rs:1686` — `sinc` always returns NaN: `X::zero() * (...)` is always 0, then `sin(0)/0`. Should be `X::pi()`
-- [ ] **B9** `quat.rs:312,325,338,351` — `Quat * Quat` y-component uses `self.z * other.z` instead of `self.z * other.x` in all 4 Mul impls
+- [x] **B5** `vec.rs:527-531` — `Vec::three()` returns 4 (copy-paste from `four()`), affects `smoothstep`
+- [x] **B6** `lib.rs:786` — `point_inside_convex_hull` 2D cross product uses `-` instead of `*`: `v1.x * v2.y - v2.x - v1.y`
+- [x] **B7** `quat.rs:26-31` — Quat fields are private with no `new()` constructor, users can't construct or read components
+- [x] **B8** `lib.rs:1686` — `sinc` always returns NaN: `X::zero() * (...)` is always 0, then `sin(0)/0`. Should be `X::pi()`
+- [x] **B9** `quat.rs:312,325,338,351` — `Quat * Quat` y-component uses `self.z * other.z` instead of `self.z * other.x` in all 4 Mul impls
 
 ## Important (should fix before 1.0)
 
-- [ ] **I1** `vec.rs`, `quat.rs` — `normalize` on zero-length vec/quat produces NaN silently
-- [ ] **I2** `lib.rs:1000-1009,1043-1052` — OBB corner array has duplicate: index 3 is `(-1,1,1)` instead of `(-1,1,-1)`
-- [ ] **I3** `lib.rs`, `vec.rs` — Redundant names in public API: `dist` vs `distance`, `mag` vs `length`
+- [-] **I1** `vec.rs`, `quat.rs` — `normalize` on zero-length vec/quat produces NaN silently (intentional — zero overhead design, caller's responsibility)
+- [x] **I2** `lib.rs:1089,1043` — OBB corner array has duplicate: index 3 is `(-1,1,1)` instead of `(-1,1,-1)`
+- [-] **I3** `lib.rs`, `vec.rs` — Redundant names in public API: `dist` vs `distance`, `mag` vs `length` (intentional — kept for convenience)
 - [ ] **I4** `lib.rs:412,587,592,719,724,778,795` — Functions take `&Vec<T>` instead of idiomatic `&[T]`
 - [ ] **I5** `lib.rs:1627` — `exp_sustained_impulse` requires `Ord` on `T`, uncallable with f32/f64
-- [ ] **I6** `mat.rs:212` — `set_row` doc uses `//` instead of `///`, missing from rustdoc
+- [x] **I6** `mat.rs:212` — `set_row` doc uses `//` instead of `///`, missing from rustdoc
 - [ ] **I7** `vec.rs:344-358`, `mat.rs:85-101,234-251`, `quat.rs:185-202` — `unsafe` slice conversions lack `// SAFETY:` comments
 - [ ] **I8** — No `#[must_use]` attributes on pure math functions
-- [ ] **I9** `num.rs:196-212,333-345` — `isize` is `Number` but not `SignedNumber`, inconsistent
+- [x] **I9** `num.rs:196-212,333-345` — `isize` is `Number` but not `SignedNumber`, inconsistent
 - [ ] **I10** `vec.rs:838-844` — Index out of bounds silently returns `x` component instead of panicking
 
 ## Minor (nice to have)

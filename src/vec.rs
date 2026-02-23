@@ -526,7 +526,7 @@ macro_rules! vec_impl {
 
             fn three() -> Self {
                 $VecN {
-                    $($field: T::four(),)+
+                    $($field: T::three(),)+
                 }
             }
 
