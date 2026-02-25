@@ -170,7 +170,7 @@ impl<T> Triple<T> for Vec3<T> where T: Number {
     }
 }
 
-/// 2D triple product specialisation, levearging z-axis
+/// 2D triple product specialisation, leveraging z-axis
 impl<T> Triple<T> for Vec2<T> where T: Number + SignedNumber {
     fn scalar_triple(_a: Self, b: Self, c: Self) -> T {
         b.x * c.y - b.y * c.x
@@ -342,18 +342,27 @@ macro_rules! vec_impl {
             }
 
             fn as_slice(&self) -> &[T] {
+                // SAFETY: The struct is #[repr(C)] with $len fields of the same type T laid out
+                // contiguously. `self.x` is the first field, so the pointer is valid for $len
+                // reads of T and the lifetime is bounded by `&self`.
                 unsafe {
                     std::slice::from_raw_parts(&self.x, $len)
                 }
             }
 
             fn as_mut_slice(&mut self) -> &mut [T] {
+                // SAFETY: The struct is #[repr(C)] with $len fields of the same type T laid out
+                // contiguously. `self.x` is the first field, so the pointer is valid for $len
+                // writes of T. Exclusive access is guaranteed by `&mut self`.
                 unsafe {
                     std::slice::from_raw_parts_mut(&mut self.x, $len)
                 }
             }
 
             fn as_u8_slice(&self) -> &[u8] {
+                // SAFETY: Any initialized memory can be viewed as bytes. The struct is #[repr(C)]
+                // and T: Number ensures all bytes are initialized. The cast to *const u8 is valid
+                // since u8 has alignment 1, and the length is the exact byte size of the struct.
                 unsafe {
                     std::slice::from_raw_parts((&self.x as *const T) as *const u8, std::mem::size_of::<$VecN<T>>())
                 }
@@ -452,7 +461,7 @@ macro_rules! vec_impl {
 
             fn reflect(i: Self, n: Self) -> Self {
                 // https://docs.microsoft.com/en-us/windows/win32/direct3dhlsl/dx-graphics-hlsl-reflect
-                (i - T::two()) * n * Self::dot(i, n)
+                i - Self::from(T::two()) * n * Self::dot(i, n)
             }
 
             fn refract(i: Self, n: Self, eta: T) -> Self {
@@ -526,7 +535,7 @@ macro_rules! vec_impl {
 
             fn three() -> Self {
                 $VecN {
-                    $($field: T::four(),)+
+                    $($field: T::three(),)+
                 }
             }
 
@@ -839,7 +848,7 @@ macro_rules! vec_impl {
             fn index(&self, i: usize) -> &Self::Output {
                 match i {
                     $($field_index => &self.$field, )+
-                    _ => &self.x
+                    _ => panic!()
                 }
             }
         }
@@ -848,7 +857,7 @@ macro_rules! vec_impl {
             fn index_mut(&mut self, i: usize) -> &mut T {
                 match i {
                     $($field_index => &mut self.$field, )+
-                    _ => &mut self.x
+                    _ => panic!()
                 }
             }
         }
@@ -1456,48 +1465,126 @@ vec_impl!(Vec4 { x, 0, y, 1, z, 2, w, 3 }, 4, v4);
 
 #[cfg(feature = "lhs_scalar_vec_ops")]
 vec_scalar_lhs!(Vec2 { x, y }, f32);
+
+#[cfg(feature = "lhs_scalar_vec_ops")]
 vec_scalar_lhs!(Vec3 { x, y, z }, f32);
+
+#[cfg(feature = "lhs_scalar_vec_ops")]
 vec_scalar_lhs!(Vec4 { x, y, z, w }, f32);
+
+#[cfg(feature = "lhs_scalar_vec_ops")]
 vec_scalar_lhs!(Vec2 { x, y }, f64);
+
+#[cfg(feature = "lhs_scalar_vec_ops")]
 vec_scalar_lhs!(Vec3 { x, y, z }, f64);
+
+#[cfg(feature = "lhs_scalar_vec_ops")]
 vec_scalar_lhs!(Vec4 { x, y, z, w }, f64);
+
+#[cfg(feature = "lhs_scalar_vec_ops")]
 vec_scalar_lhs!(Vec2 { x, y }, i32);
+
+#[cfg(feature = "lhs_scalar_vec_ops")]
 vec_scalar_lhs!(Vec3 { x, y, z }, i32);
+
+#[cfg(feature = "lhs_scalar_vec_ops")]
 vec_scalar_lhs!(Vec4 { x, y, z, w }, i32);
+
+#[cfg(feature = "lhs_scalar_vec_ops")]
 vec_scalar_lhs!(Vec2 { x, y }, u32);
+
+#[cfg(feature = "lhs_scalar_vec_ops")]
 vec_scalar_lhs!(Vec3 { x, y, z }, u32);
+
+#[cfg(feature = "lhs_scalar_vec_ops")]
 vec_scalar_lhs!(Vec4 { x, y, z, w }, u32);
 
 #[cfg(feature = "short_hand_constructors")]
 vec_ctor!(Vec2 { x, y }, vec2f, splat2f, f32);
+
+#[cfg(feature = "short_hand_constructors")]
 vec_ctor!(Vec3 { x, y, z }, vec3f, splat3f, f32);
+
+#[cfg(feature = "short_hand_constructors")]
 vec_ctor!(Vec4 { x, y, z, w }, vec4f, splat4f, f32);
+
+#[cfg(feature = "short_hand_constructors")]
 vec_ctor!(Vec2 { x, y }, vec2d, splat2d, f64);
+
+#[cfg(feature = "short_hand_constructors")]
 vec_ctor!(Vec3 { x, y, z }, vec3d, splat3d, f64);
+
+#[cfg(feature = "short_hand_constructors")]
 vec_ctor!(Vec4 { x, y, z, w }, vec4d, splat4d, f64);
+
+#[cfg(feature = "short_hand_constructors")]
 vec_ctor!(Vec2 { x, y }, vec2i, splat2i, i32);
+
+#[cfg(feature = "short_hand_constructors")]
 vec_ctor!(Vec3 { x, y, z }, vec3i, splat3i, i32);
+
+#[cfg(feature = "short_hand_constructors")]
 vec_ctor!(Vec4 { x, y, z, w }, vec4i, splat4i, i32);
+
+#[cfg(feature = "short_hand_constructors")]
 vec_ctor!(Vec2 { x, y }, vec2u, splat2u, u32);
+
+#[cfg(feature = "short_hand_constructors")]
 vec_ctor!(Vec3 { x, y, z }, vec3u, splat3u, u32);
+
+#[cfg(feature = "short_hand_constructors")]
 vec_ctor!(Vec4 { x, y, z, w }, vec4u, splat4u, u32);
 
 #[cfg(feature = "casts")]
 vec_cast!(Vec2 { x, y }, f64, i32);
+
+#[cfg(feature = "casts")]
 vec_cast!(Vec2 { x, y }, f64, u32);
+
+#[cfg(feature = "casts")]
 vec_cast!(Vec2 { x, y }, f32, f64);
+
+#[cfg(feature = "casts")]
 vec_cast!(Vec2 { x, y }, f32, i32);
+
+#[cfg(feature = "casts")]
 vec_cast!(Vec2 { x, y }, f32, u32);
+
+#[cfg(feature = "casts")]
 vec_cast!(Vec2 { x, y }, i32, u32);
+
+#[cfg(feature = "casts")]
 vec_cast!(Vec3 {x, y, z}, f64, i32);
+
+#[cfg(feature = "casts")]
 vec_cast!(Vec3 {x, y, z}, f64, u32);
+
+#[cfg(feature = "casts")]
 vec_cast!(Vec3 {x, y, z}, f32, f64);
+
+#[cfg(feature = "casts")]
 vec_cast!(Vec3 {x, y, z}, f32, i32);
+
+#[cfg(feature = "casts")]
 vec_cast!(Vec3 {x, y, z}, f32, u32);
+
+#[cfg(feature = "casts")]
 vec_cast!(Vec3 {x, y, z}, i32, u32);
+
+#[cfg(feature = "casts")]
 vec_cast!(Vec4 {x, y, z, w}, f64, i32);
+
+#[cfg(feature = "casts")]
 vec_cast!(Vec4 {x, y, z, w}, f64, u32);
+
+#[cfg(feature = "casts")]
 vec_cast!(Vec4 {x, y, z, w}, f32, f64);
+
+#[cfg(feature = "casts")]
 vec_cast!(Vec4 {x, y, z, w}, f32, i32);
+
+#[cfg(feature = "casts")]
 vec_cast!(Vec4 {x, y, z, w}, f32, u32);
+
+#[cfg(feature = "casts")]
 vec_cast!(Vec4 {x, y, z, w}, i32, u32);

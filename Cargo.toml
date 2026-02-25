@@ -9,17 +9,19 @@ homepage = "https://github.com/polymonster/maths-rs"
 repository = "https://github.com/polymonster/maths-rs"
 keywords = ["linear-algebra", "math", "vector", "matrix", "quaternion"]
 categories = ["mathematics", "game-development", "graphics"]
-license-file = "license.md"
+license = "MIT"
 
 [features]
 short_hand_constructors = []
 lhs_scalar_vec_ops = []
 casts = []
 short_types = []
-serde = ["dep:serde", "serde_json"]
+serde = ["dep:serde"]
 hash = []
 default = ["short_hand_constructors", "lhs_scalar_vec_ops", "casts", "short_types"]
 
 [dependencies]
 serde = {version = "1.0", features = ["derive"], optional=true}
-serde_json = {version = "1.0.81", optional=true}
+
+[dev-dependencies]
+serde_json = "1.0"

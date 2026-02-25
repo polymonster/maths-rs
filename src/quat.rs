@@ -21,13 +21,14 @@ use crate::dot;
 use crate::cross;
 
 #[cfg_attr(feature="serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature="hash", derive(Hash))]
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 #[repr(C)]
 pub struct Quat<T> {
-    x: T,
-    y: T,
-    z: T,
-    w: T
+    pub x: T,
+    pub y: T,
+    pub z: T,
+    pub w: T
 }
 
 impl<T> Quat<T> where T: Float + FloatOps<T> + SignedNumberOps<T> {
@@ -41,7 +42,16 @@ impl<T> Quat<T> where T: Float + FloatOps<T> + SignedNumberOps<T> {
         }
     }
 
-    /// construct a quaternion from 3 euler angles `x`, `y` and `z`
+    pub fn new(x: T, y: T, z: T, w: T) -> Self {
+        Self {
+            x,
+            y,
+            z,
+            w
+        }
+    }
+
+    /// construct a quaternion from 3 euler angles `x`, `y` and `z` in radians
     pub fn from_euler_angles(x: T, y: T, z: T) -> Self {
         let half_z = T::point_five() * z;
         let half_x = T::point_five() * x;
@@ -87,24 +97,23 @@ impl<T> Quat<T> where T: Float + FloatOps<T> + SignedNumberOps<T> {
         let m21 = m.m[5];
         let m22 = m.m[8];
 
-        let t = T::zero();
         let t0 = T::zero();
         let t1 = T::one();
 
-        let (x, y, z, w) = if m22 < t0 {
+        let (x, y, z, w, t) = if m22 < t0 {
             if m00 > m11 {
                 let x = t1 + m00 -m11 -m22;
                 let y = m01 + m10;
                 let z = m20 + m02;
                 let w = m12 - m21;
-                (x, y, z, w)
+                (x, y, z, w, x)
             }
             else {
                 let x = m01 + m10;
                 let y = t1 -m00 + m11 -m22;
                 let z = m12 + m21;
                 let w = m20 - m02;
-                (x, y, z, w)
+                (x, y, z, w, y)
 
             }
         }
@@ -113,14 +122,14 @@ impl<T> Quat<T> where T: Float + FloatOps<T> + SignedNumberOps<T> {
             let y = m12+m21;
             let z = t1 -m00 -m11 + m22;
             let w = m01-m10;
-            (x, y, z, w)
+            (x, y, z, w, z)
         }
         else {
             let x = m12-m21;
             let y = m20-m02;
             let z = m01-m10;
             let w = t1 + m00 + m11 + m22;
-            (x, y, z, w)
+            (x, y, z, w, w)
         };
 
         let sq = T::point_five() / T::sqrt(t);
@@ -133,7 +142,7 @@ impl<T> Quat<T> where T: Float + FloatOps<T> + SignedNumberOps<T> {
         }
     }
 
-    /// returns euler angles as tuple `(x, y, z)` from quaternion
+    /// returns euler angles in radians as tuple `(x, y, z)` from quaternion
     pub fn to_euler_angles(self) -> (T, T, T) {
         let t2 = T::two();
         let t1 = T::one();
@@ -183,6 +192,9 @@ impl<T> Quat<T> where T: Float + FloatOps<T> + SignedNumberOps<T> {
 
     /// returns a slice `T` of the quaternion
     pub fn as_slice(&self) -> &[T] {
+        // SAFETY: The struct is #[repr(C)] with 4 fields of the same type T (x, y, z, w) laid
+        // out contiguously. `self.x` is the first field, so the pointer is valid for 4 reads
+        // of T and the lifetime is bounded by `&self`.
         unsafe {
             std::slice::from_raw_parts(&self.x, 4)
         }
@@ -190,6 +202,9 @@ impl<T> Quat<T> where T: Float + FloatOps<T> + SignedNumberOps<T> {
 
     /// returns a mutable slice `T` of the quaternion
     pub fn as_mut_slice(&mut self) -> &mut [T] {
+        // SAFETY: The struct is #[repr(C)] with 4 fields of the same type T (x, y, z, w) laid
+        // out contiguously. `self.x` is the first field, so the pointer is valid for 4 writes
+        // of T. Exclusive access is guaranteed by `&mut self`.
         unsafe {
             std::slice::from_raw_parts_mut(&mut self.x, 4)
         }
@@ -197,12 +212,15 @@ impl<T> Quat<T> where T: Float + FloatOps<T> + SignedNumberOps<T> {
 
     /// returns a slice of `u8` bytes for the quaternion
     pub fn as_u8_slice(&self) -> &[u8] {
+        // SAFETY: Any initialized memory can be viewed as bytes. The struct is #[repr(C)]
+        // and T: Float ensures all bytes are initialized. The cast to *const u8 is valid
+        // since u8 has alignment 1, and the length is the exact byte size of the struct.
         unsafe {
             std::slice::from_raw_parts((&self.x as *const T) as *const u8, std::mem::size_of::<Quat<T>>())
         }
     }
 
-    /// returns a quationion which reverses the axis of rotation of self
+    /// returns a quaternion which reverses the axis of rotation of self
     pub fn reverse(self) -> Self {
         Quat {
             x: -self.x,
@@ -309,7 +327,7 @@ impl<T> Mul<Self> for Quat<T> where T: Number {
         Quat {
             w: self.w * other.w - self.x * other.x - self.y * other.y - self.z * other.z,
             x: self.w * other.x + self.x * other.w + self.y * other.z - self.z * other.y,
-            y: self.w * other.y - self.x * other.z + self.y * other.w + self.z * other.z,
+            y: self.w * other.y - self.x * other.z + self.y * other.w + self.z * other.x,
             z: self.w * other.z + self.x * other.y - self.y * other.x + self.z * other.w
         }
     }
@@ -322,7 +340,7 @@ impl<T> Mul<Quat<T>> for &Quat<T> where T: Number {
         Quat {
             w: self.w * other.w - self.x * other.x - self.y * other.y - self.z * other.z,
             x: self.w * other.x + self.x * other.w + self.y * other.z - self.z * other.y,
-            y: self.w * other.y - self.x * other.z + self.y * other.w + self.z * other.z,
+            y: self.w * other.y - self.x * other.z + self.y * other.w + self.z * other.x,
             z: self.w * other.z + self.x * other.y - self.y * other.x + self.z * other.w
         }
     }
@@ -335,7 +353,7 @@ impl<T> Mul<&Self> for Quat<T> where T: Number {
         Quat {
             w: self.w * other.w - self.x * other.x - self.y * other.y - self.z * other.z,
             x: self.w * other.x + self.x * other.w + self.y * other.z - self.z * other.y,
-            y: self.w * other.y - self.x * other.z + self.y * other.w + self.z * other.z,
+            y: self.w * other.y - self.x * other.z + self.y * other.w + self.z * other.x,
             z: self.w * other.z + self.x * other.y - self.y * other.x + self.z * other.w
         }
     }
@@ -348,7 +366,7 @@ impl<T> Mul<Self> for &Quat<T> where T: Number {
         Quat {
             w: self.w * other.w - self.x * other.x - self.y * other.y - self.z * other.z,
             x: self.w * other.x + self.x * other.w + self.y * other.z - self.z * other.y,
-            y: self.w * other.y - self.x * other.z + self.y * other.w + self.z * other.z,
+            y: self.w * other.y - self.x * other.z + self.y * other.w + self.z * other.x,
             z: self.w * other.z + self.x * other.y - self.y * other.x + self.z * other.w
         }
     }
@@ -446,7 +464,7 @@ impl<T> Magnitude<T> for Quat<T> where T: Float + FloatOps<T> {
 }
 
 /// returns a quaternion spherically interpolated between `e0` and `e1` by percentage `t`
-impl<T> Slerp<T> for Quat<T> where T: Float + FloatOps<T> + NumberOps<T> + From<f64> {
+impl<T> Slerp<T> for Quat<T> where T: Float + FloatOps<T> + NumberOps<T> + From<T> {
     fn slerp(e0: Self, e1: Self, t: T) -> Self {
         let q1 = e0;
         // reverse the sign of e1 if q1.q2 < 0.
@@ -458,7 +476,7 @@ impl<T> Slerp<T> for Quat<T> where T: Float + FloatOps<T> + NumberOps<T> + From<
         };
 
         let theta = T::acos(Self::dot(q1, q2));
-        let k_epsilon = T::from(0.000001);
+        let k_epsilon = T::small_epsilon();
         let (m1, m2) = if theta > k_epsilon {
             (
                 T::sin((T::one() - t) * theta) / T::sin(theta),
@@ -481,14 +499,14 @@ impl<T> Slerp<T> for Quat<T> where T: Float + FloatOps<T> + NumberOps<T> + From<
     }
 }
 
-/// returns a quaternion lineraly interpolated between `e0` and `e1` by percentage `t`
+/// returns a quaternion linearly interpolated between `e0` and `e1` by percentage `t`
 impl<T> Lerp<T> for Quat<T> where T: Float + FloatOps<T> + NumberOps<T> {
     fn lerp(e0: Self, e1: Self, t: T) -> Self {
         e0 * (T::one() - t) + e1 * t
     }
 }
 
-/// returns a quaternion lineraly interpolated between `e0` and `e1` by percentage `t` normalising the return value
+/// returns a quaternion linearly interpolated between `e0` and `e1` by percentage `t` normalising the return value
 impl<T> Nlerp<T> for Quat<T> where T: Float + FloatOps<T> + NumberOps<T> {
     fn nlerp(e0: Self, e1: Self, t: T) -> Self {
         Self::normalize(e0 * (T::one() - t) + e1 * t)

@@ -85,6 +85,9 @@ macro_rules! mat_impl {
         impl<T> Deref for $MatN<T> where T: Number {
             type Target = [T];
             fn deref(&self) -> &Self::Target {
+                // SAFETY: `self.m` is a contiguous array of $elems elements of type T.
+                // The pointer to the first element is valid for $elems reads and the
+                // lifetime is bounded by `&self`.
                 unsafe {
                     std::slice::from_raw_parts(&self.m[0], $elems)
                 }
@@ -94,6 +97,9 @@ macro_rules! mat_impl {
         /// mutably deref matrix as a slice of T
         impl<T> DerefMut for $MatN<T> where T: Number {
             fn deref_mut(&mut self) -> &mut [T] {
+                // SAFETY: `self.m` is a contiguous array of $elems elements of type T.
+                // The pointer to the first element is valid for $elems writes.
+                // Exclusive access is guaranteed by `&mut self`.
                 unsafe {
                     std::slice::from_raw_parts_mut(&mut self.m[0], $elems)
                 }
@@ -209,7 +215,7 @@ macro_rules! mat_impl {
                 }
             }
 
-            // sets a single row of the matrix by an n sized vec, where n is the column count of the matrix
+            /// sets a single row of the matrix by an n sized vec, where n is the column count of the matrix
             pub fn set_row(&mut self, row: u32, value: $RowVecN<T>) {
                 let urow = row as usize;
                 $(self.m[urow * $cols + $row_field_index] = value.$row_field;)+
@@ -231,6 +237,9 @@ macro_rules! mat_impl {
 
             /// returns a slice T of the matrix
             pub fn as_slice(&self) -> &[T] {
+                // SAFETY: `self.m` is a contiguous array of $elems elements of type T.
+                // The pointer to the first element is valid for $elems reads and the
+                // lifetime is bounded by `&self`.
                 unsafe {
                     std::slice::from_raw_parts(&self.m[0], $elems)
                 }
@@ -238,6 +247,9 @@ macro_rules! mat_impl {
 
             /// returns a mutable slice T of the matrix
             pub fn as_mut_slice(&mut self) -> &mut [T] {
+                // SAFETY: `self.m` is a contiguous array of $elems elements of type T.
+                // The pointer to the first element is valid for $elems writes.
+                // Exclusive access is guaranteed by `&mut self`.
                 unsafe {
                     std::slice::from_raw_parts_mut(&mut self.m[0], $elems)
                 }
@@ -245,6 +257,9 @@ macro_rules! mat_impl {
 
             /// returns a slice of bytes for the matrix
             pub fn as_u8_slice(&self) -> &[u8] {
+                // SAFETY: Any initialized memory can be viewed as bytes. T: Number ensures all
+                // bytes are initialized. The cast to *const u8 is valid since u8 has alignment 1,
+                // and the length is the exact byte size of the struct.
                 unsafe {
                     std::slice::from_raw_parts((&self.m[0] as *const T) as *const u8, std::mem::size_of::<$MatN<T>>())
                 }
@@ -285,8 +300,14 @@ macro_rules! mat_cast {
 
 #[cfg(feature = "casts")]
 mat_cast!(Mat2, 4, f32, f64);
+
+#[cfg(feature = "casts")]
 mat_cast!(Mat3, 9, f32, f64);
+
+#[cfg(feature = "casts")]
 mat_cast!(Mat34, 12, f32, f64);
+
+#[cfg(feature = "casts")]
 mat_cast!(Mat4, 16, f32, f64);
 
 //
@@ -305,7 +326,7 @@ impl<T> From<(T, T, T, T)> for Mat2<T> where T: Number {
     }
 }
 
-/// constructs Mat3 from tuple of 2 2D row vectors
+/// constructs Mat2 from tuple of 2 2D row vectors
 impl<T> From<(Vec2<T>, Vec2<T>)> for Mat2<T> where T: Number {
     fn from(other: (Vec2<T>, Vec2<T>)) -> Mat2<T> {
         Mat2 {
@@ -317,7 +338,7 @@ impl<T> From<(Vec2<T>, Vec2<T>)> for Mat2<T> where T: Number {
     }
 }
 
-/// constructs Mat3 from 3x3 matrix truncating the 3rd row and column
+/// constructs Mat2 from 3x3 matrix truncating the 3rd row and column
 impl<T> From<Mat3<T>> for Mat2<T> where T: Number {
     fn from(other: Mat3<T>) -> Mat2<T> {
         Mat2 {
@@ -329,7 +350,7 @@ impl<T> From<Mat3<T>> for Mat2<T> where T: Number {
     }
 }
 
-/// constructs Mat3 from 3x4 matrix truncating the 3rd row and 3rd and 4th column
+/// constructs Mat2 from 3x4 matrix truncating the 3rd row and 3rd and 4th column
 impl<T> From<Mat34<T>> for Mat2<T> where T: Number {
     fn from(other: Mat34<T>) -> Mat2<T> {
         Mat2 {
@@ -341,7 +362,7 @@ impl<T> From<Mat34<T>> for Mat2<T> where T: Number {
     }
 }
 
-/// constructs Mat3 from 3x4 matrix truncating the 3rd and 4th row and 3rd and 4th column
+/// constructs Mat2 from 3x4 matrix truncating the 3rd and 4th row and 3rd and 4th column
 impl<T> From<Mat4<T>> for Mat2<T> where T: Number {
     fn from(other: Mat4<T>) -> Mat2<T> {
         Mat2 {

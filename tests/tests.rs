@@ -80,6 +80,13 @@ fn vec_index() {
 }
 
 #[test]
+#[should_panic]
+fn vec_index_out_of_bounds() {
+    let v = vec4f(1.0, 2.0, 3.0, 4.0);
+    let _ = v[4];
+}
+
+#[test]
 fn equal() {
     let a = Vec2f {
         x: 2.0,
@@ -777,7 +784,7 @@ fn splat() {
 }
 
 #[test]
-fn length() {
+fn length_mag() {
     let v3 = vec3f(1.0, 2.0, 3.0);
     let sq = (14.0_f32).sqrt();
     assert_eq!(Vec3f::length(v3), sq);
@@ -891,10 +898,28 @@ fn exp_log() {
 
 #[test]
 fn reflect_refract() {
-    let v3 = vec3f(0.5, -0.5, 0.0);
-    let normal = vec3f(0.0, 1.0, 0.0);
-    let refl = Vec3f::reflect(v3, normal);
-    assert_eq!(refl, vec3f(0.0, 1.25, 0.0));
+    // 45 degree bounce off horizontal surface: i - 2 * n * dot(i, n)
+    let i = vec3f(1.0, -1.0, 0.0);
+    let n = vec3f(0.0, 1.0, 0.0);
+    let refl = Vec3f::reflect(i, n);
+    assert_eq!(refl, vec3f(1.0, 1.0, 0.0));
+
+    // head-on hit bounces straight back
+    let i2 = vec3f(0.0, -1.0, 0.0);
+    let refl2 = Vec3f::reflect(i2, n);
+    assert_eq!(refl2, vec3f(0.0, 1.0, 0.0));
+
+    // 2d reflect
+    let i2d = vec2f(1.0, -1.0);
+    let n2d = vec2f(0.0, 1.0);
+    let refl2d = Vec2f::reflect(i2d, n2d);
+    assert_eq!(refl2d, vec2f(1.0, 1.0));
+
+    // glancing angle off a vertical wall
+    let i3 = vec3f(1.0, -0.1, 0.0);
+    let n3 = vec3f(-1.0, 0.0, 0.0);
+    let refl3 = Vec3f::reflect(i3, n3);
+    assert_eq!(approx(refl3, vec3f(-1.0, -0.1, 0.0), 0.001), true);
 }
 
 #[test]
@@ -2026,6 +2051,58 @@ fn quat() {
     // ref * ref
     let euler_mul = euler_22z_ref * euler_22z_ref;
     assert_eq!(approx(Vec3f::from(Quatf::to_euler_angles(euler_45z)), Vec3f::from(Quatf::to_euler_angles(euler_mul)), 0.1), true);
+
+    // mul across different axes: q_z * q_x exercises self.z * other.x in the y-component
+    // (regression for B9: bug used self.z * other.z, which is only caught when both terms are non-zero)
+    let q_x90 = Quatf::from_euler_angles(f32::pi() / 2.0, 0.0, 0.0);
+    let q_z90 = Quatf::from_euler_angles(0.0, 0.0, f32::pi() / 2.0);
+    let v = Vec3f::unit_y();
+    let combined_zx = q_z90 * q_x90;
+    assert_eq!(approx(combined_zx * v, q_z90 * (q_x90 * v), 0.001), true);
+
+    // q_x * q_z: exercises self.x * other.z and -self.z * other.y terms
+    let combined_xz = q_x90 * q_z90;
+    assert_eq!(approx(combined_xz * v, q_x90 * (q_z90 * v), 0.001), true);
+
+    // slerp
+    let euler_zero = Quatf::from_euler_angles(0.0, 0.0, 0.0);
+    let euler_90x = Quatf::from_euler_angles(f32::pi() / 2.0, 0.0, 0.0);
+    let qslerp = Quatf::slerp(euler_zero, euler_90x, 0.5 as f32);
+    assert_eq!(approx(Vec3f::from(Quatf::to_euler_angles(euler_45x)), Vec3f::from(Quatf::to_euler_angles(qslerp)), 0.1), true);
+
+    // lerp
+    let euler_zero = Quatf::from_euler_angles(0.0, 0.0, 0.0);
+    let euler_90x = Quatf::from_euler_angles(f32::pi() / 2.0, 0.0, 0.0);
+    let qlerp = Quatf::lerp(euler_zero, euler_90x, 0.5 as f32);
+    assert_eq!(approx(Vec3f::from(Quatf::to_euler_angles(euler_45x)), Vec3f::from(Quatf::to_euler_angles(qlerp)), 0.2), true);
+
+    // nlerp
+    let euler_zero = Quatf::from_euler_angles(0.0, 0.0, 0.0);
+    let euler_90x = Quatf::from_euler_angles(f32::pi() / 2.0, 0.0, 0.0);
+    let qnlerp = Quatf::nlerp(euler_zero, euler_90x, 0.5 as f32);
+    assert_eq!(approx(Vec3f::from(Quatf::to_euler_angles(euler_45x)), Vec3f::from(Quatf::to_euler_angles(qnlerp)), 0.1), true);
+
+    // generic free function nlerp / slerp with quats
+    let qnlerp_generic = nlerp(euler_zero, euler_90x, 0.5_f32);
+    assert_eq!(approx(Vec3f::from(Quatf::to_euler_angles(euler_45x)), Vec3f::from(Quatf::to_euler_angles(qnlerp_generic)), 0.1), true);
+    let qslerp_generic = slerp(euler_zero, euler_90x, 0.5_f32);
+    assert_eq!(approx(Vec3f::from(Quatf::to_euler_angles(euler_45x)), Vec3f::from(Quatf::to_euler_angles(qslerp_generic)), 0.1), true);
+
+    // slerp takes the shortest path when quats are in opposite hemispheres
+    // -q represents the same rotation as q, but nlerp blindly blends through the long arc
+    let q_90x_neg = -euler_90x;
+
+    // slerp detects negative dot and flips, still gives ~45 degrees (shortest path)
+    let slerp_negated = Quatf::slerp(euler_zero, q_90x_neg, 0.5);
+    assert_eq!(approx(Vec3f::from(Quatf::to_euler_angles(euler_45x)), Vec3f::from(Quatf::to_euler_angles(slerp_negated)), 0.1), true);
+
+    // nlerp with the normal quat gives ~45 degrees
+    let nlerp_short = Quatf::nlerp(euler_zero, euler_90x, 0.5);
+    assert_eq!(approx(Vec3f::from(Quatf::to_euler_angles(euler_45x)), Vec3f::from(Quatf::to_euler_angles(nlerp_short)), 0.1), true);
+
+    // nlerp with the negated quat takes the long way around - NOT ~45 degrees
+    let nlerp_long = Quatf::nlerp(euler_zero, q_90x_neg, 0.5);
+    assert_eq!(approx(Vec3f::from(Quatf::to_euler_angles(euler_45x)), Vec3f::from(Quatf::to_euler_angles(nlerp_long)), 0.1), false);
 }
 
 #[test]
@@ -2117,6 +2194,31 @@ fn generics() {
     let _n3 = normalize(v3);
     let _d2 = dot(v2, v2);
     let _d3 = dot(v3, v3);
+
+    // quat generics: dot, mag, mag2, length, normalize
+    let q1 = Quatf::from_euler_angles(f32::pi() / 4.0, 0.0, 0.0);
+    let q2 = Quatf::from_euler_angles(0.0, f32::pi() / 4.0, 0.0);
+    let _qd = dot(q1, q2);
+    let _qm = mag(q1);
+    let _qm2 = mag2(q1);
+    let _ql = length(q1);
+    assert_eq!(approx(_qm, 1.0_f32, 0.001), true);
+    assert_eq!(approx(_qm2, 1.0_f32, 0.001), true);
+    assert_eq!(approx(_ql, 1.0_f32, 0.001), true);
+    let _qn = normalize(q1);
+
+    // vec generics: lerp, nlerp, slerp
+    let _vl2 = lerp(v2, v2, 0.5_f32);
+    let _vl3 = lerp(v3, v3, 0.5_f32);
+    let _vn2 = nlerp(normalize(v2), normalize(v2), 0.5_f32);
+    let _vn3 = nlerp(normalize(v3), normalize(v3), 0.5_f32);
+    let _vs2 = slerp(normalize(v2), normalize(v2), 0.5_f32);
+    let _vs3 = slerp(normalize(v3), normalize(v3), 0.5_f32);
+
+    // quat generics: lerp, nlerp, slerp
+    let _ql = lerp(q1, q2, 0.5_f32);
+    let _qn = nlerp(q1, q2, 0.5_f32);
+    let _qs = slerp(q1, q2, 0.5_f32);
 
     assert_eq!(sin(0.0 as f32), f32::sin(0.0));
     assert_eq!(cos(0.0), f64::cos(0.0));
@@ -6252,4 +6354,381 @@ fn test_cofactor() {
     assert_eq!(m.cofactor(3, 1), Mat3::new(1, -1, 2, 5, 7, 0, 1, 2, 9).determinant());
     assert_eq!(m.cofactor(3, 2), -Mat3::new(1, 3, 2, 5, -6, 0, 1, 0, 9).determinant());
     assert_eq!(m.cofactor(3, 3), Mat3::new(1, 3, -1, 5, -6, 7, 1, 0, 2).determinant());
+}
+
+#[test]
+fn graph_funcs() {
+    let eps = 0.0001_f32;
+
+    // almost_identity: x > m passes through unchanged; x=0 returns n; continuous at x=m
+    assert_eq!(almost_identity(2.0_f32, 1.0, 0.5), 2.0);
+    assert!(approx(almost_identity(0.0_f32, 1.0, 0.5), 0.5, eps));
+    assert!(approx(almost_identity(1.0_f32, 1.0, 0.5), 1.0, eps));
+
+    // integral_smoothstep: 0 at x=0; for x>t returns x - t/2
+    assert!(approx(integral_smoothstep(0.0_f32, 1.0), 0.0, eps));
+    assert!(approx(integral_smoothstep(2.0_f32, 1.0), 1.5, eps));
+
+    // exp_impulse: 0 at x=0; peaks at 1.0 when x=1/k
+    assert!(approx(exp_impulse(1.0_f32, 0.0_f32), 0.0, eps));
+    assert!(approx(exp_impulse(1.0_f32, 1.0_f32), 1.0, eps));
+
+    // quad_impulse: 0 at x=0; peaks at 1.0 when x=1/sqrt(k)
+    assert!(approx(quad_impulse(1.0_f32, 0.0), 0.0, eps));
+    assert!(approx(quad_impulse(1.0_f32, 1.0), 1.0, eps));
+
+    // exp_sustained_impulse: 0 at x=0; peaks at 1.0 when x=f
+    assert!(approx(exp_sustained_impulse(0.0_f32, 1.0_f32, 1.0_f32), 0.0, eps));
+    assert!(approx(exp_sustained_impulse(1.0_f32, 1.0_f32, 1.0_f32), 1.0, eps));
+
+    // cubic_pulse: 1.0 at center x=c; 0.0 outside range c±w
+    assert!(approx(cubic_pulse(0.5_f32, 0.5, 0.5), 1.0, eps));
+    assert!(approx(cubic_pulse(0.5_f32, 0.5, 2.0), 0.0, eps));
+
+    // exp_step: 1.0 at x=0; strictly decreasing
+    assert!(approx(exp_step(0.0_f32, 1.0_f32, 1.0_f32), 1.0, eps));
+    assert!(exp_step(1.0_f32, 1.0_f32, 1.0_f32) < 1.0);
+
+    // gain: midpoint x=0.5 always maps to 0.5; k=1 is identity
+    assert!(approx(gain(0.5_f32, 0.7), 0.5, eps));
+    assert!(approx(gain(0.3_f32, 1.0), 0.3, eps));
+
+    // parabola: peaks at 1.0 when x=0.5; 0.0 at the edges x=0 and x=1
+    assert!(approx(parabola(0.5_f32, 1.0_f32), 1.0, eps));
+    assert!(approx(parabola(0.0_f32, 1.0_f32), 0.0, eps));
+    assert!(approx(parabola(1.0_f32, 1.0_f32), 0.0, eps));
+
+    // pcurve: peaks at 1.0 at x=a/(a+b); for a=b=1 that's x=0.5
+    assert!(approx(pcurve(0.5_f32, 1.0, 1.0), 1.0, eps));
+    assert!(approx(pcurve(0.0_f32, 1.0, 1.0), 0.0, eps));
+
+    // sinc: spot-check sin(pi*(k*x-1))/(pi*(k*x-1)) at x=0.5, k=1 -> 2/pi
+    assert!(approx(sinc(0.5_f32, 1.0_f32), 2.0 / f32::pi(), eps));
+}
+
+#[test]
+fn quat_reverse() {
+    let eps = 0.001_f32;
+    // reverse negates the xyz (axis) but keeps w; applying q then q.reverse() should cancel out
+    let q = Quatf::from_euler_angles(f32::pi() / 4.0, 0.0, 0.0);
+    let r = q.reverse();
+    let v = Vec3f::unit_y();
+    let rotated  = q * v;
+    let restored = r * rotated;
+    assert!(approx(restored, v, eps));
+}
+
+#[test]
+fn quat_inverse() {
+    let eps = 0.001_f32;
+    // q * q.inverse() should be identity rotation
+    let q = Quatf::from_euler_angles(0.0, f32::pi() / 3.0, 0.0);
+    let inv = q.inverse();
+    let v = Vec3f::new(1.0, 2.0, 3.0);
+    let rotated  = q * v;
+    let restored = inv * rotated;
+    assert!(approx(restored, v, eps));
+}
+
+#[test]
+fn orthonormal_basis_hughes_moeller() {
+    let eps = 0.001_f32;
+    // any input normal should produce two tangent vectors that are unit-length and mutually orthogonal
+    for n in [Vec3f::unit_y(), Vec3f::unit_x(), normalize(Vec3f::new(1.0, 1.0, 0.0))] {
+        let (b1, b2) = get_orthonormal_basis_hughes_moeller(n);
+        assert!(approx(mag(b1), 1.0, eps));
+        assert!(approx(mag(b2), 1.0, eps));
+        assert!(approx(dot(b1, b2), 0.0, eps));
+        assert!(approx(dot(b1, n),  0.0, eps));
+        assert!(approx(dot(b2, n),  0.0, eps));
+    }
+}
+
+#[test]
+fn orthonormal_basis_frisvad() {
+    // frisvad requires From<f64>, so use f64 (Vec3d)
+    let eps = 0.001_f64;
+    // normal case
+    let n = Vec3d::unit_z();
+    let (b1, b2) = get_orthonormal_basis_frisvad(n);
+    assert!(approx(mag(b1), 1.0, eps));
+    assert!(approx(mag(b2), 1.0, eps));
+    assert!(approx(dot(b1, n), 0.0, eps));
+    assert!(approx(dot(b2, n), 0.0, eps));
+    assert!(approx(dot(b1, b2), 0.0, eps));
+
+    // degenerate case: n ≈ (0, 0, -1) triggers the constant fallback
+    let n_neg = Vec3d::new(0.0, 0.0, -1.0);
+    let (b1, b2) = get_orthonormal_basis_frisvad(n_neg);
+    assert!(approx(dot(b1, n_neg), 0.0, eps));
+    assert!(approx(dot(b2, n_neg), 0.0, eps));
+}
+
+#[test]
+fn mat3_from_orthonormal_basis() {
+    let eps = 0.001_f32;
+    let n = normalize(Vec3f::new(1.0, 0.0, 0.0));
+    let m = Mat3f::from_orthonormal_basis(n);
+    // all three rows must be unit length and mutually orthogonal
+    let r0 = Vec3f::from(m.get_row(0));
+    let r1 = Vec3f::from(m.get_row(1));
+    let r2 = Vec3f::from(m.get_row(2));
+    assert!(approx(mag(r0), 1.0, eps));
+    assert!(approx(mag(r1), 1.0, eps));
+    assert!(approx(mag(r2), 1.0, eps));
+    assert!(approx(dot(r0, r1), 0.0, eps));
+    assert!(approx(dot(r0, r2), 0.0, eps));
+    assert!(approx(dot(r1, r2), 0.0, eps));
+}
+
+#[test]
+fn perspective_projection_lh_yup() {
+    // Both LH and RH cameras look along -z. LH maps near→NDC(-1), far→NDC(+1).
+    // RH reverses the depth ordering: near→NDC(+1), far→NDC(-1).
+
+    let eps = 0.001_f32;
+    let fov    = f32::pi() / 2.0; // 90 degrees
+    let aspect = 16.0_f32 / 9.0;
+    let near   = 1.0_f32;
+    let far    = 10.0_f32;
+    let proj = Mat4f::create_perspective_projection_lh_yup(fov, aspect, near, far);
+
+    // near plane (z = -near) → NDC z = -1
+    let ndc_near = project_to_ndc(Vec3f::new(0.0, 0.0, -near), proj);
+    assert!(approx(ndc_near.z, -1.0, eps));
+
+    // far plane (z = -far) → NDC z = +1
+    let ndc_far = project_to_ndc(Vec3f::new(0.0, 0.0, -far), proj);
+    assert!(approx(ndc_far.z, 1.0, eps));
+
+    // symmetric: a point on the centre axis projects to NDC (0, 0)
+    let ndc_centre = project_to_ndc(Vec3f::new(0.0, 0.0, -5.0), proj);
+    assert!(approx(ndc_centre.x, 0.0, eps));
+    assert!(approx(ndc_centre.y, 0.0, eps));
+}
+
+#[test]
+fn perspective_projection_rh_yup() {
+    let eps = 0.001_f32;
+    let fov    = f32::pi() / 2.0;
+    let aspect = 16.0_f32 / 9.0;
+    let near   = 1.0_f32;
+    let far    = 10.0_f32;
+    let proj = Mat4f::create_perspective_projection_rh_yup(fov, aspect, near, far);
+
+    // RH reverses depth: near → NDC +1, far → NDC -1
+    let ndc_near = project_to_ndc(Vec3f::new(0.0, 0.0, -near), proj);
+    assert!(approx(ndc_near.z, 1.0, eps));
+
+    let ndc_far = project_to_ndc(Vec3f::new(0.0, 0.0, -far), proj);
+    assert!(approx(ndc_far.z, -1.0, eps));
+
+    // symmetric: centre axis → NDC (0, 0)
+    let ndc_centre = project_to_ndc(Vec3f::new(0.0, 0.0, -5.0), proj);
+    assert!(approx(ndc_centre.x, 0.0, eps));
+    assert!(approx(ndc_centre.y, 0.0, eps));
+}
+
+#[test]
+fn ortho_matrix() {
+    let eps = 0.001_f32;
+    let proj = Mat4f::create_ortho_matrix(-1.0, 1.0, -1.0, 1.0, 0.1, 10.0);
+
+    // left/right extents map to NDC ±1 (tested at z=0 where w=1)
+    let ndc_right = project_to_ndc(Vec3f::new(1.0, 0.0, 0.0), proj);
+    assert!(approx(ndc_right.x, 1.0, eps));
+
+    let ndc_left = project_to_ndc(Vec3f::new(-1.0, 0.0, 0.0), proj);
+    assert!(approx(ndc_left.x, -1.0, eps));
+
+    // top/bottom extents
+    let ndc_top = project_to_ndc(Vec3f::new(0.0, 1.0, 0.0), proj);
+    assert!(approx(ndc_top.y, 1.0, eps));
+
+    let ndc_bot = project_to_ndc(Vec3f::new(0.0, -1.0, 0.0), proj);
+    assert!(approx(ndc_bot.y, -1.0, eps));
+}
+
+#[test]
+fn frustum_corners() {
+    let eps = 0.001_f32;
+    let proj = Mat4f::create_perspective_projection_lh_yup(f32::pi() / 2.0, 1.0, 1.0, 10.0);
+    let corners = proj.get_frustum_corners();
+    assert_eq!(corners.len(), 8);
+
+    // first 4 corners share the same z (they're on the same depth plane)
+    let near_z = corners[0].z;
+    for c in &corners[1..4] {
+        assert!(approx(c.z, near_z, eps));
+    }
+
+    // last 4 corners share a different (deeper) z
+    let far_z = corners[4].z;
+    for c in &corners[5..8] {
+        assert!(approx(c.z, far_z, eps));
+    }
+
+    // far z is more negative than near z (camera looks along -z)
+    assert!(far_z < near_z);
+}
+
+#[test]
+fn frustum_planes() {
+    let proj = Mat4f::create_perspective_projection_lh_yup(f32::pi() / 2.0, 1.0, 1.0, 10.0);
+    let planes = proj.get_frustum_planes();
+    assert_eq!(planes.len(), 6);
+
+    // each plane normal must be non-degenerate (cross product of two direction vectors, not unit in general)
+    for p in &planes {
+        let n = Vec3f::new(p.x, p.y, p.z);
+        assert!(mag(n) > 0.0);
+    }
+
+    // a point on the centre axis between near and far is inside the frustum
+    assert_eq!(point_inside_frustum(Vec3f::new(0.0, 0.0, -5.0), &planes), true);
+
+    // a point far behind the camera (positive z, camera looks -z) is outside
+    assert_eq!(point_inside_frustum(Vec3f::new(0.0, 0.0, 100.0), &planes), false);
+}
+
+#[test]
+fn ndc_project_unproject_roundtrip() {
+    let eps = 0.001_f32;
+    let proj = Mat4f::create_perspective_projection_lh_yup(f32::pi() / 2.0, 16.0 / 9.0, 0.1, 1000.0);
+
+    // project to NDC then unproject back — must recover the original world point
+    for world in [
+        Vec3f::new(0.0, 0.0, -5.0),
+        Vec3f::new(1.0, 2.0, -10.0),
+        Vec3f::new(-3.0, 0.5, -50.0),
+    ] {
+        let ndc  = project_to_ndc(world, proj);
+        let back = unproject_ndc(ndc, proj);
+        assert!(approx(back, world, eps));
+    }
+}
+
+#[test]
+fn barycentric_coords() {
+    let eps = 0.001_f32;
+    let t1 = Vec3f::new(0.0, 0.0, 0.0);
+    let t2 = Vec3f::new(1.0, 0.0, 0.0);
+    let t3 = Vec3f::new(0.0, 1.0, 0.0);
+
+    // centroid → equal weights (1/3, 1/3, 1/3)
+    let centroid = (t1 + t2 + t3) / 3.0;
+    let (u, v, w) = barycentric(centroid, t1, t2, t3);
+    assert!(approx(u, 1.0 / 3.0, eps));
+    assert!(approx(v, 1.0 / 3.0, eps));
+    assert!(approx(w, 1.0 / 3.0, eps));
+
+    // vertex t1 itself → (1, 0, 0)
+    let (u, v, w) = barycentric(t1, t1, t2, t3);
+    assert!(approx(u, 1.0, eps));
+    assert!(approx(v, 0.0, eps));
+    assert!(approx(w, 0.0, eps));
+
+    // weights always sum to 1
+    let (u, v, w) = barycentric(Vec3f::new(0.2, 0.3, 0.0), t1, t2, t3);
+    assert!(approx(u + v + w, 1.0, eps));
+}
+
+#[test]
+fn azimuth_altitude_to_xyz_values() {
+    // Note: azimuth_altitude_to_xyz uses Y-up (Vec3.y = sin(alt)).
+    // xyz_to_azimuth_altitude uses Z-up (xyz.z = sin(alt)).
+    // They use different conventions so are NOT inverses of each other.
+
+    let eps = 0.001_f32;
+
+    // az=0, alt=0 → points along +z axis in Y-up: Vec3(0, 0, 1)
+    let v = azimuth_altitude_to_xyz(0.0_f32, 0.0_f32);
+    assert!(approx(v, Vec3f::new(0.0, 0.0, 1.0), eps));
+
+    // az=pi/2, alt=0 → points along +x axis: Vec3(1, 0, 0)
+    let v = azimuth_altitude_to_xyz(f32::pi() / 2.0, 0.0_f32);
+    assert!(approx(v, Vec3f::new(1.0, 0.0, 0.0), eps));
+
+    // az=0, alt=pi/2 → straight up in Y-up: Vec3(0, 1, 0)
+    let up = azimuth_altitude_to_xyz(0.0_f32, f32::pi() / 2.0);
+    assert!(approx(up, Vec3f::new(0.0, 1.0, 0.0), eps));
+
+    // result must always be a unit vector
+    for (az, alt) in [(0.5_f32, 0.3_f32), (1.2_f32, -0.4_f32), (0.0_f32, 0.7_f32)] {
+        let v = azimuth_altitude_to_xyz(az, alt);
+        assert!(approx(mag(v), 1.0, eps));
+    }
+}
+
+#[test]
+fn xyz_to_azimuth_altitude_values() {
+    let eps = 0.001_f32;
+
+    // unit_x (z-up convention): az=0, alt=0
+    let (az, alt) = xyz_to_azimuth_altitude(Vec3f::unit_x());
+    assert!(approx(az,  0.0, eps));
+    assert!(approx(alt, 0.0, eps));
+
+    // unit_z (straight up in Z-up): az=0, alt=pi/2
+    let (az, alt) = xyz_to_azimuth_altitude(Vec3f::unit_z());
+    assert!(approx(az,  0.0,              eps));
+    assert!(approx(alt, f32::pi() / 2.0, eps));
+
+    // round-trip using the Z-up convention that xyz_to_azimuth_altitude expects
+    // (x=cos(alt)*cos(az), y=cos(alt)*sin(az), z=sin(alt))
+    let az_in  = 0.5_f32;
+    let alt_in = 0.3_f32;
+    let xyz = Vec3f::new(
+        f32::cos(alt_in) * f32::cos(az_in),
+        f32::cos(alt_in) * f32::sin(az_in),
+        f32::sin(alt_in),
+    );
+    let (az2, alt2) = xyz_to_azimuth_altitude(xyz);
+    assert!(approx(az2,  az_in,  eps));
+    assert!(approx(alt2, alt_in, eps));
+}
+
+// ---- Camera focal length / fov ----------------------------------------------
+
+#[test]
+fn focal_length_fov_roundtrip() {
+    let eps = 0.01_f32;
+    let aperture = 1.0_f32; // 1 inch sensor
+    let fov = 60.0_f32;     // degrees
+    let fl  = fov_to_focal_length(fov, aperture);
+    assert!(approx(focal_length_to_fov(fl, aperture), fov, eps));
+}
+
+// ---- Easing curves ----------------------------------------------------------
+
+#[test]
+fn smooth_start_curves() {
+    let eps = 0.001_f32;
+    // at t=0 all smooth_start functions return the offset b
+    assert!(approx(smooth_start2(0.0_f32, 0.0_f32, 1.0_f32, 1.0_f32), 0.0, eps));
+    assert!(approx(smooth_start3(0.0_f32, 0.0_f32, 1.0_f32, 1.0_f32), 0.0, eps));
+    assert!(approx(smooth_start4(0.0_f32, 0.0_f32, 1.0_f32, 1.0_f32), 0.0, eps));
+    assert!(approx(smooth_start5(0.0_f32, 0.0_f32, 1.0_f32, 1.0_f32), 0.0, eps));
+
+    // at t=d they return b+c
+    assert!(approx(smooth_start2(1.0_f32, 0.0_f32, 1.0_f32, 1.0_f32), 1.0, eps));
+    assert!(approx(smooth_start3(1.0_f32, 0.0_f32, 1.0_f32, 1.0_f32), 1.0, eps));
+    assert!(approx(smooth_start4(1.0_f32, 0.0_f32, 1.0_f32, 1.0_f32), 1.0, eps));
+    assert!(approx(smooth_start5(1.0_f32, 0.0_f32, 1.0_f32, 1.0_f32), 1.0, eps));
+
+    // "slow start" means value < linear at t=0.5 (ease-in shape)
+    assert!(smooth_start2(0.5_f32, 0.0_f32, 1.0_f32, 1.0_f32) < 0.5);
+    assert!(smooth_start3(0.5_f32, 0.0_f32, 1.0_f32, 1.0_f32) < 0.5);
+    assert!(smooth_start4(0.5_f32, 0.0_f32, 1.0_f32, 1.0_f32) < 0.5);
+    assert!(smooth_start5(0.5_f32, 0.0_f32, 1.0_f32, 1.0_f32) < 0.5);
+}
+
+#[test]
+fn smooth_stop2_curve() {
+    let eps = 0.001_f32;
+    // smooth_stop2 = -c*t*(t-2)+b: starts at b, ends at b+c, fast start / slow finish
+    assert!(approx(smooth_stop2(0.0_f32, 0.0_f32, 1.0_f32, 1.0_f32), 0.0, eps));
+    assert!(approx(smooth_stop2(1.0_f32, 0.0_f32, 1.0_f32, 1.0_f32), 1.0, eps));
+    // "slow stop" means value > linear at t=0.5 (ease-out shape)
+    assert!(smooth_stop2(0.5_f32, 0.0_f32, 1.0_f32, 1.0_f32) > 0.5);
 }
