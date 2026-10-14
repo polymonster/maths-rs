@@ -1,4 +1,4 @@
-use maths_rs::prelude::*;
+use maths::prelude::*;
 
 #[test]
 fn v2_construct() {
